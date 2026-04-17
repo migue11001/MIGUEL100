@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, Cog } from "lucide-react"
+import { Menu, X, Zap } from "lucide-react"
 
 const navItems = [
   { label: "Home", href: "#" },
@@ -17,26 +17,23 @@ export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 lg:px-24 py-4">
-      <nav className="flex items-center justify-between max-w-7xl mx-auto bg-card/80 backdrop-blur-md rounded-full px-6 py-3 border border-border">
+    <header className="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 lg:px-16 py-3">
+      <nav className="flex items-center justify-between max-w-7xl mx-auto bg-card/90 backdrop-blur-md px-6 py-3 border border-border"
+        style={{ clipPath: "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))" }}
+      >
         {/* Logo */}
-        <a href="#" className="flex items-center gap-2 font-bold text-lg">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-          >
-            <Cog size={24} className="text-primary" />
-          </motion.div>
-          <span>migue100.com</span>
+        <a href="#" className="flex items-center gap-2 font-bold text-base tracking-wider">
+          <Zap size={18} className="text-primary" />
+          <span className="text-foreground">MIGUE<span className="text-primary">100</span></span>
         </a>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-6">
           {navItems.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-xs font-semibold tracking-widest uppercase text-muted-foreground hover:text-primary transition-colors"
             >
               {item.label}
             </a>
@@ -46,18 +43,19 @@ export function Navigation() {
         {/* CTA Button */}
         <a
           href="#contact"
-          className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-full text-sm font-medium hover:bg-primary/90 transition-colors"
+          className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground text-xs font-bold tracking-widest uppercase hover:bg-primary/80 transition-all hover:shadow-[0_0_16px_oklch(0.60_0.22_228/0.5)]"
         >
+          <Zap size={12} />
           Collaborate
         </a>
 
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden p-2 text-foreground"
+          className="md:hidden p-2 text-foreground hover:text-primary transition-colors"
           aria-label="Toggle menu"
         >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
+          {isOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </nav>
 
@@ -65,18 +63,18 @@ export function Navigation() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="md:hidden absolute top-full left-6 right-6 mt-2 bg-card border border-border rounded-2xl p-6"
+            exit={{ opacity: 0, y: -10 }}
+            className="md:hidden absolute top-full left-4 right-4 mt-1 bg-card border border-border p-6"
           >
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
               {navItems.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsOpen(false)}
-                  className="text-foreground hover:text-primary transition-colors py-2"
+                  className="text-xs font-semibold tracking-widest uppercase text-muted-foreground hover:text-primary transition-colors py-3 border-b border-border/50"
                 >
                   {item.label}
                 </a>
@@ -84,8 +82,9 @@ export function Navigation() {
               <a
                 href="#contact"
                 onClick={() => setIsOpen(false)}
-                className="inline-flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-lg font-medium mt-2"
+                className="inline-flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground text-xs font-bold tracking-widest uppercase mt-4 hover:bg-primary/80 transition-all"
               >
+                <Zap size={12} />
                 Collaborate
               </a>
             </div>
