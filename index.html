@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>MechCore — Machining Engineering Blog</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+
+        :root {
+            --neon-blue:    #00d4ff;
+            --neon-cyan:    #00ffff;
+            --neon-dim:     #0099cc;
+            --steel-dark:   #08090d;
+            --steel-mid:    #12151c;
+            --steel-panel:  #1a1e28;
+            --steel-edge:   #2a3040;
+            --chrome:       #8ab4cc;
+            --chrome-bright:#b8d4e8;
+            --text-main:    #cce8f4;
+            --text-dim:     #5a7a90;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* ── Background: dark brushed steel ── */
+        body {
+            font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+            background-color: var(--steel-dark);
+            background-image:
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 180, 255, 0.015) 2px,
+                    rgba(0, 180, 255, 0.015) 4px
+                ),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(0, 180, 255, 0.02) 40px,
+                    rgba(0, 180, 255, 0.02) 41px
+                ),
+                linear-gradient(160deg,
+                    #08090d 0%,
+                    #101520 30%,
+                    #0d1a2a 55%,
+                    #101520 80%,
+                    #08090d 100%
+                );
+            min-height: 100vh;
+            color: var(--text-main);
+            padding: 30px 20px 50px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ── Scanline overlay ── */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 3px,
+                rgba(0,0,0,0.08) 3px,
+                rgba(0,0,0,0.08) 4px
+            );
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* ── Page wrapper ── */
+        .page-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ══════════════════════════════════════
+           SITE HEADER
+        ══════════════════════════════════════ */
+        .site-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            position: relative;
+        }
+
+
+        .site-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: clamp(2em, 5vw, 3.5em);
+            font-weight: 400;
+            letter-spacing: 0.15em;
+            color: #fff;
+            text-shadow:
+                0 0 4px #fff,
+                0 0 12px var(--neon-blue),
+                0 0 30px var(--neon-blue),
+                0 0 60px rgba(0, 180, 255, 0.4);
+            animation: titlePulse 4s ease-in-out infinite alternate;
+        }
+
+.site-subtitle {
+            font-size: 1em;
+            letter-spacing: 0.25em;
+            color: var(--chrome);
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        @keyframes titlePulse {
+            0%   { text-shadow: 0 0 4px #fff, 0 0 12px var(--neon-blue), 0 0 30px var(--neon-blue), 0 0 60px rgba(0,180,255,0.3); }
+            100% { text-shadow: 0 0 2px #fff, 0 0 8px var(--neon-blue), 0 0 18px var(--neon-blue), 0 0 40px rgba(0,180,255,0.2); }
+        }
+
+        /* ══════════════════════════════════════
+           HERO / BUSINESS CARD
+        ══════════════════════════════════════ */
+        .hero-card {
+            position: relative;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 50px;
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            box-shadow:
+                0 0 0 1px rgba(0,0,0,0.8),
+                0 0 40px rgba(0, 180, 255, 0.08),
+                inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+
+        /* Corner bolts */
+        .hero-card::before,
+        .hero-card::after {
+            content: '';
+            position: absolute;
+            width: 10px; height: 10px;
+            border: 2px solid rgba(0, 212, 255, 0.5);
+            z-index: 10;
+        }
+        .hero-card::before { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+        .hero-card::after  { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+
+        /* Hero image */
+        .hero-image-wrap {
+            position: relative;
+            height: 340px;
+            overflow: hidden;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 30%;
+            display: block;
+            filter:
+                contrast(1.1)
+                saturate(0.85)
+                brightness(0.7)
+                hue-rotate(10deg);
+        }
+
+        /* Metal overlay on image */
+        .hero-image-wrap::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(
+                    to bottom,
+                    rgba(8,9,13,0.1) 0%,
+                    rgba(8,9,13,0.0) 40%,
+                    rgba(8,9,13,0.6) 80%,
+                    rgba(8,9,13,0.95) 100%
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 3px,
+                    rgba(0,212,255,0.03) 3px,
+                    rgba(0,212,255,0.03) 4px
+                );
+        }
+
+        /* Neon scan line on image */
+        .hero-scanline {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+            box-shadow: 0 0 12px var(--neon-blue), 0 0 30px var(--neon-blue);
+            animation: scanDown 6s linear infinite;
+            z-index: 5;
+        }
+
+        @keyframes scanDown {
+            0%   { top: 0; opacity: 1; }
+            90%  { top: 100%; opacity: 0.3; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        /* ── Profile panel inside hero ── */
+        .hero-info {
+            position: relative;
+            background: linear-gradient(135deg,
+                rgba(18, 21, 28, 0.95) 0%,
+                rgba(10, 14, 22, 0.98) 100%
+            );
+            border-top: 1px solid rgba(0, 212, 255, 0.2);
+            padding: 28px 35px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .profile-avatar {
+            width: 90px; height: 90px;
+            border-radius: 4px;
+            object-fit: cover;
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            box-shadow:
+                0 0 0 1px rgba(0,0,0,0.6),
+                0 0 15px rgba(0, 180, 255, 0.2);
+            flex-shrink: 0;
+            filter: grayscale(20%) contrast(1.05);
+            transition: all 0.3s ease;
+        }
+
+        .profile-avatar:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 0 25px rgba(0, 212, 255, 0.4);
+            filter: grayscale(0%) contrast(1.1);
+        }
+
+        .profile-data {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .data-row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .data-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65em;
+            letter-spacing: 0.25em;
+            color: var(--neon-dim);
+            margin-bottom: 3px;
+        }
+
+        .data-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: clamp(1em, 2.5vw, 1.5em);
+            color: #ffffff;
+            text-shadow:
+                0 0 3px #fff,
+                0 0 8px var(--neon-blue),
+                0 0 18px rgba(0, 180, 255, 0.4);
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .data-value.small {
+            font-size: clamp(0.8em, 2vw, 1.1em);
+            color: var(--chrome-bright);
+            text-shadow: 0 0 6px rgba(0, 180, 255, 0.3);
+        }
+
+        .linkedin-link {
+            text-decoration: none;
+            transition: text-shadow 0.3s ease, color 0.3s ease;
+        }
+        .linkedin-link:hover {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan), 0 0 22px rgba(0,255,255,0.4);
+        }
+
+        .data-value .cursor {
+            animation: blink 1s step-end infinite;
+            color: var(--neon-blue);
+        }
+
+        @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+
+        /* Status badge */
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #00ff88;
+            box-shadow: 0 0 6px #00ff88, 0 0 14px #00ff88;
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+            0%,100%{ opacity:1; box-shadow: 0 0 6px #00ff88, 0 0 14px #00ff88; }
+            50%    { opacity:0.5; box-shadow: 0 0 2px #00ff88; }
+        }
+
+        .status-text {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7em;
+            letter-spacing: 0.2em;
+            color: #00ff88;
+        }
+
+        /* ══════════════════════════════════════
+           SECTION HEADING
+        ══════════════════════════════════════ */
+        .section-heading {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75em;
+            letter-spacing: 0.35em;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-heading::before { content: '//'; opacity: 0.5; }
+        .section-heading::after  { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,212,255,0.3), transparent); }
+
+        /* ══════════════════════════════════════
+           CARDS GRID
+        ══════════════════════════════════════ */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 20px;
+        }
+
+        .app-card {
+            background: linear-gradient(160deg,
+                rgba(26, 30, 40, 0.95) 0%,
+                rgba(18, 22, 32, 0.98) 50%,
+                rgba(22, 26, 38, 0.95) 100%
+            );
+            border: 1px solid rgba(0, 212, 255, 0.18);
+            border-radius: 4px;
+            padding: 28px 26px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow:
+                0 4px 20px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+
+        /* Top edge accent */
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 20px; right: 20px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0,212,255,0.5), transparent);
+        }
+
+        /* Corner marks */
+        .app-card::after {
+            content: '';
+            position: absolute;
+            top: 6px; right: 6px;
+            width: 8px; height: 8px;
+            border-top: 2px solid rgba(0, 212, 255, 0.4);
+            border-right: 2px solid rgba(0, 212, 255, 0.4);
+        }
+
+        .app-card:hover {
+            border-color: rgba(0, 212, 255, 0.45);
+            transform: translateY(-4px);
+            box-shadow:
+                0 8px 35px rgba(0,0,0,0.6),
+                0 0 20px rgba(0, 180, 255, 0.08),
+                inset 0 1px 0 rgba(255,255,255,0.05);
+            background: linear-gradient(160deg,
+                rgba(28, 34, 48, 0.98) 0%,
+                rgba(20, 25, 38, 1) 50%,
+                rgba(24, 30, 44, 0.98) 100%
+            );
+        }
+
+        /* Sweep shine on hover */
+        .app-card .card-shine {
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+            transition: left 0.5s ease;
+            pointer-events: none;
+        }
+        .app-card:hover .card-shine { left: 100%; }
+
+        .card-tag {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6em;
+            letter-spacing: 0.2em;
+            color: var(--neon-dim);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .card-tag::before { content: '['; } .card-tag::after { content: ']'; }
+
+        .app-icon {
+            font-size: 2.6em;
+            margin-bottom: 12px;
+            display: block;
+            filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.35));
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        .app-card:hover .app-icon {
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.6));
+        }
+
+        .app-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.5em;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow:
+                0 0 4px #fff,
+                0 0 10px var(--neon-blue),
+                0 0 22px rgba(0, 180, 255, 0.35);
+            margin-bottom: 8px;
+            line-height: 1.1;
+        }
+
+        .app-description {
+            font-size: 0.9em;
+            color: var(--text-dim);
+            line-height: 1.5;
+            margin-bottom: 22px;
+            min-height: 38px;
+            letter-spacing: 0.03em;
+        }
+
+        .app-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.82em;
+            letter-spacing: 0.2em;
+            text-decoration: none;
+            text-transform: uppercase;
+            color: var(--neon-blue);
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            padding: 10px 20px;
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            min-height: 44px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            background: rgba(0, 212, 255, 0.04);
+        }
+
+        .app-link::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 212, 255, 0);
+            transition: background 0.3s ease;
+        }
+
+        .app-link::after { content: '→'; transition: transform 0.3s ease; }
+
+        .app-link:hover {
+            color: #fff;
+            border-color: var(--neon-blue);
+            box-shadow:
+                0 0 12px rgba(0, 212, 255, 0.2),
+                inset 0 0 12px rgba(0, 212, 255, 0.06);
+            text-shadow: 0 0 8px var(--neon-blue);
+        }
+        .app-link:hover::before { background: rgba(0, 212, 255, 0.06); }
+        .app-link:hover::after { transform: translateX(4px); }
+
+        /* Coming-soon card variant */
+        .app-card.coming-soon {
+            border-style: dashed;
+            border-color: rgba(0, 212, 255, 0.12);
+            opacity: 0.7;
+        }
+        .app-card.coming-soon .app-link {
+            pointer-events: none;
+            color: var(--text-dim);
+            border-color: rgba(0,212,255,0.15);
+        }
+
+        /* ══════════════════════════════════════
+           FLOATING PARTICLES (gear symbols)
+        ══════════════════════════════════════ */
+        .particles-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .gear-particle {
+            position: absolute;
+            color: rgba(0, 180, 255, 0.12);
+            font-size: 1em;
+            animation: driftUp linear infinite;
+            text-shadow: 0 0 4px rgba(0, 180, 255, 0.2);
+            user-select: none;
+        }
+
+        @keyframes driftUp {
+            0%   { transform: translateY(110vh) rotate(0deg);   opacity: 0; }
+            5%   { opacity: 1; }
+            95%  { opacity: 0.5; }
+            100% { transform: translateY(-20vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* ══════════════════════════════════════
+           FOOTER
+        ══════════════════════════════════════ */
+        .site-footer {
+            text-align: center;
+            margin-top: 55px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 212, 255, 0.1);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65em;
+            letter-spacing: 0.2em;
+            color: var(--text-dim);
+        }
+
+        /* ══════════════════════════════════════
+           RESPONSIVE
+        ══════════════════════════════════════ */
+        @media (max-width: 768px) {
+            .hero-info {
+                flex-direction: column;
+                text-align: center;
+                padding: 22px 20px;
+            }
+            .hero-image-wrap { height: 220px; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .data-value { white-space: normal; word-break: break-word; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 15px 12px 40px; }
+            .site-title { font-size: 1.8em; }
+            .hero-image-wrap { height: 180px; }
+            .app-card { padding: 22px 18px; }
+            .app-icon { font-size: 2em; }
+            .app-title { font-size: 1.25em; }
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .app-card:active { transform: translateY(-2px); transition: all 0.1s ease; }
+            .app-link:active  { color: #fff; background: rgba(0,212,255,0.1); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Floating gear particles -->
+    <div class="particles-layer" id="particlesLayer"></div>
+
+    <div class="page-wrapper">
+
+        <!-- ── Site Header ── -->
+        <header class="site-header">
+            <h1 class="site-title">migue100.com</h1>
+        </header>
+
+        <!-- ── Hero / Business Card ── -->
+        <section class="hero-card">
+            <div class="hero-image-wrap">
+                <img src="Gemini_Generated_Image_.png" alt="Industrial robotic machining cell" class="hero-image">
+                <div class="hero-scanline"></div>
+            </div>
+
+            <div class="hero-info">
+                <img src="foto_perfil.png" alt="Profile" class="profile-avatar">
+
+                <div class="profile-data">
+                    <div class="data-row">
+                        <span class="data-label">OPERATOR</span>
+                        <span class="data-value">Miguel Otero<span class="cursor">_</span></span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">CONTACT</span>
+                        <a href="https://www.linkedin.com/in/0123456789miguel/?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3Be4bS5nA3QZutbd%2B2y%2FlTnw%3D%3D" target="_blank" class="data-value small linkedin-link">LinkedIn</a>
+                    </div>
+                    <div class="status-badge">
+                        <div class="status-dot"></div>
+                        <span class="status-text">SYSTEM ONLINE — CNC PLATFORM ACTIVE</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── Cards Section ── -->
+        <div class="section-heading">MACHINING MODULES</div>
+
+        <div class="cards-grid">
+
+            <div class="app-card">
+                <div class="card-shine"></div>
+                <div class="card-tag">MODULE 01</div>
+                <span class="app-icon">⚙️</span>
+                <div class="app-title">Turning</div>
+                <div class="app-description">Lathe operations, cutting parameters, tool geometry and chip formation fundamentals.</div>
+                <a href="projects/educational/vocabulary/words.html" class="app-link">Open Module</a>
+            </div>
+
+            <div class="app-card">
+                <div class="card-shine"></div>
+                <div class="card-tag">MODULE 02</div>
+                <span class="app-icon">🔩</span>
+                <div class="app-title">Milling</div>
+                <div class="app-description">Face, peripheral and contour milling. Feeds, speeds and workholding setups.</div>
+                <a href="projects/educational/grammar/gramatica.html" class="app-link">Open Module</a>
+            </div>
+
+            <div class="app-card">
+                <div class="card-shine"></div>
+                <div class="card-tag">MODULE 03</div>
+                <span class="app-icon">🔧</span>
+                <div class="app-title">Tool Library</div>
+                <div class="app-description">Cutting tool catalog, insert grades, coatings, holders and tool-life management.</div>
+                <a href="projects/games/pacman/pacman.html" class="app-link">Open Module</a>
+            </div>
+
+            <div class="app-card">
+                <div class="card-shine"></div>
+                <div class="card-tag">MODULE 04</div>
+                <span class="app-icon">💻</span>
+                <div class="app-title">CNC Compiler</div>
+                <div class="app-description">G-code syntax checker, block simulator and ISO program validator for multi-axis machines.</div>
+                <a href="projects/educational/cnc-compiler/cnc-compiler.html" class="app-link">Open Module</a>
+            </div>
+
+            <div class="app-card">
+                <div class="card-shine"></div>
+                <div class="card-tag">MODULE 05</div>
+                <span class="app-icon">📐</span>
+                <div class="app-title">Metrology</div>
+                <div class="app-description">Dimensional control, GD&T, surface roughness interpretation and inspection techniques.</div>
+                <a href="projects/educational/exam/examen.html" class="app-link">Open Module</a>
+            </div>
+
+            <div class="app-card">
+                <div class="card-shine"></div>
+                <div class="card-tag">MODULE 06</div>
+                <span class="app-icon">🤖</span>
+                <div class="app-title">Tech Assistant</div>
+                <div class="app-description">AI-powered machining assistant — speeds, feeds, material data and process guidance.</div>
+                <a href="projects/chatbot/chatbot.html" class="app-link">Open Module</a>
+            </div>
+
+        </div>
+
+
+    </div><!-- /page-wrapper -->
+
+    <script>
+        /* ── Floating gear / mechanical particles ── */
+        const SYMBOLS = ['⚙', '◈', '⬡', '◇', '△', '⊕', '⊗', '▷'];
+        const layer   = document.getElementById('particlesLayer');
+
+        function spawnParticle() {
+            const el = document.createElement('div');
+            el.className = 'gear-particle';
+            el.textContent = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+            el.style.left     = (Math.random() * 100) + '%';
+            el.style.fontSize = (0.6 + Math.random() * 1.4) + 'em';
+            el.style.animationDuration  = (18 + Math.random() * 22) + 's';
+            el.style.animationDelay     = (Math.random() * -20) + 's';
+            layer.appendChild(el);
+            setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 42000);
+        }
+
+        /* Initial batch */
+        for (let i = 0; i < 18; i++) spawnParticle();
+        setInterval(spawnParticle, 1800);
+    </script>
+</body>
+</html>
