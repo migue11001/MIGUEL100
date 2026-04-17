@@ -1,0 +1,14 @@
+{
+  "name": "migue100",
+  "version": "1.0.0",
+  "description": "Machining Engineering Blog",
+  "scripts": {
+    "start": "serve . -p ${PORT:-8080} -s"
+  },
+  "dependencies": {
+    "serve": "^14.2.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
