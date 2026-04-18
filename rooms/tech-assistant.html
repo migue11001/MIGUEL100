@@ -36,6 +36,44 @@
         .cell-value { font-family:'Share Tech Mono',monospace; font-size:0.9em; color:#fff; text-shadow:0 0 6px rgba(0,180,255,0.3); }
         .code-block { background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.2); border-left:3px solid var(--neon-blue); border-radius:4px; padding:18px 22px; margin:20px 0; font-family:'Share Tech Mono',monospace; font-size:0.85em; color:var(--neon-blue); letter-spacing:0.04em; line-height:1.9; }
         @media (max-width:640px) { .site-nav { padding:0 1rem; } .nav-logo { font-size:0.85rem; } .data-grid { grid-template-columns:1fr 1fr; } }
+        .contributions-section { margin-top:60px; padding-top:40px; border-top:1px solid rgba(0,212,255,0.15); }
+        .contributions-toggle { display:flex; align-items:center; gap:12px; font-family:'Share Tech Mono',monospace; font-size:0.82em; letter-spacing:0.2em; text-transform:uppercase; color:var(--neon-blue); background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.3); border-radius:3px; padding:12px 20px; cursor:pointer; width:100%; transition:all 0.25s ease; }
+        .contributions-toggle:hover { background:rgba(0,212,255,0.09); color:#fff; border-color:var(--neon-blue); }
+        .contributions-toggle .toggle-arrow { margin-left:auto; transition:transform 0.3s ease; }
+        .contributions-toggle.open .toggle-arrow { transform:rotate(180deg); }
+        .contributions-panel { display:none; margin-top:24px; }
+        .contributions-panel.open { display:block; }
+        .contributions-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+        .contributions-title { font-family:'Share Tech Mono',monospace; font-size:0.68em; letter-spacing:0.3em; color:var(--neon-blue); text-transform:uppercase; }
+        .add-btn { font-family:'Share Tech Mono',monospace; font-size:0.62em; letter-spacing:0.15em; text-transform:uppercase; color:var(--neon-blue); background:rgba(0,212,255,0.06); border:1px solid rgba(0,212,255,0.3); border-radius:3px; padding:6px 14px; cursor:pointer; transition:all 0.2s ease; }
+        .add-btn:hover { background:rgba(0,212,255,0.12); color:#fff; }
+        .filters { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+        .filter-btn { font-family:'Share Tech Mono',monospace; font-size:0.6em; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-dim); background:none; border:1px solid rgba(0,212,255,0.15); border-radius:3px; padding:5px 12px; cursor:pointer; transition:all 0.2s ease; }
+        .filter-btn:hover,.filter-btn.active { color:var(--neon-blue); border-color:rgba(0,212,255,0.4); background:rgba(0,212,255,0.05); }
+        .contribution-item { background:rgba(26,30,40,0.9); border:1px solid rgba(0,212,255,0.12); border-radius:4px; padding:16px 18px; margin-bottom:12px; position:relative; }
+        .contribution-item::before { content:''; position:absolute; top:0; left:16px; right:16px; height:1px; background:linear-gradient(90deg,transparent,rgba(0,212,255,0.3),transparent); }
+        .contribution-meta { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+        .contribution-type { font-family:'Share Tech Mono',monospace; font-size:0.55em; letter-spacing:0.2em; text-transform:uppercase; color:var(--neon-dim); background:rgba(0,212,255,0.06); border:1px solid rgba(0,212,255,0.15); border-radius:2px; padding:2px 7px; }
+        .contribution-title { font-family:'Share Tech Mono',monospace; font-size:0.85em; color:#fff; margin-bottom:6px; }
+        .contribution-desc { font-size:0.88em; color:var(--text-main); line-height:1.6; margin-bottom:10px; }
+        .contribution-link { font-family:'Share Tech Mono',monospace; font-size:0.65em; letter-spacing:0.15em; text-transform:uppercase; color:var(--neon-blue); text-decoration:none; border:1px solid rgba(0,212,255,0.3); border-radius:2px; padding:4px 10px; transition:all 0.2s ease; display:inline-block; }
+        .contribution-link:hover { background:rgba(0,212,255,0.08); color:#fff; }
+        .contributions-empty { font-family:'Share Tech Mono',monospace; font-size:0.75em; color:var(--text-dim); text-align:center; padding:30px 0; letter-spacing:0.1em; }
+        .contribution-form { display:none; background:rgba(0,212,255,0.03); border:1px solid rgba(0,212,255,0.2); border-radius:4px; padding:22px; margin-bottom:24px; }
+        .contribution-form.open { display:block; }
+        .form-title { font-family:'Share Tech Mono',monospace; font-size:0.7em; letter-spacing:0.25em; text-transform:uppercase; color:#fff; margin-bottom:18px; }
+        .form-type-row { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+        .type-option { display:none; }
+        .type-label { font-family:'Share Tech Mono',monospace; font-size:0.62em; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-dim); border:1px solid rgba(0,212,255,0.2); border-radius:3px; padding:6px 14px; cursor:pointer; transition:all 0.2s ease; }
+        .type-option:checked + .type-label { color:var(--neon-blue); border-color:var(--neon-blue); background:rgba(0,212,255,0.08); }
+        .form-field { margin-bottom:14px; }
+        .form-field label { display:block; font-family:'Share Tech Mono',monospace; font-size:0.58em; letter-spacing:0.2em; text-transform:uppercase; color:var(--neon-dim); margin-bottom:5px; }
+        .form-field input,.form-field textarea { width:100%; padding:8px 10px; background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.2); border-radius:3px; color:#fff; font-family:'Share Tech Mono',monospace; font-size:0.82em; transition:border-color 0.2s ease; resize:none; }
+        .form-field input:focus,.form-field textarea:focus { outline:none; border-color:var(--neon-blue); box-shadow:0 0 6px rgba(0,212,255,0.15); }
+        .char-counter { font-family:'Share Tech Mono',monospace; font-size:0.55em; color:var(--text-dim); text-align:right; margin-top:3px; }
+        .form-submit { font-family:'Share Tech Mono',monospace; font-size:0.68em; letter-spacing:0.18em; text-transform:uppercase; color:var(--neon-blue); background:rgba(0,212,255,0.06); border:1px solid rgba(0,212,255,0.35); border-radius:3px; padding:10px 22px; cursor:pointer; transition:all 0.25s ease; margin-top:4px; }
+        .form-submit:hover { background:rgba(0,212,255,0.13); color:#fff; }
+        .form-submit:disabled { opacity:0.4; cursor:not-allowed; }
     </style>
 </head>
 <body>
@@ -94,6 +132,47 @@
             <p class="blog-text">The assistant excels at qualitative reasoning, explaining concepts, and navigating trade-offs. For exact insert grades by brand, catalog numbers, or machine-specific G-code dialects, verify against official documentation.</p>
         </div>
 
+        <div class="contributions-section">
+            <button class="contributions-toggle" id="contrib-toggle">⬇ Deepen on This Topic<span class="toggle-arrow">▼</span></button>
+            <div class="contributions-panel" id="contrib-panel">
+                <div class="contributions-header">
+                    <span class="contributions-title">// Community Contributions</span>
+                    <button class="add-btn" id="add-btn" style="display:none;">+ Add Contribution</button>
+                </div>
+                <div class="filters">
+                    <button class="filter-btn active" data-type="all">All</button>
+                    <button class="filter-btn" data-type="link">🔗 Links</button>
+                    <button class="filter-btn" data-type="pdf">📄 PDF</button>
+                    <button class="filter-btn" data-type="book">📖 Books</button>
+                </div>
+                <div class="contribution-form" id="contrib-form">
+                    <p class="form-title">// Add a Contribution</p>
+                    <div class="form-type-row">
+                        <input type="radio" name="c-type" id="t-link" value="link" class="type-option" checked><label for="t-link" class="type-label">🔗 Link</label>
+                        <input type="radio" name="c-type" id="t-pdf" value="pdf" class="type-option"><label for="t-pdf" class="type-label">📄 PDF</label>
+                        <input type="radio" name="c-type" id="t-book" value="book" class="type-option"><label for="t-book" class="type-label">📖 Book</label>
+                    </div>
+                    <div class="form-field"><label>Title <span style="color:var(--text-dim)">(max 100)</span></label><input type="text" id="c-title" maxlength="100" placeholder="Resource title..."><div class="char-counter"><span id="title-count">0</span> / 100</div></div>
+                    <div class="form-field"><label>URL</label><input type="url" id="c-url" placeholder="https://..."></div>
+                    <div class="form-field"><label>Description <span style="color:var(--text-dim)">(max 280)</span></label><textarea id="c-desc" rows="3" maxlength="280" placeholder="Briefly describe why this resource is useful..."></textarea><div class="char-counter"><span id="desc-count">0</span> / 280</div></div>
+                    <button class="form-submit" id="form-submit">Submit Contribution</button>
+                </div>
+                <div id="contrib-list"></div>
+            </div>
+        </div>
     </div>
+    <script>
+        const BACKEND_URL = 'https://web-production-47911.up.railway.app';
+        const MODULE = 'tech-assistant';
+        function getSession() { try { const token = localStorage.getItem('migue100_token'); const session = JSON.parse(localStorage.getItem('migue100_session') || 'null'); if (!token || !session) return null; const payload = JSON.parse(atob(token.split('.')[1])); if (payload.exp && payload.exp * 1000 < Date.now()) { localStorage.removeItem('migue100_token'); localStorage.removeItem('migue100_session'); return null; } return { token, ...session }; } catch { return null; } }
+        const TYPE_ICON = { link:'🔗', pdf:'📄', book:'📖' }; let activeFilter = 'all';
+        async function loadContributions(type) { const list = document.getElementById('contrib-list'); list.innerHTML = '<p class="contributions-empty">Loading...</p>'; const url = type === 'all' ? `${BACKEND_URL}/contributions/${MODULE}` : `${BACKEND_URL}/contributions/${MODULE}?type=${type}`; try { const res = await fetch(url); const data = await res.json(); if (!data.length) { list.innerHTML = '<p class="contributions-empty">No contributions yet — be the first.</p>'; return; } list.innerHTML = data.map(c => `<div class="contribution-item"><div class="contribution-meta"><span class="contribution-type">${TYPE_ICON[c.type]||''} ${c.type}</span></div><div class="contribution-title">${c.title}</div><div class="contribution-desc">${c.description}</div><a href="${c.url}" target="_blank" rel="noopener" class="contribution-link">→ Open</a></div>`).join(''); } catch { list.innerHTML = '<p class="contributions-empty">Could not load contributions.</p>'; } }
+        document.getElementById('contrib-toggle').addEventListener('click', function() { this.classList.toggle('open'); const panel = document.getElementById('contrib-panel'); panel.classList.toggle('open'); if (panel.classList.contains('open')) { loadContributions(activeFilter); document.getElementById('add-btn').style.display = getSession() ? 'inline-block' : 'none'; } });
+        document.querySelectorAll('.filter-btn').forEach(btn => { btn.addEventListener('click', function() { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); activeFilter = this.dataset.type; loadContributions(activeFilter); }); });
+        document.getElementById('add-btn').addEventListener('click', () => { document.getElementById('contrib-form').classList.toggle('open'); });
+        document.getElementById('c-title').addEventListener('input', function() { document.getElementById('title-count').textContent = this.value.length; });
+        document.getElementById('c-desc').addEventListener('input', function() { document.getElementById('desc-count').textContent = this.value.length; });
+        document.getElementById('form-submit').addEventListener('click', async () => { const session = getSession(); if (!session) { alert('You must be logged in to contribute.'); return; } const title = document.getElementById('c-title').value.trim(); const url = document.getElementById('c-url').value.trim(); const desc = document.getElementById('c-desc').value.trim(); const type = document.querySelector('input[name="c-type"]:checked').value; if (!title || !url || !desc) { alert('Please fill in all fields.'); return; } const btn = document.getElementById('form-submit'); btn.disabled = true; btn.textContent = 'Submitting...'; try { const res = await fetch(`${BACKEND_URL}/contributions`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.token}`}, body:JSON.stringify({module:MODULE,type,title,url,description:desc}) }); if (!res.ok) { const e = await res.json(); alert(e.error||'Error submitting.'); return; } document.getElementById('c-title').value=''; document.getElementById('c-url').value=''; document.getElementById('c-desc').value=''; document.getElementById('title-count').textContent='0'; document.getElementById('desc-count').textContent='0'; document.getElementById('contrib-form').classList.remove('open'); loadContributions(activeFilter); } catch { alert('Could not connect to server.'); } finally { btn.disabled=false; btn.textContent='Submit Contribution'; } });
+    </script>
 </body>
 </html>
