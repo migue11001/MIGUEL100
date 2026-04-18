@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNC Compiler — migue100.com</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+        :root { --neon-blue:#00d4ff; --neon-dim:#0099cc; --steel-dark:#08090d; --chrome:#8ab4cc; --text-main:#cce8f4; --text-dim:#5a7a90; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Rajdhani','Segoe UI',sans-serif; background-color:var(--steel-dark); background-image: repeating-linear-gradient(90deg,transparent,transparent 2px,rgba(0,180,255,0.015) 2px,rgba(0,180,255,0.015) 4px), repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(0,180,255,0.02) 40px,rgba(0,180,255,0.02) 41px), linear-gradient(160deg,#08090d 0%,#101520 30%,#0d1a2a 55%,#101520 80%,#08090d 100%); min-height:100vh; color:var(--text-main); padding:80px 20px 60px; overflow-x:hidden; }
+        body::after { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.08) 3px,rgba(0,0,0,0.08) 4px); pointer-events:none; z-index:999; }
+        .site-nav { position:fixed; top:0; left:0; right:0; z-index:900; padding:0 2rem; height:56px; background:rgba(8,9,13,0.9); backdrop-filter:blur(14px); border-bottom:1px solid rgba(0,212,255,0.18); display:flex; justify-content:space-between; align-items:center; }
+        .nav-logo { font-family:'Share Tech Mono',monospace; font-size:1.1rem; letter-spacing:0.15em; color:#fff; text-shadow:0 0 4px #fff,0 0 12px var(--neon-blue),0 0 28px rgba(0,180,255,0.35); text-decoration:none; }
+        .nav-back { font-family:'Share Tech Mono',monospace; font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--neon-blue); text-decoration:none; padding:0.4rem 0.9rem; border:1px solid rgba(0,212,255,0.22); border-radius:3px; background:rgba(0,212,255,0.04); transition:all 0.25s ease; }
+        .nav-back:hover { background:rgba(0,212,255,0.1); color:#fff; border-color:var(--neon-blue); }
+        .page-wrapper { max-width:820px; margin:0 auto; position:relative; z-index:2; }
+        .room-header { margin-bottom:48px; padding-bottom:24px; border-bottom:1px solid rgba(0,212,255,0.15); }
+        .room-tag { font-family:'Share Tech Mono',monospace; font-size:0.65em; letter-spacing:0.3em; color:var(--neon-dim); margin-bottom:10px; }
+        .room-tag::before { content:'// '; opacity:0.5; }
+        .room-title { font-family:'Share Tech Mono',monospace; font-size:clamp(2em,5vw,3.2em); font-weight:400; letter-spacing:0.12em; color:#fff; text-shadow:0 0 4px #fff,0 0 14px var(--neon-blue),0 0 32px rgba(0,180,255,0.35); margin-bottom:12px; }
+        .room-subtitle { font-size:1.05em; color:var(--chrome); letter-spacing:0.05em; line-height:1.5; }
+        .blog-section { margin-bottom:48px; }
+        .section-label { font-family:'Share Tech Mono',monospace; font-size:0.68em; letter-spacing:0.3em; color:var(--neon-blue); text-transform:uppercase; margin-bottom:18px; display:flex; align-items:center; gap:10px; }
+        .section-label::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,rgba(0,212,255,0.3),transparent); }
+        .section-heading { font-family:'Rajdhani',sans-serif; font-size:1.5em; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#fff; text-shadow:0 0 6px rgba(0,180,255,0.3); margin-bottom:14px; }
+        .blog-text { font-size:1em; color:var(--text-main); line-height:1.8; letter-spacing:0.02em; margin-bottom:14px; }
+        .blog-text strong { color:#fff; font-weight:600; }
+        .data-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; margin-top:20px; }
+        .data-cell { background:rgba(26,30,40,0.9); border:1px solid rgba(0,212,255,0.15); border-radius:4px; padding:16px; position:relative; }
+        .data-cell::before { content:''; position:absolute; top:0; left:16px; right:16px; height:1px; background:linear-gradient(90deg,transparent,rgba(0,212,255,0.4),transparent); }
+        .cell-label { font-family:'Share Tech Mono',monospace; font-size:0.58em; letter-spacing:0.22em; color:var(--neon-dim); margin-bottom:6px; text-transform:uppercase; }
+        .cell-value { font-family:'Share Tech Mono',monospace; font-size:0.9em; color:#fff; text-shadow:0 0 6px rgba(0,180,255,0.3); }
+        .code-block { background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.2); border-left:3px solid var(--neon-blue); border-radius:4px; padding:18px 22px; margin:20px 0; font-family:'Share Tech Mono',monospace; font-size:0.85em; color:var(--neon-blue); letter-spacing:0.04em; line-height:1.9; }
+        @media (max-width:640px) { .site-nav { padding:0 1rem; } .nav-logo { font-size:0.85rem; } .data-grid { grid-template-columns:1fr 1fr; } }
+    </style>
+</head>
+<body>
+    <nav class="site-nav">
+        <a href="../index.html" class="nav-logo">migue100.com</a>
+        <a href="../index.html" class="nav-back">← Home</a>
+    </nav>
+    <div class="page-wrapper">
+
+        <div class="room-header">
+            <p class="room-tag">MODULE 04</p>
+            <h1 class="room-title">💻 CNC Compiler</h1>
+            <p class="room-subtitle">G-code syntax, block structure, program validation and multi-axis fundamentals.</p>
+        </div>
+
+        <div class="blog-section">
+            <p class="section-label">Overview</p>
+            <h2 class="section-heading">What is G-Code?</h2>
+            <p class="blog-text"><strong>G-code</strong> (ISO 6983) is the numerical control programming language that tells a CNC machine where to move, how fast, and with which tool. Every machining operation — from a simple facing pass to a five-axis turbine blade — ultimately reduces to a sequence of G-code blocks that the machine controller interprets in real time.</p>
+            <p class="blog-text">Although CAM software generates most G-code today, understanding the underlying syntax is essential for editing post-processor output, troubleshooting alarms, and optimizing cycle times manually at the machine.</p>
+        </div>
+
+        <div class="blog-section">
+            <p class="section-label">Block Structure</p>
+            <h2 class="section-heading">Anatomy of a G-Code Block</h2>
+            <p class="blog-text">Each line (block) is a sequence of <strong>word-address</strong> pairs. A word is a letter followed by a numerical value. Multiple words can appear on one block; the controller processes them simultaneously or in a defined priority order.</p>
+            <div class="code-block">
+                N010  G00  G90  G54  X50.0  Y25.0  S2500  M03<br>
+                N020  G43  H01  Z5.0<br>
+                N030  G01  Z-2.0  F180.0<br>
+                N040  X100.0  Y50.0<br>
+                N050  G00  Z50.0<br>
+                N060  M05<br>
+                N070  M30
+            </div>
+            <div class="data-grid">
+                <div class="data-cell"><p class="cell-label">N — Sequence</p><p class="cell-value">Block number. Optional but helps navigation and error messages.</p></div>
+                <div class="data-cell"><p class="cell-label">G — Preparatory</p><p class="cell-value">Defines motion type, coordinate mode, compensation, cycles.</p></div>
+                <div class="data-cell"><p class="cell-label">X Y Z — Position</p><p class="cell-value">Target coordinates in the active work frame. Units set by G20/G21.</p></div>
+                <div class="data-cell"><p class="cell-label">F — Feed Rate</p><p class="cell-value">mm/min (G94) or mm/rev (G95). Active until changed.</p></div>
+                <div class="data-cell"><p class="cell-label">S — Spindle Speed</p><p class="cell-value">RPM or surface speed (with G96 constant surface speed mode).</p></div>
+                <div class="data-cell"><p class="cell-label">M — Miscellaneous</p><p class="cell-value">Machine functions: spindle on/off, coolant, tool change, program end.</p></div>
+            </div>
+        </div>
+
+        <div class="blog-section">
+            <p class="section-label">Key G-Codes</p>
+            <h2 class="section-heading">Essential G-Code Reference</h2>
+            <div class="data-grid">
+                <div class="data-cell"><p class="cell-label">G00</p><p class="cell-value">Rapid positioning — no cutting. Maximum axis velocity.</p></div>
+                <div class="data-cell"><p class="cell-label">G01</p><p class="cell-value">Linear interpolation at programmed feed rate.</p></div>
+                <div class="data-cell"><p class="cell-label">G02 / G03</p><p class="cell-value">Circular interpolation CW / CCW. Requires I, J (or K) or R.</p></div>
+                <div class="data-cell"><p class="cell-label">G40 / G41 / G42</p><p class="cell-value">Cutter radius compensation: cancel / left / right of programmed path.</p></div>
+                <div class="data-cell"><p class="cell-label">G43 / G49</p><p class="cell-value">Tool length offset apply / cancel. Compensates measured tool length.</p></div>
+                <div class="data-cell"><p class="cell-label">G81–G89</p><p class="cell-value">Fixed canned cycles: drilling, boring, tapping — reduce program length.</p></div>
+                <div class="data-cell"><p class="cell-label">G90 / G91</p><p class="cell-value">Absolute / incremental positioning mode.</p></div>
+                <div class="data-cell"><p class="cell-label">G54–G59</p><p class="cell-value">Work coordinate offsets — each fixture has its own origin.</p></div>
+            </div>
+        </div>
+
+        <div class="blog-section">
+            <p class="section-label">Validation</p>
+            <h2 class="section-heading">Program Verification</h2>
+            <p class="blog-text">Before running a new program on the machine, always verify it through at least two layers: <strong>graphical simulation</strong> in the CAM software or a standalone G-code simulator (checks toolpath geometry and gouges), and <strong>dry run</strong> on the machine with the Z-axis offset raised so the spindle travels in air. A third layer — <strong>single-block mode</strong> — executes one block at a time, letting the operator confirm each move before it happens.</p>
+            <p class="blog-text">Common errors to catch: rapid moves into the part (G00 where G01 is needed), wrong work offset selection, missing tool length compensation, and feeds not appropriate for the operation.</p>
+        </div>
+
+    </div>
+</body>
+</html>
