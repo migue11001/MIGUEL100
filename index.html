@@ -163,43 +163,146 @@
             box-shadow: 0 0 10px rgba(0,212,255,0.2);
         }
 
-        /* Salones dropdown */
-        .salones-wrap { position: relative; }
-
-        .salones-drop {
+        /* Auth sidebar */
+        .auth-overlay {
             display: none;
-            position: absolute;
-            top: calc(100% + 0.5rem);
-            right: 0;
-            flex-direction: column;
-            background: rgba(8, 9, 13, 0.97);
-            border: 1px solid rgba(0, 212, 255, 0.25);
-            border-radius: 4px;
-            overflow: hidden;
-            min-width: 170px;
-            z-index: 200;
-            box-shadow: 0 8px 28px rgba(0,0,0,0.7), 0 0 16px rgba(0,212,255,0.06);
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 800;
+            backdrop-filter: blur(3px);
         }
-        .salones-drop.open { display: flex; }
+        .auth-overlay.open { display: block; }
 
-        .salones-item {
-            display: flex;
-            align-items: center;
-            gap: 0.55rem;
-            padding: 0.55rem 1rem;
-            cursor: pointer;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.68rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: rgba(204, 232, 244, 0.7);
-            border-bottom: 1px solid rgba(0,212,255,0.07);
-            transition: background 0.2s ease, color 0.2s ease;
+        .auth-sidebar {
+            position: fixed;
+            top: 0; right: 0; bottom: 0;
+            width: 320px;
+            z-index: 850;
+            background: linear-gradient(160deg, rgba(18,21,28,0.98), rgba(10,14,22,1));
+            border-left: 1px solid rgba(0,212,255,0.2);
+            padding: 4rem 2rem 2rem;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
         }
-        .salones-item:last-child { border-bottom: none; }
-        .salones-item:hover {
-            background: rgba(0, 212, 255, 0.07);
+        .auth-sidebar.open { transform: translateX(0); }
+
+        .auth-close {
+            position: absolute;
+            top: 1rem; right: 1.2rem;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.6rem;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+        .auth-close:hover { color: var(--neon-blue); }
+
+        .auth-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 8px var(--neon-blue);
+            margin-bottom: 2rem;
+        }
+
+        .auth-field {
+            margin-bottom: 1.2rem;
+        }
+        .auth-field label {
+            display: block;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--neon-dim);
+            margin-bottom: 0.4rem;
+        }
+        .auth-field input {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            background: rgba(0,212,255,0.04);
+            border: 1px solid rgba(0,212,255,0.2);
+            border-radius: 3px;
+            color: #fff;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .auth-field input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 8px rgba(0,212,255,0.2);
+        }
+
+        .auth-submit {
+            width: 100%;
+            padding: 0.7rem;
+            margin-top: 0.5rem;
+            background: rgba(0,212,255,0.08);
+            border: 1px solid rgba(0,212,255,0.4);
+            border-radius: 3px;
             color: var(--neon-blue);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .auth-submit:hover {
+            background: rgba(0,212,255,0.15);
+            color: #fff;
+            box-shadow: 0 0 12px rgba(0,212,255,0.25);
+        }
+        .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .auth-switch {
+            margin-top: 1.2rem;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            letter-spacing: 0.05em;
+        }
+        .auth-switch span {
+            color: var(--neon-blue);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .auth-user-info {
+            text-align: center;
+            padding-top: 1rem;
+        }
+        .auth-user-email {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--neon-blue);
+            margin-bottom: 1.5rem;
+            word-break: break-all;
+        }
+        .auth-logout {
+            padding: 0.55rem 1.2rem;
+            background: none;
+            border: 1px solid rgba(0,212,255,0.3);
+            border-radius: 3px;
+            color: var(--text-dim);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .auth-logout:hover { color: #fff; border-color: var(--neon-blue); }
+
+        @media (max-width: 480px) {
+            .auth-sidebar { width: 100%; }
         }
 
         @media (max-width: 768px) {
@@ -726,24 +829,62 @@
 </head>
 <body>
 
-    <!-- Fixed nav (estructura de GRAFITER, estilo de migue100) -->
+    <!-- Fixed nav -->
     <nav class="site-nav">
         <button class="nav-logo" id="nav-logo">migue100.com</button>
         <div class="nav-buttons">
-            <button class="nav-btn" id="nav-inicio">Home</button>
-            <div class="salones-wrap">
-                <button class="nav-btn" id="nav-salones">Rooms</button>
-                <div class="salones-drop" id="salones-drop">
-                    <div class="salones-item" data-target="card-turning">⚙️ &nbsp;Turning</div>
-                    <div class="salones-item" data-target="card-milling">🔩 &nbsp;Milling</div>
-                    <div class="salones-item" data-target="card-tools">🔧 &nbsp;Tool Library</div>
-                    <div class="salones-item" data-target="card-cnc">💻 &nbsp;CNC Compiler</div>
-                    <div class="salones-item" data-target="card-metro">📐 &nbsp;Metrology</div>
-                    <div class="salones-item" data-target="card-ai">🤖 &nbsp;Tech Assistant</div>
-                </div>
-            </div>
+            <button class="nav-btn" id="nav-login">Login</button>
+            <button class="nav-btn" id="nav-register">Register</button>
         </div>
     </nav>
+
+    <!-- Auth sidebar -->
+    <div class="auth-overlay" id="auth-overlay"></div>
+    <aside class="auth-sidebar" id="auth-sidebar">
+        <button class="auth-close" id="auth-close">&times;</button>
+        <div class="auth-user-info" id="auth-user-info" style="display:none;">
+            <p class="auth-user-email" id="auth-user-email"></p>
+            <button class="auth-logout" id="auth-logout">Log out</button>
+        </div>
+
+        <!-- Login form -->
+        <form class="auth-form" id="form-login" style="display:none;">
+            <h2 class="auth-title">Login</h2>
+            <div class="auth-field">
+                <label>Email</label>
+                <input type="email" id="login-email" required>
+            </div>
+            <div class="auth-field">
+                <label>Password</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <button type="submit" class="auth-submit" id="login-submit">Log In</button>
+            <p class="auth-switch">No account? <span id="switch-to-register">Register here</span></p>
+        </form>
+
+        <!-- Register form -->
+        <form class="auth-form" id="form-register" style="display:none;">
+            <h2 class="auth-title">Register</h2>
+            <div class="auth-field">
+                <label>Username</label>
+                <input type="text" id="reg-username" required>
+            </div>
+            <div class="auth-field">
+                <label>Email</label>
+                <input type="email" id="reg-email" required>
+            </div>
+            <div class="auth-field">
+                <label>Password</label>
+                <input type="password" id="reg-password" required>
+            </div>
+            <div class="auth-field">
+                <label>Confirm Password</label>
+                <input type="password" id="reg-confirm" required>
+            </div>
+            <button type="submit" class="auth-submit" id="register-submit">Create Account</button>
+            <p class="auth-switch">Already have an account? <span id="switch-to-login">Login here</span></p>
+        </form>
+    </aside>
 
     <!-- Floating gear particles -->
     <div class="particles-layer" id="particlesLayer"></div>
@@ -842,10 +983,11 @@
     </div><!-- /page-wrapper -->
 
     <script>
-        /* ── Floating gear / mechanical particles ── */
+        const BACKEND_URL = 'https://ejercicios-de-prueba-production.up.railway.app';
+
+        /* ── Floating gear particles ── */
         const SYMBOLS = ['⚙', '◈', '⬡', '◇', '△', '⊕', '⊗', '▷'];
         const layer   = document.getElementById('particlesLayer');
-
         function spawnParticle() {
             const el = document.createElement('div');
             el.className = 'gear-particle';
@@ -857,45 +999,170 @@
             layer.appendChild(el);
             setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 42000);
         }
-
-        /* Initial batch */
         for (let i = 0; i < 18; i++) spawnParticle();
         setInterval(spawnParticle, 1800);
 
-        /* ── Nav: logo scroll to top, Salones dropdown ── */
+        /* ── Logo scroll ── */
         document.getElementById('nav-logo').addEventListener('click', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
-        document.getElementById('nav-inicio').addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
+        /* ── Auth sidebar ── */
+        const sidebar  = document.getElementById('auth-sidebar');
+        const overlay  = document.getElementById('auth-overlay');
+        const formLogin    = document.getElementById('form-login');
+        const formRegister = document.getElementById('form-register');
+        const userInfo     = document.getElementById('auth-user-info');
+        const userEmail    = document.getElementById('auth-user-email');
 
-        const salonesBtn  = document.getElementById('nav-salones');
-        const salonesDrop = document.getElementById('salones-drop');
+        let activeForm = null;
 
-        salonesBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            salonesDrop.classList.toggle('open');
-        });
+        function openSidebar(mode) {
+            sidebar.classList.add('open');
+            overlay.classList.add('open');
+            showForm(mode);
+        }
 
-        document.querySelectorAll('.salones-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const target = document.getElementById(item.dataset.target);
-                if (target) {
-                    const offset = 70;
-                    const top = target.getBoundingClientRect().top + window.scrollY - offset;
-                    window.scrollTo({ top, behavior: 'smooth' });
-                }
-                salonesDrop.classList.remove('open');
-            });
-        });
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+        }
 
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.salones-wrap')) {
-                salonesDrop.classList.remove('open');
+        function showForm(mode) {
+            const session = getSession();
+            formLogin.style.display    = 'none';
+            formRegister.style.display = 'none';
+            userInfo.style.display     = 'none';
+
+            if (session) {
+                activeForm = 'user';
+                userEmail.textContent = session.email;
+                userInfo.style.display = 'block';
+            } else if (mode === 'login') {
+                activeForm = 'login';
+                formLogin.style.display = 'flex';
+                formLogin.style.flexDirection = 'column';
+            } else {
+                activeForm = 'register';
+                formRegister.style.display = 'flex';
+                formRegister.style.flexDirection = 'column';
             }
+        }
+
+        function getSession() {
+            try {
+                const token = localStorage.getItem('migue100_token');
+                const session = JSON.parse(localStorage.getItem('migue100_session') || 'null');
+                if (!token || !session) return null;
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                if (payload.exp && payload.exp * 1000 < Date.now()) {
+                    localStorage.removeItem('migue100_token');
+                    localStorage.removeItem('migue100_session');
+                    return null;
+                }
+                return session;
+            } catch { return null; }
+        }
+
+        function updateNavState() {
+            const session = getSession();
+            const loginBtn    = document.getElementById('nav-login');
+            const registerBtn = document.getElementById('nav-register');
+            if (session) {
+                loginBtn.textContent    = session.email.split('@')[0];
+                registerBtn.textContent = 'Logout';
+            } else {
+                loginBtn.textContent    = 'Login';
+                registerBtn.textContent = 'Register';
+            }
+        }
+
+        document.getElementById('nav-login').addEventListener('click', () => {
+            const isOpen = sidebar.classList.contains('open');
+            if (isOpen && activeForm === 'login') { closeSidebar(); return; }
+            openSidebar('login');
         });
+
+        document.getElementById('nav-register').addEventListener('click', () => {
+            if (getSession()) {
+                localStorage.removeItem('migue100_token');
+                localStorage.removeItem('migue100_session');
+                updateNavState();
+                closeSidebar();
+                return;
+            }
+            const isOpen = sidebar.classList.contains('open');
+            if (isOpen && activeForm === 'register') { closeSidebar(); return; }
+            openSidebar('register');
+        });
+
+        document.getElementById('auth-close').addEventListener('click', closeSidebar);
+        overlay.addEventListener('click', closeSidebar);
+
+        document.getElementById('auth-logout').addEventListener('click', () => {
+            localStorage.removeItem('migue100_token');
+            localStorage.removeItem('migue100_session');
+            updateNavState();
+            closeSidebar();
+        });
+
+        document.getElementById('switch-to-register').addEventListener('click', () => showForm('register'));
+        document.getElementById('switch-to-login').addEventListener('click',    () => showForm('login'));
+
+        /* ── Login submit ── */
+        formLogin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('login-submit');
+            btn.textContent = 'Connecting...';
+            btn.disabled = true;
+            try {
+                const res = await fetch(`${BACKEND_URL}/token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email:    document.getElementById('login-email').value,
+                        password: document.getElementById('login-password').value
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) { alert(data.error || 'Incorrect credentials.'); return; }
+                localStorage.setItem('migue100_token', data.access_token);
+                localStorage.setItem('migue100_session', JSON.stringify({ email: document.getElementById('login-email').value }));
+                updateNavState();
+                closeSidebar();
+            } catch { alert('Could not connect to server.'); }
+            finally { btn.textContent = 'Log In'; btn.disabled = false; }
+        });
+
+        /* ── Register submit ── */
+        formRegister.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('reg-password').value;
+            const confirm  = document.getElementById('reg-confirm').value;
+            if (password !== confirm) { alert('Passwords do not match.'); return; }
+            if (password.length < 6)  { alert('Password must be at least 6 characters.'); return; }
+            const btn = document.getElementById('register-submit');
+            btn.textContent = 'Creating...';
+            btn.disabled = true;
+            try {
+                const res = await fetch(`${BACKEND_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('reg-username').value,
+                        email:    document.getElementById('reg-email').value,
+                        password
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) { alert(data.error || 'Registration error.'); return; }
+                alert('Account created! Please log in.');
+                showForm('login');
+            } catch { alert('Could not connect to server.'); }
+            finally { btn.textContent = 'Create Account'; btn.disabled = false; }
+        });
+
+        updateNavState();
     </script>
 </body>
 </html>
