@@ -36,7 +36,7 @@
         .cell-value { font-family:'Share Tech Mono',monospace; font-size:0.9em; color:#fff; text-shadow:0 0 6px rgba(0,180,255,0.3); }
         .code-block { background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.2); border-left:3px solid var(--neon-blue); border-radius:4px; padding:18px 22px; margin:20px 0; font-family:'Share Tech Mono',monospace; font-size:0.85em; color:var(--neon-blue); letter-spacing:0.04em; line-height:1.9; }
         @media (max-width:640px) { .site-nav { padding:0 1rem; } .nav-logo { font-size:0.85rem; } .data-grid { grid-template-columns:1fr 1fr; } }
-        .published-btn { display:block; margin:20px auto 0; font-family:'Share Tech Mono',monospace; font-size:0.7em; letter-spacing:0.25em; text-transform:uppercase; color:var(--neon-blue); background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.28); border-radius:3px; padding:9px 28px; cursor:pointer; transition:all 0.25s; }
+        .published-btn { position:absolute; left:50%; transform:translateX(-50%); font-family:'Share Tech Mono',monospace; font-size:0.68em; letter-spacing:0.25em; text-transform:uppercase; color:var(--neon-blue); background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.28); border-radius:3px; padding:7px 22px; cursor:pointer; transition:all 0.25s; white-space:nowrap; }
         .published-btn:hover { background:rgba(0,212,255,0.09); color:#fff; border-color:var(--neon-blue); }
         .published-panel { display:none; margin-top:24px; border:1px solid rgba(0,212,255,0.12); border-radius:4px; overflow:hidden; }
         .published-panel.open { display:block; }
@@ -90,6 +90,7 @@
 <body>
     <nav class="site-nav">
         <a href="../index.html" class="nav-logo">migue100.com</a>
+        <button class="published-btn" id="published-toggle">▼ Published</button>
         <a href="../index.html" class="nav-back">← Home</a>
     </nav>
     <div class="page-wrapper">
@@ -98,7 +99,6 @@
             <p class="room-tag">MODULE 04</p>
             <h1 class="room-title">💻 CNC Compiler</h1>
             <p class="room-subtitle">G-code syntax, block structure, program validation and multi-axis fundamentals.</p>
-            <button class="published-btn" id="published-toggle">▼ Published</button>
         </div>
         <div class="published-panel" id="published-panel"><div id="published-list"></div></div>
 

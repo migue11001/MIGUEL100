@@ -227,7 +227,7 @@
             .data-grid { grid-template-columns: 1fr 1fr; }
         }
 
-        .published-btn { display:block; margin:20px auto 0; font-family:'Share Tech Mono',monospace; font-size:0.7em; letter-spacing:0.25em; text-transform:uppercase; color:var(--neon-blue); background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.28); border-radius:3px; padding:9px 28px; cursor:pointer; transition:all 0.25s; }
+        .published-btn { position:absolute; left:50%; transform:translateX(-50%); font-family:'Share Tech Mono',monospace; font-size:0.68em; letter-spacing:0.25em; text-transform:uppercase; color:var(--neon-blue); background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.28); border-radius:3px; padding:7px 22px; cursor:pointer; transition:all 0.25s; white-space:nowrap; }
         .published-btn:hover { background:rgba(0,212,255,0.09); color:#fff; border-color:var(--neon-blue); }
         .published-panel { display:none; margin-top:24px; border:1px solid rgba(0,212,255,0.12); border-radius:4px; overflow:hidden; }
         .published-panel.open { display:block; }
@@ -375,6 +375,7 @@
 
     <nav class="site-nav">
         <a href="../index.html" class="nav-logo">migue100.com</a>
+        <button class="published-btn" id="published-toggle">▼ Published</button>
         <a href="../index.html" class="nav-back">← Home</a>
     </nav>
 
@@ -384,7 +385,6 @@
             <p class="room-tag">MODULE 01</p>
             <h1 class="room-title">⚙️ Turning</h1>
             <p class="room-subtitle">Lathe operations, cutting parameters, tool geometry and chip formation fundamentals.</p>
-            <button class="published-btn" id="published-toggle">▼ Published</button>
         </div>
         <div class="published-panel" id="published-panel"><div id="published-list"></div></div>
 
