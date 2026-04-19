@@ -835,6 +835,7 @@
         <div class="nav-buttons">
             <button class="nav-btn" id="nav-login">Login</button>
             <button class="nav-btn" id="nav-register">Register</button>
+            <a href="/admin.html" class="nav-btn" id="nav-admin" style="display:none">Admin</a>
         </div>
     </nav>
 
@@ -1065,20 +1066,28 @@
         }
 
         function updateNavState() {
-            const session = getSession();
+            const session     = getSession();
             const loginBtn    = document.getElementById('nav-login');
             const registerBtn = document.getElementById('nav-register');
+            const adminLink   = document.getElementById('nav-admin');
             if (session) {
                 loginBtn.textContent    = session.email.split('@')[0];
                 registerBtn.textContent = 'Logout';
+                if (adminLink) adminLink.style.display = session.is_admin ? 'inline-block' : 'none';
             } else {
                 loginBtn.textContent    = 'Login';
                 registerBtn.textContent = 'Register';
+                if (adminLink) adminLink.style.display = 'none';
             }
         }
 
         document.getElementById('nav-login').addEventListener('click', () => {
-            if (getSession()) { window.location.href = '/admin.html'; return; }
+            if (getSession()) {
+                const isOpen = sidebar.classList.contains('open');
+                if (isOpen) { closeSidebar(); return; }
+                openSidebar('user');
+                return;
+            }
             const isOpen = sidebar.classList.contains('open');
             if (isOpen && activeForm === 'login') { closeSidebar(); return; }
             openSidebar('login');
@@ -1127,8 +1136,16 @@
                 });
                 const data = await res.json();
                 if (!res.ok) { alert(data.error || 'Incorrect credentials.'); return; }
-                localStorage.setItem('migue100_token', data.access_token);
-                localStorage.setItem('migue100_session', JSON.stringify({ email: document.getElementById('login-email').value }));
+                const token = data.access_token;
+                localStorage.setItem('migue100_token', token);
+                // Verificar rol en servidor
+                let is_admin = false;
+                try {
+                    const meRes  = await fetch(`${BACKEND_URL}/me`, { headers: { 'Authorization': 'Bearer ' + token } });
+                    const meData = await meRes.json();
+                    is_admin = meData.is_admin === true;
+                } catch {}
+                localStorage.setItem('migue100_session', JSON.stringify({ email: document.getElementById('login-email').value, is_admin }));
                 updateNavState();
                 closeSidebar();
             } catch { alert('Could not connect to server.'); }
