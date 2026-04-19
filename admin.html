@@ -1111,9 +1111,10 @@ async function loadArticles() {
     if (!items.length) { document.getElementById('articles-list').innerHTML = '<div class="empty-row">No articles yet.</div>'; return; }
     document.getElementById('articles-list').innerHTML = `
       <table class="pub-table">
-        <thead><tr><th>Title</th><th>Module</th><th>Slug</th><th>Date</th><th></th></tr></thead>
+        <thead><tr><th>#</th><th>Title</th><th>Module</th><th>Slug</th><th>Date</th><th></th></tr></thead>
         <tbody>
-          ${items.map(a=>`<tr>
+          ${items.map((a,i)=>`<tr>
+            <td style="color:var(--text-dim);font-size:.6rem">${i+1}</td>
             <td class="t-title">${esc(a.title)}</td>
             <td><span class="mod-tag">${esc(a.module||'—')}</span></td>
             <td>${esc(a.slug||'—')}</td>

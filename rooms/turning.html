@@ -227,6 +227,17 @@
             .data-grid { grid-template-columns: 1fr 1fr; }
         }
 
+        .published-btn { display:block; margin:20px auto 0; font-family:'Share Tech Mono',monospace; font-size:0.7em; letter-spacing:0.25em; text-transform:uppercase; color:var(--neon-blue); background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.28); border-radius:3px; padding:9px 28px; cursor:pointer; transition:all 0.25s; }
+        .published-btn:hover { background:rgba(0,212,255,0.09); color:#fff; border-color:var(--neon-blue); }
+        .published-panel { display:none; margin-top:24px; border:1px solid rgba(0,212,255,0.12); border-radius:4px; overflow:hidden; }
+        .published-panel.open { display:block; }
+        .pub-item { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 16px; border-bottom:1px solid rgba(0,212,255,0.07); cursor:pointer; transition:background 0.15s; }
+        .pub-item:last-of-type { border-bottom:none; }
+        .pub-item:hover { background:rgba(0,212,255,0.04); }
+        .pub-num { font-family:'Share Tech Mono',monospace; font-size:0.58em; color:var(--text-dim); min-width:18px; }
+        .pub-title { font-family:'Share Tech Mono',monospace; font-size:0.78em; color:#fff; flex:1; }
+        .pub-date { font-family:'Share Tech Mono',monospace; font-size:0.58em; color:var(--text-dim); white-space:nowrap; }
+        .pub-article { padding:20px 16px; border-top:1px solid rgba(0,212,255,0.1); background:rgba(0,0,0,0.2); }
         /* ── Community Contributions ── */
         .contributions-section { margin-top: 60px; padding-top: 40px; border-top: 1px solid rgba(0,212,255,0.15); }
         .contributions-toggle {
@@ -373,7 +384,9 @@
             <p class="room-tag">MODULE 01</p>
             <h1 class="room-title">⚙️ Turning</h1>
             <p class="room-subtitle">Lathe operations, cutting parameters, tool geometry and chip formation fundamentals.</p>
+            <button class="published-btn" id="published-toggle">▼ Published</button>
         </div>
+        <div class="published-panel" id="published-panel"><div id="published-list"></div></div>
 
         <div class="blog-section">
             <p class="section-label">Overview</p>
@@ -523,6 +536,11 @@
     <script>
         const BACKEND_URL = 'https://web-production-47911.up.railway.app';
         const MODULE = 'turning';
+        function fmtDate(s) { try { return new Date(s).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); } catch { return s||''; } }
+        function renderArticle(a) { let c; try { c=JSON.parse(a.content); } catch { c={p1:a.content}; } let h=''; if(c.label) h+=`<p class="section-label">${c.label}</p>`; if(c.heading) h+=`<h2 class="section-heading">${c.heading}</h2>`; if(c.p1) h+=`<p class="blog-text">${c.p1}</p>`; if(c.p2) h+=`<p class="blog-text">${c.p2}</p>`; if(c.formula) h+=`<div class="formula-block">${c.formula}</div>`; if(c.specs&&c.specs.length) h+='<div class="data-grid">'+c.specs.map(s=>`<div class="data-cell"><p class="cell-label">${s.label}</p><p class="cell-value">${s.value}</p></div>`).join('')+'</div>'; return h; }
+        function toggleArticle(id) { const el=document.getElementById(id); el.style.display=el.style.display==='none'?'block':'none'; }
+        async function loadPublished() { const list=document.getElementById('published-list'); list.innerHTML='<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">Loading...</p>'; try { const res=await fetch(`${BACKEND_URL}/articles?module=${MODULE}`); const data=await res.json(); if(!data.length){list.innerHTML='<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">No publications yet.</p>';return;} list.innerHTML=data.map((a,i)=>`<div class="pub-item" onclick="toggleArticle('art-body-${i}')"><span class="pub-num">${i+1}</span><span class="pub-title">${a.title}</span><span class="pub-date">${fmtDate(a.created_at)}</span></div><div class="pub-article" id="art-body-${i}" style="display:none">${renderArticle(a)}</div>`).join(''); } catch { list.innerHTML='<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">Could not load.</p>'; } }
+        document.getElementById('published-toggle').addEventListener('click',function(){ const panel=document.getElementById('published-panel'); const open=panel.classList.toggle('open'); this.textContent=open?'▲ Published':'▼ Published'; if(open) loadPublished(); });
 
         function getSession() {
             try {
