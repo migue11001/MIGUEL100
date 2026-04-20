@@ -156,7 +156,27 @@
             color: #fff;
             text-shadow: 0 0 6px rgba(0,180,255,0.3);
             margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
+
+        .read-btn {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.42em;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--neon-dim);
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            flex-shrink: 0;
+            text-shadow: none;
+        }
+        .read-btn:hover { color: var(--neon-blue); }
+        .read-btn.playing { color: #fff; }
 
         .blog-text {
             font-size: 1em;
@@ -232,9 +252,10 @@
         .published-btn { position:absolute; left:50%; transform:translateX(-50%); font-family:'Share Tech Mono',monospace; font-size:0.68em; letter-spacing:0.25em; text-transform:uppercase; color:var(--neon-blue); background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.28); border-radius:3px; padding:7px 22px; cursor:pointer; transition:all 0.25s; white-space:nowrap; }
         .published-btn:hover { background:rgba(0,212,255,0.09); color:#fff; border-color:var(--neon-blue); }
         .published-panel { display:none; margin-top:24px; border:1px solid rgba(0,212,255,0.12); border-radius:4px; overflow:hidden; }
-        .published-panel.open { display:block; }
-        .pub-item { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 16px; border-bottom:1px solid rgba(0,212,255,0.07); cursor:pointer; transition:background 0.15s; }
-        .pub-item:last-of-type { border-bottom:none; }
+        .published-panel.open { display:block; margin-bottom:48px; }
+        .pub-entry { margin-bottom:8px; border:1px solid rgba(0,212,255,0.1); border-radius:3px; overflow:hidden; }
+        .pub-entry:last-child { margin-bottom:0; }
+        .pub-item { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 16px; cursor:pointer; transition:background 0.15s; }
         .pub-item:hover { background:rgba(0,212,255,0.04); }
         .pub-num { font-family:'Share Tech Mono',monospace; font-size:0.58em; color:var(--text-dim); min-width:18px; }
         .pub-title { font-family:'Share Tech Mono',monospace; font-size:0.78em; color:#fff; flex:1; }
@@ -392,7 +413,7 @@
 
         <div class="blog-section">
             <p class="section-label">Overview</p>
-            <h2 class="section-heading">What is Turning?</h2>
+            <h2 class="section-heading">What is Turning? <button class="read-btn" onclick="toggleRead(this,'../turning.mp3')">🔈 READ</button></h2>
             <p class="blog-text">
                 Turning is a subtractive machining process in which a <strong>single-point cutting tool</strong> removes material from a rotating workpiece. The part is held in a chuck or between centers and spins about its axis, while the tool moves linearly to generate cylindrical, conical, or profiled surfaces.
             </p>
@@ -536,12 +557,32 @@
     </div>
 
     <script>
+        let _readAudio = null;
+        function toggleRead(btn, src) {
+            if (_readAudio && !_readAudio.paused) {
+                _readAudio.pause();
+                _readAudio.currentTime = 0;
+                btn.textContent = '🔈 READ';
+                btn.classList.remove('playing');
+                _readAudio = null;
+                return;
+            }
+            _readAudio = new Audio(src);
+            btn.textContent = '⏹ STOP';
+            btn.classList.add('playing');
+            _readAudio.play();
+            _readAudio.onended = () => {
+                btn.textContent = '🔈 READ';
+                btn.classList.remove('playing');
+                _readAudio = null;
+            };
+        }
         const BACKEND_URL = 'https://web-production-47911.up.railway.app';
         const MODULE = 'turning';
         function fmtDate(s) { try { return new Date(s).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); } catch { return s||''; } }
-        function renderArticle(a) { let c; try { c=JSON.parse(a.content); } catch { c={p1:a.content}; } let h=''; if(c.label) h+=`<p class="section-label">${c.label}</p>`; if(c.heading) h+=`<h2 class="section-heading">${c.heading}</h2>`; if(c.p1) h+=`<p class="blog-text">${c.p1}</p>`; if(c.p2) h+=`<p class="blog-text">${c.p2}</p>`; if(c.formula) h+=`<div class="formula-block">${c.formula}</div>`; if(c.specs&&c.specs.length) h+='<div class="data-grid">'+c.specs.map(s=>`<div class="data-cell"><p class="cell-label">${s.label}</p><p class="cell-value">${s.value}</p></div>`).join('')+'</div>'; return h; }
+        function renderArticle(a) { let c; try { c=JSON.parse(a.content); } catch { c={p1:a.content}; } let h=''; if(c.label) h+=`<p class="section-label">${c.label}</p>`; if(c.heading) h+=`<h2 class="section-heading">${c.heading}${a.audio_url?` <button class="read-btn" onclick="toggleRead(this,'${a.audio_url}')">🔈 READ</button>`:''}</h2>`; if(c.p1) h+=`<p class="blog-text">${c.p1}</p>`; if(c.p2) h+=`<p class="blog-text">${c.p2}</p>`; if(c.formula) h+=`<div class="formula-block">${c.formula}</div>`; if(c.specs&&c.specs.length) h+='<div class="data-grid">'+c.specs.map(s=>`<div class="data-cell"><p class="cell-label">${s.label}</p><p class="cell-value">${s.value}</p></div>`).join('')+'</div>'; return h; }
         function toggleArticle(id) { const el=document.getElementById(id); el.style.display=el.style.display==='none'?'block':'none'; }
-        async function loadPublished() { const list=document.getElementById('published-list'); list.innerHTML='<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">Loading...</p>'; try { const res=await fetch(`${BACKEND_URL}/articles?module=${MODULE}`); const data=await res.json(); if(!data.length){list.innerHTML='<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">No publications yet.</p>';return;} list.innerHTML=data.map((a,i)=>`<div class="pub-item" onclick="toggleArticle('art-body-${i}')"><span class="pub-num">${i+1}</span><span class="pub-title">${a.title}</span><span class="pub-date">${fmtDate(a.created_at)}</span></div><div class="pub-article" id="art-body-${i}" style="display:none">${renderArticle(a)}</div>`).join(''); } catch { list.innerHTML='<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">Could not load.</p>'; } }
+        async function loadPublished() { const list=document.getElementById('published-list'); list.innerHTML='<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">Loading...</p>'; try { const res=await fetch(`${BACKEND_URL}/articles?module=${MODULE}`); const data=await res.json(); if(!data.length){list.innerHTML='<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">No publications yet.</p>';return;} list.innerHTML=data.map((a,i)=>`<div class="pub-entry"><div class="pub-item" onclick="toggleArticle('art-body-${i}')"><span class="pub-num">${i+1}</span><span class="pub-title">${a.title}</span><span class="pub-date">${fmtDate(a.created_at)}</span></div><div class="pub-article" id="art-body-${i}" style="display:none">${renderArticle(a)}</div></div>`).join(''); } catch { list.innerHTML='<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">Could not load.</p>'; } }
         document.getElementById('published-toggle').addEventListener('click',function(){ const panel=document.getElementById('published-panel'); const open=panel.classList.toggle('open'); this.textContent=open?'▲ Published':'▼ Published'; if(open) loadPublished(); });
 
         function getSession() {
