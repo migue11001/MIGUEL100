@@ -1437,7 +1437,7 @@
 
             dots.forEach((d, i) => {
                 d.classList.remove('active', 'warn');
-                if (i < minutes) d.classList.add(i >= 3 ? 'warn' : 'active');
+                if (i < Math.floor(minutes / 2)) d.classList.add(i >= 3 ? 'warn' : 'active');
             });
 
             if (minutes >= SESSION_MINS) {
