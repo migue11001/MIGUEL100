@@ -1346,7 +1346,7 @@
         </div>
         <div class="chat-messages" id="chat-messages"></div>
         <div class="chat-input-row">
-            <input type="text" class="chat-input" id="chat-input" maxlength="100" placeholder="Ask about CNC machining...">
+            <input type="text" class="chat-input" id="chat-input" maxlength="200" placeholder="Ask about CNC machining...">
             <button class="chat-send" id="chat-send">→</button>
         </div>
     </div>
@@ -1355,7 +1355,7 @@
     (function() {
         const CHAT_UUID_KEY  = 'migue100_chat_uuid';
         const CHAT_START_KEY = 'migue100_chat_start';
-        const SESSION_MINS   = 5;
+        const SESSION_MINS   = 10;
 
         function getChatUUID() {
             let id = localStorage.getItem(CHAT_UUID_KEY);
@@ -1458,7 +1458,7 @@
         }
 
         async function sendMessage() {
-            const text = inputEl.value.trim().slice(0, 100);
+            const text = inputEl.value.trim().slice(0, 200);
             if (!text || pending || sessionBlocked) return;
 
             inputEl.value = '';
@@ -1486,16 +1486,12 @@
                 }
 
                 if (res.status === 503) {
-                    const d = await res.json().catch(() => ({}));
-                    const hrs = d.reset_in ? Math.ceil(d.reset_in / 3600) : 24;
-                    appendMsg('system', 'Daily limit reached. Back in ~' + hrs + 'h.');
-                    inputEl.disabled = true;
-                    sendBtn.disabled = true;
+                    appendMsg('bot', 'Miguel is at the work');
                     return;
                 }
 
                 const data = await res.json();
-                const reply = (data.reply || '').slice(0, 100);
+                const reply = (data.reply || '').slice(0, 200);
 
                 if (data.block) {
                     appendMsg('bot', reply, 'warn-msg');
