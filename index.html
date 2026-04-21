@@ -1490,8 +1490,13 @@
                     return;
                 }
 
-                const data = await res.json();
+                const data = await res.json().catch(() => ({}));
                 const reply = (data.reply || '').slice(0, 200);
+
+                if (!reply) {
+                    appendMsg('bot', 'Miguel is at work, try again after.');
+                    return;
+                }
 
                 if (data.block) {
                     appendMsg('bot', reply, 'warn-msg');
