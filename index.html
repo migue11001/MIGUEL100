@@ -1845,7 +1845,16 @@
 
             const uM=gl.getUniformLocation(prog,'uMVP'), uLoc=gl.getUniformLocation(prog,'uL'), uE=gl.getUniformLocation(prog,'uE');
             gl.enable(gl.DEPTH_TEST); gl.clearColor(0.10,0.12,0.16,1.0);
-            (function render(){
+
+            let visible = false;
+            const observer = new IntersectionObserver(entries => {
+                visible = entries[0].isIntersecting;
+                if (visible) requestAnimationFrame(render);
+            }, { threshold: 0.1 });
+            observer.observe(canvas);
+
+            function render() {
+                if (!visible) return;
                 requestAnimationFrame(render);
                 if (spin) cam.theta += 0.006;
                 const eye=[cam.tx+cam.r*Math.sin(cam.phi)*Math.sin(cam.theta), cam.ty+cam.r*Math.cos(cam.phi), cam.tz+cam.r*Math.sin(cam.phi)*Math.cos(cam.theta)];
@@ -1855,7 +1864,7 @@
                 gl.bindBuffer(gl.ARRAY_BUFFER,nb); gl.enableVertexAttribArray(nL); gl.vertexAttribPointer(nL,3,gl.FLOAT,false,0,0);
                 gl.uniformMatrix4fv(uM,false,mvp); gl.uniform3fv(uLoc,[eye[0]+sz,eye[1]+sz*.5,eye[2]]); gl.uniform3fv(uE,eye);
                 gl.drawArrays(gl.TRIANGLES,0,mesh.count);
-            })();
+            }
         }
 
         /* Fetch and render each model */
