@@ -828,6 +828,120 @@
             .app-link:active  { color: #fff; background: rgba(0,212,255,0.1); }
         }
 
+        /* ══════════════════════════════════════
+           3D MODELS SCROLL
+        ══════════════════════════════════════ */
+        .models-scroll-wrap {
+            overflow-x: auto;
+            overflow-y: hidden;
+            margin-bottom: 50px;
+            padding-bottom: 12px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0,212,255,0.25) transparent;
+        }
+        .models-scroll-wrap::-webkit-scrollbar { height: 4px; }
+        .models-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
+        .models-scroll-wrap::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.25); border-radius: 2px; }
+        .models-track {
+            display: flex;
+            gap: 20px;
+            width: max-content;
+            padding: 4px 2px;
+        }
+        .model-card {
+            flex-shrink: 0;
+            width: 450px;
+            background: linear-gradient(160deg,
+                rgba(26,30,40,0.95) 0%,
+                rgba(18,22,32,0.98) 50%,
+                rgba(22,26,38,0.95) 100%
+            );
+            border: 1px solid rgba(0,212,255,0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .model-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 20px; right: 20px; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0,212,255,0.5), transparent);
+            z-index: 1;
+        }
+        .model-card::after {
+            content: '';
+            position: absolute;
+            top: 6px; right: 6px;
+            width: 8px; height: 8px;
+            border-top: 2px solid rgba(0,212,255,0.4);
+            border-right: 2px solid rgba(0,212,255,0.4);
+            z-index: 1;
+            pointer-events: none;
+        }
+        .model-card:hover {
+            border-color: rgba(0,212,255,0.45);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 35px rgba(0,0,0,0.6), 0 0 18px rgba(0,180,255,0.08), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        .model-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(0,212,255,0.1);
+            position: relative; z-index: 2;
+        }
+        .model-card-tag {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6em; letter-spacing: 0.2em; color: var(--neon-dim);
+        }
+        .model-card-tag::before { content: '['; }
+        .model-card-tag::after  { content: ']'; }
+        .model-card-filename {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.54em; letter-spacing: 0.06em; color: var(--text-dim);
+            max-width: 155px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .model-viewport {
+            position: relative; height: 330px;
+            background: rgba(8,9,13,0.85); overflow: hidden;
+        }
+        .model-status-overlay {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 10px;
+        }
+        .model-spin-icon {
+            font-size: 2em; color: rgba(0,212,255,0.3);
+            animation: mcSpin 3s linear infinite;
+        }
+        @keyframes mcSpin { to { transform: rotate(360deg); } }
+        .model-status-txt {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6em; letter-spacing: 0.15em; color: var(--text-dim);
+        }
+        .model-canvas-el {
+            display: none; width: 100%; height: 330px; cursor: grab;
+        }
+        .model-canvas-el:active { cursor: grabbing; }
+        .model-card-footer {
+            padding: 10px 14px;
+            border-top: 1px solid rgba(0,212,255,0.1);
+            display: flex; justify-content: space-between; align-items: center; gap: 8px;
+        }
+        .model-footer-desc {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.82em; color: var(--text-dim); line-height: 1.35;
+            flex: 1; letter-spacing: 0.02em;
+        }
+        .model-footer-tris {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.5em; letter-spacing: 0.1em;
+            color: rgba(0,212,255,0.35); white-space: nowrap;
+        }
+
         /* ── Chat Widget ── */
         .talk-btn {
             background: none;
@@ -1066,6 +1180,86 @@
                 </div>
             </div>
         </section>
+
+        <!-- ── 3D Models ── -->
+        <div class="section-heading">3D MODELS</div>
+        <div class="models-scroll-wrap">
+            <div class="models-track">
+
+                <div class="model-card">
+                    <div class="model-card-header">
+                        <span class="model-card-tag">MODEL 01</span>
+                        <span class="model-card-filename">A1-PROJECT CAM</span>
+                    </div>
+                    <div class="model-viewport">
+                        <div class="model-status-overlay" id="mc-ov-0">
+                            <span class="model-spin-icon">⬡</span>
+                            <span class="model-status-txt" id="mc-st-0">Loading...</span>
+                        </div>
+                        <canvas class="model-canvas-el" id="mc-cv-0"></canvas>
+                    </div>
+                    <div class="model-card-footer">
+                        <span class="model-footer-desc">3-axis milling component designed for contour and face operations.</span>
+                        <span class="model-footer-tris" id="mc-tris-0">—</span>
+                    </div>
+                </div>
+
+                <div class="model-card">
+                    <div class="model-card-header">
+                        <span class="model-card-tag">MODEL 02</span>
+                        <span class="model-card-filename">A2-PROJECT CAM</span>
+                    </div>
+                    <div class="model-viewport">
+                        <div class="model-status-overlay" id="mc-ov-1">
+                            <span class="model-spin-icon">⬡</span>
+                            <span class="model-status-txt" id="mc-st-1">Loading...</span>
+                        </div>
+                        <canvas class="model-canvas-el" id="mc-cv-1"></canvas>
+                    </div>
+                    <div class="model-card-footer">
+                        <span class="model-footer-desc">Rotationally symmetric turning part machined on a CNC lathe.</span>
+                        <span class="model-footer-tris" id="mc-tris-1">—</span>
+                    </div>
+                </div>
+
+                <div class="model-card">
+                    <div class="model-card-header">
+                        <span class="model-card-tag">MODEL 03</span>
+                        <span class="model-card-filename">A3-PROJECT CAM</span>
+                    </div>
+                    <div class="model-viewport">
+                        <div class="model-status-overlay" id="mc-ov-2">
+                            <span class="model-spin-icon">⬡</span>
+                            <span class="model-status-txt" id="mc-st-2">Loading...</span>
+                        </div>
+                        <canvas class="model-canvas-el" id="mc-cv-2"></canvas>
+                    </div>
+                    <div class="model-card-footer">
+                        <span class="model-footer-desc">Bolt-pattern coupling flange for mechanical assembly and sealing.</span>
+                        <span class="model-footer-tris" id="mc-tris-2">—</span>
+                    </div>
+                </div>
+
+                <div class="model-card">
+                    <div class="model-card-header">
+                        <span class="model-card-tag">MODEL 04</span>
+                        <span class="model-card-filename">A4-PROJECT CAM</span>
+                    </div>
+                    <div class="model-viewport">
+                        <div class="model-status-overlay" id="mc-ov-3">
+                            <span class="model-spin-icon">⬡</span>
+                            <span class="model-status-txt" id="mc-st-3">Loading...</span>
+                        </div>
+                        <canvas class="model-canvas-el" id="mc-cv-3"></canvas>
+                    </div>
+                    <div class="model-card-footer">
+                        <span class="model-footer-desc">General-purpose CNC machined component with optimized geometry.</span>
+                        <span class="model-footer-tris" id="mc-tris-3">—</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
 
         <!-- ── Cards Section ── -->
         <div class="section-heading">MACHINING MODULES</div>
@@ -1522,6 +1716,136 @@
 
         // Restore timer dots if session was already started
         resumeTimer();
+    })();
+    </script>
+
+    <script>
+    /* ── 3D Model Cards ──────────────────────────────────────────────────────── */
+    (function() {
+        const STL_FILES = [
+            'A1.stl',
+            'A2.stl',
+            'A3.stl',
+            'A4.stl'
+        ];
+
+        /* STL Parser */
+        function parseSTL(buf) { return isBin(buf) ? parseBin(buf) : parseASC(buf); }
+        function isBin(buf) {
+            const h = String.fromCharCode(...new Uint8Array(buf,0,5)).toLowerCase();
+            if (!h.startsWith('solid')) return true;
+            const n = new DataView(buf).getUint32(80,true);
+            return buf.byteLength === 84 + n*50;
+        }
+        function parseBin(buf) {
+            const v = new DataView(buf), n = v.getUint32(80,true);
+            const pos = new Float32Array(n*9), nor = new Float32Array(n*9);
+            let o = 84;
+            for (let i=0;i<n;i++) {
+                const nx=v.getFloat32(o,true),ny=v.getFloat32(o+4,true),nz=v.getFloat32(o+8,true); o+=12;
+                for (let k=0;k<3;k++) {
+                    const b=i*9+k*3;
+                    pos[b]=v.getFloat32(o,true); pos[b+1]=v.getFloat32(o+4,true); pos[b+2]=v.getFloat32(o+8,true);
+                    nor[b]=nx; nor[b+1]=ny; nor[b+2]=nz; o+=12;
+                }
+                o+=2;
+            }
+            return {pos,nor,count:n*3};
+        }
+        function parseASC(buf) {
+            const txt = new TextDecoder().decode(buf), pos=[], nor=[];
+            const re=/facet\s+normal\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)[\s\S]*?vertex\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+vertex\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+vertex\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)/g;
+            let m; while((m=re.exec(txt))!==null){const[,nx,ny,nz,x1,y1,z1,x2,y2,z2,x3,y3,z3]=m.map(Number);pos.push(x1,y1,z1,x2,y2,z2,x3,y3,z3);nor.push(nx,ny,nz,nx,ny,nz,nx,ny,nz);}
+            return {pos:new Float32Array(pos),nor:new Float32Array(nor),count:pos.length/3};
+        }
+
+        /* WebGL shaders */
+        const VS=`attribute vec3 aPos;attribute vec3 aNorm;uniform mat4 uMVP;varying vec3 vN,vP;void main(){vN=aNorm;vP=aPos;gl_Position=uMVP*vec4(aPos,1.0);}`;
+        const FS=`precision mediump float;varying vec3 vN,vP;uniform vec3 uL,uE;void main(){vec3 N=normalize(vN),L=normalize(uL-vP),V=normalize(uE-vP),H=normalize(L+V);float d=max(dot(N,L),0.0),s=pow(max(dot(N,H),0.0),64.0),b=max(dot(-N,L),0.0)*.15;vec3 c=vec3(.04,.07,.10)+vec3(.15,.22,.30)*(d+b)+vec3(0.,.83,1.)*s*.9;gl_FragColor=vec4(c,1.);}`;
+
+        function mkProg(gl,vs,fs){
+            const v=gl.createShader(gl.VERTEX_SHADER);gl.shaderSource(v,vs);gl.compileShader(v);
+            const f=gl.createShader(gl.FRAGMENT_SHADER);gl.shaderSource(f,fs);gl.compileShader(f);
+            const p=gl.createProgram();gl.attachShader(p,v);gl.attachShader(p,f);gl.linkProgram(p);return p;
+        }
+        function persp(fov,asp,n,f){const t=1/Math.tan(fov/2),nf=1/(n-f);return new Float32Array([t/asp,0,0,0,0,t,0,0,0,0,(f+n)*nf,-1,0,0,2*f*n*nf,0]);}
+        function lookAt(e,c,u){const f=n3(s3(c,e)),s=n3(x3(f,u)),up=x3(s,f);return new Float32Array([s[0],up[0],-f[0],0,s[1],up[1],-f[1],0,s[2],up[2],-f[2],0,-d3(s,e),-d3(up,e),d3(f,e),1]);}
+        function mul4(a,b){const r=new Float32Array(16);for(let i=0;i<4;i++)for(let j=0;j<4;j++){let v=0;for(let k=0;k<4;k++)v+=a[i+k*4]*b[k+j*4];r[i+j*4]=v;}return r;}
+        function s3(a,b){return[a[0]-b[0],a[1]-b[1],a[2]-b[2]];}
+        function x3(a,b){return[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];}
+        function d3(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
+        function n3(v){const l=Math.sqrt(d3(v,v))||1;return[v[0]/l,v[1]/l,v[2]/l];}
+
+        function launchViewer(canvas, mesh) {
+            const W = canvas.offsetWidth  || 450;
+            const H = canvas.offsetHeight || 330;
+            canvas.width = W; canvas.height = H;
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (!gl) return;
+            const prog = mkProg(gl,VS,FS); gl.useProgram(prog);
+            const pL = gl.getAttribLocation(prog,'aPos'), nL = gl.getAttribLocation(prog,'aNorm');
+            const pb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,pb); gl.bufferData(gl.ARRAY_BUFFER,mesh.pos,gl.STATIC_DRAW);
+            const nb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,nb); gl.bufferData(gl.ARRAY_BUFFER,mesh.nor,gl.STATIC_DRAW);
+            let x0=1e9,y0=1e9,z0=1e9,x1=-1e9,y1=-1e9,z1=-1e9;
+            for(let i=0;i<mesh.pos.length;i+=3){x0=Math.min(x0,mesh.pos[i]);x1=Math.max(x1,mesh.pos[i]);y0=Math.min(y0,mesh.pos[i+1]);y1=Math.max(y1,mesh.pos[i+1]);z0=Math.min(z0,mesh.pos[i+2]);z1=Math.max(z1,mesh.pos[i+2]);}
+            const cx=(x0+x1)/2, cy=(y0+y1)/2, cz=(z0+z1)/2;
+            const sz = Math.max(x1-x0, y1-y0, z1-z0) || 1;
+            const cam = {theta:0.6, phi:1.1, r:sz*2.2, tx:cx, ty:cy, tz:cz};
+            let spin=true, drag=false, last=null, hovered=false;
+
+            canvas.addEventListener('mouseenter', () => { hovered = true; });
+            canvas.addEventListener('mouseleave', () => { hovered = false; drag = false; last = null; });
+            canvas.addEventListener('mousedown',  e => { drag=true; spin=false; last=[e.clientX,e.clientY]; e.preventDefault(); });
+            window.addEventListener('mouseup',    () => { drag=false; last=null; });
+            window.addEventListener('mousemove',  e => {
+                if (!drag||!last) return;
+                cam.theta -= (e.clientX-last[0])*0.014;
+                cam.phi = Math.max(0.05, Math.min(Math.PI-0.05, cam.phi-(e.clientY-last[1])*0.014));
+                last = [e.clientX, e.clientY];
+            });
+            canvas.addEventListener('wheel', e => {
+                if (!hovered) return;
+                e.preventDefault();
+                cam.r = Math.max(sz*0.1, cam.r*(1+e.deltaY*0.001));
+            }, {passive:false});
+
+            const uM=gl.getUniformLocation(prog,'uMVP'), uLoc=gl.getUniformLocation(prog,'uL'), uE=gl.getUniformLocation(prog,'uE');
+            gl.enable(gl.DEPTH_TEST); gl.clearColor(0.10,0.12,0.16,1.0);
+            (function render(){
+                requestAnimationFrame(render);
+                if (spin) cam.theta += 0.006;
+                const eye=[cam.tx+cam.r*Math.sin(cam.phi)*Math.sin(cam.theta), cam.ty+cam.r*Math.cos(cam.phi), cam.tz+cam.r*Math.sin(cam.phi)*Math.cos(cam.theta)];
+                const mvp = mul4(persp(Math.PI/4,W/H,sz*0.001,sz*200), lookAt(eye,[cam.tx,cam.ty,cam.tz],[0,1,0]));
+                gl.viewport(0,0,W,H); gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+                gl.bindBuffer(gl.ARRAY_BUFFER,pb); gl.enableVertexAttribArray(pL); gl.vertexAttribPointer(pL,3,gl.FLOAT,false,0,0);
+                gl.bindBuffer(gl.ARRAY_BUFFER,nb); gl.enableVertexAttribArray(nL); gl.vertexAttribPointer(nL,3,gl.FLOAT,false,0,0);
+                gl.uniformMatrix4fv(uM,false,mvp); gl.uniform3fv(uLoc,[eye[0]+sz,eye[1]+sz*.5,eye[2]]); gl.uniform3fv(uE,eye);
+                gl.drawArrays(gl.TRIANGLES,0,mesh.count);
+            })();
+        }
+
+        /* Fetch and render each model */
+        STL_FILES.forEach((file, idx) => {
+            const ov   = document.getElementById('mc-ov-'   + idx);
+            const stxt = document.getElementById('mc-st-'   + idx);
+            const cv   = document.getElementById('mc-cv-'   + idx);
+            const tri  = document.getElementById('mc-tris-' + idx);
+            if (!cv) return;
+            fetch(encodeURI(file))
+                .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+                .then(buf => {
+                    const mesh = parseSTL(buf);
+                    if (tri) tri.textContent = mesh.count.toLocaleString() + ' tri';
+                    if (ov)  ov.style.display = 'none';
+                    cv.style.display = 'block';
+                    launchViewer(cv, mesh);
+                })
+                .catch(() => {
+                    const icon = ov && ov.querySelector('.model-spin-icon');
+                    if (icon) { icon.style.animation='none'; icon.textContent='⚠'; icon.style.color='rgba(255,68,102,0.5)'; }
+                    if (stxt) stxt.textContent = 'File unavailable';
+                });
+        });
     })();
     </script>
 </body>
