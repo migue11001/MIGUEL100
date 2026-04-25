@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Drawing — migue100.com</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📐</text></svg>">
+    <meta name="author" content="Miguel Otero">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap">
+    <style>
+        :root {
+            --neon-blue:   #00d4ff;
+            --neon-dim:    #0099cc;
+            --steel-dark:  #08090d;
+            --steel-panel: #1a1e28;
+            --chrome:      #8ab4cc;
+            --text-main:   #cce8f4;
+            --text-dim:    #5a7a90;
+            --sw-bg:       #020408;
+            --sw-text:     #a8c8e0;
+            --sw-g:        #4fc3f7;
+            --sw-m:        #ffb74d;
+            --sw-n:        #455a64;
+            --sw-comment:  #2e4a58;
+            --sw-cycle:    #ce93d8;
+            --sw-val:      #80cbc4;
+            --sw-tf:       #81c784;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+            background-color: var(--steel-dark);
+            background-image:
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,180,255,0.015) 2px, rgba(0,180,255,0.015) 4px),
+                repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,180,255,0.02) 40px, rgba(0,180,255,0.02) 41px),
+                linear-gradient(160deg, #08090d 0%, #101520 30%, #0d1a2a 55%, #101520 80%, #08090d 100%);
+            min-height: 100vh;
+            color: var(--text-main);
+            padding: 80px 20px 80px;
+            overflow-x: hidden;
+        }
+
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
+            pointer-events: none; z-index: 999;
+        }
+
+        /* ── Nav ── */
+        .site-nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+            padding: 0 2rem; height: 56px;
+            background: rgba(8,9,13,0.92); backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(0,212,255,0.18);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .nav-logo {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.8em;
+            letter-spacing: 0.18em; color: var(--neon-blue);
+            text-decoration: none; text-transform: uppercase; transition: color 0.2s;
+        }
+        .nav-logo:hover { color: #fff; }
+        .nav-back {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.62em;
+            letter-spacing: 0.14em; color: var(--neon-dim); background: none;
+            border: 1px solid rgba(0,212,255,0.25); padding: 5px 12px;
+            cursor: pointer; text-decoration: none; text-transform: uppercase;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .nav-back:hover { color: #fff; border-color: rgba(0,212,255,0.6); }
+
+        /* ── Page Header ── */
+        .page-header { max-width: 1200px; margin: 0 auto 32px; }
+        .page-tag {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.6em;
+            letter-spacing: 0.22em; color: var(--neon-dim); margin-bottom: 6px;
+        }
+        .page-tag::before { content: '['; }
+        .page-tag::after  { content: ']'; }
+        .page-title {
+            font-family: 'Share Tech Mono', monospace; font-size: 1.6em;
+            letter-spacing: 0.1em; color: var(--text-main); text-transform: uppercase;
+        }
+        .page-title span { color: var(--neon-blue); }
+        .page-divider {
+            margin-top: 12px; height: 1px;
+            background: linear-gradient(90deg, rgba(0,212,255,0.5), transparent);
+        }
+
+        /* ── Section Label ── */
+        .section-label {
+            max-width: 1200px; margin: 48px auto 16px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.58em; letter-spacing: 0.28em;
+            color: var(--neon-dim); text-transform: uppercase;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .section-label::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(90deg, rgba(0,212,255,0.2), transparent);
+        }
+
+        /* ── Drawing Panel ── */
+        .drawing-panel {
+            max-width: 1200px; margin: 0 auto;
+            background: linear-gradient(160deg, rgba(26,30,40,0.95) 0%, rgba(18,22,32,0.98) 50%, rgba(22,26,38,0.95) 100%);
+            border: 1px solid rgba(0,212,255,0.18); border-radius: 4px; overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+        .drawing-panel::before {
+            content: ''; position: absolute; top: 0; left: 20px; right: 20px; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0,212,255,0.5), transparent);
+        }
+        .drawing-panel::after {
+            content: ''; position: absolute; top: 6px; right: 6px;
+            width: 8px; height: 8px;
+            border-top: 2px solid rgba(0,212,255,0.4); border-right: 2px solid rgba(0,212,255,0.4);
+            pointer-events: none;
+        }
+        .drawing-panel-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px; border-bottom: 1px solid rgba(0,212,255,0.1);
+        }
+        .drawing-panel-title {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.62em;
+            letter-spacing: 0.16em; color: var(--text-dim); text-transform: uppercase;
+        }
+        .drawing-panel-id {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.56em;
+            letter-spacing: 0.1em; color: rgba(0,212,255,0.4);
+        }
+        .drawing-area {
+            min-height: 560px; display: flex; align-items: center;
+            justify-content: center; padding: 32px; position: relative;
+        }
+        .drawing-area img {
+            max-width: 100%; max-height: 540px; object-fit: contain; display: block;
+            filter: invert(1) sepia(1) hue-rotate(175deg) saturate(6) brightness(1.1);
+        }
+        .drawing-placeholder {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 16px; opacity: 0.4;
+        }
+        .drawing-placeholder svg { width: 120px; height: 120px; }
+        .drawing-placeholder-text {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.6em;
+            letter-spacing: 0.2em; color: var(--text-dim); text-transform: uppercase;
+        }
+        .drawing-panel-footer {
+            padding: 10px 16px; border-top: 1px solid rgba(0,212,255,0.1);
+            display: flex; gap: 32px; align-items: center; flex-wrap: wrap;
+        }
+        .drawing-meta { display: flex; flex-direction: column; gap: 2px; }
+        .drawing-meta-label {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.46em;
+            letter-spacing: 0.18em; color: rgba(0,212,255,0.35); text-transform: uppercase;
+        }
+        .drawing-meta-value {
+            font-family: 'Rajdhani', sans-serif; font-size: 0.78em;
+            font-weight: 600; color: var(--text-main); letter-spacing: 0.04em;
+        }
+
+        /* ── CAM Video Panel ── */
+        .video-panel {
+            max-width: 1200px; margin: 0 auto;
+            background: linear-gradient(160deg, rgba(22,26,36,0.97) 0%, rgba(14,18,28,1) 100%);
+            border: 1px solid rgba(0,212,255,0.18); border-radius: 4px; overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+            position: relative; z-index: 1000;
+        }
+        .video-panel-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px; border-bottom: 1px solid rgba(0,212,255,0.1);
+            background: rgba(0,0,0,0.3);
+        }
+        .video-panel-label {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.58em;
+            letter-spacing: 0.2em; color: var(--neon-dim); text-transform: uppercase;
+        }
+        .video-panel-badge {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.5em;
+            letter-spacing: 0.12em; color: rgba(0,212,255,0.4); text-transform: uppercase;
+        }
+        .video-wrap {
+            background: #000;
+            position: relative;
+            user-select: none;
+            aspect-ratio: 16 / 9;
+            width: 100%;
+        }
+        .video-wrap video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            display: block; outline: none;
+            object-fit: contain;
+        }
+        /* center overlay (play/pause) */
+        .vp-overlay {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.22s ease;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .vp-overlay.faded { opacity: 0; }
+        .vp-play-btn {
+            width: 70px; height: 70px; border-radius: 50%;
+            background: rgba(0,0,0,0.52);
+            border: 2px solid rgba(0,212,255,0.75);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 22px rgba(0,212,255,0.3);
+            transition: transform 0.14s, border-color 0.14s, box-shadow 0.14s;
+            pointer-events: all; cursor: pointer;
+        }
+        .vp-play-btn:hover {
+            transform: scale(1.09);
+            border-color: #00d4ff;
+            box-shadow: 0 0 36px rgba(0,212,255,0.5);
+        }
+        .vp-icon-play {
+            width: 0; height: 0;
+            border: solid transparent;
+            border-width: 11px 0 11px 20px;
+            border-left-color: #00d4ff;
+            margin-left: 5px;
+        }
+        .vp-icon-pause {
+            display: flex; gap: 5px;
+        }
+        .vp-icon-pause b {
+            display: block; width: 4px; height: 20px;
+            background: #00d4ff; border-radius: 2px; font-weight: normal;
+        }
+        /* bottom bar */
+        .vp-bar {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 10px 16px 12px;
+            background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%);
+            display: flex; flex-direction: column; gap: 7px;
+            z-index: 11;
+            transition: opacity 0.22s ease;
+        }
+        .vp-bar.faded { opacity: 0; pointer-events: none; }
+        /* progress */
+        .vp-progress {
+            width: 100%; height: 4px;
+            background: rgba(255,255,255,0.14);
+            border-radius: 2px; cursor: pointer; position: relative;
+        }
+        .vp-progress:hover { height: 6px; }
+        .vp-fill {
+            height: 100%; width: 0%;
+            background: #00d4ff; border-radius: 2px;
+            box-shadow: 0 0 6px rgba(0,212,255,0.55);
+            pointer-events: none;
+        }
+        .vp-knob {
+            position: absolute; top: 50%;
+            width: 12px; height: 12px; border-radius: 50%;
+            background: #fff; margin-left: -6px;
+            transform: translateY(-50%);
+            opacity: 0; transition: opacity 0.14s;
+            pointer-events: none;
+            box-shadow: 0 0 6px rgba(0,212,255,0.8);
+        }
+        .vp-progress:hover .vp-knob { opacity: 1; }
+        /* row */
+        .vp-row {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .vp-btn {
+            background: none; border: none; cursor: pointer; padding: 0;
+            display: flex; align-items: center; color: rgba(255,255,255,0.75);
+            transition: color 0.14s; position: static;
+        }
+        .vp-btn:hover { color: #fff; }
+        .vp-btn svg { width: 18px; height: 18px; display: block; fill: currentColor; }
+        .vp-time {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.5em; letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.55); white-space: nowrap;
+        }
+        .vp-spacer { flex: 1; }
+        .vp-vol {
+            -webkit-appearance: none; appearance: none;
+            width: 68px; height: 3px;
+            background: rgba(255,255,255,0.2); border-radius: 2px;
+            outline: none; cursor: pointer;
+        }
+        .vp-vol::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 11px; height: 11px; border-radius: 50%;
+            background: #00d4ff;
+            box-shadow: 0 0 5px rgba(0,212,255,0.7);
+        }
+
+        /* ── G-CODE Grid ── */
+        .gcode-grid {
+            max-width: 1200px; margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 900px) { .gcode-grid { grid-template-columns: 1fr; } }
+
+        /* ── Siemens Window Chrome ── */
+        .siemens-win {
+            border-radius: 3px; overflow: hidden;
+            box-shadow: 0 6px 28px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+            display: flex; flex-direction: column;
+            background: #12141c;
+            border: 2px solid #252830;
+        }
+
+        /* Title bar — dark Siemens header */
+        .sw-titlebar {
+            background: #0c0e16;
+            border-bottom: 1px solid #1e2130;
+            padding: 0 10px;
+            height: 32px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .sw-titlebar-left {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .sw-logo {
+            font-family: 'Rajdhani', sans-serif; font-weight: 700;
+            font-size: 0.9em; letter-spacing: 0.06em; color: #3a9ad9;
+            text-transform: uppercase;
+        }
+        .sw-model-name {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.625em;
+            letter-spacing: 0.12em; color: #3a5060; text-transform: uppercase;
+        }
+        .sw-compiler .sw-logo {
+            color: #00ff88;
+            text-shadow: 0 0 8px rgba(0,255,136,0.7), 0 0 18px rgba(0,255,136,0.35);
+        }
+        .sw-compiler .sw-model-name {
+            color: #00ff88;
+            text-shadow: 0 0 6px rgba(0,255,136,0.6);
+        }
+        .sw-compiler .sw-editor {
+            font-size: 0.865em;
+            color: #00ff88;
+            text-shadow: 0 0 6px rgba(0,255,136,0.5);
+            caret-color: #00ff88;
+        }
+        .sw-state {
+            display: flex; align-items: center; gap: 5px;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.5em;
+            letter-spacing: 0.12em;
+        }
+        .sw-led {
+            width: 6px; height: 6px; border-radius: 50%;
+            box-shadow: 0 0 4px currentColor;
+        }
+        .sw-led.ready { background: #00e676; color: #00e676; }
+        .sw-led.run   { background: #ffab40; color: #ffab40; }
+
+        /* Status bar */
+        .sw-statusbar {
+            background: #0a0c14;
+            border-bottom: 1px solid #1a1c26;
+            padding: 0 10px;
+            height: 26px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+            gap: 16px;
+        }
+        .sw-stat-group {
+            display: flex; align-items: center; gap: 12px;
+        }
+        .sw-stat {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.46em;
+            letter-spacing: 0.1em; color: #3a5268; text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .sw-stat b { color: #5a8a9a; font-weight: normal; }
+        .sw-prog-name {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.48em;
+            letter-spacing: 0.1em; color: #5a90a8; text-transform: uppercase;
+        }
+
+        /* Screen area */
+        .sw-screen {
+            background: var(--sw-bg);
+            flex: 1; overflow: hidden;
+            position: relative;
+            min-height: 360px;
+        }
+        /* CRT vignette */
+        .sw-screen::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.45) 100%);
+        }
+        .sw-code-wrap {
+            position: absolute; inset: 0; overflow-y: auto;
+            padding: 8px 0;
+            scrollbar-width: thin;
+            scrollbar-color: #1a2030 transparent;
+        }
+        .sw-code-wrap::-webkit-scrollbar { width: 4px; }
+        .sw-code-wrap::-webkit-scrollbar-thumb { background: #1e2a3a; border-radius: 2px; }
+        .sw-line {
+            display: flex; align-items: baseline;
+            padding: 1px 12px 1px 0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.72em; line-height: 1.55;
+            white-space: pre;
+        }
+        .sw-line:hover { background: rgba(0,160,220,0.05); }
+        .sw-ln {
+            width: 36px; min-width: 36px; text-align: right;
+            padding-right: 10px; color: #1e3040;
+            font-size: 0.82em; user-select: none; flex-shrink: 0;
+        }
+        .sw-lc { color: var(--sw-text); }
+        /* G-code syntax classes */
+        .gk-n  { color: var(--sw-n); }
+        .gk-g  { color: var(--sw-g);   font-weight: bold; }
+        .gk-m  { color: var(--sw-m);   font-weight: bold; }
+        .gk-t  { color: var(--sw-tf); }
+        .gk-f  { color: var(--sw-tf); }
+        .gk-cy { color: var(--sw-cycle); font-style: italic; }
+        .gk-cm { color: var(--sw-comment); }
+        .gk-pct{ color: #3a5060; }
+        .gk-lbl{ color: #7e57c2; }
+
+        /* Editor (right window) */
+        .sw-editor {
+            position: absolute; inset: 0;
+            background: var(--sw-bg); color: var(--sw-text);
+            font-family: 'Share Tech Mono', monospace; font-size: 0.72em; line-height: 1.55;
+            border: none; outline: none; resize: none; padding: 10px 12px;
+            caret-color: var(--neon-blue);
+            scrollbar-width: thin; scrollbar-color: #1a2030 transparent;
+        }
+        .sw-editor::-webkit-scrollbar { width: 4px; }
+        .sw-editor::-webkit-scrollbar-thumb { background: #1e2a3a; border-radius: 2px; }
+        .sw-editor::selection { background: rgba(0,180,255,0.18); }
+
+        /* Console output */
+        .sw-console {
+            background: #06080f; border-top: 1px solid #141820;
+            padding: 8px 12px;
+            max-height: 110px; overflow-y: auto;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.62em;
+            line-height: 1.6; color: #3a6040;
+            flex-shrink: 0;
+            scrollbar-width: thin; scrollbar-color: #1a2030 transparent;
+        }
+        .sw-console::-webkit-scrollbar { width: 3px; }
+        .sw-console.ok  .con-msg { color: #00e676; }
+        .sw-console.err .con-msg { color: #ef5350; }
+        .con-line { display: flex; gap: 8px; }
+        .con-pfx  { color: #1e4030; flex-shrink: 0; }
+        .con-msg  { }
+
+        /* Softkey bar */
+        .sw-softkeys {
+            background: #0c0e16; border-top: 1px solid #1a1c28;
+            display: flex; align-items: stretch;
+            height: 38px; flex-shrink: 0;
+        }
+        .sw-sk {
+            flex: 1; background: none;
+            border: none; border-right: 1px solid #1a1c28;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.46em;
+            letter-spacing: 0.08em; color: #3a5060; cursor: pointer;
+            text-transform: uppercase; transition: background 0.15s, color 0.15s;
+            padding: 0 4px;
+        }
+        .sw-sk:last-child { border-right: none; }
+        .sw-sk:hover { background: rgba(0,180,255,0.07); color: #7ab4c8; }
+        .sw-sk.active { background: rgba(0,180,255,0.12); color: var(--neon-blue); }
+        .sw-sk-fn {
+            display: block; font-size: 0.72em; color: #1e3040; margin-bottom: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="site-nav">
+        <a href="index.html" class="nav-logo">migue100.com</a>
+        <a href="index.html" class="nav-back">← Back</a>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-tag" id="page-tag">MODEL 01</div>
+        <div class="page-title">Technical <span>Drawing</span></div>
+        <div class="page-divider"></div>
+    </div>
+
+    <!-- Drawing Panel -->
+    <div class="drawing-panel">
+        <div class="drawing-panel-header">
+            <span class="drawing-panel-title" id="panel-title">A1-PROJECT CAM — TECHNICAL DRAWING</span>
+            <span class="drawing-panel-id" id="panel-id">DWG-A1-001</span>
+        </div>
+        <div class="drawing-area" id="drawing-area">
+            <div class="drawing-placeholder" id="drawing-placeholder">
+                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="8" y="8" width="104" height="104" stroke="rgba(0,212,255,0.4)" stroke-width="1.5" stroke-dasharray="6 4"/>
+                    <line x1="8"  y1="60" x2="112" y2="60" stroke="rgba(0,212,255,0.25)" stroke-width="1"/>
+                    <line x1="60" y1="8"  x2="60"  y2="112" stroke="rgba(0,212,255,0.25)" stroke-width="1"/>
+                    <rect x="28" y="28" width="64" height="64" stroke="rgba(0,212,255,0.5)" stroke-width="1.5"/>
+                    <circle cx="60" cy="60" r="24" stroke="rgba(0,212,255,0.35)" stroke-width="1.5" stroke-dasharray="4 3"/>
+                    <line x1="28" y1="28" x2="92" y2="92" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+                    <line x1="92" y1="28" x2="28" y2="92" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+                    <circle cx="60" cy="60" r="3" fill="rgba(0,212,255,0.5)"/>
+                </svg>
+                <span class="drawing-placeholder-text">Drawing not available</span>
+            </div>
+        </div>
+        <div class="drawing-panel-footer">
+            <div class="drawing-meta">
+                <span class="drawing-meta-label">Project</span>
+                <span class="drawing-meta-value" id="meta-project">A1-PROJECT CAM</span>
+            </div>
+            <div class="drawing-meta">
+                <span class="drawing-meta-label">Scale</span>
+                <span class="drawing-meta-value">1:1</span>
+            </div>
+            <div class="drawing-meta">
+                <span class="drawing-meta-label">Standard</span>
+                <span class="drawing-meta-value">ISO 128</span>
+            </div>
+            <div class="drawing-meta">
+                <span class="drawing-meta-label">Author</span>
+                <span class="drawing-meta-value">Miguel Otero</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- CAM Video -->
+    <div class="section-label">CAM Simulation</div>
+    <div class="video-panel">
+        <div class="video-panel-header">
+            <span class="video-panel-label">CAM — Toolpath Simulation</span>
+            <span class="video-panel-badge" id="video-prog-name">A1-PROJECT CAM.mpf</span>
+        </div>
+        <div class="video-wrap" id="vp-wrap">
+            <video id="cam-video" playsinline preload="metadata" poster="CAM_poster.jpg">
+                <source src="CAM.mp4" type="video/mp4">
+            </video>
+
+            <!-- center overlay -->
+            <div class="vp-overlay" id="vp-overlay">
+                <div class="vp-play-btn" id="vp-play-btn">
+                    <div class="vp-icon-play" id="vp-icon"></div>
+                </div>
+            </div>
+
+            <!-- bottom bar -->
+            <div class="vp-bar" id="vp-bar">
+                <div class="vp-progress" id="vp-progress">
+                    <div class="vp-fill" id="vp-fill"></div>
+                    <div class="vp-knob" id="vp-knob"></div>
+                </div>
+                <div class="vp-row">
+                    <button class="vp-btn" id="vp-pp" title="Play / Pause">
+                        <svg viewBox="0 0 24 24"><path id="vp-pp-icon" d="M8 5v14l11-7z"/></svg>
+                    </button>
+                    <span class="vp-time" id="vp-time">0:00 / 0:00</span>
+                    <div class="vp-spacer"></div>
+                    <button class="vp-btn" id="vp-mute" title="Mute">
+                        <svg viewBox="0 0 24 24"><path id="vp-mute-icon" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                    </button>
+                    <input class="vp-vol" id="vp-vol" type="range" min="0" max="1" step="0.02" value="1">
+                    <button class="vp-btn" id="vp-fs" title="Fullscreen">
+                        <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- G-Code Compiler -->
+    <div class="section-label">G-CODE Compiler</div>
+    <div class="gcode-grid">
+
+        <!-- Left: Program Viewer -->
+        <div class="siemens-win">
+            <div class="sw-titlebar">
+                <div class="sw-titlebar-left">
+                    <span class="sw-logo">Sinumerik 840D sl</span>
+                    <span class="sw-model-name" id="sw-prog-viewer">A1_MILLING.MPF</span>
+                </div>
+                <div class="sw-state">
+                    <span class="sw-led ready"></span>
+                    <span style="font-family:'Share Tech Mono',monospace;font-size:0.5em;letter-spacing:.1em;color:#00e676;">READY</span>
+                </div>
+            </div>
+            <div class="sw-statusbar">
+                <div class="sw-stat-group">
+                    <span class="sw-stat">CH <b>1</b></span>
+                    <span class="sw-stat">MODE <b>AUTO</b></span>
+                    <span class="sw-stat">T <b id="sw-tool-v">1</b></span>
+                    <span class="sw-stat">S <b id="sw-speed-v">2800</b> rpm</span>
+                </div>
+                <span class="sw-prog-name" id="sw-viewer-pname">A1_MILLING.MPF</span>
+            </div>
+            <div class="sw-screen">
+                <div class="sw-code-wrap" id="viewer-code"></div>
+            </div>
+            <div class="sw-softkeys">
+                <button class="sw-sk"><span class="sw-sk-fn">F1</span>Select</button>
+                <button class="sw-sk"><span class="sw-sk-fn">F2</span>Open</button>
+                <button class="sw-sk"><span class="sw-sk-fn">F3</span>Mark</button>
+                <button class="sw-sk active" onclick="downloadMPF()"><span class="sw-sk-fn">F4</span>Download</button>
+                <button class="sw-sk"><span class="sw-sk-fn">F5</span>Find</button>
+                <button class="sw-sk"><span class="sw-sk-fn">F6</span>—</button>
+                <button class="sw-sk"><span class="sw-sk-fn">F7</span>—</button>
+                <button class="sw-sk"><span class="sw-sk-fn">F8</span>Close</button>
+            </div>
+        </div>
+
+        <!-- Right: G-Code Editor / Compiler -->
+        <div class="siemens-win sw-compiler">
+            <div class="sw-titlebar">
+                <div class="sw-titlebar-left">
+                    <span class="sw-logo">Sinumerik 840D sl</span>
+                    <span class="sw-model-name">G-CODE COMPILER</span>
+                </div>
+                <div class="sw-state" id="editor-state">
+                    <span class="sw-led ready" id="editor-led"></span>
+                    <span id="editor-state-txt" style="font-family:'Share Tech Mono',monospace;font-size:0.5em;letter-spacing:.1em;color:#00e676;">READY</span>
+                </div>
+            </div>
+            <div class="sw-statusbar">
+                <div class="sw-stat-group">
+                    <span class="sw-stat">CH <b>2</b></span>
+                    <span class="sw-stat">MODE <b>MDA</b></span>
+                    <span class="sw-stat" id="editor-lc">LN <b>1</b></span>
+                    <span class="sw-stat" id="editor-cc">COL <b>1</b></span>
+                </div>
+                <span class="sw-prog-name">MDA_USER.MPF</span>
+            </div>
+            <div class="sw-screen">
+                <textarea class="sw-editor" id="gcode-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+            </div>
+            <div class="sw-console" id="compile-out">
+                <div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg">System ready. Press COMPILE to validate program.</span></div>
+            </div>
+            <div class="sw-softkeys">
+                <button class="sw-sk" onclick="resetEditor()"><span class="sw-sk-fn">F1</span>Reset</button>
+                <button class="sw-sk" onclick="clearEditor()"><span class="sw-sk-fn">F2</span>Clear</button>
+                <button class="sw-sk" onclick="copyEditor()"><span class="sw-sk-fn">F3</span>Copy</button>
+                <button class="sw-sk active" onclick="compileGcode()"><span class="sw-sk-fn">F4</span>Compile</button>
+                <button class="sw-sk active" onclick="cycleStart()"><span class="sw-sk-fn">F5</span>Cycle Start</button>
+                <button class="sw-sk" onclick="cycleStop()"><span class="sw-sk-fn">F6</span>Cycle Stop</button>
+                <button class="sw-sk"><span class="sw-sk-fn">F7</span>—</button>
+                <button class="sw-sk"><span class="sw-sk-fn">F8</span>Reset NC</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+    /* ── Custom Video Player ── */
+    (function() {
+        const vid      = document.getElementById('cam-video');
+        const wrap     = document.getElementById('vp-wrap');
+        const overlay  = document.getElementById('vp-overlay');
+        const playBtn  = document.getElementById('vp-play-btn');
+        const icon     = document.getElementById('vp-icon');
+        const bar      = document.getElementById('vp-bar');
+        const progress = document.getElementById('vp-progress');
+        const fill     = document.getElementById('vp-fill');
+        const knob     = document.getElementById('vp-knob');
+        const ppBtn    = document.getElementById('vp-pp');
+        const ppIcon   = document.getElementById('vp-pp-icon');
+        const timeEl   = document.getElementById('vp-time');
+        const muteBtn  = document.getElementById('vp-mute');
+        const muteIcon = document.getElementById('vp-mute-icon');
+        const volSlider= document.getElementById('vp-vol');
+        const fsBtn    = document.getElementById('vp-fs');
+
+        let hideTimer = null;
+        let scrubbing = false;
+
+        function fmt(s) {
+            s = Math.floor(s || 0);
+            const m = Math.floor(s / 60), ss = s % 60;
+            return m + ':' + String(ss).padStart(2, '0');
+        }
+        function setPlaying(playing) {
+            /* center icon */
+            icon.className = playing ? 'vp-icon-pause' : 'vp-icon-play';
+            if (playing) {
+                icon.innerHTML = '<b></b><b></b>';
+            } else {
+                icon.innerHTML = '';
+            }
+            /* bottom bar icon */
+            ppIcon.setAttribute('d', playing
+                ? 'M6 19h4V5H6v14zm8-14v14h4V5h-4z'
+                : 'M8 5v14l11-7z');
+        }
+        function showControls() {
+            overlay.classList.remove('faded');
+            bar.classList.remove('faded');
+            clearTimeout(hideTimer);
+            if (!vid.paused) {
+                hideTimer = setTimeout(() => {
+                    overlay.classList.add('faded');
+                    bar.classList.add('faded');
+                }, 2800);
+            }
+        }
+        function updateProgress() {
+            if (!vid.duration || scrubbing) return;
+            const pct = (vid.currentTime / vid.duration) * 100;
+            fill.style.width = pct + '%';
+            knob.style.left  = pct + '%';
+            timeEl.textContent = fmt(vid.currentTime) + ' / ' + fmt(vid.duration);
+        }
+        function seekTo(e) {
+            const rect = progress.getBoundingClientRect();
+            const pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            vid.currentTime = pct * vid.duration;
+            fill.style.width = (pct * 100) + '%';
+            knob.style.left  = (pct * 100) + '%';
+        }
+
+        /* play / pause */
+        function togglePlay() {
+            if (vid.paused) { vid.play(); } else { vid.pause(); }
+        }
+        playBtn.addEventListener('click', togglePlay);
+        ppBtn.addEventListener('click',  togglePlay);
+        wrap.addEventListener('click', e => {
+            if (e.target === vid) togglePlay();
+        });
+
+        vid.addEventListener('play',  () => { setPlaying(true);  showControls(); });
+        vid.addEventListener('pause', () => { setPlaying(false); showControls(); });
+        vid.addEventListener('timeupdate', updateProgress);
+        vid.addEventListener('loadedmetadata', updateProgress);
+        vid.addEventListener('ended', () => { setPlaying(false); showControls(); });
+
+        /* scrub */
+        progress.addEventListener('mousedown', e => {
+            scrubbing = true; seekTo(e);
+        });
+        window.addEventListener('mousemove', e => { if (scrubbing) seekTo(e); });
+        window.addEventListener('mouseup',   () => { scrubbing = false; });
+
+        /* show controls on mouse move */
+        wrap.addEventListener('mousemove', showControls);
+        wrap.addEventListener('mouseenter', showControls);
+        wrap.addEventListener('mouseleave', () => {
+            if (!vid.paused) {
+                overlay.classList.add('faded');
+                bar.classList.add('faded');
+            }
+        });
+
+        /* mute */
+        muteBtn.addEventListener('click', () => {
+            vid.muted = !vid.muted;
+            muteIcon.setAttribute('d', vid.muted
+                ? 'M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0 0 17.73 18L19 19.27 20.27 18 5.27 3 4.27 3zM12 4L9.91 6.09 12 8.18V4z'
+                : 'M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z');
+        });
+
+        /* volume */
+        volSlider.addEventListener('input', () => {
+            vid.volume = parseFloat(volSlider.value);
+            vid.muted  = vid.volume === 0;
+        });
+
+        /* fullscreen */
+        fsBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                wrap.requestFullscreen && wrap.requestFullscreen();
+            } else {
+                document.exitFullscreen && document.exitFullscreen();
+            }
+        });
+
+        /* init */
+        setPlaying(false);
+        showControls();
+    })();
+    </script>
+
+    <script>
+    /* ═══════════════════════════════════════════════════════════
+       MODEL DATA
+    ═══════════════════════════════════════════════════════════ */
+    const MODELS = {
+        1: {
+            tag: 'MODEL 01', title: 'A1-PROJECT CAM — TECHNICAL DRAWING',
+            id: 'DWG-A1-001', project: 'A1-PROJECT CAM',
+            image: 'D1.jpg', prog: 'A1_MILLING.MPF', tool: '1', speed: '2800',
+            gcode: `%
+;===========================================
+; A1-PROJECT CAM  //  3-AXIS MILLING
+; TOOL  : T1 - Ø16 FACE MILL  P35
+; MATERIAL : 1.4301 STAINLESS STEEL
+; MACHINE  : DMU 50  CTRL: SINUMERIK 840D sl
+;===========================================
+N10  G17 G54 G90 G94 G21
+N20  T1 D1 M6
+N30  G0 X-90.0 Y-60.0 S2800 M3 M8
+N40  G43 Z100.0 H1
+N50  G0 Z5.0
+;--- FACE MILLING PASS ---
+N60  G1 Z-0.5 F300
+N70  G1 X90.0 F1200
+N80  G1 Y-30.0
+N90  G1 X-90.0
+N100 G1 Y0.0
+N110 G1 X90.0
+N120 G1 Y30.0
+N130 G1 X-90.0
+N140 G1 Y60.0
+N150 G1 X90.0
+N160 G0 Z5.0
+;--- CONTOUR FINISHING ---
+N170 G0 X-72.0 Y-52.0
+N180 G1 Z-5.0 F200
+N190 G41 D1
+N200 G1 X72.0 F800
+N210 G2 X72.0 Y52.0 I0 J52.0
+N220 G1 X-72.0
+N230 G2 X-72.0 Y-52.0 I0 J-52.0
+N240 G40 G1 X-90.0
+N250 G0 Z100.0
+N260 M9 M5
+N270 M30
+%`
+        },
+        2: {
+            tag: 'MODEL 02', title: 'A2-PROJECT CAM — TECHNICAL DRAWING',
+            id: 'DWG-A2-001', project: 'A2-PROJECT CAM',
+            image: 'D2.jpg', prog: 'A2_TURNING.MPF', tool: '1', speed: '220',
+            gcode: `%
+;===========================================
+; A2-PROJECT CAM  //  CNC TURNING
+; TOOL  : T1 - CNMG 120408  PCLNR 2525
+; MATERIAL : C45 STEEL  Ø100 x 135
+; MACHINE  : INDEX G200  CTRL: SINUMERIK 840D sl
+;===========================================
+N10  G18 G95 G90 G54
+N20  T1 D1 M6
+N30  G96 S220 LIMS=3500 M4 M8
+N40  G0 X105.0 Z5.0
+;--- ROUGHING CYCLE ---
+N50  CYCLE95("PROFILE_A2",2.0,0.5,0.3,0.2,0.1,9,0.05,0)
+;--- PROFILE DEFINITION ---
+PROF_A2:
+N100 G1 X0 Z0
+N110 G1 Z-20.0 F0.25
+N120 G1 X30.0
+N130 G1 Z-45.0
+N140 G1 X50.0 CHF=2.0
+N150 G1 Z-80.0
+N160 G1 X70.0 RND=3.0
+N170 G1 Z-110.0
+N180 G1 X90.0
+N190 G1 Z-130.0
+N200 G1 X102.0
+RET
+;--- FINISHING PASS ---
+N210 T2 D1 M6
+N220 G96 S280 LIMS=4000 M4
+N230 G0 X105.0 Z5.0
+N240 CYCLE95("PROFILE_A2",0,0,0.1,0.05,0.02,10,0,0)
+N250 G0 X150.0 Z200.0
+N260 M9 M5
+N270 M30
+%`
+        },
+        3: {
+            tag: 'MODEL 03', title: 'A3-PROJECT CAM — TECHNICAL DRAWING',
+            id: 'DWG-A3-001', project: 'A3-PROJECT CAM',
+            image: 'D3.jpg', prog: 'A3_FLANGE.MPF', tool: '1', speed: '1200',
+            gcode: `%
+;===========================================
+; A3-PROJECT CAM  //  BOLT PATTERN FLANGE
+; TOOL  : T1-Ø12 DRILL  T2-BORING BAR
+; MATERIAL : GGG40 CAST IRON  Ø200 x 75
+; MACHINE  : DMC 635V  CTRL: SINUMERIK 840D sl
+;===========================================
+N10  G17 G54 G90 G94 G21
+;--- CENTER BORE Ø60H7 ---
+N20  T1 D1 M6
+N30  G0 X0 Y0 S1200 M3 M8
+N40  G43 Z50.0 H1
+N50  CYCLE83(5.0,0,-1.0,-75.0,,15.0,0,0,1,0.08,0.1,1)
+;--- BORING TO FINAL DIA ---
+N60  T2 D1 M6
+N70  G0 X0 Y0 S800 M3
+N80  CYCLE85(5.0,0,-1.0,-72.0,0.05,0.03,0.02)
+;--- BOLT CIRCLE  6 x Ø8  PCD Ø120 ---
+N90  T3 D1 M6
+N100 S2400 M3
+N110 HOLES2(0,0,120.0,0,60.0,6,5.0,0,-22.0,,4.0,0,0,0.06,0.1,1)
+;--- COUNTERBORE  6 x Ø14  DEPTH 5 ---
+N120 T4 D1 M6
+N130 S1800 M3
+N140 HOLES2(0,0,120.0,0,60.0,6,5.0,0,-5.0,,7.0,0,0,0.05,0.1,1)
+N150 G0 Z100.0
+N160 M9 M5
+N170 M30
+%`
+        },
+        4: {
+            tag: 'MODEL 04', title: 'A4-PROJECT CAM — TECHNICAL DRAWING',
+            id: 'DWG-A4-001', project: 'A4-PROJECT CAM',
+            image: 'D4.jpg', prog: 'A4_GENERAL.MPF', tool: '1', speed: '8000',
+            gcode: `%
+;===========================================
+; A4-PROJECT CAM  //  GENERAL COMPONENT
+; TOOL  : T1-Ø10 END MILL  T2-Ø20 BORE
+; MATERIAL : Al 6061-T6  120 x 80 x 40
+; MACHINE  : HAAS VF2  CTRL: SINUMERIK 840D sl
+;===========================================
+N10  G17 G54 G90 G94 G21
+;--- RECTANGULAR POCKET 60 x 40 ---
+N20  T1 D1 M6
+N30  G0 X0 Y0 S8000 M3 M8
+N40  G43 Z50.0 H1
+N50  CYCLE76(5.0,0,-1.0,-15.0,2.0,,60.0,40.0,5.0,0,0,0,3000,0.3,0.1,0)
+;--- EXTERNAL CONTOUR ---
+N60  G0 X-55.0 Y-35.0
+N70  G1 Z-5.0 F300
+N80  G41 D1
+N90  G1 X55.0 F1800
+N100 G1 Y35.0
+N110 G1 X-55.0
+N120 G1 Y-35.0
+N130 G40
+;--- BORE Ø20H7 ---
+N140 T2 D1 M6
+N150 G0 X0 Y0 S5000 M3
+N160 CYCLE82(5.0,0,-1.0,-25.0,,0.1)
+;--- TAP M12x1.75 ---
+N170 T3 D1 M6
+N180 G0 X30.0 Y0 S600 M3
+N190 CYCLE840(5.0,0,-1.0,-18.0,0,1.75,0,0,1,2)
+N200 G0 Z100.0
+N210 M9 M5
+N220 M30
+%`
+        }
+    };
+
+    /* ── G-code starter for editor ── */
+    const EDITOR_STARTER = `%
+; G-CODE COMPILER  //  PRACTICE
+; Edit this program and press COMPILE
+; ----------------------------------------
+N10  G17 G54 G90 G94
+N20  T1 D1 M6
+N30  G0 X0 Y0 S3000 M3 M8
+N40  G43 Z50.0 H1
+N50  G0 Z5.0
+N60  G1 Z-2.0 F300
+N70  G1 X50.0 F1000
+N80  G1 Y50.0
+N90  G1 X0
+N100 G1 Y0
+N110 G0 Z50.0
+N120 M9 M5
+N130 M30
+%`;
+
+    /* ── Init ── */
+    const params = new URLSearchParams(window.location.search);
+    const num    = parseInt(params.get('model')) || 1;
+    const m      = MODELS[num] || MODELS[1];
+
+    document.title = m.project + ' Drawing — migue100.com';
+    document.getElementById('page-tag').textContent     = m.tag;
+    document.getElementById('panel-title').textContent  = m.title;
+    document.getElementById('panel-id').textContent     = m.id;
+    document.getElementById('meta-project').textContent = m.project;
+    document.getElementById('video-prog-name').textContent = m.prog;
+    document.getElementById('sw-prog-viewer').textContent  = m.prog;
+    document.getElementById('sw-viewer-pname').textContent = m.prog;
+    document.getElementById('sw-tool-v').textContent       = m.tool;
+    document.getElementById('sw-speed-v').textContent      = m.speed;
+
+    if (m.image) {
+        const img = document.createElement('img');
+        img.src = m.image; img.alt = m.project + ' technical drawing';
+        document.getElementById('drawing-placeholder').style.display = 'none';
+        document.getElementById('drawing-area').appendChild(img);
+    }
+
+    /* ── G-code syntax highlighter ── */
+    function highlightGcode(raw) {
+        const lines = raw.split('\n');
+        let html = '';
+        lines.forEach((line, i) => {
+            const ln = i + 1;
+            let hl = escH(line);
+
+            if (/^\s*%/.test(line)) {
+                hl = `<span class="gk-pct">${escH(line)}</span>`;
+            } else if (/^\s*;/.test(line)) {
+                hl = `<span class="gk-cm">${escH(line)}</span>`;
+            } else {
+                hl = hl
+                    .replace(/(;.*)$/, '<span class="gk-cm">$1</span>')
+                    .replace(/\b(CYCLE\d+|HOLES\d+|PROF_\w+|RET)\b/g, '<span class="gk-cy">$1</span>')
+                    .replace(/\b(N\d+)\b/g, '<span class="gk-n">$1</span>')
+                    .replace(/\b(G\d+\.?\d*)/g, '<span class="gk-g">$1</span>')
+                    .replace(/\b(M\d+)\b/g, '<span class="gk-m">$1</span>')
+                    .replace(/\b([TDH]\d+)\b/g, '<span class="gk-t">$1</span>')
+                    .replace(/\b(F[\d.]+)\b/g, '<span class="gk-f">$1</span>')
+                    .replace(/^([A-Z_]+:)/, '<span class="gk-lbl">$1</span>');
+            }
+            html += `<div class="sw-line"><span class="sw-ln">${ln}</span><span class="sw-lc">${hl}</span></div>`;
+        });
+        return html;
+    }
+    function escH(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    /* Render viewer */
+    document.getElementById('viewer-code').innerHTML = highlightGcode(m.gcode);
+
+    /* Render editor with starter */
+    const editor = document.getElementById('gcode-editor');
+    editor.value = EDITOR_STARTER;
+
+    /* Track cursor position */
+    editor.addEventListener('keyup', updateCursor);
+    editor.addEventListener('click', updateCursor);
+    function updateCursor() {
+        const v = editor.value.substring(0, editor.selectionStart);
+        const ln  = v.split('\n').length;
+        const col = v.split('\n').pop().length + 1;
+        document.getElementById('editor-lc').innerHTML = `LN <b>${ln}</b>`;
+        document.getElementById('editor-cc').innerHTML = `COL <b>${col}</b>`;
+    }
+
+    /* ── Compiler ── */
+    const KNOWN_G = new Set([0,1,2,3,4,17,18,19,20,21,28,40,41,42,43,44,49,54,55,56,57,58,59,90,91,92,94,95,96,97,98,99]);
+    const KNOWN_M = new Set([0,1,2,3,4,5,6,8,9,17,19,30,41,42]);
+
+    function compileGcode() {
+        const code    = editor.value;
+        const lines   = code.split('\n');
+        const out     = document.getElementById('compile-out');
+        const led     = document.getElementById('editor-led');
+        const statTxt = document.getElementById('editor-state-txt');
+        const msgs    = [];
+        let errors = 0, warnings = 0;
+
+        msgs.push({ t: 'info', m: `Compiling ${lines.length} lines...` });
+
+        const hasStart = lines.some(l => /^\s*%/.test(l));
+        const hasM30   = lines.some(l => /\bM30\b/.test(l));
+        const hasG54   = lines.some(l => /\bG5[4-9]\b/.test(l));
+        const hasT     = lines.some(l => /\bT\d/.test(l));
+
+        if (!hasStart)   { msgs.push({t:'warn', m:'WARNING: Missing % delimiter'}); warnings++; }
+        if (!hasM30)     { msgs.push({t:'err',  m:'ERROR:   Missing M30 (end of program)'}); errors++; }
+        if (!hasG54)     { msgs.push({t:'warn', m:'WARNING: No work offset (G54-G59) found'}); warnings++; }
+        if (!hasT)       { msgs.push({t:'warn', m:'WARNING: No tool call (T_) found'}); warnings++; }
+
+        lines.forEach((raw, i) => {
+            const line = raw.replace(/;.*$/, '').trim();
+            if (!line || /^%/.test(line)) return;
+
+            const gMatches = line.match(/G(\d+\.?\d*)/g) || [];
+            gMatches.forEach(gw => {
+                const gn = parseFloat(gw.slice(1));
+                if (!KNOWN_G.has(Math.floor(gn))) {
+                    msgs.push({t:'warn', m:`L${i+1}: Unknown code ${gw}`});
+                    warnings++;
+                }
+            });
+            const mMatches = line.match(/M(\d+)/g) || [];
+            mMatches.forEach(mw => {
+                const mn = parseInt(mw.slice(1));
+                if (!KNOWN_M.has(mn) && mn < 100) {
+                    msgs.push({t:'warn', m:`L${i+1}: Uncommon M-code ${mw}`});
+                }
+            });
+            if (/\bG2\b/.test(line) || /\bG3\b/.test(line)) {
+                if (!/[IJ]/.test(line) && !/R[\d.]/.test(line)) {
+                    msgs.push({t:'warn', m:`L${i+1}: G2/G3 without I/J or R param`});
+                    warnings++;
+                }
+            }
+        });
+
+        if (errors === 0) {
+            msgs.push({t:'ok', m:`OK  —  ${errors} error(s), ${warnings} warning(s). Program accepted.`});
+            led.className = 'sw-led ready';
+            statTxt.textContent = 'READY'; statTxt.style.color = '#00e676';
+            out.className = 'sw-console ok';
+        } else {
+            msgs.push({t:'err', m:`FAIL  —  ${errors} error(s), ${warnings} warning(s). Cannot execute.`});
+            led.className = 'sw-led'; led.style.background='#ef5350'; led.style.color='#ef5350';
+            statTxt.textContent = 'ALARM'; statTxt.style.color = '#ef5350';
+            out.className = 'sw-console err';
+        }
+
+        out.innerHTML = msgs.map(({t, m}) => {
+            const cls = t === 'err' ? '#ef5350' : t === 'ok' ? '#00e676' : t === 'warn' ? '#ffab40' : '#5a8a9a';
+            return `<div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg" style="color:${cls}">${escH(m)}</span></div>`;
+        }).join('');
+        out.scrollTop = out.scrollHeight;
+    }
+
+    function cycleStart() {
+        compileGcode();
+        const led     = document.getElementById('editor-led');
+        const statTxt = document.getElementById('editor-state-txt');
+        const out     = document.getElementById('compile-out');
+        if (out.className.includes('ok')) {
+            led.className = 'sw-led run';
+            statTxt.textContent = 'RUNNING'; statTxt.style.color = '#ffab40';
+            const line = `<div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg" style="color:#ffab40">CYCLE START  —  Simulation running...</span></div>`;
+            out.innerHTML += line;
+            out.scrollTop = out.scrollHeight;
+            setTimeout(() => {
+                led.className = 'sw-led ready'; led.style.background=''; led.style.color='';
+                statTxt.textContent = 'READY'; statTxt.style.color = '#00e676';
+                out.innerHTML += `<div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg" style="color:#00e676">CYCLE END  —  Program completed. M30 reached.</span></div>`;
+                out.scrollTop = out.scrollHeight;
+            }, 2200);
+        }
+    }
+
+    function cycleStop() {
+        const led     = document.getElementById('editor-led');
+        const statTxt = document.getElementById('editor-state-txt');
+        const out     = document.getElementById('compile-out');
+        led.className = 'sw-led'; led.style.background='#ef5350'; led.style.color='#ef5350';
+        statTxt.textContent = 'STOP'; statTxt.style.color = '#ef5350';
+        out.innerHTML += `<div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg" style="color:#ef5350">CYCLE STOP  —  Execution interrupted.</span></div>`;
+        out.scrollTop = out.scrollHeight;
+    }
+
+    function resetEditor() {
+        editor.value = EDITOR_STARTER;
+        const out = document.getElementById('compile-out');
+        const led = document.getElementById('editor-led');
+        const statTxt = document.getElementById('editor-state-txt');
+        led.className = 'sw-led ready'; led.style.background=''; led.style.color='';
+        statTxt.textContent = 'READY'; statTxt.style.color = '#00e676';
+        out.className = 'sw-console';
+        out.innerHTML = `<div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg">System reset. Editor restored to default program.</span></div>`;
+    }
+
+    function clearEditor() {
+        editor.value = '';
+        document.getElementById('compile-out').innerHTML =
+            `<div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg">Editor cleared.</span></div>`;
+    }
+
+    function copyEditor() {
+        navigator.clipboard.writeText(editor.value).then(() => {
+            const out = document.getElementById('compile-out');
+            out.innerHTML += `<div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg" style="color:#00e676">Program copied to clipboard.</span></div>`;
+            out.scrollTop = out.scrollHeight;
+        });
+    }
+
+    function downloadMPF() {
+        const blob = new Blob([m.gcode], {type: 'text/plain'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = m.prog;
+        a.click();
+    }
+    </script>
+</body>
+</html>
