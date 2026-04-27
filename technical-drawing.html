@@ -999,9 +999,8 @@ N130 M30
 %`;
 
     /* ── Init ── */
-    const params = new URLSearchParams(window.location.search);
-    const num    = parseInt(params.get('model')) || 1;
-    const m      = MODELS[num] || MODELS[1];
+    const num = parseInt(window.location.hash.replace('#', '')) || 1;
+    const m   = MODELS[num] || MODELS[1];
 
     document.title = m.project + ' Drawing — migue100.com';
     document.getElementById('page-tag').textContent     = m.tag;
