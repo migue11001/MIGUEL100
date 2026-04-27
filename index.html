@@ -1578,6 +1578,10 @@
         });
 
         updateNavState();
+
+        window.addEventListener('pageshow', e => {
+            if (e.persisted) window.location.reload();
+        });
     </script>
 
     <!-- Chat panel -->
