@@ -993,11 +993,15 @@ N130 M30
     document.getElementById('sw-tool-v').textContent       = m.tool;
     document.getElementById('sw-speed-v').textContent      = m.speed;
 
+    const drawingArea = document.getElementById('drawing-area');
+    drawingArea.querySelectorAll('img').forEach(el => el.remove());
     if (m.image) {
         const img = document.createElement('img');
         img.src = m.image; img.alt = m.project + ' technical drawing';
         document.getElementById('drawing-placeholder').style.display = 'none';
-        document.getElementById('drawing-area').appendChild(img);
+        drawingArea.appendChild(img);
+    } else {
+        document.getElementById('drawing-placeholder').style.display = '';
     }
 
     /* ── G-code syntax highlighter ── */
