@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidad — Miguel Otero</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪙</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap">
+    <style>
+        :root {
+            --neon-blue:   #00d4ff;
+            --neon-dim:    #0099cc;
+            --steel-dark:  #08090d;
+            --steel-mid:   #12151c;
+            --steel-panel: #1a1e28;
+            --steel-edge:  #2a3040;
+            --chrome:      #8ab4cc;
+            --text-main:   #cce8f4;
+            --text-dim:    #5a7a90;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+            background-color: var(--steel-dark);
+            background-image:
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,180,255,0.015) 2px, rgba(0,180,255,0.015) 4px),
+                repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,180,255,0.02) 40px, rgba(0,180,255,0.02) 41px),
+                linear-gradient(160deg, #08090d 0%, #101520 30%, #0d1a2a 55%, #101520 80%, #08090d 100%);
+            min-height: 100vh;
+            color: var(--text-main);
+            padding: 80px 20px 60px;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 900;
+            height: 56px;
+            padding: 0 2rem;
+            background: rgba(8,9,13,0.9);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(0,212,255,0.18);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            letter-spacing: 0.15em;
+            color: #fff;
+            text-decoration: none;
+            text-shadow: 0 0 4px #fff, 0 0 12px var(--neon-blue), 0 0 28px rgba(0,180,255,0.35);
+        }
+
+        .nav-back {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--neon-blue);
+            text-decoration: none;
+            padding: 0.4rem 0.9rem;
+            border: 1px solid rgba(0,212,255,0.22);
+            border-radius: 3px;
+            background: rgba(0,212,255,0.04);
+            transition: all 0.25s ease;
+        }
+        .nav-back:hover {
+            background: rgba(0,212,255,0.1);
+            border-color: var(--neon-blue);
+            color: #fff;
+        }
+
+        .wrapper {
+            max-width: 820px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            letter-spacing: 0.15em;
+            color: #fff;
+            text-shadow: 0 0 4px #fff, 0 0 14px var(--neon-blue);
+            margin-bottom: 0.4rem;
+        }
+
+        .page-subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.2em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(0,212,255,0.18);
+        }
+
+        .section {
+            background: rgba(26,30,40,0.6);
+            border: 1px solid rgba(0,212,255,0.12);
+            border-radius: 4px;
+            padding: 1.8rem 2rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .section-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--neon-blue);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(0,212,255,0.15);
+        }
+
+        .section p {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--text-main);
+            margin-bottom: 0.8rem;
+        }
+
+        .section p:last-child { margin-bottom: 0; }
+
+        .section ul {
+            list-style: none;
+            margin: 0.5rem 0 0.8rem 0;
+        }
+
+        .section ul li {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--text-main);
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .section ul li::before {
+            content: '›';
+            position: absolute;
+            left: 0;
+            color: var(--neon-blue);
+        }
+
+        .highlight {
+            color: var(--neon-blue);
+            font-weight: 600;
+        }
+
+        .rights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.8rem;
+            margin-top: 0.8rem;
+        }
+
+        .right-item {
+            background: rgba(0,212,255,0.04);
+            border: 1px solid rgba(0,212,255,0.12);
+            border-radius: 3px;
+            padding: 0.9rem 1rem;
+        }
+
+        .right-item strong {
+            display: block;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--neon-blue);
+            margin-bottom: 0.3rem;
+        }
+
+        .right-item span {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .contact-box {
+            background: rgba(0,212,255,0.05);
+            border: 1px solid rgba(0,212,255,0.25);
+            border-radius: 4px;
+            padding: 1.2rem 1.5rem;
+            margin-top: 1rem;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--chrome);
+            letter-spacing: 0.05em;
+            line-height: 1.8;
+        }
+
+        .contact-box a {
+            color: var(--neon-blue);
+            text-decoration: none;
+        }
+
+        .version-tag {
+            text-align: right;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            letter-spacing: 0.12em;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 0 1rem; }
+            .section { padding: 1.2rem 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a class="nav-logo" href="/">MIGUE100</a>
+        <a class="nav-back" href="/">← Back</a>
+    </nav>
+
+    <div class="wrapper">
+
+        <h1 class="page-title">Privacy Policy</h1>
+        <p class="page-subtitle">Regulation (EU) 2016/679 — GDPR &nbsp;|&nbsp; Version 1.0 — April 2026</p>
+
+        <!-- 1. Responsible -->
+        <div class="section">
+            <h2 class="section-title">1. Data Controller</h2>
+            <p>
+                <span class="highlight">migue100.com</span> is responsible for the processing of your personal data collected through this platform.
+            </p>
+            <div class="contact-box">
+                Responsible: migue100.com<br>
+                Website: <a href="https://migue100.com" target="_blank">https://migue100.com</a><br>
+                Server location: EU West — Ireland (AWS eu-west-1)
+            </div>
+        </div>
+
+        <!-- 2. Data collected -->
+        <div class="section">
+            <h2 class="section-title">2. Personal Data We Collect</h2>
+            <p>When you create an account we collect the following data:</p>
+            <ul>
+                <li><span class="highlight">Email address</span> — used for authentication and account recovery</li>
+                <li><span class="highlight">Username</span> — used as your public identity within the community</li>
+                <li><span class="highlight">Password</span> — stored as a secure hash, never in plain text</li>
+                <li><span class="highlight">Registration date and consent timestamp</span> — required for GDPR compliance records</li>
+            </ul>
+            <p>We do not collect payment data, precise location, or any sensitive data as defined by Article 9 of the GDPR.</p>
+        </div>
+
+        <!-- 3. Purpose and legal basis -->
+        <div class="section">
+            <h2 class="section-title">3. Purpose and Legal Basis</h2>
+            <ul>
+                <li><span class="highlight">Authentication and account management</span> — legal basis: contract performance (Art. 6.1.b GDPR)</li>
+                <li><span class="highlight">Community participation</span> (comments, shared content) — legal basis: contract performance (Art. 6.1.b GDPR)</li>
+                <li><span class="highlight">Identity verification within the community</span> — legal basis: legitimate interest (Art. 6.1.f GDPR)</li>
+                <li><span class="highlight">GDPR compliance records</span> — legal basis: legal obligation (Art. 6.1.c GDPR)</li>
+            </ul>
+        </div>
+
+        <!-- 4. Data retention -->
+        <div class="section">
+            <h2 class="section-title">4. Data Retention</h2>
+            <p>
+                Your data is retained for as long as your account remains active. If you request account deletion, all personal data associated with your account will be permanently removed within <span class="highlight">30 days</span>.
+            </p>
+            <p>
+                Consent records may be retained for up to <span class="highlight">3 years</span> after account deletion to comply with legal obligations.
+            </p>
+        </div>
+
+        <!-- 5. Data sharing -->
+        <div class="section">
+            <h2 class="section-title">5. Data Sharing and Third Parties</h2>
+            <p>We do not sell or share your personal data with third parties for commercial purposes. Your data may be processed by the following infrastructure providers under data processing agreements:</p>
+            <ul>
+                <li><span class="highlight">Supabase</span> — database and authentication (servers in EU West, Ireland)</li>
+                <li><span class="highlight">Railway</span> — application hosting</li>
+            </ul>
+            <p>Both providers comply with GDPR and offer Data Processing Agreements (DPA).</p>
+        </div>
+
+        <!-- 6. Your rights -->
+        <div class="section">
+            <h2 class="section-title">6. Your Rights Under the GDPR</h2>
+            <p>As a data subject you have the following rights:</p>
+            <div class="rights-grid">
+                <div class="right-item">
+                    <strong>Access (Art. 15)</strong>
+                    <span>Request a copy of all personal data we hold about you.</span>
+                </div>
+                <div class="right-item">
+                    <strong>Rectification (Art. 16)</strong>
+                    <span>Request correction of inaccurate or incomplete data.</span>
+                </div>
+                <div class="right-item">
+                    <strong>Erasure (Art. 17)</strong>
+                    <span>Request permanent deletion of your account and all associated data.</span>
+                </div>
+                <div class="right-item">
+                    <strong>Restriction (Art. 18)</strong>
+                    <span>Request that we limit the processing of your data.</span>
+                </div>
+                <div class="right-item">
+                    <strong>Portability (Art. 20)</strong>
+                    <span>Receive your data in a structured, machine-readable format.</span>
+                </div>
+                <div class="right-item">
+                    <strong>Objection (Art. 21)</strong>
+                    <span>Object to processing based on legitimate interest.</span>
+                </div>
+            </div>
+            <p style="margin-top:1rem;">To exercise any of these rights, contact us via <a href="https://migue100.com" target="_blank" style="color:var(--neon-blue);">migue100.com</a>. We will respond within <span class="highlight">30 days</span>.</p>
+            <p>You also have the right to lodge a complaint with your national data protection authority. For EU residents, you may contact the <span class="highlight">Irish Data Protection Commission (DPC)</span> at <a href="https://www.dataprotection.ie" target="_blank" style="color:var(--neon-blue);">dataprotection.ie</a>.</p>
+        </div>
+
+        <!-- 7. Cookies -->
+        <div class="section">
+            <h2 class="section-title">7. Cookies and Local Storage</h2>
+            <p>
+                This site uses browser local storage solely to maintain your authentication session. No third-party tracking cookies or advertising technologies are used.
+            </p>
+        </div>
+
+        <!-- 8. Security -->
+        <div class="section">
+            <h2 class="section-title">8. Security Measures</h2>
+            <ul>
+                <li>All data is transmitted over <span class="highlight">HTTPS / TLS 1.2+</span></li>
+                <li>Passwords are hashed using <span class="highlight">bcrypt</span></li>
+                <li>Database access is protected by <span class="highlight">Row Level Security (RLS)</span></li>
+                <li>Servers are located within the <span class="highlight">European Economic Area</span></li>
+            </ul>
+        </div>
+
+        <!-- 9. Changes -->
+        <div class="section">
+            <h2 class="section-title">9. Changes to This Policy</h2>
+            <p>
+                We may update this policy to reflect changes in our practices or applicable law. When we do, we will update the version date at the top of this page. Continued use of the platform after changes constitutes acceptance of the updated policy.
+            </p>
+        </div>
+
+        <!-- 10. Contact -->
+        <div class="section">
+            <h2 class="section-title">10. Contact</h2>
+            <p>For any questions or requests regarding your personal data:</p>
+            <div class="contact-box">
+                migue100.com<br>
+                <a href="https://migue100.com" target="_blank">https://migue100.com</a>
+            </div>
+        </div>
+
+        <p class="version-tag">v1.0 — 2026-04-27 &nbsp;|&nbsp; GDPR (EU) 2016/679</p>
+
+    </div>
+
+</body>
+</html>

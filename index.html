@@ -21,13 +21,13 @@
     <meta property="og:title" content="Miguel Otero — Machining Mechanisms & CNC Engineering">
     <meta property="og:description" content="CNC programming, turning, milling, metrology and mechanism design by Miguel Otero.">
     <meta property="og:url" content="https://migue100.com/">
-    <meta property="og:image" content="https://migue100.com/Gemini_Generated_Image_.png">
+    <meta property="og:image" content="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_.png">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Miguel Otero — Machining Mechanisms & CNC Engineering">
     <meta name="twitter:description" content="CNC programming, turning, milling, metrology and mechanism design by Miguel Otero.">
-    <meta name="twitter:image" content="https://migue100.com/Gemini_Generated_Image_.png">
+    <meta name="twitter:image" content="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -263,6 +263,33 @@
             box-shadow: 0 0 12px rgba(0,212,255,0.25);
         }
         .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .gdpr-field { margin-top: 0.4rem; }
+        .gdpr-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            cursor: pointer;
+        }
+        .gdpr-label input[type="checkbox"] {
+            width: 14px;
+            min-width: 14px;
+            height: 14px;
+            margin-top: 3px;
+            accent-color: var(--neon-blue);
+            cursor: pointer;
+        }
+        .gdpr-label span {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+        .gdpr-label span a {
+            color: var(--neon-blue);
+            text-decoration: underline;
+        }
 
         .auth-switch {
             margin-top: 1.2rem;
@@ -1159,6 +1186,12 @@
                 <label>Confirm Password</label>
                 <input type="password" id="reg-confirm" required>
             </div>
+            <div class="auth-field gdpr-field">
+                <label class="gdpr-label">
+                    <input type="checkbox" id="reg-gdpr" required>
+                    <span>I have read and accept the <a href="/privacy-policy.html" target="_blank">Privacy Policy</a> and consent to the processing of my personal data under the GDPR.</span>
+                </label>
+            </div>
             <button type="submit" class="auth-submit" id="register-submit">Create Account</button>
             <p class="auth-switch">Already have an account? <span id="switch-to-login">Login here</span></p>
         </form>
@@ -1172,12 +1205,12 @@
         <!-- ── Hero / Business Card ── -->
         <section class="hero-card">
             <div class="hero-image-wrap">
-                <img src="Gemini_Generated_Image_.png" alt="Industrial robotic machining cell" class="hero-image">
+                <img src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/Gemini_Generated_Image_.png" alt="Industrial robotic machining cell" class="hero-image">
                 <div class="hero-scanline"></div>
             </div>
 
             <div class="hero-info">
-                <img src="foto_perfil.png" alt="Profile" class="profile-avatar">
+                <img src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/foto_perfil.png" alt="Profile" class="profile-avatar">
 
                 <div class="profile-data">
                     <div class="data-row">
@@ -1531,7 +1564,9 @@
                     body: JSON.stringify({
                         username: document.getElementById('reg-username').value,
                         email:    document.getElementById('reg-email').value,
-                        password
+                        password,
+                        gdpr_consent: true,
+                        gdpr_consent_version: 'v1.0-2026'
                     })
                 });
                 const data = await res.json();
@@ -1743,10 +1778,10 @@
     /* ── 3D Model Cards ──────────────────────────────────────────────────────── */
     (function() {
         const STL_FILES = [
-            'A1.stl',
-            'A2.stl',
-            'A3.stl',
-            'A4.stl'
+            'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/models/A1.stl',
+            'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/models/A2.stl',
+            'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/models/A3.stl',
+            'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/models/A4.stl'
         ];
 
         /* STL Parser */

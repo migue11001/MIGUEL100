@@ -14,3 +14,9 @@ next.user-config.*
 node_modules
 .next/
 .DS_Store
+
+# Heavy media files — stored in Supabase Storage
+assets/
+
+# Local environment variables
+.env
