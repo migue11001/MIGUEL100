@@ -321,6 +321,58 @@
             box-shadow: 0 0 5px rgba(0,212,255,0.7);
         }
 
+        /* ── Turning Video Gallery (horizontal scroll) ── */
+        .turning-gallery-scroll {
+            display: flex; gap: 0; padding: 0;
+            overflow-x: auto; scroll-snap-type: x mandatory;
+            scrollbar-width: thin; scrollbar-color: rgba(0,212,255,0.3) transparent;
+        }
+        .turning-gallery-scroll::-webkit-scrollbar { height: 4px; }
+        .turning-gallery-scroll::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.3); border-radius: 2px; }
+        .turning-video-item {
+            flex: 0 0 100%; width: 100%;
+            scroll-snap-align: start; display: flex; flex-direction: column;
+            background: #000;
+        }
+        .turning-video-label {
+            padding: 7px 12px;
+            background: rgba(0,0,0,0.5);
+            border-bottom: 1px solid rgba(0,212,255,0.1);
+            font-family: 'Share Tech Mono', monospace; font-size: 0.5em;
+            letter-spacing: 0.14em; color: rgba(0,212,255,0.55); text-transform: uppercase;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .turning-video-num {
+            font-size: 1.5em; font-weight: 700; color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0,212,255,0.55);
+        }
+        .turning-video-wrap {
+            position: relative; background: #000;
+            user-select: none; aspect-ratio: 16/9; width: 100%;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06),
+                        0 4px 32px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.04);
+        }
+        .turning-video-item video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%; display: block; outline: none;
+            object-fit: contain;
+        }
+        /* ── Video index indicator ── */
+        .tg-index {
+            display: flex; align-items: center; gap: 8px;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.48em;
+            letter-spacing: 0.12em; color: rgba(255,255,255,0.2); text-transform: uppercase;
+        }
+        .tg-index-label { color: rgba(0,212,255,0.35); }
+        .tg-idx-num {
+            cursor: pointer; padding: 1px 3px;
+            transition: color 0.2s, text-shadow 0.2s;
+        }
+        .tg-idx-num.active {
+            color: #ff1744;
+            text-shadow: 0 0 8px rgba(255,23,68,0.9), 0 0 22px rgba(255,23,68,0.5);
+        }
+
         /* ── G-CODE Grid ── */
         .gcode-grid {
             max-width: 1200px; margin: 0 auto;
@@ -564,7 +616,7 @@
 
     <!-- CAM Video -->
     <div class="section-label">CAM Simulation</div>
-    <div class="video-panel">
+    <div class="video-panel" id="cam-video-panel">
         <div class="video-panel-header">
             <span class="video-panel-label">CAM — Toolpath Simulation</span>
             <span class="video-panel-badge" id="video-prog-name">A1-PROJECT CAM.mpf</span>
@@ -866,6 +918,18 @@ N270 M30
             tag: 'MODEL 02', title: 'A2-PROJECT CAM — TECHNICAL DRAWING',
             id: 'DWG-A2-001', project: 'A2-PROJECT CAM',
             image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/D2.jpg', prog: 'A2_TURNING.MPF', tool: '1', speed: '220',
+            videos: [
+                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/media/turning1.mp4',
+                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/media/turning2.mp4',
+                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/media/turning3.mp4',
+                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/media/turning4.mp4'
+            ],
+            posters: [
+                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/turning1_poster.jpg',
+                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/turning2_poster.jpg',
+                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/turning3_poster.jpg',
+                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/turning4_poster.jpg'
+            ],
             gcode: `%
 ;===========================================
 ; A2-PROJECT CAM  //  CNC TURNING
@@ -1022,6 +1086,192 @@ N130 M30
         drawingArea.appendChild(img);
     } else {
         document.getElementById('drawing-placeholder').style.display = '';
+    }
+
+    /* ── Horizontal video gallery for models with multiple videos ── */
+    if (m.videos && m.videos.length) {
+        const panel = document.getElementById('cam-video-panel');
+        const indexNums = m.videos.map(function(_, i) {
+            return '<span class="tg-idx-num' + (i === 0 ? ' active' : '') + '" data-idx="' + i + '">' + (i + 1) + '</span>';
+        }).join('');
+        panel.innerHTML =
+            '<div class="video-panel-header">' +
+                '<span class="video-panel-label">CAM — Machining Footage</span>' +
+                '<div class="tg-index">' +
+                    '<span class="tg-index-label">Videos:</span>' +
+                    indexNums +
+                '</div>' +
+            '</div>' +
+            '<div class="turning-gallery-scroll" id="tg-scroll">' +
+                m.videos.map(function(url, i) {
+                    return '<div class="turning-video-item" data-idx="' + i + '">' +
+                        '<div class="turning-video-label">' +
+                            '<span class="turning-video-num">0' + (i + 1) + '</span>' +
+                            '<span>Turning Sequence ' + (i + 1) + '</span>' +
+                        '</div>' +
+                        '<div class="turning-video-wrap">' +
+                            '<video src="' + url + '" poster="' + (m.posters && m.posters[i] ? m.posters[i] : '') + '" playsinline preload="metadata"></video>' +
+                            '<div class="vp-overlay">' +
+                                '<div class="vp-play-btn">' +
+                                    '<div class="vp-icon-play"></div>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="vp-bar">' +
+                                '<div class="vp-progress">' +
+                                    '<div class="vp-fill"></div>' +
+                                    '<div class="vp-knob"></div>' +
+                                '</div>' +
+                                '<div class="vp-row">' +
+                                    '<button class="vp-btn" title="Play / Pause">' +
+                                        '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>' +
+                                    '</button>' +
+                                    '<span class="vp-time">0:00 / 0:00</span>' +
+                                    '<div class="vp-spacer"></div>' +
+                                    '<button class="vp-btn" title="Mute">' +
+                                        '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>' +
+                                    '</button>' +
+                                    '<input class="vp-vol" type="range" min="0" max="1" step="0.02" value="1">' +
+                                    '<button class="vp-btn" title="Fullscreen">' +
+                                        '<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>' +
+                                    '</button>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+                }).join('') +
+            '</div>';
+
+        /* ── Custom player per video ── */
+        function makeTurningPlayer(wrap) {
+            const vid      = wrap.querySelector('video');
+            const overlay  = wrap.querySelector('.vp-overlay');
+            const playBtn  = wrap.querySelector('.vp-play-btn');
+            const icon     = playBtn.querySelector('div');
+            const bar      = wrap.querySelector('.vp-bar');
+            const progress = wrap.querySelector('.vp-progress');
+            const fill     = wrap.querySelector('.vp-fill');
+            const knob     = wrap.querySelector('.vp-knob');
+            const ppBtn    = wrap.querySelectorAll('.vp-btn')[0];
+            const ppPath   = ppBtn.querySelector('path');
+            const timeEl   = wrap.querySelector('.vp-time');
+            const muteBtn  = wrap.querySelectorAll('.vp-btn')[1];
+            const mutePath = muteBtn.querySelector('path');
+            const volSlider= wrap.querySelector('.vp-vol');
+            const fsBtn    = wrap.querySelectorAll('.vp-btn')[2];
+
+            let hideTimer = null, scrubbing = false;
+
+            function fmt(s) {
+                s = Math.floor(s || 0);
+                return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+            }
+            function setPlaying(playing) {
+                icon.className = playing ? 'vp-icon-pause' : 'vp-icon-play';
+                icon.innerHTML = playing ? '<b></b><b></b>' : '';
+                ppPath.setAttribute('d', playing ? 'M6 19h4V5H6v14zm8-14v14h4V5h-4z' : 'M8 5v14l11-7z');
+            }
+            function showControls() {
+                overlay.classList.remove('faded');
+                bar.classList.remove('faded');
+                clearTimeout(hideTimer);
+                if (!vid.paused) {
+                    hideTimer = setTimeout(function() {
+                        overlay.classList.add('faded');
+                        bar.classList.add('faded');
+                    }, 2800);
+                }
+            }
+            function updateProgress() {
+                if (!vid.duration || scrubbing) return;
+                var pct = (vid.currentTime / vid.duration) * 100;
+                fill.style.width = pct + '%';
+                knob.style.left  = pct + '%';
+                timeEl.textContent = fmt(vid.currentTime) + ' / ' + fmt(vid.duration);
+            }
+            function seekTo(e) {
+                var rect = progress.getBoundingClientRect();
+                var pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                vid.currentTime = pct * vid.duration;
+                fill.style.width = (pct * 100) + '%';
+                knob.style.left  = (pct * 100) + '%';
+            }
+            function togglePlay() { vid.paused ? vid.play() : vid.pause(); }
+
+            playBtn.addEventListener('click', togglePlay);
+            ppBtn.addEventListener('click', togglePlay);
+            wrap.addEventListener('click', function(e) { if (e.target === vid) togglePlay(); });
+
+            vid.addEventListener('play',  function() { setPlaying(true);  showControls(); });
+            vid.addEventListener('pause', function() { setPlaying(false); showControls(); });
+            vid.addEventListener('timeupdate', updateProgress);
+            vid.addEventListener('loadedmetadata', updateProgress);
+            vid.addEventListener('ended', function() { setPlaying(false); showControls(); });
+
+            progress.addEventListener('mousedown', function(e) { scrubbing = true; seekTo(e); });
+            window.addEventListener('mousemove', function(e) { if (scrubbing) seekTo(e); });
+            window.addEventListener('mouseup',   function() { scrubbing = false; });
+
+            wrap.addEventListener('mousemove',  showControls);
+            wrap.addEventListener('mouseenter', showControls);
+            wrap.addEventListener('mouseleave', function() {
+                if (!vid.paused) {
+                    overlay.classList.add('faded');
+                    bar.classList.add('faded');
+                }
+            });
+
+            muteBtn.addEventListener('click', function() {
+                vid.muted = !vid.muted;
+                mutePath.setAttribute('d', vid.muted
+                    ? 'M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0 0 17.73 18L19 19.27 20.27 18 5.27 3 4.27 3zM12 4L9.91 6.09 12 8.18V4z'
+                    : 'M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z');
+            });
+            volSlider.addEventListener('input', function() {
+                vid.volume = parseFloat(volSlider.value);
+                vid.muted  = vid.volume === 0;
+            });
+            fsBtn.addEventListener('click', function() {
+                if (!document.fullscreenElement) {
+                    wrap.requestFullscreen && wrap.requestFullscreen();
+                } else {
+                    document.exitFullscreen && document.exitFullscreen();
+                }
+            });
+
+            setPlaying(false);
+            showControls();
+        }
+
+        /* Index indicator — highlight active video on scroll */
+        const scroll = document.getElementById('tg-scroll');
+        const items  = scroll.querySelectorAll('.turning-video-item');
+
+        scroll.querySelectorAll('.turning-video-wrap').forEach(makeTurningPlayer);
+        const dots   = panel.querySelectorAll('.tg-idx-num');
+
+        function setActive(idx) {
+            dots.forEach(function(d) {
+                d.classList.toggle('active', parseInt(d.dataset.idx) === idx);
+            });
+        }
+
+        /* Click on number to jump to that video */
+        dots.forEach(function(d) {
+            d.addEventListener('click', function() {
+                const target = items[parseInt(d.dataset.idx)];
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+            });
+        });
+
+        const obs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+                    setActive(parseInt(entry.target.dataset.idx));
+                }
+            });
+        }, { root: scroll, threshold: 0.5 });
+
+        items.forEach(function(item) { obs.observe(item); });
     }
 
     /* ── G-code syntax highlighter ── */
