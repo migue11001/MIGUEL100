@@ -1165,20 +1165,25 @@ N130 M30
                 s = Math.floor(s || 0);
                 return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
             }
+            let overlayTimer = null;
             function setPlaying(playing) {
                 icon.className = playing ? 'vp-icon-pause' : 'vp-icon-play';
                 icon.innerHTML = playing ? '<b></b><b></b>' : '';
                 ppPath.setAttribute('d', playing ? 'M6 19h4V5H6v14zm8-14v14h4V5h-4z' : 'M8 5v14l11-7z');
+                if (playing) {
+                    overlay.classList.remove('faded');
+                    clearTimeout(overlayTimer);
+                    overlayTimer = setTimeout(function() { overlay.classList.add('faded'); }, 500);
+                } else {
+                    clearTimeout(overlayTimer);
+                    overlay.classList.remove('faded');
+                }
             }
             function showControls() {
-                overlay.classList.remove('faded');
                 bar.classList.remove('faded');
                 clearTimeout(hideTimer);
                 if (!vid.paused) {
-                    hideTimer = setTimeout(function() {
-                        overlay.classList.add('faded');
-                        bar.classList.add('faded');
-                    }, 2800);
+                    hideTimer = setTimeout(function() { bar.classList.add('faded'); }, 2800);
                 }
             }
             function updateProgress() {
@@ -1214,10 +1219,7 @@ N130 M30
             wrap.addEventListener('mousemove',  showControls);
             wrap.addEventListener('mouseenter', showControls);
             wrap.addEventListener('mouseleave', function() {
-                if (!vid.paused) {
-                    overlay.classList.add('faded');
-                    bar.classList.add('faded');
-                }
+                if (!vid.paused) { bar.classList.add('faded'); }
             });
 
             muteBtn.addEventListener('click', function() {
