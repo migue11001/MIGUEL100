@@ -484,8 +484,14 @@
                         <input type="text" class="form-input" id="f-name" required placeholder="Your name">
                     </div>
                     <div class="form-field">
-                        <label class="form-label">Email *</label>
-                        <input type="email" class="form-input" id="f-email" required placeholder="your@email.com">
+                        <label class="form-label">Phone / WhatsApp *</label>
+                        <input type="tel" class="form-input" id="f-phone" required placeholder="+1 555 000 0000">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="f-email" placeholder="your@email.com">
                     </div>
                 </div>
 
@@ -511,7 +517,7 @@
         <div class="success-panel" id="success-panel">
             <div class="success-icon">💬</div>
             <div class="success-title">WhatsApp is Opening</div>
-            <div class="success-sub">Your message is ready — just press Send in WhatsApp.</div>
+            <div class="success-sub">Your message is ready — press Send in WhatsApp to complete.</div>
         </div>
 
     </div>
@@ -667,6 +673,7 @@
         const payload = {
             service: selectedService,
             name:    document.getElementById('f-name').value.trim(),
+            phone:   document.getElementById('f-phone').value.trim(),
             email:   document.getElementById('f-email').value.trim(),
             message: document.getElementById('f-message').value.trim(),
         };
@@ -694,7 +701,7 @@
             errEl.textContent = 'Connection error — please try again.';
         } finally {
             btn.disabled = false;
-            btn.textContent = 'Send via WhatsApp →';
+            btn.textContent = 'Send →';
         }
     });
     </script>
