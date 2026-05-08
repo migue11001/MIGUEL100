@@ -659,50 +659,38 @@
     })();
 
     /* ── Form submit ── */
-    document.getElementById('contact-form').addEventListener('submit', async e => {
+    document.getElementById('contact-form').addEventListener('submit', e => {
         e.preventDefault();
         if (!selectedService) return;
 
-        const btn = document.getElementById('form-submit');
-        const errEl = document.getElementById('form-error');
-        btn.disabled = true;
-        btn.textContent = 'Opening WhatsApp...';
-        errEl.textContent = '';
+        const name    = document.getElementById('f-name').value.trim();
+        const phone   = document.getElementById('f-phone').value.trim();
+        const email   = document.getElementById('f-email').value.trim();
+        const message = document.getElementById('f-message').value.trim();
 
         const fields = SERVICE_FIELDS[selectedService] || [];
-        const payload = {
-            service: selectedService,
-            name:    document.getElementById('f-name').value.trim(),
-            phone:   document.getElementById('f-phone').value.trim(),
-            email:   document.getElementById('f-email').value.trim(),
-            message: document.getElementById('f-message').value.trim(),
-        };
+        const lines = [
+            '*New Collaboration Request — migue100.com*',
+            '',
+            `*Service:* ${selectedService}`,
+            `*Name:* ${name}`,
+        ];
+        if (phone)   lines.push(`*Phone:* ${phone}`);
+        if (email)   lines.push(`*Email:* ${email}`);
+
         fields.forEach(f => {
             const el = document.getElementById('f-' + f.id);
-            if (el) payload[f.id] = el.value;
+            if (el && el.value) lines.push(`*${f.label}:* ${el.value}`);
         });
 
-        try {
-            const res  = await fetch(BACKEND_URL + '/contact-form', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            if (data.ok && data.whatsapp_url) {
-                window.open(data.whatsapp_url, '_blank');
-                document.getElementById('form-wrap').classList.remove('visible');
-                document.getElementById('success-panel').classList.add('visible');
-                document.getElementById('success-panel').scrollIntoView({ behavior: 'smooth' });
-            } else {
-                errEl.textContent = data.error || 'Something went wrong. Please try again.';
-            }
-        } catch {
-            errEl.textContent = 'Connection error — please try again.';
-        } finally {
-            btn.disabled = false;
-            btn.textContent = 'Send →';
-        }
+        if (message) lines.push('', '*Description:*', message);
+
+        const url = 'https://wa.me/393341331987?text=' + encodeURIComponent(lines.join('\n'));
+        window.location.href = url;
+
+        document.getElementById('form-wrap').classList.remove('visible');
+        document.getElementById('success-panel').classList.add('visible');
+        document.getElementById('success-panel').scrollIntoView({ behavior: 'smooth' });
     });
     </script>
 
