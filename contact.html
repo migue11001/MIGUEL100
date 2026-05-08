@@ -380,15 +380,46 @@
         .success-linkedin:hover { color: #fff; border-color: var(--neon-blue); background: rgba(0,212,255,0.12); box-shadow: 0 0 16px rgba(0,212,255,0.2); }
 
         /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .services-grid { grid-template-columns: 1fr 1fr 1fr; }
+        }
         @media (max-width: 768px) {
             .site-nav { padding: 0 1rem; height: 50px; }
-            body { padding-top: 66px; }
-            .services-grid { grid-template-columns: 1fr 1fr; }
-            .form-grid { grid-template-columns: 1fr; }
+            .nav-logo { font-size: 0.95rem; }
+            body { padding: 66px 16px 48px; }
+            .page-wrapper { max-width: 100%; }
+            .page-title { font-size: clamp(1.2em, 6vw, 2em); letter-spacing: 0.06em; }
+            .page-sub { font-size: 0.6em; letter-spacing: 0.14em; }
+            .page-header { margin-bottom: 32px; padding-bottom: 18px; }
+            .start-btn { width: 72px; height: 72px; font-size: 0.54em; }
+            .services-grid { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px; }
+            .service-card { padding: 16px 14px; }
+            .service-card-icon { font-size: 1.5em; margin-bottom: 8px; }
+            .service-card-title { font-size: 0.9em; }
+            .service-card-desc { font-size: 0.75em; }
+            .form-grid { grid-template-columns: 1fr; gap: 12px; }
+            .form-input,
+            .form-select,
+            .form-textarea { font-size: 1em; padding: 0.75rem 0.9rem; min-height: 48px; }
+            .form-textarea { min-height: 100px; }
+            .form-submit { padding: 0.9rem; font-size: 0.82em; min-height: 52px; }
+            .section-heading { font-size: 0.65em; letter-spacing: 0.2em; }
+            .section-sub { font-size: 0.85em; }
+            .selected-badge { font-size: 0.6em; }
+            .success-panel { padding: 36px 16px; }
+            .success-title { font-size: 0.88em; }
         }
         @media (max-width: 480px) {
-            body { padding: 66px 12px 40px; }
+            body { padding: 62px 12px 40px; }
+            .page-title { font-size: clamp(1em, 7vw, 1.6em); }
+            .services-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .service-card { padding: 14px 12px; }
+            .service-card-desc { display: none; }
+            .form-label { font-size: 0.65em; }
+        }
+        @media (max-width: 360px) {
             .services-grid { grid-template-columns: 1fr; }
+            .service-card-desc { display: block; }
         }
     </style>
 </head>
