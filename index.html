@@ -843,6 +843,7 @@
             .hero-image-wrap { height: 220px; }
             .cards-grid { grid-template-columns: 1fr; }
             .data-value { white-space: normal; word-break: break-word; }
+            .data-row { align-items: center; }
         }
 
         @media (max-width: 480px) {
@@ -1024,7 +1025,9 @@
             padding: 4px 2px 12px;
             animation: collabScroll 72s linear infinite;
         }
-        .collab-track:hover { animation-play-state: paused; }
+        @media (hover: hover) {
+            .collab-track:hover { animation-play-state: paused; }
+        }
         @keyframes collabScroll {
             0%   { transform: translateX(0); }
             100% { transform: translateX(-50%); }
@@ -2276,54 +2279,72 @@
             holo.className = 'holo-layer';
             card.appendChild(holo);
 
-            const metal = METALS[card.dataset.metal] || METALS.steel;
+            const metal   = METALS[card.dataset.metal] || METALS.steel;
+            const service = card.querySelector('.collab-card-title').textContent.trim();
 
-            /* Drag-safe navigation: only navigate if mouse didn't move (not a scroll drag) */
-            let dragStartX = 0;
-            card.addEventListener('mousedown', e => { dragStartX = e.clientX; });
-            card.addEventListener('click', e => {
-                if (Math.abs(e.clientX - dragStartX) > 8) return;
-                const service = card.querySelector('.collab-card-title').textContent.trim();
-                window.location.href = 'contact.html?service=' + encodeURIComponent(service);
-            });
-
-            card.addEventListener('mousemove', e => {
-                const r     = card.getBoundingClientRect();
-                const x     = (e.clientX - r.left) / r.width;
-                const y     = (e.clientY - r.top)  / r.height;
+            function applyMetal(x, y) {
                 const rotX  = (y - 0.5) * -18;
                 const rotY  = (x - 0.5) *  18;
                 const angle = Math.atan2(y - 0.5, x - 0.5) * (180 / Math.PI) + 90;
-
                 card.style.transition = 'box-shadow 0.15s ease';
                 card.style.transform  = `perspective(500px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.05)`;
                 card.style.boxShadow  = `0 ${20 - rotX}px 40px rgba(0,0,0,0.65), 0 0 28px ${metal.glow}`;
                 card.style.zIndex     = '10';
-
                 holo.style.background = `
                     linear-gradient(${angle}deg,
-                        transparent        15%,
-                        ${metal.b}         28%,
-                        ${metal.c}         42%,
-                        ${metal.a}         56%,
-                        ${metal.b}         70%,
-                        transparent        82%
+                        transparent 15%, ${metal.b} 28%, ${metal.c} 42%,
+                        ${metal.a} 56%, ${metal.b} 70%, transparent 82%
                     ),
                     radial-gradient(ellipse at ${x*100}% ${y*100}%,
-                        ${metal.c}   0%,
-                        ${metal.a}   25%,
-                        transparent  60%
+                        ${metal.c} 0%, ${metal.a} 25%, transparent 60%
                     )`;
                 holo.style.opacity = '1';
-            });
+            }
 
-            card.addEventListener('mouseleave', () => {
+            function resetMetal() {
                 card.style.transition = 'transform 0.45s ease, box-shadow 0.45s ease';
                 card.style.transform  = '';
                 card.style.boxShadow  = '';
                 card.style.zIndex     = '';
                 holo.style.opacity    = '0';
+            }
+
+            /* ── Desktop: mouse ── */
+            let dragStartX = 0;
+            card.addEventListener('mousedown', e => { dragStartX = e.clientX; });
+            card.addEventListener('click', e => {
+                if (window.matchMedia('(hover: none)').matches) return;
+                if (Math.abs(e.clientX - dragStartX) > 8) return;
+                window.location.href = 'contact.html?service=' + encodeURIComponent(service);
             });
+            card.addEventListener('mousemove', e => {
+                const r = card.getBoundingClientRect();
+                applyMetal((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
+            });
+            card.addEventListener('mouseleave', resetMetal);
+
+            /* ── Mobile: touch — efecto en primer tap, navega en doble tap ── */
+            let lastTap = 0;
+            card.addEventListener('touchstart', e => {
+                const t = e.touches[0];
+                const r = card.getBoundingClientRect();
+                applyMetal((t.clientX - r.left) / r.width, (t.clientY - r.top) / r.height);
+            }, { passive: true });
+
+            card.addEventListener('touchmove', e => {
+                const t = e.touches[0];
+                const r = card.getBoundingClientRect();
+                applyMetal((t.clientX - r.left) / r.width, (t.clientY - r.top) / r.height);
+            }, { passive: true });
+
+            card.addEventListener('touchend', () => {
+                setTimeout(resetMetal, 400);
+                const now = Date.now();
+                if (now - lastTap < 350) {
+                    window.location.href = 'contact.html?service=' + encodeURIComponent(service);
+                }
+                lastTap = now;
+            }, { passive: true });
         });
     })();
     </script>
