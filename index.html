@@ -2325,7 +2325,10 @@
 
             /* ── Mobile: touch — efecto en primer tap, navega en doble tap ── */
             let lastTap = 0;
+            const track = document.getElementById('collab-track');
+
             card.addEventListener('touchstart', e => {
+                track.style.animationPlayState = 'paused';
                 const t = e.touches[0];
                 const r = card.getBoundingClientRect();
                 applyMetal((t.clientX - r.left) / r.width, (t.clientY - r.top) / r.height);
@@ -2338,6 +2341,7 @@
             }, { passive: true });
 
             card.addEventListener('touchend', () => {
+                track.style.animationPlayState = 'running';
                 setTimeout(resetMetal, 400);
                 const now = Date.now();
                 if (now - lastTap < 350) {
