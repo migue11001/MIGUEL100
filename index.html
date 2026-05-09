@@ -1261,6 +1261,104 @@
             pointer-events: none;
             z-index: 3;
         }
+        /* ── Metal plate card variants ── */
+
+        /* VIVID — Gold */
+        [data-metal="gold"] {
+            background:
+                linear-gradient(120deg, rgba(255,230,100,0.13) 0%, transparent 45%),
+                repeating-linear-gradient(88deg, transparent, transparent 3px, rgba(212,168,40,0.05) 3px, rgba(212,168,40,0.05) 4px),
+                linear-gradient(160deg, rgba(62,46,8,0.98) 0%, rgba(36,26,4,1) 50%, rgba(50,36,6,0.98) 100%);
+            border: 1px solid rgba(255,200,50,0.7);
+            box-shadow: 0 0 28px rgba(212,168,40,0.22), 0 2px 8px rgba(0,0,0,0.6),
+                        inset 0 1px 0 rgba(255,230,80,0.25), inset 0 -1px 0 rgba(120,80,0,0.5);
+        }
+        [data-metal="gold"]::before { background: linear-gradient(90deg, transparent, rgba(255,215,60,0.85), transparent); }
+        [data-metal="gold"]::after  { border-color: rgba(255,215,60,0.85); width: 10px; height: 10px; }
+        [data-metal="gold"] .collab-card-title { color: #ffe060; text-shadow: 0 0 14px rgba(255,200,40,0.8), 0 1px 3px rgba(0,0,0,0.9); }
+        [data-metal="gold"] .collab-card-icon  { filter: drop-shadow(0 0 9px rgba(255,200,40,0.8)); }
+        [data-metal="gold"] .collab-card-desc  { color: rgba(220,185,90,0.7); }
+
+        /* NEUTRAL — Silver */
+        [data-metal="silver"] {
+            background:
+                linear-gradient(120deg, rgba(230,238,250,0.06) 0%, transparent 45%),
+                repeating-linear-gradient(88deg, transparent, transparent 3px, rgba(190,205,225,0.03) 3px, rgba(190,205,225,0.03) 4px),
+                linear-gradient(160deg, rgba(28,34,44,0.98) 0%, rgba(18,22,30,1) 50%, rgba(24,30,40,0.98) 100%);
+            border: 1px solid rgba(190,205,225,0.4);
+            box-shadow: 0 0 14px rgba(190,205,225,0.07), 0 2px 8px rgba(0,0,0,0.6),
+                        inset 0 1px 0 rgba(230,238,250,0.08), inset 0 -1px 0 rgba(60,70,90,0.4);
+        }
+        [data-metal="silver"]::before { background: linear-gradient(90deg, transparent, rgba(210,222,240,0.5), transparent); }
+        [data-metal="silver"]::after  { border-color: rgba(210,222,240,0.5); width: 10px; height: 10px; }
+        [data-metal="silver"] .collab-card-title { color: #c8d8e8; text-shadow: 0 0 8px rgba(190,205,225,0.35), 0 1px 3px rgba(0,0,0,0.9); }
+        [data-metal="silver"] .collab-card-icon  { filter: drop-shadow(0 0 5px rgba(190,205,225,0.35)); }
+        [data-metal="silver"] .collab-card-desc  { color: rgba(140,160,185,0.55); }
+
+        /* VIVID — Bronze */
+        [data-metal="bronze"] {
+            background:
+                linear-gradient(120deg, rgba(230,155,60,0.13) 0%, transparent 45%),
+                repeating-linear-gradient(88deg, transparent, transparent 3px, rgba(185,115,40,0.05) 3px, rgba(185,115,40,0.05) 4px),
+                linear-gradient(160deg, rgba(56,30,8,0.98) 0%, rgba(32,16,4,1) 50%, rgba(46,24,6,0.98) 100%);
+            border: 1px solid rgba(220,145,55,0.7);
+            box-shadow: 0 0 28px rgba(185,115,40,0.22), 0 2px 8px rgba(0,0,0,0.6),
+                        inset 0 1px 0 rgba(230,160,65,0.22), inset 0 -1px 0 rgba(110,50,0,0.5);
+        }
+        [data-metal="bronze"]::before { background: linear-gradient(90deg, transparent, rgba(225,150,55,0.85), transparent); }
+        [data-metal="bronze"]::after  { border-color: rgba(225,150,55,0.85); width: 10px; height: 10px; }
+        [data-metal="bronze"] .collab-card-title { color: #e09050; text-shadow: 0 0 14px rgba(200,120,45,0.8), 0 1px 3px rgba(0,0,0,0.9); }
+        [data-metal="bronze"] .collab-card-icon  { filter: drop-shadow(0 0 9px rgba(200,120,45,0.8)); }
+        [data-metal="bronze"] .collab-card-desc  { color: rgba(195,130,60,0.7); }
+
+        /* NEUTRAL — Steel */
+        [data-metal="steel"] {
+            background:
+                linear-gradient(120deg, rgba(110,150,185,0.06) 0%, transparent 45%),
+                repeating-linear-gradient(88deg, transparent, transparent 3px, rgba(80,120,155,0.03) 3px, rgba(80,120,155,0.03) 4px),
+                linear-gradient(160deg, rgba(14,20,30,0.98) 0%, rgba(8,14,22,1) 50%, rgba(12,18,28,0.98) 100%);
+            border: 1px solid rgba(90,130,165,0.38);
+            box-shadow: 0 0 14px rgba(90,130,165,0.07), 0 2px 8px rgba(0,0,0,0.6),
+                        inset 0 1px 0 rgba(120,160,195,0.08), inset 0 -1px 0 rgba(20,40,60,0.4);
+        }
+        [data-metal="steel"]::before { background: linear-gradient(90deg, transparent, rgba(110,155,190,0.5), transparent); }
+        [data-metal="steel"]::after  { border-color: rgba(110,155,190,0.5); width: 10px; height: 10px; }
+        [data-metal="steel"] .collab-card-title { color: #80a8c0; text-shadow: 0 0 8px rgba(90,130,165,0.35), 0 1px 3px rgba(0,0,0,0.9); }
+        [data-metal="steel"] .collab-card-icon  { filter: drop-shadow(0 0 5px rgba(90,130,165,0.35)); }
+        [data-metal="steel"] .collab-card-desc  { color: rgba(80,115,145,0.55); }
+
+        /* VIVID — Copper */
+        [data-metal="copper"] {
+            background:
+                linear-gradient(120deg, rgba(240,130,65,0.13) 0%, transparent 45%),
+                repeating-linear-gradient(88deg, transparent, transparent 3px, rgba(200,105,45,0.05) 3px, rgba(200,105,45,0.05) 4px),
+                linear-gradient(160deg, rgba(54,22,8,0.98) 0%, rgba(30,12,4,1) 50%, rgba(44,18,6,0.98) 100%);
+            border: 1px solid rgba(230,125,60,0.7);
+            box-shadow: 0 0 28px rgba(200,105,45,0.22), 0 2px 8px rgba(0,0,0,0.6),
+                        inset 0 1px 0 rgba(240,145,70,0.22), inset 0 -1px 0 rgba(110,40,0,0.5);
+        }
+        [data-metal="copper"]::before { background: linear-gradient(90deg, transparent, rgba(230,130,60,0.85), transparent); }
+        [data-metal="copper"]::after  { border-color: rgba(230,130,60,0.85); width: 10px; height: 10px; }
+        [data-metal="copper"] .collab-card-title { color: #e07848; text-shadow: 0 0 14px rgba(210,110,50,0.8), 0 1px 3px rgba(0,0,0,0.9); }
+        [data-metal="copper"] .collab-card-icon  { filter: drop-shadow(0 0 9px rgba(210,110,50,0.8)); }
+        [data-metal="copper"] .collab-card-desc  { color: rgba(200,110,60,0.7); }
+
+        /* NEUTRAL — Titanium */
+        [data-metal="titanium"] {
+            background:
+                linear-gradient(120deg, rgba(150,185,220,0.06) 0%, transparent 45%),
+                repeating-linear-gradient(88deg, transparent, transparent 3px, rgba(120,160,200,0.03) 3px, rgba(120,160,200,0.03) 4px),
+                linear-gradient(160deg, rgba(16,22,34,0.98) 0%, rgba(10,16,28,1) 50%, rgba(14,20,32,0.98) 100%);
+            border: 1px solid rgba(125,165,205,0.38);
+            box-shadow: 0 0 14px rgba(125,165,205,0.07), 0 2px 8px rgba(0,0,0,0.6),
+                        inset 0 1px 0 rgba(160,200,235,0.08), inset 0 -1px 0 rgba(30,50,80,0.4);
+        }
+        [data-metal="titanium"]::before { background: linear-gradient(90deg, transparent, rgba(145,185,220,0.5), transparent); }
+        [data-metal="titanium"]::after  { border-color: rgba(145,185,220,0.5); width: 10px; height: 10px; }
+        [data-metal="titanium"] .collab-card-title { color: #90b4cc; text-shadow: 0 0 8px rgba(125,165,205,0.35), 0 1px 3px rgba(0,0,0,0.9); }
+        [data-metal="titanium"] .collab-card-icon  { filter: drop-shadow(0 0 5px rgba(125,165,205,0.35)); }
+        [data-metal="titanium"] .collab-card-desc  { color: rgba(105,145,180,0.55); }
+
         .collab-cta {
             display: flex;
             flex-direction: column;
@@ -1704,11 +1802,6 @@
                         <div class="collab-card-title">Prototype Feasibility</div>
                         <div class="collab-card-desc">Review of your CAD file to identify manufacturability issues before committing to production.</div>
                     </div>
-                    <div class="collab-card" data-metal="titanium">
-                        <span class="collab-card-icon">💻</span>
-                        <div class="collab-card-title">CNC Programming</div>
-                        <div class="collab-card-desc">G-code generation for milling and turning operations. Ready to run on your machine.</div>
-                    </div>
                     <div class="collab-card" data-metal="silver">
                         <span class="collab-card-icon">⚙️</span>
                         <div class="collab-card-title">Technical Consultation</div>
@@ -1728,6 +1821,11 @@
                         <span class="collab-card-icon">🔩</span>
                         <div class="collab-card-title">Process Optimization</div>
                         <div class="collab-card-desc">Speeds, feeds and toolpath strategies to reduce cycle time and extend tool life.</div>
+                    </div>
+                    <div class="collab-card" data-metal="titanium">
+                        <span class="collab-card-icon">💻</span>
+                        <div class="collab-card-title">CNC Programming</div>
+                        <div class="collab-card-desc">G-code generation for milling and turning operations. Ready to run on your machine.</div>
                     </div>
 
                     <!-- Duplicados para scroll infinito -->
@@ -1736,11 +1834,6 @@
                         <div class="collab-card-title">Prototype Feasibility</div>
                         <div class="collab-card-desc">Review of your CAD file to identify manufacturability issues before committing to production.</div>
                     </div>
-                    <div class="collab-card" data-metal="titanium">
-                        <span class="collab-card-icon">💻</span>
-                        <div class="collab-card-title">CNC Programming</div>
-                        <div class="collab-card-desc">G-code generation for milling and turning operations. Ready to run on your machine.</div>
-                    </div>
                     <div class="collab-card" data-metal="silver">
                         <span class="collab-card-icon">⚙️</span>
                         <div class="collab-card-title">Technical Consultation</div>
@@ -1756,10 +1849,20 @@
                         <div class="collab-card-title">Technical Drawing</div>
                         <div class="collab-card-desc">Complete documentation: dimensions, tolerances and GD&amp;T annotations ready for the workshop.</div>
                     </div>
+                    <div class="collab-card" data-metal="steel">
+                        <span class="collab-card-icon">📄</span>
+                        <div class="collab-card-title">Technical Drawing</div>
+                        <div class="collab-card-desc">Complete documentation: dimensions, tolerances and GD&amp;T annotations ready for the workshop.</div>
+                    </div>
                     <div class="collab-card" data-metal="copper">
                         <span class="collab-card-icon">🔩</span>
                         <div class="collab-card-title">Process Optimization</div>
                         <div class="collab-card-desc">Speeds, feeds and toolpath strategies to reduce cycle time and extend tool life.</div>
+                    </div>
+                    <div class="collab-card" data-metal="titanium">
+                        <span class="collab-card-icon">💻</span>
+                        <div class="collab-card-title">CNC Programming</div>
+                        <div class="collab-card-desc">G-code generation for milling and turning operations. Ready to run on your machine.</div>
                     </div>
 
                 </div>
