@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case 23V-751 — Honda Crankshaft · Metrology · migue100.com</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪙</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --neon-blue: #00d4ff;
+    --neon-dim:  #0099cc;
+    --steel-dark:#08090d;
+    --steel-panel:#1a1e28;
+    --chrome:    #8ab4cc;
+    --text-main: #cce8f4;
+    --text-dim:  #5a7a90;
+    --red:       #ff4d4d;
+    --amber:     #ffb347;
+    --green:     #4dff91;
+    --max:       780px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    background-color: var(--steel-dark);
+    background-image:
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,180,255,0.015) 2px, rgba(0,180,255,0.015) 4px),
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,180,255,0.02) 40px, rgba(0,180,255,0.02) 41px),
+      linear-gradient(160deg, #08090d 0%, #101520 30%, #0d1a2a 55%, #101520 80%, #08090d 100%);
+    color: var(--text-main);
+    min-height: 100vh;
+    padding: 80px 20px 80px;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+    padding: 0 2rem; height: 56px;
+    background: rgba(8,9,13,0.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(0,212,255,0.18);
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.12em;
+  }
+  nav a { color: var(--neon-dim); text-decoration: none; transition: color 0.2s; }
+  nav a:hover { color: var(--neon-blue); }
+  nav a.nav-logo {
+    color: #fff;
+    text-shadow: 0 0 4px #fff, 0 0 12px var(--neon-blue), 0 0 28px rgba(0,180,255,0.35);
+    font-size: 1.05rem; letter-spacing: 0.15em;
+  }
+  nav .sep { color: var(--text-dim); font-size: 0.65rem; }
+  nav .nav-current { color: var(--chrome); }
+  nav .nav-badge {
+    margin-left: auto;
+    font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
+    background: rgba(255,77,77,0.08);
+    border: 1px solid rgba(255,77,77,0.28);
+    border-radius: 3px; padding: 3px 10px;
+    color: var(--red);
+  }
+
+  /* ── Layout ── */
+  .page { max-width: var(--max); margin: 0 auto; position: relative; z-index: 2; }
+
+  /* ── Post header ── */
+  .post-header {
+    margin-bottom: 40px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid rgba(0,212,255,0.15);
+  }
+  .module-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62em; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--neon-dim); margin-bottom: 12px;
+  }
+  .module-tag::before { content: '// '; opacity: 0.5; }
+
+  h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(1.6em, 4vw, 2.4em);
+    font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; line-height: 1.2;
+    color: #fff;
+    text-shadow: 0 0 4px #fff, 0 0 14px var(--neon-blue), 0 0 32px rgba(0,180,255,0.25);
+    margin-bottom: 14px;
+  }
+  .subtitle {
+    font-size: 1em; color: var(--chrome);
+    line-height: 1.7; max-width: 640px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Source pill */
+  .source-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.62em;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    background: rgba(0,212,255,0.04);
+    border: 1px solid rgba(0,212,255,0.2); border-radius: 3px;
+    padding: 6px 14px; color: var(--text-dim);
+    text-decoration: none; margin-top: 20px; display: inline-flex;
+    transition: all 0.2s ease;
+  }
+  .source-pill:hover { border-color: rgba(0,212,255,0.4); color: var(--neon-blue); }
+  .source-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(0,212,255,0.12);
+    margin-bottom: 36px; margin-top: 32px;
+    gap: 2px;
+  }
+  .tab {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 10px 18px; cursor: pointer;
+    border: none; background: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px; transition: color 0.15s;
+  }
+  .tab:hover { color: var(--text-main); }
+  .tab.active { color: var(--neon-blue); border-bottom-color: var(--neon-blue); }
+
+  /* ── Chapter heading ── */
+  .chapter {
+    display: flex; align-items: center; gap: 14px;
+    margin: 36px 0 18px;
+  }
+  .chapter-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6em; letter-spacing: 0.2em; color: var(--text-dim);
+    min-width: 24px;
+  }
+  .chapter h2 {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--neon-blue); white-space: nowrap;
+  }
+  .chapter-line { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,212,255,0.3), transparent); }
+
+  /* ── Narrative text ── */
+  .narrative {
+    font-size: 1em; color: var(--chrome);
+    line-height: 1.8; margin-bottom: 18px;
+    letter-spacing: 0.02em;
+  }
+  .narrative strong { color: var(--text-main); font-weight: 600; }
+  .narrative em     { color: var(--text-main); font-style: italic; }
+  .narrative a      { color: var(--neon-blue); text-decoration: none; }
+  .narrative a:hover { text-decoration: underline; }
+
+  /* ── Stat grid ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px; margin-bottom: 24px;
+  }
+  .stat {
+    background: rgba(26,30,40,0.9);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 4px; padding: 18px 16px;
+    position: relative;
+  }
+  .stat::before {
+    content: '';
+    position: absolute; top: 0; left: 14px; right: 14px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.4), transparent);
+  }
+  .stat .sl {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55em; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--neon-dim); margin-bottom: 8px;
+  }
+  .stat .sv { font-family: 'Share Tech Mono', monospace; font-size: 1.5em; font-weight: 400; letter-spacing: 0.04em; }
+  .stat .ss { font-family: 'Share Tech Mono', monospace; font-size: 0.58em; color: var(--text-dim); margin-top: 5px; line-height: 1.4; }
+
+  /* ── Evidence card ── */
+  .evidence {
+    background: rgba(18,21,28,0.95);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 4px; margin-bottom: 20px;
+    overflow: hidden; position: relative;
+  }
+  .evidence::before {
+    content: '';
+    position: absolute; top: 0; left: 20px; right: 20px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.4), transparent);
+  }
+  .evidence-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px;
+    border-bottom: 1px solid rgba(0,212,255,0.1);
+    background: rgba(0,212,255,0.03);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6em; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .evidence-body {
+    padding: 16px 18px;
+    font-size: 0.95em; color: var(--chrome);
+    line-height: 1.75;
+  }
+  .evidence-body strong { color: var(--text-main); font-weight: 600; }
+  .evidence-body code {
+    font-family: 'Share Tech Mono', monospace; font-size: 0.85em;
+    background: rgba(0,212,255,0.05);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 2px; padding: 1px 6px;
+    color: var(--neon-blue);
+  }
+
+  /* ── Tags ── */
+  .tag {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55em; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 2px;
+  }
+  .tag-ok   { background: rgba(77,255,145,0.1);  color: var(--green);  border: 1px solid rgba(77,255,145,0.25); }
+  .tag-ko   { background: rgba(255,77,77,0.1);   color: var(--red);    border: 1px solid rgba(255,77,77,0.25); }
+  .tag-warn { background: rgba(255,179,71,0.1);  color: var(--amber);  border: 1px solid rgba(255,179,71,0.25); }
+  .tag-info { background: rgba(0,212,255,0.08);  color: var(--neon-blue); border: 1px solid rgba(0,212,255,0.25); }
+  .tag-doc  { background: rgba(0,212,255,0.06);  color: var(--neon-dim);  border: 1px solid rgba(0,212,255,0.2); }
+
+  /* ── Timeline ── */
+  .timeline { margin-bottom: 24px; }
+  .tl-item {
+    display: flex; gap: 20px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(0,212,255,0.07);
+  }
+  .tl-item:last-child { border-bottom: none; }
+  .tl-date {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62em; letter-spacing: 0.1em;
+    color: var(--neon-dim); min-width: 120px;
+    padding-top: 3px; white-space: nowrap;
+  }
+  .tl-body .tb-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1em; font-weight: 700;
+    letter-spacing: 0.05em; color: var(--text-main);
+    margin-bottom: 4px; text-transform: uppercase;
+  }
+  .tl-body .tb-desc { font-size: 0.92em; color: var(--chrome); line-height: 1.65; }
+
+  /* ── Theory link (code-block style) ── */
+  .theory-link {
+    background: rgba(0,212,255,0.03);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-left: 3px solid var(--neon-blue);
+    border-radius: 0 4px 4px 0;
+    padding: 16px 18px; margin-bottom: 16px;
+  }
+  .theory-link .tl-ref {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.58em; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--neon-dim); margin-bottom: 8px;
+  }
+  .theory-link .tl-text {
+    font-size: 0.95em; color: var(--chrome); line-height: 1.75;
+  }
+  .theory-link .tl-text strong { color: var(--text-main); font-weight: 600; }
+
+  /* ── Visualiser ── */
+  .viz-wrap {
+    background: rgba(18,21,28,0.95);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 4px; padding: 20px;
+    margin-bottom: 24px; position: relative;
+  }
+  .viz-wrap::before {
+    content: '';
+    position: absolute; top: 0; left: 20px; right: 20px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.4), transparent);
+  }
+  .viz-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6em; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--neon-dim); margin-bottom: 14px;
+  }
+  canvas#crankViz { width: 100%; display: block; border-radius: 3px; background: rgba(8,9,13,0.8); }
+
+  .ctrl {
+    display: flex; align-items: center; gap: 14px; margin-top: 12px;
+    padding: 10px 14px;
+    background: rgba(0,212,255,0.03);
+    border: 1px solid rgba(0,212,255,0.12); border-radius: 3px;
+  }
+  .ctrl label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6em; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--text-dim); white-space: nowrap;
+  }
+  .ctrl input[type=range] {
+    flex: 1; -webkit-appearance: none; height: 2px;
+    background: rgba(0,212,255,0.2); border-radius: 1px; outline: none;
+  }
+  .ctrl input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px;
+    border-radius: 50%; background: var(--neon-blue); cursor: pointer;
+    box-shadow: 0 0 6px rgba(0,212,255,0.5);
+  }
+  .ctrl .cv {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72em; font-weight: 400;
+    color: var(--neon-blue); min-width: 60px; text-align: right;
+  }
+  #viz-verdict {
+    margin-top: 12px;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.65em;
+    letter-spacing: 0.06em; line-height: 1.6;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(0,212,255,0.1); border-radius: 3px;
+    color: var(--text-dim);
+  }
+
+  /* ── Summary table ── */
+  .stbl {
+    width: 100%; border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72em; margin-bottom: 28px;
+  }
+  .stbl th {
+    text-align: left; color: var(--neon-dim); font-weight: 400;
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(0,212,255,0.15);
+    text-transform: uppercase; letter-spacing: 0.15em; font-size: 0.9em;
+  }
+  .stbl td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(0,212,255,0.06);
+    color: var(--chrome); line-height: 1.5;
+  }
+  .stbl tr:last-child td { border-bottom: none; }
+  .stbl tr:hover td { background: rgba(0,212,255,0.025); }
+
+  /* ── Color helpers ── */
+  .red   { color: var(--red); }
+  .amber { color: var(--amber); }
+  .green { color: var(--green); }
+  .accent{ color: var(--neon-blue); }
+
+  /* ── Divider & footer ── */
+  .section-divider {
+    border: none;
+    border-top: 1px solid rgba(0,212,255,0.12);
+    margin: 44px 0;
+  }
+  .footer-row {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  }
+  .footer-row .fr-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6em; letter-spacing: 0.1em; color: var(--text-dim);
+  }
+  .footer-row a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62em; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--neon-blue); text-decoration: none;
+    border: 1px solid rgba(0,212,255,0.28); border-radius: 3px;
+    padding: 6px 14px; background: rgba(0,212,255,0.04);
+    transition: all 0.2s ease;
+  }
+  .footer-row a:hover { background: rgba(0,212,255,0.1); color: #fff; border-color: var(--neon-blue); }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.5em; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .tl-date { min-width: 80px; font-size: 0.58em; }
+    .tabs { gap: 0; }
+    .tab { padding: 10px 12px; font-size: 0.6rem; }
+    nav .nav-badge { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="https://migue100.com">migue100.com</a>
+  <span class="sep">▸</span>
+  <a href="https://migue100.com/rooms/metrology.html">Metrology</a>
+  <span class="sep">▸</span>
+  <span class="nav-current">Case 23V-751</span>
+  <span class="nav-badge">NHTSA · DOCUMENTED</span>
+</nav>
+
+<div class="page">
+
+  <div class="post-header">
+    <p class="module-tag">Investigative Case Study · Module 05 Applied</p>
+    <h1>The crankshaft that passed inspection<br>and still failed</h1>
+    <p class="subtitle">
+      Honda recall 23V-751 · 248,999 vehicles · 2015–2020 · Acura TLX, MDX · Honda Pilot,
+      Odyssey, Ridgeline. A grinding machine set up incorrectly. A crank pin that measured
+      within spec — and wasn't. A three-year investigation before the root cause was named.
+    </p>
+    <a class="source-pill" href="https://static.nhtsa.gov/odi/rcl/2023/RCLRPT-23V751-4249.PDF" target="_blank" rel="noopener">
+      <span class="dot"></span>
+      Primary source: NHTSA Part 573 Safety Recall Report 23V-751 · Nov 8, 2023
+    </a>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('narrative',this)">Narrative</button>
+    <button class="tab" onclick="showTab('geometry',this)">Geometry</button>
+    <button class="tab" onclick="showTab('timeline',this)">Timeline</button>
+    <button class="tab" onclick="showTab('metrology',this)">Metrology link</button>
+  </div>
+
+  <!-- ═══════════════════ TAB: NARRATIVE ═══════════════════ -->
+  <div id="tab-narrative">
+
+    <div class="chapter">
+      <span class="chapter-num">01</span>
+      <h2>The complaint</h2>
+      <div class="chapter-line"></div>
+    </div>
+
+    <p class="narrative">
+      In <strong>February 2020</strong>, Honda received its first market complaint.
+      An engine — the 3.5 L V6 J35 series, fitted across several Honda and Acura platforms —
+      was knocking. Then stalling. Then not starting at all.
+    </p>
+    <p class="narrative">
+      The symptom pointed immediately to the connecting rod bearings: premature wear leading
+      to seizure. But connecting rod bearings don't wear prematurely on their own.
+      They wear prematurely when the surface they ride on — the <strong>crank pin</strong>,
+      the precision-ground journal of the crankshaft — is not what it should be.
+    </p>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="sl">Vehicles affected</div>
+        <div class="sv red">248,999</div>
+        <div class="ss">Estimated 1% with defect</div>
+      </div>
+      <div class="stat">
+        <div class="sl">Warranty claims</div>
+        <div class="sv amber">1,450</div>
+        <div class="ss">As of Nov 3, 2023</div>
+      </div>
+      <div class="stat">
+        <div class="sl">Injuries reported</div>
+        <div class="sv green">0</div>
+        <div class="ss">No deaths either</div>
+      </div>
+      <div class="stat">
+        <div class="sl">Investigation time</div>
+        <div class="sv accent">3.5 yr</div>
+        <div class="ss">Feb 2020 → Nov 2023</div>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <span class="chapter-num">02</span>
+      <h2>The defect</h2>
+      <div class="chapter-line"></div>
+    </div>
+
+    <p class="narrative">
+      The NHTSA recall report states the cause with unusual precision for a government document:
+      <em>"During production of the crankshaft, due to improper settings of equipment used to
+      manufacture the engine crankshaft, the crank pin was improperly ground, resulting in crank
+      pins with a <strong>crown or convex shape</strong> that are out of specification."</em>
+    </p>
+    <p class="narrative">
+      A crank pin should be a perfect cylinder. Any cross-section through it — perpendicular
+      to the axis — should be a circle of the same diameter. What Honda's investigation found
+      instead was a <strong>crowned profile</strong>: the pin bulged slightly at its centre,
+      thinning toward the edges. The shape was technically convex rather than straight.
+    </p>
+
+    <div class="evidence">
+      <div class="evidence-header">
+        <span class="tag tag-ko">Root cause</span>
+        Documented in NHTSA 23V-751 · Part 573 filing
+      </div>
+      <div class="evidence-body">
+        The grinding machine that finished the crank pins was <strong>set up incorrectly</strong>.
+        The result was a systematic geometric error: not a diameter out of range, but a
+        <strong>form error</strong> — the pin was the right size at its widest point but the wrong
+        shape across its length. This is exactly the class of defect that a simple diameter
+        measurement would miss entirely, because a standard micrometer reading at the crown
+        gives a conforming value while the actual functional geometry is nonconforming.
+        <br><br>
+        The remedy specification confirms this: <em>"The remedy components have properly ground
+        crank pins and are within applicable specifications."</em> The fix was correct geometry,
+        not a different size.
+      </div>
+    </div>
+
+    <div class="chapter">
+      <span class="chapter-num">03</span>
+      <h2>Why the defect survived inspection</h2>
+      <div class="chapter-line"></div>
+    </div>
+
+    <p class="narrative">
+      This is the metrologically interesting question. The crank pins were inspected.
+      Honda has sophisticated manufacturing quality processes. So how did a shape defect
+      on a safety-critical component reach ~250,000 vehicles across six years of production?
+    </p>
+    <p class="narrative">
+      The answer lies in what <strong>was measured</strong> versus what <strong>needed to be measured</strong>.
+      A diameter check — even a very precise one — collapses a three-dimensional surface into
+      a single number. It tells you the distance across the pin at one cross-section, at one
+      axial position. It does not tell you whether that cross-section is truly circular
+      (cylindricity), nor whether the diameter is consistent along the entire pin length
+      (straightness/taper). A crowned pin can pass a diameter check at its equator and still
+      be functionally wrong.
+    </p>
+
+    <div class="evidence">
+      <div class="evidence-header">
+        <span class="tag tag-warn">Measurement gap</span>
+        What a micrometer measures vs. what cylindricity requires
+      </div>
+      <div class="evidence-body">
+        <strong>What was measured (diameter):</strong> a single distance across the pin at one point.
+        If the crown peak sits at the measurement plane, the reading is within tolerance. ✓
+        <br><br>
+        <strong>What should also have been measured (cylindricity ⌭):</strong> all surface points
+        lying within an annular zone — controlling roundness, straightness, and taper
+        simultaneously. This requires a CMM or a dedicated roundness tester with multiple
+        axial positions measured, not a shop-floor micrometer. A crowned pin fails this
+        check definitively.
+        <br><br>
+        The production fix in 2020 — <em>"manufacturing equipment setup and inspection processes
+        were improved"</em> — almost certainly added form measurement, not just diameter.
+      </div>
+    </div>
+
+    <div class="chapter">
+      <span class="chapter-num">04</span>
+      <h2>The consequence</h2>
+      <div class="chapter-line"></div>
+    </div>
+
+    <p class="narrative">
+      A crank pin that is crowned rather than cylindrical creates uneven contact with the
+      connecting rod bearing. Instead of distributing the enormous combustion loads across
+      the full bearing width, contact concentrates at the crown — a small band near the centre
+      of the pin. The oil film that separates metal surfaces collapses under the concentrated
+      pressure. Metal contacts metal. The bearing wears. Then seizes.
+    </p>
+    <p class="narrative">
+      An engine that seizes while driving loses propulsion. In a highway situation this means
+      an uncontrolled deceleration. Honda's safety risk description: <em>"increasing the risk
+      of a fire, crash or injury."</em> 1,450 warranty claims confirmed the pattern.
+      No injuries were reported — but the failure mode was serious enough to trigger a recall
+      of nearly a quarter million vehicles across four model lines.
+    </p>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="sl">Affected models</div>
+        <div class="sv accent">6</div>
+        <div class="ss">Acura TLX, MDX · Honda Pilot, Odyssey, Ridgeline + Passport</div>
+      </div>
+      <div class="stat">
+        <div class="sl">Production window</div>
+        <div class="sv">2014–2020</div>
+        <div class="ss">Six model years</div>
+      </div>
+      <div class="stat">
+        <div class="sl">Fix implemented</div>
+        <div class="sv green">2020</div>
+        <div class="ss">Equipment & inspection improved</div>
+      </div>
+      <div class="stat">
+        <div class="sl">Recall issued</div>
+        <div class="sv">Nov 2023</div>
+        <div class="ss">3 yr after production fix</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-narrative -->
+
+  <!-- ═══════════════════ TAB: GEOMETRY ════════════════════ -->
+  <div id="tab-geometry" style="display:none">
+
+    <div class="chapter">
+      <span class="chapter-num">01</span>
+      <h2>Crown vs. cylinder — visualised</h2>
+      <div class="chapter-line"></div>
+    </div>
+
+    <p class="narrative">
+      The defect is a form error, not a size error. Drag the slider to exaggerate the crown
+      and see how the contact zone between pin and bearing shifts from full-width to a
+      dangerous central band — and how a single-point diameter measurement at the crown
+      can still return a conforming value.
+    </p>
+
+    <div class="viz-wrap">
+      <div class="viz-label">// Crank pin profile · longitudinal section (exaggerated)</div>
+      <canvas id="crankViz" height="280"></canvas>
+      <div class="ctrl">
+        <label>Crown deviation</label>
+        <input type="range" id="crown" min="0" max="100" value="0" step="1" oninput="drawCrank()">
+        <span class="cv" id="crown-lbl">0 µm</span>
+      </div>
+      <div class="ctrl" style="margin-top:8px">
+        <label>Measurement point</label>
+        <input type="range" id="mpos" min="5" max="95" value="50" step="1" oninput="drawCrank()">
+        <span class="cv" id="mpos-lbl">Centre</span>
+      </div>
+      <div id="viz-verdict"></div>
+    </div>
+
+    <div class="chapter">
+      <span class="chapter-num">02</span>
+      <h2>What the right measurement looks like</h2>
+      <div class="chapter-line"></div>
+    </div>
+
+    <div class="evidence">
+      <div class="evidence-header">
+        <span class="tag tag-info">Measurement strategy</span>
+        Diameter check vs. cylindricity measurement
+      </div>
+      <div class="evidence-body">
+        <strong>Single diameter (micrometer):</strong> one reading at one axial position,
+        one angular orientation. Collapses the surface to a scalar. Misses form errors
+        entirely if the worst deviation is not at the measurement plane.
+        <br><br>
+        <strong>Cylindricity (CMM or roundness tester):</strong> multiple cross-sections along
+        the pin axis, each sampled at many angular positions. The software fits the minimum
+        zone cylinder and reports the radial band. This is the measurement that would have
+        caught the crowned profile before it left the factory floor.
+        <br><br>
+        Per the course PDF (Mod. B, Ch. 1): instrument selection must match the precision
+        and <em>type</em> of the quantity being measured. Diameter and cylindricity are
+        different quantities. An instrument that measures one does not measure the other.
+      </div>
+    </div>
+
+    <table class="stbl">
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Measures</th>
+          <th>Catches crown defect?</th>
+          <th>Instrument</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Single diameter</td>
+          <td>Width at one point</td>
+          <td><span class="tag tag-ko">NO — if measured at crown peak</span></td>
+          <td>Micrometer</td>
+        </tr>
+        <tr>
+          <td>Multi-position diameter</td>
+          <td>Width at several axial points</td>
+          <td><span class="tag tag-warn">POSSIBLY — if edge positions included</span></td>
+          <td>Micrometer, multiple readings</td>
+        </tr>
+        <tr>
+          <td>Cylindricity ⌭</td>
+          <td>Full 3D surface zone</td>
+          <td><span class="tag tag-ok">YES — definitively</span></td>
+          <td>CMM or roundness tester</td>
+        </tr>
+        <tr>
+          <td>Profilometry (Ra/Rz)</td>
+          <td>Surface texture</td>
+          <td><span class="tag tag-ko">NO — different quantity</span></td>
+          <td>Profilometer</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div><!-- /tab-geometry -->
+
+  <!-- ═══════════════════ TAB: TIMELINE ════════════════════ -->
+  <div id="tab-timeline" style="display:none">
+
+    <div class="chapter">
+      <span class="chapter-num">01</span>
+      <h2>Investigation chronology</h2>
+      <div class="chapter-line"></div>
+    </div>
+
+    <p class="narrative">
+      The NHTSA filing includes a precise chronology. What stands out is the gap between
+      when the manufacturing fix was implemented (2020) and when the recall was issued (2023).
+      Three years of continued analysis — field data, bearing specifications, comparison of
+      affected vs. non-affected units — were needed to confirm scope and root cause with
+      enough certainty to file.
+    </p>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-date">Feb 2020</div>
+        <div class="tl-body">
+          <div class="tb-title">First market complaint received</div>
+          <div class="tb-desc">Honda logs the initial engine failure report. The complaint involves abnormal noise and engine stall — symptoms consistent with connecting rod bearing seizure.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Jul 20, 2020</div>
+        <div class="tl-body">
+          <div class="tb-title">Honda opens formal investigation</div>
+          <div class="tb-desc">Internal investigation launched. Engine teardown analysis begins to identify failure mechanism. Crankshaft geometry comes under scrutiny.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Late 2020</div>
+        <div class="tl-body">
+          <div class="tb-title"><span class="tag tag-ok" style="margin-right:6px">PRODUCTION FIX</span>Manufacturing equipment corrected</div>
+          <div class="tb-desc">Grinding machine setup corrected. Inspection processes improved to include form verification. New production from this point yields conforming crank pins. But ~250,000 units are already in the field.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Nov 2020 – Feb 2022</div>
+        <div class="tl-body">
+          <div class="tb-title">Continued analysis</div>
+          <div class="tb-desc">Honda analyses failure modes, studies bearing wear patterns, and maps the affected production population. Root cause is identified but scope determination is ongoing.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Apr 2022</div>
+        <div class="tl-body">
+          <div class="tb-title">Bearing specification analysis</div>
+          <div class="tb-desc">Detailed analysis of different bearing specifications and clearances. Honda investigates whether bearing design changes could mitigate the geometric defect — ultimately concluding the root cause is the crankshaft form.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Feb 2023</div>
+        <div class="tl-body">
+          <div class="tb-title">Comparison of affected vs. non-affected units</div>
+          <div class="tb-desc">Honda investigates market vehicles that had <em>not</em> experienced the issue as a control group. This comparison is standard in manufacturing defect investigation — it helps confirm that the defect, not some operational variable, is the cause.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Sep 2023</div>
+        <div class="tl-body">
+          <div class="tb-title">Affected population scoped</div>
+          <div class="tb-desc">Production records used to identify the full set of vehicles that could contain a non-conforming crankshaft. Manufacturing date ranges and VIN boundaries established.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Nov 2, 2023</div>
+        <div class="tl-body">
+          <div class="tb-title"><span class="tag tag-ko" style="margin-right:6px">RECALL DECISION</span>Safety defect confirmed</div>
+          <div class="tb-desc">Honda determines that a defect related to motor vehicle safety exists and decides to conduct a safety recall. 1,450 warranty claims on file. 248,999 vehicles notified.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Nov 9, 2023</div>
+        <div class="tl-body">
+          <div class="tb-title">Dealer notification</div>
+          <div class="tb-desc">Dealers instructed to inspect engines and replace if necessary. Remedy: properly ground crankshaft with conforming crank pin geometry.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">Jan 2, 2024</div>
+        <div class="tl-body">
+          <div class="tb-title">Owner notification mailed</div>
+          <div class="tb-desc">Registered owners contacted. Owners who paid for prior repairs eligible for reimbursement per Honda's recall reimbursement plan filed with NHTSA.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-timeline -->
+
+  <!-- ═══════════════════ TAB: METROLOGY ═══════════════════ -->
+  <div id="tab-metrology" style="display:none">
+
+    <div class="chapter">
+      <span class="chapter-num">01</span>
+      <h2>Direct connections to the PDF</h2>
+      <div class="chapter-line"></div>
+    </div>
+
+    <p class="narrative">
+      Every principle that made this defect possible — and every step that found it —
+      maps directly to the theoretical framework covered in the course PDF.
+      The Honda case is not an illustration of the theory. It is a real instance of
+      what happens when specific metrological principles are not applied.
+    </p>
+
+    <div class="theory-link">
+      <div class="tl-ref">PDF Mod. B · Ch. 1 — Instrument selection</div>
+      <div class="tl-text">
+        The PDF establishes: choose the instrument according to the <strong>precision
+        required</strong> and the <strong>type of quantity being measured</strong>. A micrometer
+        measures diameter — a scalar. Cylindricity is a three-dimensional form parameter.
+        They require different instruments. Using a micrometer to verify cylindricity is not
+        imprecision — it is the wrong measurement entirely.
+      </div>
+    </div>
+
+    <div class="theory-link">
+      <div class="tl-ref">PDF Mod. B · Ch. 2 — Systematic error</div>
+      <div class="tl-text">
+        The crank pin crown is a <strong>systematic geometric error</strong>: produced by
+        consistent incorrect machine setup, reproducible across every pin ground in that
+        production window, always in the same direction (convex rather than straight).
+        The PDF's definition — errors that repeat in the same way across measurements of
+        the same type, caused by equipment or method — describes this exactly.
+        Like an uncalibrated micrometer offset, the grinding machine imprinted its
+        setup error onto every workpiece.
+      </div>
+    </div>
+
+    <div class="theory-link">
+      <div class="tl-ref">PDF Mod. B · Ch. 1 — Direct vs. indirect measurement</div>
+      <div class="tl-text">
+        A diameter reading is a <strong>direct measurement</strong>: the operator reads the
+        value directly from the instrument. But cylindricity is necessarily
+        <strong>indirect</strong>: it is computed from a set of coordinates, requires
+        mathematical fitting of a minimum-zone cylinder, and cannot be read from a single
+        instrument display. The PDF draws exactly this distinction — some quantities require
+        successive comparison operations or calculation. Treating cylindricity as if it
+        were a direct measurement (one micrometer reading) is the methodological error
+        at the heart of this recall.
+      </div>
+    </div>
+
+    <div class="theory-link">
+      <div class="tl-ref">PDF Mod. B · Ch. 2 — Mean value and outlier detection</div>
+      <div class="tl-text">
+        Honda's investigation relied heavily on the mean-value principle at scale:
+        comparing warranty claim rates across <strong>production date windows</strong>
+        to identify which build dates were affected. The same logic as M<sub>m</sub>
+        from the PDF — pooling many data points to identify the signal against the noise —
+        applied to a field population of a quarter million vehicles instead of five
+        caliper readings on a pulley.
+      </div>
+    </div>
+
+    <div class="theory-link">
+      <div class="tl-ref">PDF Mod. B · Ch. 2 — Error of insensitivity</div>
+      <div class="tl-text">
+        The micrometer's insensitivity error (0.001 mm resolution) is irrelevant to this
+        defect — not because it's too coarse, but because even perfect diameter resolution
+        cannot detect a form deviation in a perpendicular plane. The error here is not
+        about resolution; it is about <strong>measurement completeness</strong>. The
+        PDF's framework reminds us that every instrument has a scope — and operating
+        outside that scope silently produces wrong answers.
+      </div>
+    </div>
+
+    <div class="chapter">
+      <span class="chapter-num">02</span>
+      <h2>Mapping table</h2>
+      <div class="chapter-line"></div>
+    </div>
+
+    <table class="stbl">
+      <thead>
+        <tr>
+          <th>Event in case 23V-751</th>
+          <th>PDF principle</th>
+          <th>Reference</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Diameter check passed, form defect present</td>
+          <td>Instrument scope — what a micrometer actually measures</td>
+          <td><span class="tag tag-doc">Mod. B · Ch. 1</span></td>
+        </tr>
+        <tr>
+          <td>Machine setup error → every pin affected</td>
+          <td>Systematic error — same direction, same magnitude</td>
+          <td><span class="tag tag-doc">Mod. B · Ch. 2</span></td>
+        </tr>
+        <tr>
+          <td>Cylindricity not measured at production</td>
+          <td>Direct vs. indirect measurement distinction</td>
+          <td><span class="tag tag-doc">Mod. B · Ch. 1</span></td>
+        </tr>
+        <tr>
+          <td>Field data pooled across build dates</td>
+          <td>Mean value — Mm over large n reduces accidental noise</td>
+          <td><span class="tag tag-doc">Mod. B · Ch. 2</span></td>
+        </tr>
+        <tr>
+          <td>CMM / form tester added in 2020 fix</td>
+          <td>Instrument selection matched to measurement type</td>
+          <td><span class="tag tag-doc">Mod. B · Ch. 1</span></td>
+        </tr>
+        <tr>
+          <td>Crown deviation in µm range</td>
+          <td>SI prefixes — micro (10⁻⁶ m), Table B1.2</td>
+          <td><span class="tag tag-doc">Mod. B · Ch. 1</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div><!-- /tab-metrology -->
+
+  <hr class="section-divider">
+  <div class="footer-row">
+    <span class="fr-label">Source: NHTSA 23V-751 · Part 573 · Nov 8, 2023 · American Honda Motor Co.</span>
+    <a href="../rooms/metrology.html">← Metrology</a>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+  function showTab(id, btn) {
+    document.querySelectorAll('[id^="tab-"]').forEach(t => t.style.display = 'none');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + id).style.display = 'block';
+    btn.classList.add('active');
+    if (id === 'geometry') setTimeout(drawCrank, 60);
+  }
+
+  function drawCrank() {
+    const canvas = document.getElementById('crankViz');
+    const ctx    = canvas.getContext('2d');
+    const W = canvas.offsetWidth, H = 280;
+    canvas.width  = W * devicePixelRatio;
+    canvas.height = H * devicePixelRatio;
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+
+    const crown  = parseInt(document.getElementById('crown').value);
+    const mposP  = parseInt(document.getElementById('mpos').value);
+
+    document.getElementById('crown-lbl').textContent = crown + ' µm';
+    document.getElementById('mpos-lbl').textContent  = mposP < 30 ? 'Edge' : mposP > 70 ? 'Edge' : 'Centre';
+
+    ctx.clearRect(0, 0, W, H);
+
+    const padX = 60, padY = 40;
+    const pinW = W - padX * 2;
+    const pinR = 60;
+    const maxCrown = 28;
+    const crownPx  = (crown / 100) * maxCrown;
+    const cx = W / 2, cy = H / 2;
+
+    // Grid
+    ctx.strokeStyle = 'rgba(0,212,255,0.06)';
+    ctx.lineWidth = 0.5;
+    for (let y = padY; y <= H - padY; y += 20) {
+      ctx.beginPath(); ctx.moveTo(padX, y); ctx.lineTo(W - padX, y); ctx.stroke();
+    }
+
+    // Bearing shell
+    const bc = 4;
+    ctx.fillStyle   = 'rgba(0,212,255,0.06)';
+    ctx.strokeStyle = 'rgba(0,212,255,0.3)';
+    ctx.lineWidth   = 1;
+    ctx.beginPath(); ctx.rect(padX, cy - pinR - bc - 10, pinW, 10); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.rect(padX, cy + pinR + bc,      pinW, 10); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgba(0,212,255,0.5)';
+    ctx.font = '11px Share Tech Mono, monospace';
+    ctx.fillText('Connecting rod bearing', padX + 4, cy - pinR - bc - 14);
+
+    // Crank pin
+    ctx.beginPath();
+    for (let i = 0; i <= pinW; i++) {
+      const t   = i / pinW;
+      const dev = crownPx * 4 * t * (1 - t);
+      const y   = cy - pinR - dev;
+      i === 0 ? ctx.moveTo(padX + i, y) : ctx.lineTo(padX + i, y);
+    }
+    for (let i = pinW; i >= 0; i--) {
+      const t   = i / pinW;
+      const dev = crownPx * 4 * t * (1 - t);
+      ctx.lineTo(padX + i, cy + pinR + dev);
+    }
+    ctx.closePath();
+    ctx.fillStyle   = 'rgba(0,212,255,0.05)';
+    ctx.strokeStyle = 'rgba(0,212,255,0.6)';
+    ctx.lineWidth   = 1.5;
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgba(0,212,255,0.7)';
+    ctx.font = '11px Share Tech Mono, monospace';
+    ctx.fillText('Crank pin (ground surface)', padX + 4, cy - pinR - 8);
+
+    // Contact zone
+    if (crown > 0) {
+      const contactW = Math.max(8, pinW * (1 - crown / 120));
+      const contactX = cx - contactW / 2;
+      ctx.fillStyle   = 'rgba(255,77,77,0.22)';
+      ctx.strokeStyle = 'rgba(255,77,77,0.6)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.rect(contactX, cy - pinR - bc, contactW, bc); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.rect(contactX, cy + pinR,      contactW, bc); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,77,77,0.9)';
+      ctx.font = '11px Share Tech Mono, monospace';
+      ctx.fillText('contact zone', cx - 36, cy - pinR - bc - 4);
+    } else {
+      ctx.fillStyle   = 'rgba(77,255,145,0.12)';
+      ctx.strokeStyle = 'rgba(77,255,145,0.4)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.rect(padX, cy - pinR - bc, pinW, bc); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.rect(padX, cy + pinR,      pinW, bc); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = 'rgba(77,255,145,0.9)';
+      ctx.font = '11px Share Tech Mono, monospace';
+      ctx.fillText('full contact ✓', cx - 38, cy - pinR - bc - 4);
+    }
+
+    // Micrometer line
+    const mX       = padX + (mposP / 100) * pinW;
+    const t2        = mposP / 100;
+    const devAtM    = crownPx * 4 * t2 * (1 - t2);
+    const measuredR = pinR + devAtM;
+    const withinTol = devAtM < 4;
+
+    ctx.strokeStyle = 'rgba(204,232,244,0.6)';
+    ctx.lineWidth   = 1;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(mX, cy - measuredR - 18); ctx.lineTo(mX, cy + measuredR + 18); ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = 'rgba(204,232,244,0.8)';
+    ctx.beginPath(); ctx.moveTo(mX, cy - measuredR); ctx.lineTo(mX-4, cy-measuredR-8); ctx.lineTo(mX+4, cy-measuredR-8); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(mX, cy + measuredR); ctx.lineTo(mX-4, cy+measuredR+8); ctx.lineTo(mX+4, cy+measuredR+8); ctx.closePath(); ctx.fill();
+
+    const readVal = crown === 0 ? 'Ø nom' : (withinTol ? 'Ø nom + ' + Math.round(devAtM * 0.3) + ' µm ✓' : 'Ø nom + ' + Math.round(devAtM * 0.3) + ' µm');
+    ctx.fillStyle = withinTol ? 'rgba(77,255,145,0.9)' : 'rgba(255,77,77,0.9)';
+    ctx.font = '12px Share Tech Mono, monospace';
+    ctx.fillText('micrometer reads: ' + readVal, mX + 8, cy - measuredR - 6);
+
+    ctx.fillStyle = 'rgba(90,122,144,0.8)';
+    ctx.font = '11px Share Tech Mono, monospace';
+    ctx.fillText('← pin length →', W / 2 - 40, H - 8);
+    ctx.fillText('r', padX - 18, cy + 4);
+
+    // Verdict
+    const el = document.getElementById('viz-verdict');
+    if (crown === 0) {
+      el.textContent = '✓  Nominal cylinder. Diameter check PASS · Cylindricity PASS · Full bearing contact.';
+      el.style.color = 'rgba(77,255,145,0.9)';
+    } else if (withinTol) {
+      el.textContent = '⚠  Crown present (' + crown + ' µm). Diameter check at this point: PASS · Cylindricity: FAIL · Contact concentrated at crown → bearing overload.';
+      el.style.color = 'rgba(255,179,71,0.9)';
+    } else {
+      el.textContent = '✕  Crown present (' + crown + ' µm). Diameter check at edge: FAIL (detectable here) · Cylindricity: FAIL.';
+      el.style.color = 'rgba(255,77,77,0.9)';
+    }
+  }
+
+  window.addEventListener('load',   () => { if (document.getElementById('crankViz')) drawCrank(); });
+  window.addEventListener('resize', () => { if (document.getElementById('crankViz').offsetParent) drawCrank(); });
+</script>
+</body>
+</html>
