@@ -990,6 +990,7 @@
         @media (max-width: 768px) {
             .hero-info {
                 flex-direction: column;
+                align-items: center;
                 text-align: center;
                 padding: 22px 20px;
             }
@@ -997,6 +998,13 @@
             .cards-grid { grid-template-columns: 1fr; }
             .data-value { white-space: normal; word-break: break-word; }
             .data-row { align-items: center; }
+            .profile-avatar {
+                position: static;
+                width: 160px;
+                height: 160px;
+                align-self: center;
+                border-radius: 4px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1091,7 +1099,12 @@
         }
         .model-viewport {
             position: relative; height: 330px;
-            background: rgba(8,9,13,0.85); overflow: hidden;
+            background-image:
+                linear-gradient(rgba(8,9,13,0.45), rgba(8,9,13,0.45)),
+                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/background.jpg');
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
         }
         .model-status-overlay {
             position: absolute; inset: 0;
@@ -2551,7 +2564,7 @@
             const W = canvas.offsetWidth  || 450;
             const H = canvas.offsetHeight || 330;
             canvas.width = W; canvas.height = H;
-            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            const gl = canvas.getContext('webgl', { alpha: true }) || canvas.getContext('experimental-webgl', { alpha: true });
             if (!gl) return;
             const prog = mkProg(gl,VS,FS); gl.useProgram(prog);
             const pL = gl.getAttribLocation(prog,'aPos'), nL = gl.getAttribLocation(prog,'aNorm');
@@ -2615,7 +2628,7 @@
             }, {passive:false});
 
             const uM=gl.getUniformLocation(prog,'uMVP'), uLoc=gl.getUniformLocation(prog,'uL'), uE=gl.getUniformLocation(prog,'uE');
-            gl.enable(gl.DEPTH_TEST); gl.clearColor(0.10,0.12,0.16,1.0);
+            gl.enable(gl.DEPTH_TEST); gl.clearColor(0, 0, 0, 0);
 
             let visible = false;
             const observer = new IntersectionObserver(entries => {
