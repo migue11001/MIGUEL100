@@ -409,11 +409,11 @@
         }
         .sw-logo {
             font-family: 'Rajdhani', sans-serif; font-weight: 700;
-            font-size: 0.9em; letter-spacing: 0.06em; color: #3a9ad9;
+            font-size: 1.08em; letter-spacing: 0.06em; color: #3a9ad9;
             text-transform: uppercase;
         }
         .sw-model-name {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.625em;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.75em;
             letter-spacing: 0.12em; color: #3a5060; text-transform: uppercase;
         }
         .sw-compiler .sw-logo {
@@ -425,7 +425,7 @@
             text-shadow: 0 0 6px rgba(0,255,136,0.6);
         }
         .sw-compiler .sw-editor {
-            font-size: 0.865em;
+            font-size: 1.038em;
             color: #00ff88;
             text-shadow: 0 0 6px rgba(0,255,136,0.5);
             caret-color: #00ff88;
@@ -490,14 +490,14 @@
             display: flex; align-items: baseline;
             padding: 1px 12px 1px 0;
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.72em; line-height: 1.55;
+            font-size: 0.864em; line-height: 1.55;
             white-space: pre;
         }
         .sw-line:hover { background: rgba(0,160,220,0.05); }
         .sw-ln {
             width: 36px; min-width: 36px; text-align: right;
             padding-right: 10px; color: #1e3040;
-            font-size: 0.82em; user-select: none; flex-shrink: 0;
+            font-size: 0.984em; user-select: none; flex-shrink: 0;
         }
         .sw-lc { color: var(--sw-text); }
         /* G-code syntax classes */
@@ -515,7 +515,7 @@
         .sw-editor {
             position: absolute; inset: 0;
             background: var(--sw-bg); color: var(--sw-text);
-            font-family: 'Share Tech Mono', monospace; font-size: 0.72em; line-height: 1.55;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.864em; line-height: 1.55;
             border: none; outline: none; resize: none; padding: 10px 12px;
             caret-color: var(--neon-blue);
             scrollbar-width: thin; scrollbar-color: #1a2030 transparent;
@@ -937,38 +937,97 @@ N270 M30
             gcode: `%
 ;===========================================
 ; A2-PROJECT CAM  //  CNC TURNING
-; TOOL  : T1 - CNMG 120408  PCLNR 2525
-; MATERIAL : C45 STEEL  Ø100 x 135
-; MACHINE  : INDEX G200  CTRL: SINUMERIK 840D sl
+; TOOL  : T1-BORING BAR  T2-CNMG  T3-FINISH
+; MATERIAL : STEEL
+; MACHINE  : CNC LATHE  CTRL: SINUMERIK 840D sl
 ;===========================================
 N10  G18 G95 G90 G54
+;--- T1 : BORING ---
 N20  T1 D1 M6
-N30  G96 S220 LIMS=3500 M4 M8
-N40  G0 X105.0 Z5.0
-;--- ROUGHING CYCLE ---
-N50  CYCLE95("PROFILE_A2",2.0,0.5,0.3,0.2,0.1,9,0.05,0)
-;--- PROFILE DEFINITION ---
-PROF_A2:
-N100 G1 X0 Z0
-N110 G1 Z-20.0 F0.25
-N120 G1 X30.0
-N130 G1 Z-45.0
-N140 G1 X50.0 CHF=2.0
-N150 G1 Z-80.0
-N160 G1 X70.0 RND=3.0
-N170 G1 Z-110.0
-N180 G1 X90.0
-N190 G1 Z-130.0
-N200 G1 X102.0
-RET
-;--- FINISHING PASS ---
-N210 T2 D1 M6
-N220 G96 S280 LIMS=4000 M4
-N230 G0 X105.0 Z5.0
-N240 CYCLE95("PROFILE_A2",0,0,0.1,0.05,0.02,10,0,0)
-N250 G0 X150.0 Z200.0
-N260 M9 M5
-N270 M30
+N30  G97 S2000 F0.08 M3
+N40  G0 X0 Z5
+N50  M8
+N60  G1 Z-25
+N70  Z5 F1
+N80  G0 X100 Z100
+;--- T2 : ROUGHING ---
+N90  T2 D1 M6
+N100 G96 S200 F0.25 M3 LIMS=2500
+N110 G0 X13.5 Z2
+N120 G1 Z-21
+N130 X12
+N140 G0 Z2
+;--- PASS A ---
+N150 X15.5
+N160 G1 Z-10.75
+N170 X13
+N180 G0 Z2
+;--- PASS B ---
+N190 X17.5
+N200 G1 Z-9.66
+N210 X15
+N220 G0 Z2
+;--- PASS C ---
+N230 X19.5
+N240 G1 Z-8.906
+N250 X17
+N260 G0 Z2
+;--- PASS D ---
+N270 X21.5
+N280 G1 Z-8.376
+N290 X19
+N300 G0 Z2
+;--- PASS E ---
+N310 X23.5
+N320 G1 Z-8.022
+N330 X21
+N340 G0 Z2
+;--- PASS F ---
+N350 X25.5
+N360 G1 Z-7.683
+N370 X23
+N380 G0 Z2
+N390 X27.5
+N400 G1 Z-7.75
+N410 X25
+N420 G0 Z2
+;--- CHAMFER ROUGHING ---
+N430 X29.5
+N440 G1 Z-2
+N450 X27
+N460 G0 Z2
+N470 X31.5
+N480 G1 Z-1
+N490 X29
+N500 G0 Z2
+;--- CONTOUR ROUGHING ---
+N510 G41 X33.5
+N520 G1 Z0
+N530 X27.5 Z-3
+N540 Z-7.75
+;--- PASS G ---
+N550 G2 X13.5 Z-12.577 R7.5
+N560 G1 Z-13
+N570 G40 X12
+N580 G0 Z2
+;--- T3 : FINISHING ---
+N590 T3 D1 M6
+N600 G96 S220 F0.15 M3 LIMS=3000
+N610 G0 X33 Z1
+N620 G1 G41 X34 Z0
+N630 X28 Z-3
+N640 Z-8
+N650 G2 X14 Z-12.807 R7.5
+N660 G1 Z-22
+N670 G40 X12
+N680 G0 Z2
+;--- FACING ---
+N690 X33 Z0
+N700 G1 X41
+N710 G0 Z2
+N720 X100 Z100
+N730 M5
+N740 M30
 %`
         },
         3: {
@@ -1047,24 +1106,7 @@ N220 M30
     };
 
     /* ── G-code starter for editor ── */
-    const EDITOR_STARTER = `%
-; G-CODE COMPILER  //  PRACTICE
-; Edit this program and press COMPILE
-; ----------------------------------------
-N10  G17 G54 G90 G94
-N20  T1 D1 M6
-N30  G0 X0 Y0 S3000 M3 M8
-N40  G43 Z50.0 H1
-N50  G0 Z5.0
-N60  G1 Z-2.0 F300
-N70  G1 X50.0 F1000
-N80  G1 Y50.0
-N90  G1 X0
-N100 G1 Y0
-N110 G0 Z50.0
-N120 M9 M5
-N130 M30
-%`;
+    const EDITOR_STARTER = `N10  `;
 
     /* ── Init ── */
     const num = parseInt(window.location.hash.replace('#', '')) || 1;
