@@ -494,9 +494,12 @@
         }
 
         .profile-avatar {
-            width: 90px; height: 90px;
+            width: 208px;
+            height: 100%;
+            align-self: stretch;
             border-radius: 4px;
             object-fit: cover;
+            object-position: center;
             border: 2px solid rgba(0, 212, 255, 0.4);
             box-shadow:
                 0 0 0 1px rgba(0,0,0,0.6),
@@ -641,6 +644,10 @@
             box-shadow:
                 0 4px 20px rgba(0,0,0,0.5),
                 inset 0 1px 0 rgba(255,255,255,0.03);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-height: 290px;
         }
 
         /* Top edge accent */
@@ -755,6 +762,7 @@
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
             background: rgba(0, 212, 255, 0.04);
+            margin-top: auto;
         }
 
         .app-link::before {
@@ -777,6 +785,151 @@
         }
         .app-link:hover::before { background: rgba(0, 212, 255, 0.06); }
         .app-link:hover::after { transform: translateX(4px); }
+
+        a.app-card {
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+        }
+
+
+        /* Background image cards */
+        #card-turning {
+            background-image:
+                linear-gradient(160deg,
+                    rgba(10, 14, 22, 0.61) 0%,
+                    rgba(8, 12, 20, 0.64) 50%,
+                    rgba(10, 14, 22, 0.61) 100%
+                ),
+                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-turning.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        #card-turning:hover {
+            background-image:
+                linear-gradient(160deg,
+                    rgba(12, 18, 30, 0.59) 0%,
+                    rgba(10, 15, 26, 0.62) 50%,
+                    rgba(12, 18, 30, 0.59) 100%
+                ),
+                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-turning.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        #card-milling {
+            background-image:
+                linear-gradient(160deg,
+                    rgba(10, 14, 22, 0.61) 0%,
+                    rgba(8, 12, 20, 0.64) 50%,
+                    rgba(10, 14, 22, 0.61) 100%
+                ),
+                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-milling.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        #card-milling:hover {
+            background-image:
+                linear-gradient(160deg,
+                    rgba(12, 18, 30, 0.59) 0%,
+                    rgba(10, 15, 26, 0.62) 50%,
+                    rgba(12, 18, 30, 0.59) 100%
+                ),
+                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-milling.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        #card-tools {
+            background-image:
+                linear-gradient(160deg,
+                    rgba(10, 14, 22, 0.61) 0%,
+                    rgba(8, 12, 20, 0.64) 50%,
+                    rgba(10, 14, 22, 0.61) 100%
+                ),
+                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-tool-library.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        #card-tools:hover {
+            background-image:
+                linear-gradient(160deg,
+                    rgba(12, 18, 30, 0.59) 0%,
+                    rgba(10, 15, 26, 0.62) 50%,
+                    rgba(12, 18, 30, 0.59) 100%
+                ),
+                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-tool-library.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        #card-metro {
+            background-image:
+                linear-gradient(160deg,
+                    rgba(10, 14, 22, 0.61) 0%,
+                    rgba(8, 12, 20, 0.64) 50%,
+                    rgba(10, 14, 22, 0.61) 100%
+                ),
+                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-metrology.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        #card-metro:hover {
+            background-image:
+                linear-gradient(160deg,
+                    rgba(12, 18, 30, 0.59) 0%,
+                    rgba(10, 15, 26, 0.62) 50%,
+                    rgba(12, 18, 30, 0.59) 100%
+                ),
+                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-metrology.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        #card-cnc {
+            background-image:
+                linear-gradient(160deg,
+                    rgba(10, 14, 22, 0.61) 0%,
+                    rgba(8, 12, 20, 0.64) 50%,
+                    rgba(10, 14, 22, 0.61) 100%
+                ),
+                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-security.png');
+            background-size: cover;
+            background-position: center;
+        }
+        #card-cnc:hover {
+            background-image:
+                linear-gradient(160deg,
+                    rgba(12, 18, 30, 0.59) 0%,
+                    rgba(10, 15, 26, 0.62) 50%,
+                    rgba(12, 18, 30, 0.59) 100%
+                ),
+                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-security.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        #card-ai {
+            background-image:
+                linear-gradient(160deg,
+                    rgba(10, 14, 22, 0.61) 0%,
+                    rgba(8, 12, 20, 0.64) 50%,
+                    rgba(10, 14, 22, 0.61) 100%
+                ),
+                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-tech-assistant.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        #card-ai:hover {
+            background-image:
+                linear-gradient(160deg,
+                    rgba(12, 18, 30, 0.59) 0%,
+                    rgba(10, 15, 26, 0.62) 50%,
+                    rgba(12, 18, 30, 0.59) 100%
+                ),
+                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-tech-assistant.jpg');
+            background-size: cover;
+            background-position: center;
+        }
 
         /* Coming-soon card variant */
         .app-card.coming-soon {
@@ -1727,59 +1880,41 @@
 
         <div class="cards-grid">
 
-            <div class="app-card" id="card-turning">
+            <a href="rooms/turning.html" class="app-card" id="card-turning">
                 <div class="card-shine"></div>
                 <div class="card-tag">MODULE 01</div>
-                <span class="app-icon">⚙️</span>
                 <div class="app-title">Turning</div>
-                <div class="app-description">Lathe operations, cutting parameters, tool geometry and chip formation fundamentals.</div>
-                <a href="rooms/turning.html" class="app-link">Enter Room</a>
-            </div>
+            </a>
 
-            <div class="app-card" id="card-milling">
+            <a href="rooms/milling.html" class="app-card" id="card-milling">
                 <div class="card-shine"></div>
                 <div class="card-tag">MODULE 02</div>
-                <span class="app-icon">🔩</span>
                 <div class="app-title">Milling</div>
-                <div class="app-description">Face, peripheral and contour milling. Feeds, speeds and workholding setups.</div>
-                <a href="rooms/milling.html" class="app-link">Enter Room</a>
-            </div>
+            </a>
 
-            <div class="app-card" id="card-tools">
+            <a href="rooms/tool-library.html" class="app-card" id="card-tools">
                 <div class="card-shine"></div>
                 <div class="card-tag">MODULE 03</div>
-                <span class="app-icon">🔧</span>
                 <div class="app-title">Tool Library</div>
-                <div class="app-description">Cutting tool catalog, insert grades, coatings, holders and tool-life management.</div>
-                <a href="rooms/tool-library.html" class="app-link">Enter Room</a>
-            </div>
+            </a>
 
-            <div class="app-card" id="card-cnc">
+            <a href="rooms/safety.html" class="app-card" id="card-cnc">
                 <div class="card-shine"></div>
                 <div class="card-tag">MODULE 04</div>
-                <span class="app-icon">💻</span>
-                <div class="app-title">CNC Compiler</div>
-                <div class="app-description">G-code syntax checker, block simulator and ISO program validator for multi-axis machines.</div>
-                <a href="rooms/cnc-compiler.html" class="app-link">Enter Room</a>
-            </div>
+                <div class="app-title">SAFETY</div>
+            </a>
 
-            <div class="app-card" id="card-metro">
+            <a href="rooms/metrology.html" class="app-card" id="card-metro">
                 <div class="card-shine"></div>
                 <div class="card-tag">MODULE 05</div>
-                <span class="app-icon">📐</span>
                 <div class="app-title">Metrology</div>
-                <div class="app-description">Dimensional control, GD&T, surface roughness interpretation and inspection techniques.</div>
-                <a href="rooms/metrology.html" class="app-link">Enter Room</a>
-            </div>
+            </a>
 
-            <div class="app-card" id="card-ai">
+            <a href="rooms/tech-assistant.html" class="app-card" id="card-ai">
                 <div class="card-shine"></div>
                 <div class="card-tag">MODULE 06</div>
-                <span class="app-icon">🤖</span>
                 <div class="app-title">Tech Assistant</div>
-                <div class="app-description">AI-powered machining assistant — speeds, feeds, material data and process guidance.</div>
-                <a href="rooms/tech-assistant.html" class="app-link">Enter Room</a>
-            </div>
+            </a>
 
         </div>
 
