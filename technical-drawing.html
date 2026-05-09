@@ -1082,6 +1082,11 @@ N130 M30
     if (m.image) {
         const img = document.createElement('img');
         img.src = m.image; img.alt = m.project + ' technical drawing';
+        img.onerror = function() {
+            if (img.src.endsWith('.jpg')) { img.src = m.image.replace(/\.jpg$/, '.png'); }
+            else if (img.src.endsWith('.png')) { img.src = m.image.replace(/\.png$/, '.jpg'); }
+            img.onerror = null;
+        };
         document.getElementById('drawing-placeholder').style.display = 'none';
         drawingArea.appendChild(img);
     } else {
