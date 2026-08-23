@@ -1239,14 +1239,15 @@
         }
         .collab-card {
             flex-shrink: 0;
-            width: 280px;
+            width: 432px;
+            height: 281px;
             background: linear-gradient(160deg,
                 rgba(26,30,40,0.95) 0%,
                 rgba(18,22,32,0.98) 100%
             );
             border: 1px solid rgba(0,212,255,0.15);
             border-radius: 4px;
-            padding: 22px 20px;
+            padding: 0;
             position: relative;
             overflow: hidden;
             cursor: pointer;
@@ -1258,6 +1259,7 @@
             position: absolute;
             top: 0; left: 16px; right: 16px; height: 1px;
             background: linear-gradient(90deg, transparent, rgba(0,212,255,0.45), transparent);
+            z-index: 2;
         }
         .collab-card::after {
             content: '';
@@ -1266,29 +1268,15 @@
             width: 7px; height: 7px;
             border-top: 1px solid rgba(0,212,255,0.35);
             border-right: 1px solid rgba(0,212,255,0.35);
+            z-index: 2;
         }
-        .collab-card-icon {
-            font-size: 1.8em;
-            margin-bottom: 10px;
-            display: block;
-            filter: drop-shadow(0 0 5px rgba(0,212,255,0.3));
-        }
-        .collab-card-title {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.05em;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: #fff;
-            text-shadow: 0 0 8px rgba(0,180,255,0.3);
-            margin-bottom: 8px;
-        }
-        .collab-card-desc {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.82em;
-            color: var(--text-dim);
-            line-height: 1.45;
-            letter-spacing: 0.02em;
+        .collab-card-photo {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
         }
         .holo-layer {
             position: absolute;
@@ -1314,9 +1302,6 @@
         }
         [data-metal="gold"]::before { background: linear-gradient(90deg, transparent, rgba(255,215,60,0.85), transparent); }
         [data-metal="gold"]::after  { border-color: rgba(255,215,60,0.85); width: 10px; height: 10px; }
-        [data-metal="gold"] .collab-card-title { color: #ffe060; text-shadow: 0 0 14px rgba(255,200,40,0.8), 0 1px 3px rgba(0,0,0,0.9); }
-        [data-metal="gold"] .collab-card-icon  { filter: drop-shadow(0 0 9px rgba(255,200,40,0.8)); }
-        [data-metal="gold"] .collab-card-desc  { color: rgba(220,185,90,0.7); }
 
         /* NEUTRAL — Silver */
         [data-metal="silver"] {
@@ -1330,9 +1315,6 @@
         }
         [data-metal="silver"]::before { background: linear-gradient(90deg, transparent, rgba(210,222,240,0.5), transparent); }
         [data-metal="silver"]::after  { border-color: rgba(210,222,240,0.5); width: 10px; height: 10px; }
-        [data-metal="silver"] .collab-card-title { color: #c8d8e8; text-shadow: 0 0 8px rgba(190,205,225,0.35), 0 1px 3px rgba(0,0,0,0.9); }
-        [data-metal="silver"] .collab-card-icon  { filter: drop-shadow(0 0 5px rgba(190,205,225,0.35)); }
-        [data-metal="silver"] .collab-card-desc  { color: rgba(140,160,185,0.55); }
 
         /* VIVID — Bronze */
         [data-metal="bronze"] {
@@ -1346,9 +1328,6 @@
         }
         [data-metal="bronze"]::before { background: linear-gradient(90deg, transparent, rgba(225,150,55,0.85), transparent); }
         [data-metal="bronze"]::after  { border-color: rgba(225,150,55,0.85); width: 10px; height: 10px; }
-        [data-metal="bronze"] .collab-card-title { color: #e09050; text-shadow: 0 0 14px rgba(200,120,45,0.8), 0 1px 3px rgba(0,0,0,0.9); }
-        [data-metal="bronze"] .collab-card-icon  { filter: drop-shadow(0 0 9px rgba(200,120,45,0.8)); }
-        [data-metal="bronze"] .collab-card-desc  { color: rgba(195,130,60,0.7); }
 
         /* NEUTRAL — Steel */
         [data-metal="steel"] {
@@ -1362,9 +1341,6 @@
         }
         [data-metal="steel"]::before { background: linear-gradient(90deg, transparent, rgba(110,155,190,0.5), transparent); }
         [data-metal="steel"]::after  { border-color: rgba(110,155,190,0.5); width: 10px; height: 10px; }
-        [data-metal="steel"] .collab-card-title { color: #80a8c0; text-shadow: 0 0 8px rgba(90,130,165,0.35), 0 1px 3px rgba(0,0,0,0.9); }
-        [data-metal="steel"] .collab-card-icon  { filter: drop-shadow(0 0 5px rgba(90,130,165,0.35)); }
-        [data-metal="steel"] .collab-card-desc  { color: rgba(80,115,145,0.55); }
 
         /* VIVID — Copper */
         [data-metal="copper"] {
@@ -1378,9 +1354,6 @@
         }
         [data-metal="copper"]::before { background: linear-gradient(90deg, transparent, rgba(230,130,60,0.85), transparent); }
         [data-metal="copper"]::after  { border-color: rgba(230,130,60,0.85); width: 10px; height: 10px; }
-        [data-metal="copper"] .collab-card-title { color: #e07848; text-shadow: 0 0 14px rgba(210,110,50,0.8), 0 1px 3px rgba(0,0,0,0.9); }
-        [data-metal="copper"] .collab-card-icon  { filter: drop-shadow(0 0 9px rgba(210,110,50,0.8)); }
-        [data-metal="copper"] .collab-card-desc  { color: rgba(200,110,60,0.7); }
 
         /* NEUTRAL — Titanium */
         [data-metal="titanium"] {
@@ -1394,9 +1367,6 @@
         }
         [data-metal="titanium"]::before { background: linear-gradient(90deg, transparent, rgba(145,185,220,0.5), transparent); }
         [data-metal="titanium"]::after  { border-color: rgba(145,185,220,0.5); width: 10px; height: 10px; }
-        [data-metal="titanium"] .collab-card-title { color: #90b4cc; text-shadow: 0 0 8px rgba(125,165,205,0.35), 0 1px 3px rgba(0,0,0,0.9); }
-        [data-metal="titanium"] .collab-card-icon  { filter: drop-shadow(0 0 5px rgba(125,165,205,0.35)); }
-        [data-metal="titanium"] .collab-card-desc  { color: rgba(105,145,180,0.55); }
 
         .collab-cta {
             display: flex;
@@ -1842,66 +1812,126 @@
                 <div class="collab-track" id="collab-track">
 
                     <div class="collab-card" data-metal="silver">
-                        <span class="collab-card-icon">✈️</span>
-                        <div class="collab-card-title">Aluminum 6061</div>
-                        <div class="collab-card-desc">Lightweight and highly machinable. Ideal for prototypes, brackets and aerospace-grade parts.</div>
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/1-aluminum.png" alt="Aluminum 6061" loading="lazy">
                     </div>
                     <div class="collab-card" data-metal="steel">
-                        <span class="collab-card-icon">⚙️</span>
-                        <div class="collab-card-title">Steel 4140</div>
-                        <div class="collab-card-desc">High-strength alloy steel for structural parts, shafts and components under heavy load.</div>
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/2-carbon-steel.png" alt="Carbon Steel" loading="lazy">
                     </div>
-                    <div class="collab-card" data-metal="titanium">
-                        <span class="collab-card-icon">🚀</span>
-                        <div class="collab-card-title">Titanium Ti-6Al-4V</div>
-                        <div class="collab-card-desc">Exceptional strength-to-weight ratio. Aerospace and medical grade, demanding to machine.</div>
+                    <div class="collab-card" data-metal="steel">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/3-steel-304.png" alt="Stainless Steel 304" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="silver">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/4-steel-316.png" alt="Stainless Steel 316" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="steel">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/5-alloy-steel.png" alt="Alloy Steel 4140" loading="lazy">
                     </div>
                     <div class="collab-card" data-metal="gold">
-                        <span class="collab-card-icon">🔶</span>
-                        <div class="collab-card-title">Brass C360</div>
-                        <div class="collab-card-desc">Excellent machinability and corrosion resistance. Ideal for fittings and electrical parts.</div>
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/6-brass.png" alt="Brass C360" loading="lazy">
                     </div>
                     <div class="collab-card" data-metal="copper">
-                        <span class="collab-card-icon">🔌</span>
-                        <div class="collab-card-title">Copper C110</div>
-                        <div class="collab-card-desc">Superior electrical and thermal conductivity. Soft material requiring sharp tooling.</div>
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/7-copper.png" alt="Copper C110" loading="lazy">
                     </div>
                     <div class="collab-card" data-metal="bronze">
-                        <span class="collab-card-icon">🔩</span>
-                        <div class="collab-card-title">Bronze</div>
-                        <div class="collab-card-desc">Wear-resistant and self-lubricating. Common in bushings, bearings and marine hardware.</div>
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/8-bronze.png" alt="Bronze" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="titanium">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/9-titanium.png" alt="Titanium Ti-6Al-4V" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="steel">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/10-cast-iron.png" alt="Cast Iron" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="silver">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/11-pom.png" alt="POM (Delrin)" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="gold">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/12-nylon.png" alt="Nylon" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="copper">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/13-teflon.png" alt="Teflon (PTFE)" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="bronze">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/14-peek.png" alt="PEEK" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="titanium">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/15-abs.png" alt="ABS" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="silver">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/16-acrylic.png" alt="Acrylic" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="steel">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/17-policarbonate.png" alt="Polycarbonate" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="gold">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/18-hdpe.png" alt="HDPE" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="copper">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/19-pvc.png" alt="PVC" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="titanium">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/20-carbon-fiber.png" alt="Carbon Fiber" loading="lazy">
                     </div>
 
                     <!-- Duplicados para scroll infinito -->
                     <div class="collab-card" data-metal="silver">
-                        <span class="collab-card-icon">✈️</span>
-                        <div class="collab-card-title">Aluminum 6061</div>
-                        <div class="collab-card-desc">Lightweight and highly machinable. Ideal for prototypes, brackets and aerospace-grade parts.</div>
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/1-aluminum.png" alt="Aluminum 6061" loading="lazy">
                     </div>
                     <div class="collab-card" data-metal="steel">
-                        <span class="collab-card-icon">⚙️</span>
-                        <div class="collab-card-title">Steel 4140</div>
-                        <div class="collab-card-desc">High-strength alloy steel for structural parts, shafts and components under heavy load.</div>
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/2-carbon-steel.png" alt="Carbon Steel" loading="lazy">
                     </div>
-                    <div class="collab-card" data-metal="titanium">
-                        <span class="collab-card-icon">🚀</span>
-                        <div class="collab-card-title">Titanium Ti-6Al-4V</div>
-                        <div class="collab-card-desc">Exceptional strength-to-weight ratio. Aerospace and medical grade, demanding to machine.</div>
+                    <div class="collab-card" data-metal="steel">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/3-steel-304.png" alt="Stainless Steel 304" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="silver">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/4-steel-316.png" alt="Stainless Steel 316" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="steel">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/5-alloy-steel.png" alt="Alloy Steel 4140" loading="lazy">
                     </div>
                     <div class="collab-card" data-metal="gold">
-                        <span class="collab-card-icon">🔶</span>
-                        <div class="collab-card-title">Brass C360</div>
-                        <div class="collab-card-desc">Excellent machinability and corrosion resistance. Ideal for fittings and electrical parts.</div>
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/6-brass.png" alt="Brass C360" loading="lazy">
                     </div>
                     <div class="collab-card" data-metal="copper">
-                        <span class="collab-card-icon">🔌</span>
-                        <div class="collab-card-title">Copper C110</div>
-                        <div class="collab-card-desc">Superior electrical and thermal conductivity. Soft material requiring sharp tooling.</div>
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/7-copper.png" alt="Copper C110" loading="lazy">
                     </div>
                     <div class="collab-card" data-metal="bronze">
-                        <span class="collab-card-icon">🔩</span>
-                        <div class="collab-card-title">Bronze</div>
-                        <div class="collab-card-desc">Wear-resistant and self-lubricating. Common in bushings, bearings and marine hardware.</div>
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/8-bronze.png" alt="Bronze" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="titanium">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/9-titanium.png" alt="Titanium Ti-6Al-4V" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="steel">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/10-cast-iron.png" alt="Cast Iron" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="silver">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/11-pom.png" alt="POM (Delrin)" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="gold">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/12-nylon.png" alt="Nylon" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="copper">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/13-teflon.png" alt="Teflon (PTFE)" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="bronze">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/14-peek.png" alt="PEEK" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="titanium">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/15-abs.png" alt="ABS" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="silver">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/16-acrylic.png" alt="Acrylic" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="steel">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/17-policarbonate.png" alt="Polycarbonate" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="gold">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/18-hdpe.png" alt="HDPE" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="copper">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/19-pvc.png" alt="PVC" loading="lazy">
+                    </div>
+                    <div class="collab-card" data-metal="titanium">
+                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/20-carbon-fiber.png" alt="Carbon Fiber" loading="lazy">
                     </div>
 
                 </div>
