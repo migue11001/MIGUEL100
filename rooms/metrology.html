@@ -67,6 +67,24 @@
         }
         .nav-back:hover { background: rgba(0,212,255,0.1); color:#fff; border-color:var(--neon-blue); }
 
+        .lang-switch {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            display: flex; align-items: center; gap: 0.35rem;
+        }
+        .lang-btn {
+            background: rgba(0,212,255,0.04); border: 1px solid rgba(0,212,255,0.22); border-radius: 3px;
+            padding: 0.22rem 0.42rem; font-size: 0.95rem; line-height: 1; cursor: pointer;
+            filter: grayscale(65%); opacity: 0.6; transition: all 0.25s ease;
+        }
+        .lang-btn:hover, .lang-btn.active {
+            border-color: var(--neon-blue); background: rgba(0,212,255,0.1);
+            box-shadow: 0 0 10px rgba(0,212,255,0.2); filter: grayscale(0%); opacity: 1;
+        }
+        #google_translate_element, .goog-te-banner-frame, .skiptranslate { display: none !important; }
+        body { top: 0px !important; }
+        html.translated-ltr body, html.translated-rtl body { top: 0 !important; }
+        @media (max-width: 560px) { .lang-switch { display: none; } }
+
         /* ── Page wrapper ── */
         .page-wrapper { max-width: 900px; margin: 0 auto; position: relative; z-index: 2; }
 
@@ -372,14 +390,19 @@
 <body>
     <nav class="site-nav">
         <a href="../index.html" class="nav-logo">migue100.com</a>
-        <a href="../index.html" class="nav-back">← Home</a>
+        <div class="lang-switch">
+            <button class="lang-btn" data-lang="en" onclick="setSiteLanguage('en')" title="English">🇬🇧</button>
+            <button class="lang-btn" data-lang="es" onclick="setSiteLanguage('es')" title="Español">🇪🇸</button>
+            <button class="lang-btn" data-lang="it" onclick="setSiteLanguage('it')" title="Italiano">🇮🇹</button>
+        </div>
+        <a href="../index.html" class="nav-back notranslate" data-i18n-es="← Inicio" data-i18n-it="← Home">← Home</a>
     </nav>
 
     <div class="page-wrapper">
 
         <div class="room-header">
-            <p class="room-tag">MODULE 05</p>
-            <h1 class="room-title">Metrology</h1>
+            <p class="room-tag notranslate" data-i18n-es="MÓDULO 05" data-i18n-it="MODULO 05">MODULE 05</p>
+            <h1 class="room-title notranslate" data-i18n-es="Metrología" data-i18n-it="Metrologia">Metrology</h1>
             <p class="room-intro">
                 <strong>Metrology</strong> is the science of measurement — the discipline that answers whether a manufactured part actually conforms to its drawing. In production engineering, no process control is possible without reliable measurement. These cases explore where measurement succeeds, where it fails, and what the consequences are when the wrong instrument is used for the right question.
             </p>
@@ -576,5 +599,35 @@
 
         /* ── Init ── */
     </script>
+
+    <!-- ── Language switch (ES / IT via Google Website Translator) ── -->
+    <div id="google_translate_element"></div>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'es,it', autoDisplay: false }, 'google_translate_element');
+        }
+        function setSiteLanguage(lang) {
+            const expr = '/en/' + lang;
+            document.cookie = 'googtrans=' + expr + '; path=/';
+            document.cookie = 'googtrans=' + expr + '; path=/; domain=' + location.hostname;
+            localStorage.setItem('migue100_lang', lang);
+            location.reload();
+        }
+        function applyGlossary() {
+            const lang = localStorage.getItem('migue100_lang') || 'en';
+            if (lang === 'en') return;
+            document.querySelectorAll('[data-i18n-' + lang + ']').forEach(el => {
+                el.textContent = el.getAttribute('data-i18n-' + lang);
+            });
+        }
+        (function() {
+            const saved = localStorage.getItem('migue100_lang') || 'en';
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.dataset.lang === saved) btn.classList.add('active');
+            });
+            applyGlossary();
+        })();
+    </script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>

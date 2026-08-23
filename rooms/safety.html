@@ -4,606 +4,547 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Safety — migue100.com</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚠️</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪙</text></svg>">
     <meta name="author" content="Miguel Otero">
     <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap">
     <style>
-
         :root {
-            --neon-blue:   #00d4ff;
-            --neon-dim:    #0099cc;
-            --steel-dark:  #08090d;
-            --steel-panel: #1a1e28;
-            --chrome:      #8ab4cc;
-            --text-main:   #cce8f4;
-            --text-dim:    #5a7a90;
+            --neon-blue: #00d4ff;
+            --neon-dim:  #0099cc;
+            --steel-dark:#08090d;
+            --chrome:    #8ab4cc;
+            --text-main: #cce8f4;
+            --text-dim:  #5a7a90;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
         body {
-            font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+            font-family: 'Rajdhani','Segoe UI',sans-serif;
             background-color: var(--steel-dark);
             background-image:
-                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,180,255,0.015) 2px, rgba(0,180,255,0.015) 4px),
-                repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,180,255,0.02) 40px, rgba(0,180,255,0.02) 41px),
-                linear-gradient(160deg, #08090d 0%, #101520 30%, #0d1a2a 55%, #101520 80%, #08090d 100%);
+                repeating-linear-gradient(90deg,transparent,transparent 2px,rgba(0,180,255,0.015) 2px,rgba(0,180,255,0.015) 4px),
+                repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(0,180,255,0.02) 40px,rgba(0,180,255,0.02) 41px),
+                linear-gradient(160deg,#08090d 0%,#101520 30%,#0d1a2a 55%,#101520 80%,#08090d 100%);
             min-height: 100vh;
             color: var(--text-main);
-            padding: 80px 20px 60px;
+            padding: 80px 20px 80px;
             overflow-x: hidden;
         }
-
         body::after {
             content: '';
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
+            position: fixed; inset: 0;
+            background: repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.08) 3px,rgba(0,0,0,0.08) 4px);
             pointer-events: none;
             z-index: 999;
         }
 
-        /* Nav */
+        /* ── Nav ── */
         .site-nav {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 900;
-            padding: 0 2rem;
-            height: 56px;
+            position: fixed; top:0; left:0; right:0; z-index:900;
+            padding: 0 2rem; height: 56px;
             background: rgba(8,9,13,0.9);
             backdrop-filter: blur(14px);
             border-bottom: 1px solid rgba(0,212,255,0.18);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
         }
-
         .nav-logo {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 1.1rem;
-            letter-spacing: 0.15em;
-            color: #fff;
-            text-shadow: 0 0 4px #fff, 0 0 12px var(--neon-blue), 0 0 28px rgba(0,180,255,0.35);
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 1.1rem; letter-spacing: 0.15em; color: #fff;
+            text-shadow: 0 0 4px #fff,0 0 12px var(--neon-blue),0 0 28px rgba(0,180,255,0.35);
             text-decoration: none;
         }
-        .nav-logo:hover { text-shadow: 0 0 6px #fff, 0 0 18px var(--neon-blue), 0 0 40px rgba(0,180,255,0.5); }
-
         .nav-back {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.7rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--neon-blue);
-            text-decoration: none;
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--neon-blue); text-decoration: none;
             padding: 0.4rem 0.9rem;
-            border: 1px solid rgba(0,212,255,0.22);
-            border-radius: 3px;
+            border: 1px solid rgba(0,212,255,0.22); border-radius: 3px;
             background: rgba(0,212,255,0.04);
             transition: all 0.25s ease;
         }
-        .nav-back:hover { background: rgba(0,212,255,0.1); color: #fff; border-color: var(--neon-blue); }
+        .nav-back:hover { background: rgba(0,212,255,0.1); color:#fff; border-color:var(--neon-blue); }
 
-        /* Page */
-        .page-wrapper {
-            max-width: 820px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 2;
+        .lang-switch {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            display: flex; align-items: center; gap: 0.35rem;
         }
+        .lang-btn {
+            background: rgba(0,212,255,0.04); border: 1px solid rgba(0,212,255,0.22); border-radius: 3px;
+            padding: 0.22rem 0.42rem; font-size: 0.95rem; line-height: 1; cursor: pointer;
+            filter: grayscale(65%); opacity: 0.6; transition: all 0.25s ease;
+        }
+        .lang-btn:hover, .lang-btn.active {
+            border-color: var(--neon-blue); background: rgba(0,212,255,0.1);
+            box-shadow: 0 0 10px rgba(0,212,255,0.2); filter: grayscale(0%); opacity: 1;
+        }
+        #google_translate_element, .goog-te-banner-frame, .skiptranslate { display: none !important; }
+        body { top: 0px !important; }
+        html.translated-ltr body, html.translated-rtl body { top: 0 !important; }
+        @media (max-width: 560px) { .lang-switch { display: none; } }
 
+        /* ── Page wrapper ── */
+        .page-wrapper { max-width: 900px; margin: 0 auto; position: relative; z-index: 2; }
+
+        /* ── Room header ── */
         .room-header {
             margin-bottom: 48px;
-            padding-bottom: 24px;
+            padding-bottom: 28px;
             border-bottom: 1px solid rgba(0,212,255,0.15);
         }
-
         .room-tag {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.65em;
-            letter-spacing: 0.3em;
-            color: var(--neon-dim);
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.65em; letter-spacing: 0.3em; color: var(--neon-dim);
             margin-bottom: 10px;
         }
         .room-tag::before { content: '// '; opacity: 0.5; }
-
         .room-title {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: clamp(2em, 5vw, 3.2em);
-            font-weight: 400;
-            letter-spacing: 0.12em;
-            color: #fff;
-            text-shadow:
-                0 0 4px #fff,
-                0 0 14px var(--neon-blue),
-                0 0 32px rgba(0,180,255,0.35);
-            margin-bottom: 12px;
+            font-family: 'Share Tech Mono',monospace;
+            font-size: clamp(2em,5vw,3.2em); font-weight: 400;
+            letter-spacing: 0.12em; color: #fff;
+            text-shadow: 0 0 4px #fff,0 0 14px var(--neon-blue),0 0 32px rgba(0,180,255,0.35);
+            margin-bottom: 14px;
         }
-
-        .room-subtitle {
-            font-size: 1.05em;
-            color: var(--chrome);
-            letter-spacing: 0.05em;
-            line-height: 1.5;
+        .room-intro {
+            font-size: 1.05em; color: var(--chrome);
+            letter-spacing: 0.03em; line-height: 1.75;
+            max-width: 680px;
         }
+        .room-intro strong { color: var(--text-main); font-weight: 600; }
 
-        /* Blog sections */
-        .blog-section {
-            margin-bottom: 48px;
-        }
-
+        /* ── Section label ── */
         .section-label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.68em;
-            letter-spacing: 0.3em;
-            color: var(--neon-blue);
-            text-transform: uppercase;
-            margin-bottom: 18px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.68em; letter-spacing: 0.3em;
+            color: var(--neon-blue); text-transform: uppercase;
+            margin-bottom: 20px;
+            display: flex; align-items: center; gap: 10px;
         }
-        .section-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,212,255,0.3), transparent); }
-
-        .section-heading {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.5em;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: #fff;
-            text-shadow: 0 0 6px rgba(0,180,255,0.3);
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .section-label::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(90deg,rgba(0,212,255,0.3),transparent);
         }
 
-        .read-btn {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.42em;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--neon-dim);
-            background: none;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-            transition: color 0.2s ease;
-            flex-shrink: 0;
-            text-shadow: none;
-        }
-        .read-btn:hover { color: var(--neon-blue); }
-        .read-btn.playing { color: #fff; }
+        /* ── Posts grid ── */
+        .posts-section { margin-bottom: 60px; }
 
-        .blog-text {
-            font-size: 1em;
-            color: var(--text-main);
-            line-height: 1.8;
-            letter-spacing: 0.02em;
-            margin-bottom: 14px;
-        }
-
-        .blog-text strong {
-            color: #fff;
-            font-weight: 600;
-        }
-
-        .data-grid {
+        .posts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 14px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
         }
 
-        .data-cell {
-            background: rgba(26,30,40,0.9);
+        /* ── Post card ── */
+        .post-card {
+            display: flex; flex-direction: column;
+            background: rgba(18,21,28,0.95);
             border: 1px solid rgba(0,212,255,0.15);
-            border-radius: 4px;
-            padding: 16px;
+            border-radius: 5px;
+            overflow: hidden;
+            text-decoration: none;
+            position: relative;
+            transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+            cursor: pointer;
+        }
+        .post-card::before {
+            content: '';
+            position: absolute; top:0; left:20px; right:20px; height:1px;
+            background: linear-gradient(90deg,transparent,rgba(0,212,255,0.5),transparent);
+        }
+        .post-card::after {
+            content: '';
+            position: absolute; top:6px; right:6px;
+            width: 7px; height: 7px;
+            border-top: 1px solid rgba(0,212,255,0.4);
+            border-right: 1px solid rgba(0,212,255,0.4);
+        }
+        .post-card:hover {
+            border-color: rgba(0,212,255,0.4);
+            box-shadow: 0 0 20px rgba(0,212,255,0.1), 0 4px 24px rgba(0,0,0,0.5);
+            transform: translateY(-3px);
+        }
+
+        /* Card image */
+        .post-card-img {
+            width: 100%; height: 200px;
+            overflow: hidden;
+            background: rgba(0,212,255,0.04);
+            border-bottom: 1px solid rgba(0,212,255,0.1);
             position: relative;
         }
-        .data-cell::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 16px; right: 16px;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(0,212,255,0.4), transparent);
+        .post-card-img img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+            filter: brightness(0.85) saturate(0.9);
+        }
+        .post-card:hover .post-card-img img { transform: scale(1.04); filter: brightness(0.95) saturate(1); }
+
+        .post-card-img .img-placeholder {
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.65em; letter-spacing: 0.2em;
+            color: var(--text-dim);
+            background: repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(0,212,255,0.015) 10px,rgba(0,212,255,0.015) 11px);
         }
 
-        .cell-label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.58em;
-            letter-spacing: 0.22em;
+        /* Card body */
+        .post-card-body { padding: 20px 20px 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+        .post-card-tag {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.56em; letter-spacing: 0.22em; text-transform: uppercase;
             color: var(--neon-dim);
-            margin-bottom: 6px;
-            text-transform: uppercase;
+            display: inline-block;
         }
 
-        .cell-value {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.9em;
+        .post-card-title {
+            font-family: 'Rajdhani',sans-serif;
+            font-size: 1.18em; font-weight: 700;
+            letter-spacing: 0.06em; text-transform: uppercase;
             color: #fff;
-            text-shadow: 0 0 6px rgba(0,180,255,0.3);
+            line-height: 1.3;
         }
 
-        .formula-block {
-            background: rgba(0,212,255,0.04);
-            border: 1px solid rgba(0,212,255,0.2);
-            border-left: 3px solid var(--neon-blue);
-            border-radius: 4px;
-            padding: 18px 22px;
-            margin: 20px 0;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.88em;
+        .post-card-desc {
+            font-size: 0.9em; color: var(--chrome);
+            line-height: 1.65; letter-spacing: 0.02em;
+            flex: 1;
+        }
+
+        .post-card-footer {
+            display: flex; align-items: center; justify-content: space-between;
+            padding-top: 12px;
+            border-top: 1px solid rgba(0,212,255,0.08);
+            margin-top: auto;
+        }
+        .post-card-date {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.58em; color: var(--text-dim);
+            letter-spacing: 0.1em;
+        }
+        .post-card-read {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.62em; letter-spacing: 0.2em; text-transform: uppercase;
             color: var(--neon-blue);
-            letter-spacing: 0.05em;
-            line-height: 1.7;
+            background: rgba(0,212,255,0.05);
+            border: 1px solid rgba(0,212,255,0.28);
+            border-radius: 3px;
+            padding: 5px 14px;
+            transition: all 0.2s ease;
+        }
+        .post-card:hover .post-card-read {
+            background: rgba(0,212,255,0.12);
+            color: #fff;
+            border-color: var(--neon-blue);
         }
 
-        @media (max-width: 640px) {
-            .site-nav { padding: 0 1rem; }
-            .nav-logo { font-size: 0.85rem; }
-            .data-grid { grid-template-columns: 1fr 1fr; }
+        /* ── Mockup cards ── */
+        .post-card--mockup {
+            opacity: 0.55;
+            cursor: default;
+            pointer-events: none;
+        }
+        .post-card--mockup:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: rgba(0,212,255,0.15);
+        }
+        .post-card-tag--draft {
+            color: var(--text-dim);
         }
 
-        .published-btn { position:absolute; left:50%; transform:translateX(-50%); font-family:'Share Tech Mono',monospace; font-size:0.68em; letter-spacing:0.25em; text-transform:uppercase; color:var(--neon-blue); background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.28); border-radius:3px; padding:7px 22px; cursor:pointer; transition:all 0.25s; white-space:nowrap; }
-        .published-btn:hover { background:rgba(0,212,255,0.09); color:#fff; border-color:var(--neon-blue); }
-        .published-panel { display:none; margin-top:24px; border:1px solid rgba(0,212,255,0.12); border-radius:4px; overflow:hidden; }
-        .published-panel.open { display:block; margin-bottom:48px; }
-        .pub-entry { margin-bottom:8px; border:1px solid rgba(0,212,255,0.1); border-radius:3px; overflow:hidden; }
-        .pub-entry:last-child { margin-bottom:0; }
-        .pub-item { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 16px; cursor:pointer; transition:background 0.15s; }
-        .pub-item:hover { background:rgba(0,212,255,0.04); }
-        .pub-num { font-family:'Share Tech Mono',monospace; font-size:0.58em; color:var(--text-dim); min-width:18px; }
-        .pub-title { font-family:'Share Tech Mono',monospace; font-size:0.78em; color:#fff; flex:1; }
-        .pub-date { font-family:'Share Tech Mono',monospace; font-size:0.58em; color:var(--text-dim); white-space:nowrap; }
-        .pub-article { padding:20px 16px; border-top:1px solid rgba(0,212,255,0.1); background:rgba(0,0,0,0.2); }
-        /* ── Community Contributions ── */
-        .contributions-section { margin-top: 60px; padding-top: 40px; border-top: 1px solid rgba(0,212,255,0.15); }
+        /* ── States ── */
+        .posts-empty {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.72em; color: var(--text-dim);
+            letter-spacing: 0.12em; line-height: 1.8;
+            padding: 40px 0; grid-column: 1 / -1;
+        }
+
+        /* ── Contributions ── */
+        .contributions-section {
+            margin-top: 20px; padding-top: 40px;
+            border-top: 1px solid rgba(0,212,255,0.15);
+        }
         .contributions-toggle {
             display: flex; align-items: center; gap: 12px;
-            font-family: 'Share Tech Mono', monospace; font-size: 0.82em;
-            letter-spacing: 0.2em; text-transform: uppercase;
-            color: var(--neon-blue); background: rgba(0,212,255,0.04);
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.82em; letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--neon-blue);
+            background: rgba(0,212,255,0.04);
             border: 1px solid rgba(0,212,255,0.3); border-radius: 3px;
             padding: 12px 20px; cursor: pointer; width: 100%;
             transition: all 0.25s ease;
         }
-        .contributions-toggle:hover { background: rgba(0,212,255,0.09); color: #fff; border-color: var(--neon-blue); }
-        .contributions-toggle .toggle-arrow { margin-left: auto; transition: transform 0.3s ease; }
-        .contributions-toggle.open .toggle-arrow { transform: rotate(180deg); }
-
-        .contributions-panel { display: none; margin-top: 24px; }
-        .contributions-panel.open { display: block; }
-
-        .contributions-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 18px;
-        }
+        .contributions-toggle:hover { background: rgba(0,212,255,0.09); color:#fff; border-color:var(--neon-blue); }
+        .contributions-toggle .toggle-arrow { margin-left:auto; transition:transform 0.3s ease; }
+        .contributions-toggle.open .toggle-arrow { transform:rotate(180deg); }
+        .contributions-panel { display:none; margin-top:24px; }
+        .contributions-panel.open { display:block; }
+        .contributions-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
         .contributions-title {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.68em;
-            letter-spacing: 0.3em; color: var(--neon-blue); text-transform: uppercase;
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.68em; letter-spacing: 0.3em;
+            color: var(--neon-blue); text-transform: uppercase;
         }
         .add-btn {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.62em;
-            letter-spacing: 0.15em; text-transform: uppercase;
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.62em; letter-spacing: 0.15em; text-transform: uppercase;
             color: var(--neon-blue); background: rgba(0,212,255,0.06);
             border: 1px solid rgba(0,212,255,0.3); border-radius: 3px;
             padding: 6px 14px; cursor: pointer; transition: all 0.2s ease;
         }
-        .add-btn:hover { background: rgba(0,212,255,0.12); color: #fff; }
-
-        .filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .add-btn:hover { background:rgba(0,212,255,0.12); color:#fff; }
+        .filters { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
         .filter-btn {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.6em;
-            letter-spacing: 0.15em; text-transform: uppercase;
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.6em; letter-spacing: 0.15em; text-transform: uppercase;
             color: var(--text-dim); background: none;
             border: 1px solid rgba(0,212,255,0.15); border-radius: 3px;
             padding: 5px 12px; cursor: pointer; transition: all 0.2s ease;
         }
-        .filter-btn:hover, .filter-btn.active { color: var(--neon-blue); border-color: rgba(0,212,255,0.4); background: rgba(0,212,255,0.05); }
-
+        .filter-btn:hover, .filter-btn.active { color:var(--neon-blue); border-color:rgba(0,212,255,0.4); background:rgba(0,212,255,0.05); }
         .contribution-item {
-            background: rgba(26,30,40,0.9); border: 1px solid rgba(0,212,255,0.12);
-            border-radius: 4px; padding: 16px 18px; margin-bottom: 12px; position: relative;
+            background: rgba(26,30,40,0.9);
+            border: 1px solid rgba(0,212,255,0.12); border-radius: 4px;
+            padding: 16px 18px; margin-bottom: 12px; position: relative;
         }
         .contribution-item::before {
-            content: ''; position: absolute; top: 0; left: 16px; right: 16px;
-            height: 1px; background: linear-gradient(90deg, transparent, rgba(0,212,255,0.3), transparent);
+            content:''; position:absolute; top:0; left:16px; right:16px; height:1px;
+            background:linear-gradient(90deg,transparent,rgba(0,212,255,0.3),transparent);
         }
-        .contribution-meta {
-            display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
-        }
+        .contribution-meta { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
         .contribution-type {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.55em;
-            letter-spacing: 0.2em; text-transform: uppercase;
-            color: var(--neon-dim); background: rgba(0,212,255,0.06);
-            border: 1px solid rgba(0,212,255,0.15); border-radius: 2px; padding: 2px 7px;
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.55em; letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--neon-dim);
+            background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.15);
+            border-radius: 2px; padding: 2px 7px;
         }
-        .contribution-title {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.85em;
-            color: #fff; margin-bottom: 6px;
-        }
-        .contribution-desc {
-            font-size: 0.88em; color: var(--text-main); line-height: 1.6; margin-bottom: 10px;
-        }
+        .contribution-title { font-family:'Share Tech Mono',monospace; font-size:0.85em; color:#fff; margin-bottom:6px; }
+        .contribution-desc { font-size:0.88em; color:var(--text-main); line-height:1.6; margin-bottom:10px; }
         .contribution-link {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.65em;
-            letter-spacing: 0.15em; text-transform: uppercase;
-            color: var(--neon-blue); text-decoration: none;
-            border: 1px solid rgba(0,212,255,0.3); border-radius: 2px;
-            padding: 4px 10px; transition: all 0.2s ease; display: inline-block;
+            font-family:'Share Tech Mono',monospace; font-size:0.65em;
+            letter-spacing:0.15em; text-transform:uppercase;
+            color:var(--neon-blue); text-decoration:none;
+            border:1px solid rgba(0,212,255,0.3); border-radius:2px;
+            padding:4px 10px; transition:all 0.2s ease; display:inline-block;
         }
-        .contribution-link:hover { background: rgba(0,212,255,0.08); color: #fff; }
-
+        .contribution-link:hover { background:rgba(0,212,255,0.08); color:#fff; }
         .contributions-empty {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.75em;
-            color: var(--text-dim); text-align: center; padding: 30px 0; letter-spacing: 0.1em;
+            font-family:'Share Tech Mono',monospace; font-size:0.75em;
+            color:var(--text-dim); text-align:center; padding:30px 0; letter-spacing:0.1em;
         }
-
-        /* Contribution form */
         .contribution-form {
-            display: none; background: rgba(0,212,255,0.03);
-            border: 1px solid rgba(0,212,255,0.2); border-radius: 4px;
-            padding: 22px; margin-bottom: 24px;
+            display:none; background:rgba(0,212,255,0.03);
+            border:1px solid rgba(0,212,255,0.2); border-radius:4px;
+            padding:22px; margin-bottom:24px;
         }
-        .contribution-form.open { display: block; }
+        .contribution-form.open { display:block; }
         .form-title {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.7em;
-            letter-spacing: 0.25em; text-transform: uppercase;
-            color: #fff; margin-bottom: 18px;
+            font-family:'Share Tech Mono',monospace; font-size:0.7em;
+            letter-spacing:0.25em; text-transform:uppercase; color:#fff; margin-bottom:18px;
         }
-        .form-type-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-        .type-option { display: none; }
+        .form-type-row { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+        .type-option { display:none; }
         .type-label {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.62em;
-            letter-spacing: 0.12em; text-transform: uppercase;
-            color: var(--text-dim); border: 1px solid rgba(0,212,255,0.2);
-            border-radius: 3px; padding: 6px 14px; cursor: pointer; transition: all 0.2s ease;
+            font-family:'Share Tech Mono',monospace; font-size:0.62em;
+            letter-spacing:0.12em; text-transform:uppercase; color:var(--text-dim);
+            border:1px solid rgba(0,212,255,0.2); border-radius:3px;
+            padding:6px 14px; cursor:pointer; transition:all 0.2s ease;
         }
-        .type-option:checked + .type-label { color: var(--neon-blue); border-color: var(--neon-blue); background: rgba(0,212,255,0.08); }
-        .form-field { margin-bottom: 14px; }
+        .type-option:checked + .type-label { color:var(--neon-blue); border-color:var(--neon-blue); background:rgba(0,212,255,0.08); }
+        .form-field { margin-bottom:14px; }
         .form-field label {
-            display: block; font-family: 'Share Tech Mono', monospace; font-size: 0.58em;
-            letter-spacing: 0.2em; text-transform: uppercase; color: var(--neon-dim); margin-bottom: 5px;
+            display:block; font-family:'Share Tech Mono',monospace;
+            font-size:0.58em; letter-spacing:0.2em; text-transform:uppercase;
+            color:var(--neon-dim); margin-bottom:5px;
         }
         .form-field input, .form-field textarea {
-            width: 100%; padding: 8px 10px; background: rgba(0,212,255,0.04);
-            border: 1px solid rgba(0,212,255,0.2); border-radius: 3px;
-            color: #fff; font-family: 'Share Tech Mono', monospace; font-size: 0.82em;
-            transition: border-color 0.2s ease; resize: none;
+            width:100%; padding:8px 10px;
+            background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.2);
+            border-radius:3px; color:#fff;
+            font-family:'Share Tech Mono',monospace; font-size:0.82em;
+            transition:border-color 0.2s ease; resize:none;
         }
         .form-field input:focus, .form-field textarea:focus {
-            outline: none; border-color: var(--neon-blue); box-shadow: 0 0 6px rgba(0,212,255,0.15);
+            outline:none; border-color:var(--neon-blue); box-shadow:0 0 6px rgba(0,212,255,0.15);
         }
         .char-counter {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.55em;
-            color: var(--text-dim); text-align: right; margin-top: 3px;
+            font-family:'Share Tech Mono',monospace; font-size:0.55em;
+            color:var(--text-dim); text-align:right; margin-top:3px;
         }
         .form-submit {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.68em;
-            letter-spacing: 0.18em; text-transform: uppercase;
-            color: var(--neon-blue); background: rgba(0,212,255,0.06);
-            border: 1px solid rgba(0,212,255,0.35); border-radius: 3px;
-            padding: 10px 22px; cursor: pointer; transition: all 0.25s ease; margin-top: 4px;
+            font-family:'Share Tech Mono',monospace; font-size:0.68em;
+            letter-spacing:0.18em; text-transform:uppercase;
+            color:var(--neon-blue); background:rgba(0,212,255,0.06);
+            border:1px solid rgba(0,212,255,0.35); border-radius:3px;
+            padding:10px 22px; cursor:pointer; transition:all 0.25s ease; margin-top:4px;
         }
-        .form-submit:hover { background: rgba(0,212,255,0.13); color: #fff; }
-        .form-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+        .form-submit:hover { background:rgba(0,212,255,0.13); color:#fff; }
+        .form-submit:disabled { opacity:0.4; cursor:not-allowed; }
+
+        @media (max-width:640px) {
+            .site-nav { padding:0 1rem; }
+            .nav-logo { font-size:0.85rem; }
+            .posts-grid { grid-template-columns:1fr; }
+        }
     </style>
 </head>
 <body>
-
     <nav class="site-nav">
         <a href="../index.html" class="nav-logo">migue100.com</a>
-        <button class="published-btn" id="published-toggle">▼ Published</button>
-        <a href="../index.html" class="nav-back">← Home</a>
+        <div class="lang-switch">
+            <button class="lang-btn" data-lang="en" onclick="setSiteLanguage('en')" title="English">🇬🇧</button>
+            <button class="lang-btn" data-lang="es" onclick="setSiteLanguage('es')" title="Español">🇪🇸</button>
+            <button class="lang-btn" data-lang="it" onclick="setSiteLanguage('it')" title="Italiano">🇮🇹</button>
+        </div>
+        <a href="../index.html" class="nav-back notranslate" data-i18n-es="← Inicio" data-i18n-it="← Home">← Home</a>
     </nav>
 
     <div class="page-wrapper">
 
         <div class="room-header">
-            <p class="room-tag">MODULE 04</p>
-            <h1 class="room-title">Safety</h1>
-            <p class="room-subtitle">Physical hazard prevention, PPE, machine guarding, lockout/tagout and emergency protocols for machining environments.</p>
-        </div>
-        <div class="published-panel" id="published-panel"><div id="published-list"></div></div>
-
-        <div class="blog-section">
-            <p class="section-label">Overview</p>
-            <h2 class="section-heading">What is Mechanical Safety?</h2>
-            <p class="blog-text">
-                Mechanical safety encompasses all measures taken to protect workers from physical hazards generated by machinery, tools, and industrial processes. In a machining environment, these hazards include <strong>rotating parts, cutting chips, coolant splatter, noise, vibration, and heavy workpiece handling</strong>.
-            </p>
-            <p class="blog-text">
-                A safe workshop is not the result of luck — it is the product of systematic hazard identification, engineering controls, administrative procedures, and consistent use of personal protective equipment. Every accident has a root cause that could have been prevented.
+            <p class="room-tag notranslate" data-i18n-es="MÓDULO 04" data-i18n-it="MODULO 04">MODULE 04</p>
+            <h1 class="room-title notranslate" data-i18n-es="Seguridad" data-i18n-it="Sicurezza">Safety</h1>
+            <p class="room-intro">
+                <strong>Safety</strong> in a machining environment is not the result of luck — it is the product of systematic hazard identification, engineering controls, administrative procedures, and consistent use of protective equipment. Rotating parts, cutting chips, coolant, noise, and stored energy all demand specific countermeasures. These cases examine where procedures held, where they failed, and what the data shows about how accidents actually happen on the shop floor.
             </p>
         </div>
 
-        <div class="blog-section">
-            <p class="section-label">PPE</p>
-            <h2 class="section-heading">Personal Protective Equipment</h2>
-            <p class="blog-text">
-                PPE is the last line of defense — it does not eliminate hazards but reduces injury severity when other controls fail. Selection must match the specific hazard present at each workstation.
-            </p>
-            <div class="data-grid">
-                <div class="data-cell">
-                    <p class="cell-label">Eye Protection</p>
-                    <p class="cell-value">Safety glasses or face shield rated to ANSI Z87.1. Mandatory at all times near cutting operations.</p>
+        <div class="posts-section">
+            <p class="section-label">Published Cases</p>
+            <div class="posts-grid" id="posts-grid">
+
+                <div class="post-card post-card--mockup">
+                    <div class="post-card-img">
+                        <div class="img-placeholder">// DRAFT</div>
+                    </div>
+                    <div class="post-card-body">
+                        <span class="post-card-tag post-card-tag--draft">// Draft</span>
+                        <h3 class="post-card-title">What is Mechanical Safety?</h3>
+                        <p class="post-card-desc">Mechanical safety encompasses all measures protecting workers from physical hazards generated by machinery — rotating parts, cutting chips, coolant splatter, noise, vibration, and heavy workpiece handling. Every accident has a root cause that could have been prevented.</p>
+                        <div class="post-card-footer">
+                            <span class="post-card-date">— Unpublished</span>
+                            <span class="post-card-read">→ DRAFT</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="data-cell">
-                    <p class="cell-label">Hearing Protection</p>
-                    <p class="cell-value">Earplugs or earmuffs (NRR 25+) when ambient noise exceeds 85 dB(A) for sustained periods.</p>
+
+                <div class="post-card post-card--mockup">
+                    <div class="post-card-img">
+                        <div class="img-placeholder">// DRAFT</div>
+                    </div>
+                    <div class="post-card-body">
+                        <span class="post-card-tag post-card-tag--draft">// Draft</span>
+                        <h3 class="post-card-title">Personal Protective Equipment</h3>
+                        <p class="post-card-desc">PPE is the last line of defense — it reduces injury severity when other controls fail, not a substitute for them. Eye protection (ANSI Z87.1), hearing protection above 85 dB(A), cut-resistant gloves for handling, steel-toe footwear, fitted clothing. Never wear gloves near rotating spindles.</p>
+                        <div class="post-card-footer">
+                            <span class="post-card-date">— Unpublished</span>
+                            <span class="post-card-read">→ DRAFT</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="data-cell">
-                    <p class="cell-label">Hand Protection</p>
-                    <p class="cell-value">Cut-resistant gloves for handling workpieces and tools. Never wear gloves near rotating spindles.</p>
+
+                <div class="post-card post-card--mockup">
+                    <div class="post-card-img">
+                        <div class="img-placeholder">// DRAFT</div>
+                    </div>
+                    <div class="post-card-body">
+                        <span class="post-card-tag post-card-tag--draft">// Draft</span>
+                        <h3 class="post-card-title">Machine Guarding</h3>
+                        <p class="post-card-desc">Guards are engineering controls that physically prevent contact with hazardous zones — the most effective measure because they don't depend on human behavior. Fixed, interlocked, and adjustable guard types. The hierarchy of controls: elimination, substitution, engineering, administrative, PPE.</p>
+                        <div class="post-card-footer">
+                            <span class="post-card-date">— Unpublished</span>
+                            <span class="post-card-read">→ DRAFT</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="data-cell">
-                    <p class="cell-label">Footwear</p>
-                    <p class="cell-value">Steel-toe safety boots (EN ISO 20345) to protect against dropped parts and sharp chips on the floor.</p>
+
+                <div class="post-card post-card--mockup">
+                    <div class="post-card-img">
+                        <div class="img-placeholder">// DRAFT</div>
+                    </div>
+                    <div class="post-card-body">
+                        <span class="post-card-tag post-card-tag--draft">// Draft</span>
+                        <h3 class="post-card-title">Lockout / Tagout</h3>
+                        <p class="post-card-desc">LOTO is the mandatory procedure for isolating all energy sources before maintenance or setup changes — one of the leading causes of severe industrial accidents when skipped. Electrical, hydraulic, pneumatic, stored mechanical, and thermal energy each require specific isolation steps. Only the worker who applied the lock may remove it.</p>
+                        <div class="post-card-footer">
+                            <span class="post-card-date">— Unpublished</span>
+                            <span class="post-card-read">→ DRAFT</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="data-cell">
-                    <p class="cell-label">Clothing</p>
-                    <p class="cell-value">Fitted clothing with no loose sleeves or dangling straps. No ties, no jewelry near rotating equipment.</p>
+
+                <div class="post-card post-card--mockup">
+                    <div class="post-card-img">
+                        <div class="img-placeholder">// DRAFT</div>
+                    </div>
+                    <div class="post-card-body">
+                        <span class="post-card-tag post-card-tag--draft">// Draft</span>
+                        <h3 class="post-card-title">CNC Machine-Specific Protocols</h3>
+                        <p class="post-card-desc">CNC machines introduce unique risks — movements are fast, precise, and program-controlled. A wrong tool offset by 10 mm can break the spindle in milliseconds. Dry-run verification, offset confirmation, workholding inspection, E-stop awareness, closed guard doors, and chip evacuation procedure.</p>
+                        <div class="post-card-footer">
+                            <span class="post-card-date">— Unpublished</span>
+                            <span class="post-card-read">→ DRAFT</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="data-cell">
-                    <p class="cell-label">Respiratory</p>
-                    <p class="cell-value">P100 respirator or adequate ventilation when machining materials that produce hazardous dust or mist.</p>
+
+                <div class="post-card post-card--mockup">
+                    <div class="post-card-img">
+                        <div class="img-placeholder">// DRAFT</div>
+                    </div>
+                    <div class="post-card-body">
+                        <span class="post-card-tag post-card-tag--draft">// Draft</span>
+                        <h3 class="post-card-title">Hazard Identification</h3>
+                        <p class="post-card-desc">Risk assessment systematically identifies mechanical, physical, chemical, and ergonomic hazards, then evaluates likelihood and severity. Risk level = Probability × Severity. Above 15 requires immediate corrective action. Residual risk must be documented and accepted by a responsible engineer.</p>
+                        <div class="post-card-footer">
+                            <span class="post-card-date">— Unpublished</span>
+                            <span class="post-card-read">→ DRAFT</span>
+                        </div>
+                    </div>
                 </div>
+
+                <div class="post-card post-card--mockup">
+                    <div class="post-card-img">
+                        <div class="img-placeholder">// DRAFT</div>
+                    </div>
+                    <div class="post-card-body">
+                        <span class="post-card-tag post-card-tag--draft">// Draft</span>
+                        <h3 class="post-card-title">Emergency Procedures</h3>
+                        <p class="post-card-desc">Fire, entrapment, coolant spill, eye contamination — every operator must know the emergency response plan before starting work. CO₂ or dry powder on electrical fires, never water. E-stop on entrapment without reversing the machine. Eyewash for minimum 15 minutes continuously after eye contamination.</p>
+                        <div class="post-card-footer">
+                            <span class="post-card-date">— Unpublished</span>
+                            <span class="post-card-read">→ DRAFT</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <div class="blog-section">
-            <p class="section-label">Guarding</p>
-            <h2 class="section-heading">Machine Guarding</h2>
-            <p class="blog-text">
-                Guards are engineering controls that physically prevent contact between the operator and hazardous machine zones. They are the most effective safety measure because they do not depend on human behavior.
-            </p>
-            <p class="blog-text">
-                Guards must be <strong>fixed, interlocked, or adjustable</strong> depending on the operation. A fixed guard is permanently attached and can only be removed with tools. An interlocked guard automatically stops the machine when opened. Adjustable guards accommodate different workpiece sizes while blocking access to the point of operation.
-            </p>
-            <div class="formula-block">
-                HIERARCHY OF CONTROLS (most to least effective):<br>
-                1. Elimination    — remove the hazard entirely<br>
-                2. Substitution   — replace with a less hazardous process<br>
-                3. Engineering    — guards, enclosures, barriers<br>
-                4. Administrative — procedures, training, supervision<br>
-                5. PPE            — last resort, worn by the worker
-            </div>
-        </div>
-
-        <div class="blog-section">
-            <p class="section-label">LOTO</p>
-            <h2 class="section-heading">Lockout / Tagout</h2>
-            <p class="blog-text">
-                Lockout/Tagout (LOTO) is a mandatory procedure for isolating all energy sources before performing maintenance, setup changes, or clearing jams on machinery. Failure to follow LOTO is one of the leading causes of severe industrial accidents.
-            </p>
-            <p class="blog-text">
-                The procedure follows a strict sequence: <strong>notify affected personnel → shut down the machine → isolate energy sources (electrical, hydraulic, pneumatic, stored) → apply personal lock and tag → release or restrain stored energy → verify zero energy state</strong>. Only the worker who applied the lock may remove it.
-            </p>
-            <div class="data-grid">
-                <div class="data-cell">
-                    <p class="cell-label">Electrical Energy</p>
-                    <p class="cell-value">Disconnect and lock the main isolator switch. Verify with a voltage tester before touching any conductor.</p>
-                </div>
-                <div class="data-cell">
-                    <p class="cell-label">Hydraulic / Pneumatic</p>
-                    <p class="cell-value">Close supply valve, lock it, then bleed residual pressure through relief valves before disassembly.</p>
-                </div>
-                <div class="data-cell">
-                    <p class="cell-label">Stored Mechanical Energy</p>
-                    <p class="cell-value">Block or restrain parts that could move under gravity (ram, spindle, counterweight) before work begins.</p>
-                </div>
-                <div class="data-cell">
-                    <p class="cell-label">Thermal Energy</p>
-                    <p class="cell-value">Allow machine components and coolant to reach safe handling temperature before contact.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="blog-section">
-            <p class="section-label">CNC Safety</p>
-            <h2 class="section-heading">CNC Machine-Specific Protocols</h2>
-            <p class="blog-text">
-                CNC machines introduce unique risks because movements are fast, precise, and program-controlled. An error in the G-code, a wrong tool offset, or an incorrectly clamped workpiece can cause catastrophic collisions within milliseconds.
-            </p>
-            <div class="data-grid">
-                <div class="data-cell">
-                    <p class="cell-label">Dry Run</p>
-                    <p class="cell-value">Always execute new programs in dry-run mode (rapid feed override at 0%) before the first live cut.</p>
-                </div>
-                <div class="data-cell">
-                    <p class="cell-label">Tool Offset Verification</p>
-                    <p class="cell-value">Confirm all tool length and radius offsets before running. A wrong offset by 10 mm can break the spindle.</p>
-                </div>
-                <div class="data-cell">
-                    <p class="cell-label">Workholding Inspection</p>
-                    <p class="cell-value">Check chuck jaw torque, vise clamping force, and fixture bolts before every setup and after tool changes.</p>
-                </div>
-                <div class="data-cell">
-                    <p class="cell-label">Emergency Stop</p>
-                    <p class="cell-value">Know the location of every E-stop on the machine before operating. React immediately — do not hesitate.</p>
-                </div>
-                <div class="data-cell">
-                    <p class="cell-label">Guard Doors</p>
-                    <p class="cell-value">Keep all enclosure doors closed during cutting. Never reach inside a running machine under any circumstance.</p>
-                </div>
-                <div class="data-cell">
-                    <p class="cell-label">Chip Evacuation</p>
-                    <p class="cell-value">Clear chips with a hook or brush — never by hand. Stringy chips are sharp and can cause deep lacerations.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="blog-section">
-            <p class="section-label">Risk Assessment</p>
-            <h2 class="section-heading">Hazard Identification</h2>
-            <p class="blog-text">
-                A risk assessment systematically identifies hazards, evaluates the likelihood and severity of harm, and determines appropriate controls. In machining, common hazards fall into four categories: <strong>mechanical, physical, chemical, and ergonomic</strong>.
-            </p>
-            <p class="blog-text">
-                Risk level is calculated as the product of probability and consequence. High-risk items require immediate engineering controls. Residual risk — what remains after controls are applied — must be documented and accepted by a responsible engineer.
-            </p>
-            <div class="formula-block">
-                Risk Level  = Probability × Severity<br><br>
-                Probability:  1 (rare) → 5 (almost certain)<br>
-                Severity:     1 (minor) → 5 (fatal)<br><br>
-                Risk &gt; 15  → Stop work, immediate corrective action required<br>
-                Risk 8–15   → Engineering or administrative control mandatory<br>
-                Risk &lt; 8  → Monitor and review periodically
-            </div>
-        </div>
-
-        <div class="blog-section">
-            <p class="section-label">Emergency</p>
-            <h2 class="section-heading">Emergency Procedures</h2>
-            <p class="blog-text">
-                Every operator must know the emergency response plan before starting work. Drills and clear signage reduce response time and prevent secondary injuries caused by panic.
-            </p>
-            <div class="data-grid">
-                <div class="data-cell">
-                    <p class="cell-label">Fire</p>
-                    <p class="cell-value">Activate alarm, evacuate, call emergency services. Use CO₂ or dry powder extinguisher on electrical/oil fires. Never water.</p>
-                </div>
-                <div class="data-cell">
-                    <p class="cell-label">Entrapment / Crush</p>
-                    <p class="cell-value">Hit E-stop immediately. Do NOT attempt to reverse the machine. Call emergency services. Keep victim still.</p>
-                </div>
-                <div class="data-cell">
-                    <p class="cell-label">Coolant Spill</p>
-                    <p class="cell-value">Contain with absorbent material. Slippery floors are a fall and secondary injury risk — mark and clean immediately.</p>
-                </div>
-                <div class="data-cell">
-                    <p class="cell-label">Eye Contamination</p>
-                    <p class="cell-value">Flush with eyewash station for a minimum of 15 minutes continuously. Seek medical attention immediately after.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Community Contributions -->
         <div class="contributions-section">
             <button class="contributions-toggle" id="contrib-toggle">
                 ⬇ Deepen on This Topic
                 <span class="toggle-arrow">▼</span>
             </button>
-
             <div class="contributions-panel" id="contrib-panel">
                 <div class="contributions-header">
                     <span class="contributions-title">// Community Contributions</span>
                     <button class="add-btn" id="add-btn" style="display:none;">+ Add Contribution</button>
                 </div>
-
                 <div class="filters">
                     <button class="filter-btn active" data-type="all">All</button>
                     <button class="filter-btn" data-type="link">🔗 Links</button>
                     <button class="filter-btn" data-type="pdf">📄 PDF</button>
                     <button class="filter-btn" data-type="book">📖 Books</button>
                 </div>
-
-                <!-- Form -->
                 <div class="contribution-form" id="contrib-form">
                     <p class="form-title">// Add a Contribution</p>
                     <div class="form-type-row">
@@ -630,8 +571,6 @@
                     </div>
                     <button class="form-submit" id="form-submit">Submit Contribution</button>
                 </div>
-
-                <!-- List -->
                 <div id="contrib-list"></div>
             </div>
         </div>
@@ -639,37 +578,23 @@
     </div>
 
     <script>
-        let _readAudio = null;
-        function toggleRead(btn, src) {
-            if (_readAudio && !_readAudio.paused) {
-                _readAudio.pause();
-                _readAudio.currentTime = 0;
-                btn.textContent = '🔈 READ';
-                btn.classList.remove('playing');
-                _readAudio = null;
-                return;
-            }
-            _readAudio = new Audio(src);
-            btn.textContent = '⏹ STOP';
-            btn.classList.add('playing');
-            _readAudio.play();
-            _readAudio.onended = () => {
-                btn.textContent = '🔈 READ';
-                btn.classList.remove('playing');
-                _readAudio = null;
-            };
-        }
         const BACKEND_URL = 'https://web-production-47911.up.railway.app';
         const MODULE = 'safety';
-        function fmtDate(s) { try { return new Date(s).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); } catch { return s||''; } }
-        function renderArticle(a) { let c; try { c=JSON.parse(a.content); } catch { c={p1:a.content}; } let h=''; if(c.label) h+=`<p class="section-label">${c.label}</p>`; if(c.heading) h+=`<h2 class="section-heading">${c.heading}${a.audio_url?` <button class="read-btn" onclick="toggleRead(this,'${a.audio_url}')">🔈 READ</button>`:''}</h2>`; if(c.p1) h+=`<p class="blog-text">${c.p1}</p>`; if(c.p2) h+=`<p class="blog-text">${c.p2}</p>`; if(c.formula) h+=`<div class="formula-block">${c.formula}</div>`; if(c.specs&&c.specs.length) h+='<div class="data-grid">'+c.specs.map(s=>`<div class="data-cell"><p class="cell-label">${s.label}</p><p class="cell-value">${s.value}</p></div>`).join('')+'</div>'; return h; }
-        function toggleArticle(id) { const el=document.getElementById(id); el.style.display=el.style.display==='none'?'block':'none'; }
-        async function loadPublished() { const list=document.getElementById('published-list'); list.innerHTML='<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">Loading...</p>'; try { const res=await fetch(`${BACKEND_URL}/articles?module=${MODULE}`); const data=await res.json(); if(!data.length){list.innerHTML='<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">No publications yet.</p>';return;} list.innerHTML=data.map((a,i)=>`<div class="pub-entry"><div class="pub-item" onclick="toggleArticle('art-body-${i}')"><span class="pub-num">${i+1}</span><span class="pub-title">${a.title}</span><span class="pub-date">${fmtDate(a.created_at)}</span></div><div class="pub-article" id="art-body-${i}" style="display:none">${renderArticle(a)}</div></div>`).join(''); } catch { list.innerHTML='<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">Could not load.</p>'; } }
-        document.getElementById('published-toggle').addEventListener('click',function(){ const panel=document.getElementById('published-panel'); const open=panel.classList.toggle('open'); this.textContent=open?'▲ Published':'▼ Published'; if(open) loadPublished(); });
 
+        function fmtDate(s) {
+            try {
+                return new Date(s).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+            } catch { return s || ''; }
+        }
+
+        function esc(s) {
+            return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        /* ── Session ── */
         function getSession() {
             try {
-                const token = localStorage.getItem('migue100_token');
+                const token   = localStorage.getItem('migue100_token');
                 const session = JSON.parse(localStorage.getItem('migue100_session') || 'null');
                 if (!token || !session) return null;
                 const payload = JSON.parse(atob(token.split('.')[1]));
@@ -682,7 +607,8 @@
             } catch { return null; }
         }
 
-        const TYPE_ICON = { link: '🔗', pdf: '📄', book: '📖' };
+        /* ── Contributions ── */
+        const TYPE_ICON = { link:'🔗', pdf:'📄', book:'📖' };
         let activeFilter = 'all';
 
         async function loadContributions(type) {
@@ -692,7 +618,7 @@
                 ? `${BACKEND_URL}/contributions/${MODULE}`
                 : `${BACKEND_URL}/contributions/${MODULE}?type=${type}`;
             try {
-                const res = await fetch(url);
+                const res  = await fetch(url);
                 const data = await res.json();
                 if (!data.length) {
                     list.innerHTML = '<p class="contributions-empty">No contributions yet — be the first.</p>';
@@ -701,13 +627,12 @@
                 list.innerHTML = data.map(c => `
                     <div class="contribution-item">
                         <div class="contribution-meta">
-                            <span class="contribution-type">${TYPE_ICON[c.type] || ''} ${c.type}</span>
+                            <span class="contribution-type">${TYPE_ICON[c.type]||''} ${c.type}</span>
                         </div>
-                        <div class="contribution-title">${c.title}</div>
-                        <div class="contribution-desc">${c.description}</div>
+                        <div class="contribution-title">${esc(c.title)}</div>
+                        <div class="contribution-desc">${esc(c.description)}</div>
                         <a href="${c.url}" target="_blank" rel="noopener" class="contribution-link">→ Open</a>
-                    </div>
-                `).join('');
+                    </div>`).join('');
             } catch {
                 list.innerHTML = '<p class="contributions-empty">Could not load contributions.</p>';
             }
@@ -756,20 +681,50 @@
             try {
                 const res = await fetch(`${BACKEND_URL}/contributions`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.token}` },
-                    body: JSON.stringify({ module: MODULE, type, title, url, description: desc })
+                    headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${session.token}` },
+                    body: JSON.stringify({ module:MODULE, type, title, url, description:desc })
                 });
-                if (!res.ok) { const e = await res.json(); alert(e.error || 'Error submitting.'); return; }
+                if (!res.ok) { const e = await res.json(); alert(e.error||'Error submitting.'); return; }
                 document.getElementById('c-title').value = '';
-                document.getElementById('c-url').value = '';
-                document.getElementById('c-desc').value = '';
+                document.getElementById('c-url').value   = '';
+                document.getElementById('c-desc').value  = '';
                 document.getElementById('title-count').textContent = '0';
-                document.getElementById('desc-count').textContent = '0';
+                document.getElementById('desc-count').textContent  = '0';
                 document.getElementById('contrib-form').classList.remove('open');
                 loadContributions(activeFilter);
             } catch { alert('Could not connect to server.'); }
             finally { btn.disabled = false; btn.textContent = 'Submit Contribution'; }
         });
     </script>
+
+    <!-- ── Language switch (ES / IT via Google Website Translator) ── -->
+    <div id="google_translate_element"></div>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'es,it', autoDisplay: false }, 'google_translate_element');
+        }
+        function setSiteLanguage(lang) {
+            const expr = '/en/' + lang;
+            document.cookie = 'googtrans=' + expr + '; path=/';
+            document.cookie = 'googtrans=' + expr + '; path=/; domain=' + location.hostname;
+            localStorage.setItem('migue100_lang', lang);
+            location.reload();
+        }
+        function applyGlossary() {
+            const lang = localStorage.getItem('migue100_lang') || 'en';
+            if (lang === 'en') return;
+            document.querySelectorAll('[data-i18n-' + lang + ']').forEach(el => {
+                el.textContent = el.getAttribute('data-i18n-' + lang);
+            });
+        }
+        (function() {
+            const saved = localStorage.getItem('migue100_lang') || 'en';
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.dataset.lang === saved) btn.classList.add('active');
+            });
+            applyGlossary();
+        })();
+    </script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>

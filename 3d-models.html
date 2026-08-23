@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D Models — migue100.com</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪙</text></svg>">
+    <meta name="description" content="3D Models library — CNC machined parts by Miguel Otero.">
+    <meta name="author" content="Miguel Otero">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap">
+    <style>
+        :root {
+            --neon-blue:   #00d4ff;
+            --neon-cyan:   #00ffff;
+            --neon-dim:    #0099cc;
+            --steel-dark:  #08090d;
+            --steel-mid:   #12151c;
+            --steel-panel: #1a1e28;
+            --steel-edge:  #2a3040;
+            --chrome:      #8ab4cc;
+            --text-main:   #cce8f4;
+            --text-dim:    #5a7a90;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+            background-color: var(--steel-dark);
+            background-image:
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,180,255,0.015) 2px, rgba(0,180,255,0.015) 4px),
+                repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,180,255,0.02) 40px, rgba(0,180,255,0.02) 41px),
+                linear-gradient(160deg, #08090d 0%, #101520 30%, #0d1a2a 55%, #101520 80%, #08090d 100%);
+            min-height: 100vh;
+            color: var(--text-main);
+            padding: 90px 24px 60px;
+            overflow-x: hidden;
+        }
+
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
+            pointer-events: none; z-index: 999;
+        }
+
+        /* ── Nav ── */
+        .site-nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+            padding: 0 2rem; height: 56px;
+            background: rgba(8,9,13,0.9); backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(0,212,255,0.18);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .nav-logo {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.15rem; font-weight: 400; letter-spacing: 0.15em;
+            color: #fff; text-decoration: none; background: none; border: none;
+            cursor: pointer;
+            text-shadow: 0 0 4px #fff, 0 0 12px var(--neon-blue), 0 0 28px rgba(0,180,255,0.35);
+            transition: text-shadow 0.3s ease;
+        }
+        .nav-logo:hover {
+            text-shadow: 0 0 6px #fff, 0 0 18px var(--neon-blue), 0 0 40px rgba(0,180,255,0.5);
+        }
+        .nav-back {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.7rem;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--neon-blue); text-decoration: none;
+            padding: 0.4rem 0.9rem;
+            background: rgba(0,212,255,0.04);
+            border: 1px solid rgba(0,212,255,0.22); border-radius: 3px;
+            transition: all 0.25s ease;
+        }
+        .nav-back:hover {
+            background: rgba(0,212,255,0.1);
+            border-color: var(--neon-blue); color: #fff;
+            box-shadow: 0 0 10px rgba(0,212,255,0.2);
+        }
+
+        .lang-switch {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            display: flex; align-items: center; gap: 0.35rem;
+        }
+        .lang-btn {
+            background: rgba(0,212,255,0.04); border: 1px solid rgba(0,212,255,0.22); border-radius: 3px;
+            padding: 0.22rem 0.42rem; font-size: 0.95rem; line-height: 1; cursor: pointer;
+            filter: grayscale(65%); opacity: 0.6; transition: all 0.25s ease;
+        }
+        .lang-btn:hover, .lang-btn.active {
+            border-color: var(--neon-blue); background: rgba(0,212,255,0.1);
+            box-shadow: 0 0 10px rgba(0,212,255,0.2); filter: grayscale(0%); opacity: 1;
+        }
+        #google_translate_element, .goog-te-banner-frame, .skiptranslate { display: none !important; }
+        body { top: 0px !important; }
+        html.translated-ltr body, html.translated-rtl body { top: 0 !important; }
+        @media (max-width: 560px) { .lang-switch { display: none; } }
+
+        /* ── Section heading ── */
+        .section-heading {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75em; letter-spacing: 0.35em;
+            color: var(--neon-blue); text-transform: uppercase;
+            margin-bottom: 28px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .section-heading::before { content: '//'; opacity: 0.5; }
+        .section-heading::after  { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,212,255,0.3), transparent); }
+
+        /* ── Page title block ── */
+        .page-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: clamp(1.4rem, 3vw, 2.2rem);
+            letter-spacing: 0.18em;
+            color: #fff;
+            text-shadow: 0 0 6px rgba(0,212,255,0.4);
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.68rem; letter-spacing: 0.22em;
+            color: var(--text-dim); text-transform: uppercase;
+            margin-bottom: 40px;
+        }
+
+        /* ── Models grid ── */
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 22px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .model-card {
+            background: linear-gradient(160deg, rgba(26,30,40,0.95) 0%, rgba(18,22,32,0.98) 50%, rgba(22,26,38,0.95) 100%);
+            border: 1px solid rgba(0,212,255,0.18);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .model-card::before {
+            content: '';
+            position: absolute; top: 0; left: 20px; right: 20px; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0,212,255,0.5), transparent);
+            z-index: 1;
+        }
+        .model-card::after {
+            content: '';
+            position: absolute; top: 6px; right: 6px;
+            width: 8px; height: 8px;
+            border-top: 2px solid rgba(0,212,255,0.4);
+            border-right: 2px solid rgba(0,212,255,0.4);
+            z-index: 1; pointer-events: none;
+        }
+        .model-card:hover {
+            border-color: rgba(0,212,255,0.45);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 35px rgba(0,0,0,0.6), 0 0 18px rgba(0,180,255,0.08), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        .model-card-header {
+            display: flex; align-items: center;
+            padding: 10px 14px 8px;
+            border-bottom: 1px solid rgba(0,212,255,0.1);
+            background: rgba(0,212,255,0.025);
+            gap: 10px;
+        }
+        .model-card-tag {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.55rem; letter-spacing: 0.25em;
+            color: var(--neon-dim); text-transform: uppercase;
+            background: rgba(0,212,255,0.08);
+            border: 1px solid rgba(0,212,255,0.2);
+            padding: 2px 7px;
+        }
+        .model-card-filename {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem; letter-spacing: 0.12em;
+            color: var(--text-dim); text-transform: uppercase;
+        }
+
+        .model-viewport {
+            width: 100%; height: 300px;
+            position: relative;
+            background: #fff;
+        }
+        .model-canvas-el {
+            width: 100%; height: 100%;
+            display: none;
+        }
+        .model-status-overlay {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 10px;
+        }
+        .model-spin-icon {
+            font-size: 2rem; color: rgba(0,212,255,0.3);
+            animation: spin-hex 2.4s linear infinite;
+        }
+        @keyframes spin-hex { to { transform: rotate(360deg); } }
+        .model-status-txt {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.58rem; letter-spacing: 0.2em;
+            color: var(--text-dim); text-transform: uppercase;
+        }
+
+        .model-lock-overlay {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 14px;
+            background: rgba(8,9,13,0.55);
+            backdrop-filter: blur(2px); z-index: 10;
+        }
+        .mlo-icon { color: rgba(0,212,255,0.35); }
+        .mlo-btn {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.55rem; letter-spacing: 0.18em;
+            color: var(--neon-blue); text-decoration: none;
+            text-transform: uppercase;
+            border: 1px solid rgba(0,212,255,0.3);
+            padding: 6px 14px;
+            background: rgba(0,212,255,0.04);
+            transition: all 0.25s ease;
+            text-align: center; max-width: 200px;
+        }
+        .mlo-btn:hover {
+            background: rgba(0,212,255,0.1);
+            border-color: var(--neon-blue); color: #fff;
+            box-shadow: 0 0 10px rgba(0,212,255,0.2);
+        }
+
+        .model-card-footer {
+            display: flex; align-items: center;
+            padding: 9px 14px 10px; gap: 10px;
+            border-top: 1px solid rgba(0,212,255,0.08);
+        }
+        .model-footer-desc {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.78rem; color: var(--text-dim);
+            flex: 1; line-height: 1.4;
+        }
+        .model-drawing-btn {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.5rem; letter-spacing: 0.12em;
+            color: var(--neon-blue);
+            border: 1px solid rgba(0,212,255,0.3);
+            padding: 4px 9px; text-decoration: none;
+            text-transform: uppercase; white-space: nowrap;
+            transition: color 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+        .model-drawing-btn:hover {
+            color: #fff; border-color: rgba(0,212,255,0.7);
+            box-shadow: 0 0 10px rgba(0,212,255,0.2);
+        }
+        .model-footer-tris {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.5rem; letter-spacing: 0.1em;
+            color: rgba(0,212,255,0.25); white-space: nowrap;
+        }
+
+        /* ── Stats bar ── */
+        .stats-bar {
+            display: flex; gap: 28px; flex-wrap: wrap;
+            margin-bottom: 32px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem; letter-spacing: 0.2em;
+            color: var(--text-dim); text-transform: uppercase;
+        }
+        .stats-bar span { color: var(--neon-blue); }
+
+        /* ── Responsive ── */
+        @media (max-width: 860px) {
+            .models-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            body { padding: 76px 14px 50px; }
+            .site-nav { padding: 0 1rem; }
+            .nav-logo { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="site-nav">
+        <a href="index.html" class="nav-logo">migue100.com</a>
+        <div class="lang-switch">
+            <button class="lang-btn" data-lang="en" onclick="setSiteLanguage('en')" title="English">🇬🇧</button>
+            <button class="lang-btn" data-lang="es" onclick="setSiteLanguage('es')" title="Español">🇪🇸</button>
+            <button class="lang-btn" data-lang="it" onclick="setSiteLanguage('it')" title="Italiano">🇮🇹</button>
+        </div>
+        <a href="index.html" class="nav-back notranslate" data-i18n-es="&#8592; Volver" data-i18n-it="&#8592; Indietro">&#8592; Back</a>
+    </nav>
+
+    <div style="max-width:1600px;margin:0 auto;">
+
+        <div class="page-title notranslate" data-i18n-es="MODELOS 3D" data-i18n-it="MODELLI 3D">3D MODELS</div>
+        <div class="page-subtitle">CNC machined components — interactive STL viewer</div>
+
+        <div class="section-heading notranslate" data-i18n-es="BIBLIOTECA DE MODELOS" data-i18n-it="LIBRERIA MODELLI">MODEL LIBRARY</div>
+
+        <div class="stats-bar" id="stats-bar">
+            <div>TOTAL MODELS: <span id="stat-total">—</span></div>
+            <div>LOADED: <span id="stat-loaded">0</span></div>
+            <div>TOTAL TRIANGLES: <span id="stat-tris">—</span></div>
+        </div>
+
+        <div class="models-grid" id="models-grid">
+            <!-- Cards injected by JS -->
+        </div>
+
+    </div>
+
+    <script>
+    (function () {
+        /* ── Model definitions ─────────────────────────────────────────────── */
+        const MODELS = [
+            {
+                tag: 'MODEL 01', name: 'A1-PROJECT CAM',
+                url: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/models/A1.stl',
+                desc: '3-axis milling component designed for contour and face operations.',
+                drawing: 'technical-drawing.html#1'
+            },
+            {
+                tag: 'MODEL 02', name: 'A2-PROJECT CAM',
+                url: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/models/A2.stl',
+                desc: 'Rotationally symmetric turning part machined on a CNC lathe.',
+                drawing: 'technical-drawing.html#2'
+            },
+            {
+                tag: 'MODEL 03', name: 'A3-PROJECT CAM',
+                url: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/models/A3.stl',
+                desc: 'Bolt-pattern coupling flange for mechanical assembly and sealing.',
+                drawing: 'technical-drawing.html#3'
+            },
+            {
+                tag: 'MODEL 04', name: 'A4-PROJECT CAM',
+                url: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/models/A4.stl',
+                desc: 'General-purpose CNC machined component with optimized geometry.',
+                drawing: 'technical-drawing.html#4'
+            },
+            /* ── Add more models below ───────────────────────────────────────
+            {
+                tag: 'MODEL 05', name: 'B1-PROJECT',
+                url: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/models/B1.stl',
+                desc: 'Description here.',
+                drawing: 'technical-drawing.html#5'
+            },
+            ─────────────────────────────────────────────────────────────────── */
+        ];
+
+        /* ── STL Parser ─────────────────────────────────────────────────────── */
+        function parseSTL(buf) { return isBin(buf) ? parseBin(buf) : parseASC(buf); }
+        function isBin(buf) {
+            const h = String.fromCharCode(...new Uint8Array(buf, 0, 5)).toLowerCase();
+            if (!h.startsWith('solid')) return true;
+            const n = new DataView(buf).getUint32(80, true);
+            return buf.byteLength === 84 + n * 50;
+        }
+        function parseBin(buf) {
+            const v = new DataView(buf), n = v.getUint32(80, true);
+            const pos = new Float32Array(n * 9), nor = new Float32Array(n * 9);
+            let o = 84;
+            for (let i = 0; i < n; i++) {
+                const nx = v.getFloat32(o, true), ny = v.getFloat32(o + 4, true), nz = v.getFloat32(o + 8, true); o += 12;
+                for (let k = 0; k < 3; k++) {
+                    const b = i * 9 + k * 3;
+                    pos[b] = v.getFloat32(o, true); pos[b + 1] = v.getFloat32(o + 4, true); pos[b + 2] = v.getFloat32(o + 8, true);
+                    nor[b] = nx; nor[b + 1] = ny; nor[b + 2] = nz; o += 12;
+                }
+                o += 2;
+            }
+            return { pos, nor, count: n * 3 };
+        }
+        function parseASC(buf) {
+            const txt = new TextDecoder().decode(buf), pos = [], nor = [];
+            const re = /facet\s+normal\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)[\s\S]*?vertex\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+vertex\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+vertex\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)/g;
+            let m; while ((m = re.exec(txt)) !== null) { const [, nx, ny, nz, x1, y1, z1, x2, y2, z2, x3, y3, z3] = m.map(Number); pos.push(x1, y1, z1, x2, y2, z2, x3, y3, z3); nor.push(nx, ny, nz, nx, ny, nz, nx, ny, nz); }
+            return { pos: new Float32Array(pos), nor: new Float32Array(nor), count: pos.length / 3 };
+        }
+
+        /* ── WebGL ──────────────────────────────────────────────────────────── */
+        const VS = `attribute vec3 aPos;attribute vec3 aNorm;uniform mat4 uMVP;varying vec3 vN,vP;void main(){vN=aNorm;vP=aPos;gl_Position=uMVP*vec4(aPos,1.0);}`;
+        const FS = `precision mediump float;varying vec3 vN,vP;uniform vec3 uL,uL2,uE;void main(){vec3 N=normalize(vN),V=normalize(uE-vP);vec3 L1=normalize(uL-vP),H1=normalize(L1+V);float d1=max(dot(N,L1),0.0),s1=pow(max(dot(N,H1),0.0),120.0);vec3 L2=normalize(uL2-vP),H2=normalize(L2+V);float d2=max(dot(N,L2),0.0)*0.35,s2=pow(max(dot(N,H2),0.0),48.0)*0.25;float b=max(dot(-N,L1),0.0)*0.08;vec3 steel=vec3(0.54,0.55,0.58);vec3 c=steel*0.22+steel*(d1+d2+b)+vec3(0.97,0.97,0.95)*(s1*0.8+s2);gl_FragColor=vec4(clamp(c,0.0,1.0),1.0);}`;
+
+        function mkProg(gl, vs, fs) {
+            const v = gl.createShader(gl.VERTEX_SHADER); gl.shaderSource(v, vs); gl.compileShader(v);
+            const f = gl.createShader(gl.FRAGMENT_SHADER); gl.shaderSource(f, fs); gl.compileShader(f);
+            const p = gl.createProgram(); gl.attachShader(p, v); gl.attachShader(p, f); gl.linkProgram(p); return p;
+        }
+        function persp(fov, asp, n, f) { const t = 1 / Math.tan(fov / 2), nf = 1 / (n - f); return new Float32Array([t / asp, 0, 0, 0, 0, t, 0, 0, 0, 0, (f + n) * nf, -1, 0, 0, 2 * f * n * nf, 0]); }
+        function lookAt(e, c, u) { const f = n3(s3(c, e)), s = n3(x3(f, u)), up = x3(s, f); return new Float32Array([s[0], up[0], -f[0], 0, s[1], up[1], -f[1], 0, s[2], up[2], -f[2], 0, -d3(s, e), -d3(up, e), d3(f, e), 1]); }
+        function mul4(a, b) { const r = new Float32Array(16); for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { let v = 0; for (let k = 0; k < 4; k++) v += a[i + k * 4] * b[k + j * 4]; r[i + j * 4] = v; } return r; }
+        function s3(a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; }
+        function x3(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+        function d3(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+        function n3(v) { const l = Math.sqrt(d3(v, v)) || 1; return [v[0] / l, v[1] / l, v[2] / l]; }
+
+        function launchViewer(canvas, mesh) {
+            const container = canvas.parentElement;
+            const W = container.clientWidth  || 400;
+            const H = container.clientHeight || 300;
+            canvas.width = W; canvas.height = H;
+            const gl = canvas.getContext('webgl', { alpha: false }) || canvas.getContext('experimental-webgl', { alpha: false });
+            if (!gl) return;
+            const prog = mkProg(gl, VS, FS); gl.useProgram(prog);
+            const pL = gl.getAttribLocation(prog, 'aPos'), nL = gl.getAttribLocation(prog, 'aNorm');
+            const pb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, pb); gl.bufferData(gl.ARRAY_BUFFER, mesh.pos, gl.STATIC_DRAW);
+            const nb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, nb); gl.bufferData(gl.ARRAY_BUFFER, mesh.nor, gl.STATIC_DRAW);
+            let x0 = 1e9, y0 = 1e9, z0 = 1e9, x1 = -1e9, y1 = -1e9, z1 = -1e9;
+            for (let i = 0; i < mesh.pos.length; i += 3) { x0 = Math.min(x0, mesh.pos[i]); x1 = Math.max(x1, mesh.pos[i]); y0 = Math.min(y0, mesh.pos[i + 1]); y1 = Math.max(y1, mesh.pos[i + 1]); z0 = Math.min(z0, mesh.pos[i + 2]); z1 = Math.max(z1, mesh.pos[i + 2]); }
+            const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, cz = (z0 + z1) / 2;
+            const sz = Math.max(x1 - x0, y1 - y0, z1 - z0) || 1;
+            const cam = { theta: 0.6, phi: 1.1, r: sz * 2.2, tx: cx, ty: cy, tz: cz };
+            let spin = true, drag = false, last = null, hovered = false;
+
+            canvas.addEventListener('mouseenter', () => { hovered = true; });
+            canvas.addEventListener('mouseleave', () => { hovered = false; drag = false; last = null; });
+            canvas.addEventListener('mousedown', e => { drag = true; spin = false; last = [e.clientX, e.clientY]; e.preventDefault(); });
+            window.addEventListener('mouseup', () => { drag = false; last = null; });
+            window.addEventListener('mousemove', e => {
+                if (!drag || !last) return;
+                cam.theta -= (e.clientX - last[0]) * 0.014;
+                cam.phi = Math.max(0.05, Math.min(Math.PI - 0.05, cam.phi - (e.clientY - last[1]) * 0.014));
+                last = [e.clientX, e.clientY];
+            });
+            canvas.addEventListener('wheel', e => {
+                if (!hovered) return;
+                e.preventDefault();
+                cam.r = Math.max(sz * 0.1, cam.r * (1 + e.deltaY * 0.001));
+            }, { passive: false });
+
+            let pinchDist = null;
+            canvas.addEventListener('touchstart', e => {
+                e.preventDefault(); spin = false;
+                if (e.touches.length === 1) { drag = true; last = [e.touches[0].clientX, e.touches[0].clientY]; }
+                else if (e.touches.length === 2) {
+                    drag = false;
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    pinchDist = Math.sqrt(dx * dx + dy * dy);
+                }
+            }, { passive: false });
+            canvas.addEventListener('touchmove', e => {
+                e.preventDefault();
+                if (e.touches.length === 1 && drag && last) {
+                    cam.theta -= (e.touches[0].clientX - last[0]) * 0.014;
+                    cam.phi = Math.max(0.05, Math.min(Math.PI - 0.05, cam.phi - (e.touches[0].clientY - last[1]) * 0.014));
+                    last = [e.touches[0].clientX, e.touches[0].clientY];
+                } else if (e.touches.length === 2 && pinchDist !== null) {
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    const newDist = Math.sqrt(dx * dx + dy * dy);
+                    cam.r = Math.max(sz * 0.1, cam.r * (pinchDist / newDist));
+                    pinchDist = newDist;
+                }
+            }, { passive: false });
+            canvas.addEventListener('touchend', e => {
+                if (e.touches.length === 0) { drag = false; last = null; pinchDist = null; }
+                if (e.touches.length === 1) { pinchDist = null; drag = true; last = [e.touches[0].clientX, e.touches[0].clientY]; }
+            }, { passive: false });
+
+            const uM = gl.getUniformLocation(prog, 'uMVP'), uLoc = gl.getUniformLocation(prog, 'uL'), uL2Loc = gl.getUniformLocation(prog, 'uL2'), uE = gl.getUniformLocation(prog, 'uE');
+            gl.enable(gl.DEPTH_TEST); gl.clearColor(1, 1, 1, 1);
+
+            let visible = false;
+            const observer = new IntersectionObserver(entries => {
+                visible = entries[0].isIntersecting;
+                if (visible) requestAnimationFrame(render);
+            }, { threshold: 0.1 });
+            observer.observe(canvas);
+
+            function render() {
+                if (!visible) return;
+                requestAnimationFrame(render);
+                if (spin) cam.theta += 0.006;
+                const eye = [cam.tx + cam.r * Math.sin(cam.phi) * Math.sin(cam.theta), cam.ty + cam.r * Math.cos(cam.phi), cam.tz + cam.r * Math.sin(cam.phi) * Math.cos(cam.theta)];
+                const mvp = mul4(persp(Math.PI / 4, W / H, sz * 0.001, sz * 200), lookAt(eye, [cam.tx, cam.ty, cam.tz], [0, 1, 0]));
+                gl.viewport(0, 0, W, H); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+                gl.bindBuffer(gl.ARRAY_BUFFER, pb); gl.enableVertexAttribArray(pL); gl.vertexAttribPointer(pL, 3, gl.FLOAT, false, 0, 0);
+                gl.bindBuffer(gl.ARRAY_BUFFER, nb); gl.enableVertexAttribArray(nL); gl.vertexAttribPointer(nL, 3, gl.FLOAT, false, 0, 0);
+                gl.uniformMatrix4fv(uM, false, mvp);
+                gl.uniform3fv(uLoc,  [eye[0] + sz * 1.2, eye[1] + sz * 0.8, eye[2] + sz * 0.5]);
+                gl.uniform3fv(uL2Loc, [-eye[0] * 0.6,    eye[1] + sz * 0.2, -eye[2] * 0.6]);
+                gl.uniform3fv(uE, eye);
+                gl.drawArrays(gl.TRIANGLES, 0, mesh.count);
+            }
+        }
+
+        /* ── Build cards ────────────────────────────────────────────────────── */
+        const grid = document.getElementById('models-grid');
+        const statTotal = document.getElementById('stat-total');
+        const statLoaded = document.getElementById('stat-loaded');
+        const statTris = document.getElementById('stat-tris');
+        statTotal.textContent = MODELS.length;
+        let loadedCount = 0;
+        let totalTris = 0;
+
+        MODELS.forEach((model, idx) => {
+            const card = document.createElement('div');
+            card.className = 'model-card';
+
+            const lockHTML = model.locked ? `
+                <div class="model-lock-overlay">
+                    <div class="mlo-icon">
+                        <svg width="70" height="80" viewBox="0 0 100 114" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M24 58 L24 36 A26 26 0 0 1 76 36 L76 58" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="8" y="54" width="84" height="57" rx="9" fill="rgba(0,212,255,0.07)" stroke="currentColor" stroke-width="5"/>
+                            <circle cx="50" cy="79" r="11" fill="rgba(0,212,255,0.12)" stroke="currentColor" stroke-width="3.5"/>
+                            <rect x="45.5" y="86" width="9" height="15" rx="2.5" fill="rgba(0,212,255,0.12)" stroke="currentColor" stroke-width="3.5"/>
+                        </svg>
+                    </div>
+                    <a href="${model.linkedinUrl || '#'}" target="_blank" class="mlo-btn">Click for more information about this project</a>
+                </div>` : '';
+
+            card.innerHTML = `
+                <div class="model-card-header">
+                    <span class="model-card-tag">${model.tag}</span>
+                    <span class="model-card-filename">${model.name}</span>
+                </div>
+                <div class="model-viewport">
+                    ${lockHTML}
+                    <div class="model-status-overlay" id="ov-${idx}">
+                        <span class="model-spin-icon">&#x2b21;</span>
+                        <span class="model-status-txt" id="st-${idx}">Loading...</span>
+                    </div>
+                    <canvas class="model-canvas-el" id="cv-${idx}"></canvas>
+                </div>
+                <div class="model-card-footer">
+                    <span class="model-footer-desc">${model.desc}</span>
+                    ${model.drawing ? `<a href="${model.drawing}" class="model-drawing-btn">Technical Drawing</a>` : ''}
+                    <span class="model-footer-tris" id="tris-${idx}">—</span>
+                </div>`;
+
+            grid.appendChild(card);
+        });
+
+        /* ── Fetch & render ─────────────────────────────────────────────────── */
+        MODELS.forEach((model, idx) => {
+            const ov   = document.getElementById('ov-'   + idx);
+            const stxt = document.getElementById('st-'   + idx);
+            const cv   = document.getElementById('cv-'   + idx);
+            const tri  = document.getElementById('tris-' + idx);
+            if (!cv) return;
+
+            fetch(encodeURI(model.url))
+                .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+                .then(buf => {
+                    const mesh = parseSTL(buf);
+                    loadedCount++;
+                    totalTris += mesh.count;
+                    statLoaded.textContent = loadedCount;
+                    statTris.textContent = totalTris.toLocaleString();
+                    if (tri) tri.textContent = mesh.count.toLocaleString() + ' tri';
+                    if (ov)  ov.style.display = 'none';
+                    cv.style.display = 'block';
+                    launchViewer(cv, mesh);
+                })
+                .catch(() => {
+                    const icon = ov && ov.querySelector('.model-spin-icon');
+                    if (icon) { icon.style.animation = 'none'; icon.textContent = '⚠'; icon.style.color = 'rgba(255,68,102,0.5)'; }
+                    if (stxt) stxt.textContent = 'File unavailable';
+                });
+        });
+    })();
+    </script>
+
+    <!-- ── Language switch (ES / IT via Google Website Translator) ── -->
+    <div id="google_translate_element"></div>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'es,it', autoDisplay: false }, 'google_translate_element');
+        }
+        function setSiteLanguage(lang) {
+            const expr = '/en/' + lang;
+            document.cookie = 'googtrans=' + expr + '; path=/';
+            document.cookie = 'googtrans=' + expr + '; path=/; domain=' + location.hostname;
+            localStorage.setItem('migue100_lang', lang);
+            location.reload();
+        }
+        function applyGlossary() {
+            const lang = localStorage.getItem('migue100_lang') || 'en';
+            if (lang === 'en') return;
+            document.querySelectorAll('[data-i18n-' + lang + ']').forEach(el => {
+                el.textContent = el.getAttribute('data-i18n-' + lang);
+            });
+        }
+        (function() {
+            const saved = localStorage.getItem('migue100_lang') || 'en';
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.dataset.lang === saved) btn.classList.add('active');
+            });
+            applyGlossary();
+        })();
+    </script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>

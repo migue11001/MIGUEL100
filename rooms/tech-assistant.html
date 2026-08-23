@@ -19,6 +19,13 @@
         .nav-logo { font-family:'Share Tech Mono',monospace; font-size:1.1rem; letter-spacing:0.15em; color:#fff; text-shadow:0 0 4px #fff,0 0 12px var(--neon-blue),0 0 28px rgba(0,180,255,0.35); text-decoration:none; }
         .nav-back { font-family:'Share Tech Mono',monospace; font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--neon-blue); text-decoration:none; padding:0.4rem 0.9rem; border:1px solid rgba(0,212,255,0.22); border-radius:3px; background:rgba(0,212,255,0.04); transition:all 0.25s ease; }
         .nav-back:hover { background:rgba(0,212,255,0.1); color:#fff; border-color:var(--neon-blue); }
+        .lang-switch { display:flex; align-items:center; gap:0.35rem; }
+        .lang-btn { background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.22); border-radius:3px; padding:0.22rem 0.42rem; font-size:0.95rem; line-height:1; cursor:pointer; filter:grayscale(65%); opacity:0.6; transition:all 0.25s ease; }
+        .lang-btn:hover, .lang-btn.active { border-color:var(--neon-blue); background:rgba(0,212,255,0.1); box-shadow:0 0 10px rgba(0,212,255,0.2); filter:grayscale(0%); opacity:1; }
+        #google_translate_element, .goog-te-banner-frame, .skiptranslate { display:none !important; }
+        body { top:0px !important; }
+        html.translated-ltr body, html.translated-rtl body { top:0 !important; }
+        @media (max-width:560px) { .lang-switch { display:none; } }
         .page-wrapper { max-width:820px; margin:0 auto; position:relative; z-index:2; }
         .room-header { margin-bottom:48px; padding-bottom:24px; border-bottom:1px solid rgba(0,212,255,0.15); }
         .room-tag { font-family:'Share Tech Mono',monospace; font-size:0.65em; letter-spacing:0.3em; color:var(--neon-dim); margin-bottom:10px; }
@@ -96,14 +103,19 @@
 <body>
     <nav class="site-nav">
         <a href="../index.html" class="nav-logo">migue100.com</a>
-        <button class="published-btn" id="published-toggle">▼ Published</button>
-        <a href="../index.html" class="nav-back">← Home</a>
+        <div class="lang-switch">
+            <button class="lang-btn" data-lang="en" onclick="setSiteLanguage('en')" title="English">🇬🇧</button>
+            <button class="lang-btn" data-lang="es" onclick="setSiteLanguage('es')" title="Español">🇪🇸</button>
+            <button class="lang-btn" data-lang="it" onclick="setSiteLanguage('it')" title="Italiano">🇮🇹</button>
+        </div>
+        <button class="published-btn notranslate" id="published-toggle" data-i18n-es="▼ Publicado" data-i18n-it="▼ Pubblicato">▼ Published</button>
+        <a href="../index.html" class="nav-back notranslate" data-i18n-es="← Inicio" data-i18n-it="← Home">← Home</a>
     </nav>
     <div class="page-wrapper">
 
         <div class="room-header">
-            <p class="room-tag">MODULE 06</p>
-            <h1 class="room-title">🤖 Tech Assistant</h1>
+            <p class="room-tag notranslate" data-i18n-es="MÓDULO 06" data-i18n-it="MODULO 06">MODULE 06</p>
+            <h1 class="room-title notranslate" data-i18n-es="🤖 Asistente Técnico" data-i18n-it="🤖 Assistente Tecnico">🤖 Tech Assistant</h1>
             <p class="room-subtitle">AI-powered machining assistant — speeds, feeds, material data and process guidance.</p>
         </div>
         <div class="published-panel" id="published-panel"><div id="published-list"></div></div>
@@ -199,7 +211,7 @@
         function renderArticle(a) { let c; try { c=JSON.parse(a.content); } catch { c={p1:a.content}; } let h=''; if(c.label) h+=`<p class="section-label">${c.label}</p>`; if(c.heading) h+=`<h2 class="section-heading">${c.heading}${a.audio_url?` <button class="read-btn" onclick="toggleRead(this,'${a.audio_url}')">🔈 READ</button>`:''}</h2>`; if(c.p1) h+=`<p class="blog-text">${c.p1}</p>`; if(c.p2) h+=`<p class="blog-text">${c.p2}</p>`; if(c.formula) h+=`<div class="formula-block">${c.formula}</div>`; if(c.specs&&c.specs.length) h+='<div class="data-grid">'+c.specs.map(s=>`<div class="data-cell"><p class="cell-label">${s.label}</p><p class="cell-value">${s.value}</p></div>`).join('')+'</div>'; return h; }
         function toggleArticle(id) { const el=document.getElementById(id); el.style.display=el.style.display==='none'?'block':'none'; }
         async function loadPublished() { const list=document.getElementById('published-list'); list.innerHTML='<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">Loading...</p>'; try { const res=await fetch(`${BACKEND_URL}/articles?module=${MODULE}`); const data=await res.json(); if(!data.length){list.innerHTML='<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">No publications yet.</p>';return;} list.innerHTML=data.map((a,i)=>`<div class="pub-entry"><div class="pub-item" onclick="toggleArticle('art-body-${i}')"><span class="pub-num">${i+1}</span><span class="pub-title">${a.title}</span><span class="pub-date">${fmtDate(a.created_at)}</span></div><div class="pub-article" id="art-body-${i}" style="display:none">${renderArticle(a)}</div></div>`).join(''); } catch { list.innerHTML='<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">Could not load.</p>'; } }
-        document.getElementById('published-toggle').addEventListener('click',function(){ const panel=document.getElementById('published-panel'); const open=panel.classList.toggle('open'); this.textContent=open?'▲ Published':'▼ Published'; if(open) loadPublished(); });
+        document.getElementById('published-toggle').addEventListener('click',function(){ const panel=document.getElementById('published-panel'); const open=panel.classList.toggle('open'); const lang=localStorage.getItem('migue100_lang')||'en'; const labels={en:['▼ Published','▲ Published'],es:['▼ Publicado','▲ Publicado'],it:['▼ Pubblicato','▲ Pubblicato']}; const l=labels[lang]||labels.en; this.textContent=open?l[1]:l[0]; if(open) loadPublished(); });
         function getSession() { try { const token = localStorage.getItem('migue100_token'); const session = JSON.parse(localStorage.getItem('migue100_session') || 'null'); if (!token || !session) return null; const payload = JSON.parse(atob(token.split('.')[1])); if (payload.exp && payload.exp * 1000 < Date.now()) { localStorage.removeItem('migue100_token'); localStorage.removeItem('migue100_session'); return null; } return { token, ...session }; } catch { return null; } }
         const TYPE_ICON = { link:'🔗', pdf:'📄', book:'📖' }; let activeFilter = 'all';
         async function loadContributions(type) { const list = document.getElementById('contrib-list'); list.innerHTML = '<p class="contributions-empty">Loading...</p>'; const url = type === 'all' ? `${BACKEND_URL}/contributions/${MODULE}` : `${BACKEND_URL}/contributions/${MODULE}?type=${type}`; try { const res = await fetch(url); const data = await res.json(); if (!data.length) { list.innerHTML = '<p class="contributions-empty">No contributions yet — be the first.</p>'; return; } list.innerHTML = data.map(c => `<div class="contribution-item"><div class="contribution-meta"><span class="contribution-type">${TYPE_ICON[c.type]||''} ${c.type}</span></div><div class="contribution-title">${c.title}</div><div class="contribution-desc">${c.description}</div><a href="${c.url}" target="_blank" rel="noopener" class="contribution-link">→ Open</a></div>`).join(''); } catch { list.innerHTML = '<p class="contributions-empty">Could not load contributions.</p>'; } }
@@ -211,5 +223,35 @@
         document.getElementById('form-submit').addEventListener('click', async () => { const session = getSession(); if (!session) { alert('You must be logged in to contribute.'); return; } const title = document.getElementById('c-title').value.trim(); const url = document.getElementById('c-url').value.trim(); const desc = document.getElementById('c-desc').value.trim(); const type = document.querySelector('input[name="c-type"]:checked').value; if (!title || !url || !desc) { alert('Please fill in all fields.'); return; } const btn = document.getElementById('form-submit'); btn.disabled = true; btn.textContent = 'Submitting...'; try { const res = await fetch(`${BACKEND_URL}/contributions`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.token}`}, body:JSON.stringify({module:MODULE,type,title,url,description:desc}) }); if (!res.ok) { const e = await res.json(); alert(e.error||'Error submitting.'); return; } document.getElementById('c-title').value=''; document.getElementById('c-url').value=''; document.getElementById('c-desc').value=''; document.getElementById('title-count').textContent='0'; document.getElementById('desc-count').textContent='0'; document.getElementById('contrib-form').classList.remove('open'); loadContributions(activeFilter); } catch { alert('Could not connect to server.'); } finally { btn.disabled=false; btn.textContent='Submit Contribution'; } });
 
     </script>
+
+    <!-- ── Language switch (ES / IT via Google Website Translator) ── -->
+    <div id="google_translate_element"></div>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'es,it', autoDisplay: false }, 'google_translate_element');
+        }
+        function setSiteLanguage(lang) {
+            const expr = '/en/' + lang;
+            document.cookie = 'googtrans=' + expr + '; path=/';
+            document.cookie = 'googtrans=' + expr + '; path=/; domain=' + location.hostname;
+            localStorage.setItem('migue100_lang', lang);
+            location.reload();
+        }
+        function applyGlossary() {
+            const lang = localStorage.getItem('migue100_lang') || 'en';
+            if (lang === 'en') return;
+            document.querySelectorAll('[data-i18n-' + lang + ']').forEach(el => {
+                el.textContent = el.getAttribute('data-i18n-' + lang);
+            });
+        }
+        (function() {
+            const saved = localStorage.getItem('migue100_lang') || 'en';
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.dataset.lang === saved) btn.classList.add('active');
+            });
+            applyGlossary();
+        })();
+    </script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>

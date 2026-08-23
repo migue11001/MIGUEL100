@@ -11,159 +11,505 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap">
     <style>
-        :root { --neon-blue:#00d4ff; --neon-dim:#0099cc; --steel-dark:#08090d; --chrome:#8ab4cc; --text-main:#cce8f4; --text-dim:#5a7a90; }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Rajdhani','Segoe UI',sans-serif; background-color:var(--steel-dark); background-image: repeating-linear-gradient(90deg,transparent,transparent 2px,rgba(0,180,255,0.015) 2px,rgba(0,180,255,0.015) 4px), repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(0,180,255,0.02) 40px,rgba(0,180,255,0.02) 41px), linear-gradient(160deg,#08090d 0%,#101520 30%,#0d1a2a 55%,#101520 80%,#08090d 100%); min-height:100vh; color:var(--text-main); padding:80px 20px 60px; overflow-x:hidden; }
-        body::after { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.08) 3px,rgba(0,0,0,0.08) 4px); pointer-events:none; z-index:999; }
-        .site-nav { position:fixed; top:0; left:0; right:0; z-index:900; padding:0 2rem; height:56px; background:rgba(8,9,13,0.9); backdrop-filter:blur(14px); border-bottom:1px solid rgba(0,212,255,0.18); display:flex; justify-content:space-between; align-items:center; }
-        .nav-logo { font-family:'Share Tech Mono',monospace; font-size:1.1rem; letter-spacing:0.15em; color:#fff; text-shadow:0 0 4px #fff,0 0 12px var(--neon-blue),0 0 28px rgba(0,180,255,0.35); text-decoration:none; }
-        .nav-back { font-family:'Share Tech Mono',monospace; font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--neon-blue); text-decoration:none; padding:0.4rem 0.9rem; border:1px solid rgba(0,212,255,0.22); border-radius:3px; background:rgba(0,212,255,0.04); transition:all 0.25s ease; }
-        .nav-back:hover { background:rgba(0,212,255,0.1); color:#fff; border-color:var(--neon-blue); }
-        .page-wrapper { max-width:820px; margin:0 auto; position:relative; z-index:2; }
-        .room-header { margin-bottom:48px; padding-bottom:24px; border-bottom:1px solid rgba(0,212,255,0.15); }
-        .room-tag { font-family:'Share Tech Mono',monospace; font-size:0.65em; letter-spacing:0.3em; color:var(--neon-dim); margin-bottom:10px; }
-        .room-tag::before { content:'// '; opacity:0.5; }
-        .room-title { font-family:'Share Tech Mono',monospace; font-size:clamp(2em,5vw,3.2em); font-weight:400; letter-spacing:0.12em; color:#fff; text-shadow:0 0 4px #fff,0 0 14px var(--neon-blue),0 0 32px rgba(0,180,255,0.35); margin-bottom:12px; }
-        .room-subtitle { font-size:1.05em; color:var(--chrome); letter-spacing:0.05em; line-height:1.5; }
-        .blog-section { margin-bottom:48px; }
-        .section-label { font-family:'Share Tech Mono',monospace; font-size:0.68em; letter-spacing:0.3em; color:var(--neon-blue); text-transform:uppercase; margin-bottom:18px; display:flex; align-items:center; gap:10px; }
-        .section-label::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,rgba(0,212,255,0.3),transparent); }
-        .section-heading { font-family:'Rajdhani',sans-serif; font-size:1.5em; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#fff; text-shadow:0 0 6px rgba(0,180,255,0.3); margin-bottom:14px; display:flex; align-items:center; gap:12px; }
-        .read-btn { font-family:'Share Tech Mono',monospace; font-size:0.42em; letter-spacing:0.18em; text-transform:uppercase; color:var(--neon-dim); background:none; border:none; padding:0; cursor:pointer; transition:color 0.2s ease; flex-shrink:0; text-shadow:none; }
-        .read-btn:hover { color:var(--neon-blue); }
-        .read-btn.playing { color:#fff; }
-        .blog-text { font-size:1em; color:var(--text-main); line-height:1.8; letter-spacing:0.02em; margin-bottom:14px; }
-        .blog-text strong { color:#fff; font-weight:600; }
-        .data-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; margin-top:20px; }
-        .data-cell { background:rgba(26,30,40,0.9); border:1px solid rgba(0,212,255,0.15); border-radius:4px; padding:16px; position:relative; }
-        .data-cell::before { content:''; position:absolute; top:0; left:16px; right:16px; height:1px; background:linear-gradient(90deg,transparent,rgba(0,212,255,0.4),transparent); }
-        .cell-label { font-family:'Share Tech Mono',monospace; font-size:0.58em; letter-spacing:0.22em; color:var(--neon-dim); margin-bottom:6px; text-transform:uppercase; }
-        .cell-value { font-family:'Share Tech Mono',monospace; font-size:0.9em; color:#fff; text-shadow:0 0 6px rgba(0,180,255,0.3); }
-        .formula-block { background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.2); border-left:3px solid var(--neon-blue); border-radius:4px; padding:18px 22px; margin:20px 0; font-family:'Share Tech Mono',monospace; font-size:0.88em; color:var(--neon-blue); letter-spacing:0.05em; line-height:1.7; }
-        @media (max-width:640px) { .site-nav { padding:0 1rem; } .nav-logo { font-size:0.85rem; } .data-grid { grid-template-columns:1fr 1fr; } }
-        .published-btn { position:absolute; left:50%; transform:translateX(-50%); font-family:'Share Tech Mono',monospace; font-size:0.68em; letter-spacing:0.25em; text-transform:uppercase; color:var(--neon-blue); background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.28); border-radius:3px; padding:7px 22px; cursor:pointer; transition:all 0.25s; white-space:nowrap; }
-        .published-btn:hover { background:rgba(0,212,255,0.09); color:#fff; border-color:var(--neon-blue); }
-        .published-panel { display:none; margin-top:24px; border:1px solid rgba(0,212,255,0.12); border-radius:4px; overflow:hidden; }
-        .published-panel.open { display:block; margin-bottom:48px; }
-        .pub-entry { margin-bottom:8px; border:1px solid rgba(0,212,255,0.1); border-radius:3px; overflow:hidden; }
-        .pub-entry:last-child { margin-bottom:0; }
-        .pub-item { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 16px; cursor:pointer; transition:background 0.15s; }
-        .pub-item:hover { background:rgba(0,212,255,0.04); }
-        .pub-num { font-family:'Share Tech Mono',monospace; font-size:0.58em; color:var(--text-dim); min-width:18px; }
-        .pub-title { font-family:'Share Tech Mono',monospace; font-size:0.78em; color:#fff; flex:1; }
-        .pub-date { font-family:'Share Tech Mono',monospace; font-size:0.58em; color:var(--text-dim); white-space:nowrap; }
-        .pub-article { padding:20px 16px; border-top:1px solid rgba(0,212,255,0.1); background:rgba(0,0,0,0.2); }
-        .contributions-section { margin-top:60px; padding-top:40px; border-top:1px solid rgba(0,212,255,0.15); }
-        .contributions-toggle { display:flex; align-items:center; gap:12px; font-family:'Share Tech Mono',monospace; font-size:0.82em; letter-spacing:0.2em; text-transform:uppercase; color:var(--neon-blue); background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.3); border-radius:3px; padding:12px 20px; cursor:pointer; width:100%; transition:all 0.25s ease; }
-        .contributions-toggle:hover { background:rgba(0,212,255,0.09); color:#fff; border-color:var(--neon-blue); }
+        :root {
+            --neon-blue: #00d4ff;
+            --neon-dim:  #0099cc;
+            --steel-dark:#08090d;
+            --chrome:    #8ab4cc;
+            --text-main: #cce8f4;
+            --text-dim:  #5a7a90;
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'Rajdhani','Segoe UI',sans-serif;
+            background-color: var(--steel-dark);
+            background-image:
+                repeating-linear-gradient(90deg,transparent,transparent 2px,rgba(0,180,255,0.015) 2px,rgba(0,180,255,0.015) 4px),
+                repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(0,180,255,0.02) 40px,rgba(0,180,255,0.02) 41px),
+                linear-gradient(160deg,#08090d 0%,#101520 30%,#0d1a2a 55%,#101520 80%,#08090d 100%);
+            min-height: 100vh;
+            color: var(--text-main);
+            padding: 80px 20px 80px;
+            overflow-x: hidden;
+        }
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background: repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.08) 3px,rgba(0,0,0,0.08) 4px);
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* ── Nav ── */
+        .site-nav {
+            position: fixed; top:0; left:0; right:0; z-index:900;
+            padding: 0 2rem; height: 56px;
+            background: rgba(8,9,13,0.9);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(0,212,255,0.18);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-logo {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 1.1rem; letter-spacing: 0.15em; color: #fff;
+            text-shadow: 0 0 4px #fff,0 0 12px var(--neon-blue),0 0 28px rgba(0,180,255,0.35);
+            text-decoration: none;
+        }
+        .nav-back {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--neon-blue); text-decoration: none;
+            padding: 0.4rem 0.9rem;
+            border: 1px solid rgba(0,212,255,0.22); border-radius: 3px;
+            background: rgba(0,212,255,0.04);
+            transition: all 0.25s ease;
+        }
+        .nav-back:hover { background: rgba(0,212,255,0.1); color:#fff; border-color:var(--neon-blue); }
+
+        .lang-switch {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            display: flex; align-items: center; gap: 0.35rem;
+        }
+        .lang-btn {
+            background: rgba(0,212,255,0.04); border: 1px solid rgba(0,212,255,0.22); border-radius: 3px;
+            padding: 0.22rem 0.42rem; font-size: 0.95rem; line-height: 1; cursor: pointer;
+            filter: grayscale(65%); opacity: 0.6; transition: all 0.25s ease;
+        }
+        .lang-btn:hover, .lang-btn.active {
+            border-color: var(--neon-blue); background: rgba(0,212,255,0.1);
+            box-shadow: 0 0 10px rgba(0,212,255,0.2); filter: grayscale(0%); opacity: 1;
+        }
+        #google_translate_element, .goog-te-banner-frame, .skiptranslate { display: none !important; }
+        body { top: 0px !important; }
+        html.translated-ltr body, html.translated-rtl body { top: 0 !important; }
+        @media (max-width: 560px) { .lang-switch { display: none; } }
+
+        /* ── Page wrapper ── */
+        .page-wrapper { max-width: 900px; margin: 0 auto; position: relative; z-index: 2; }
+
+        /* ── Room header ── */
+        .room-header {
+            margin-bottom: 48px;
+            padding-bottom: 28px;
+            border-bottom: 1px solid rgba(0,212,255,0.15);
+        }
+        .room-tag {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.65em; letter-spacing: 0.3em; color: var(--neon-dim);
+            margin-bottom: 10px;
+        }
+        .room-tag::before { content: '// '; opacity: 0.5; }
+        .room-title {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: clamp(2em,5vw,3.2em); font-weight: 400;
+            letter-spacing: 0.12em; color: #fff;
+            text-shadow: 0 0 4px #fff,0 0 14px var(--neon-blue),0 0 32px rgba(0,180,255,0.35);
+            margin-bottom: 14px;
+        }
+        .room-intro {
+            font-size: 1.05em; color: var(--chrome);
+            letter-spacing: 0.03em; line-height: 1.75;
+            max-width: 680px;
+        }
+        .room-intro strong { color: var(--text-main); font-weight: 600; }
+
+        /* ── Section label ── */
+        .section-label {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.68em; letter-spacing: 0.3em;
+            color: var(--neon-blue); text-transform: uppercase;
+            margin-bottom: 20px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-label::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(90deg,rgba(0,212,255,0.3),transparent);
+        }
+
+        /* ── Posts grid ── */
+        .posts-section { margin-bottom: 60px; }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
+        }
+
+        /* ── Post card ── */
+        .post-card {
+            display: flex; flex-direction: column;
+            background: rgba(18,21,28,0.95);
+            border: 1px solid rgba(0,212,255,0.15);
+            border-radius: 5px;
+            overflow: hidden;
+            text-decoration: none;
+            position: relative;
+            transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+            cursor: pointer;
+        }
+        .post-card::before {
+            content: '';
+            position: absolute; top:0; left:20px; right:20px; height:1px;
+            background: linear-gradient(90deg,transparent,rgba(0,212,255,0.5),transparent);
+        }
+        .post-card::after {
+            content: '';
+            position: absolute; top:6px; right:6px;
+            width: 7px; height: 7px;
+            border-top: 1px solid rgba(0,212,255,0.4);
+            border-right: 1px solid rgba(0,212,255,0.4);
+        }
+        .post-card:hover {
+            border-color: rgba(0,212,255,0.4);
+            box-shadow: 0 0 20px rgba(0,212,255,0.1), 0 4px 24px rgba(0,0,0,0.5);
+            transform: translateY(-3px);
+        }
+
+        /* Card image */
+        .post-card-img {
+            width: 100%; height: 200px;
+            overflow: hidden;
+            background: rgba(0,212,255,0.04);
+            border-bottom: 1px solid rgba(0,212,255,0.1);
+            position: relative;
+        }
+        .post-card-img img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+            filter: brightness(0.85) saturate(0.9);
+        }
+        .post-card:hover .post-card-img img { transform: scale(1.04); filter: brightness(0.95) saturate(1); }
+
+        .post-card-img .img-placeholder {
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.65em; letter-spacing: 0.2em;
+            color: var(--text-dim);
+            background: repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(0,212,255,0.015) 10px,rgba(0,212,255,0.015) 11px);
+        }
+
+        /* Card body */
+        .post-card-body { padding: 20px 20px 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+        .post-card-tag {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.56em; letter-spacing: 0.22em; text-transform: uppercase;
+            color: var(--neon-dim);
+            display: inline-block;
+        }
+
+        .post-card-title {
+            font-family: 'Rajdhani',sans-serif;
+            font-size: 1.18em; font-weight: 700;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            color: #fff;
+            line-height: 1.3;
+        }
+
+        .post-card-desc {
+            font-size: 0.9em; color: var(--chrome);
+            line-height: 1.65; letter-spacing: 0.02em;
+            flex: 1;
+        }
+
+        .post-card-footer {
+            display: flex; align-items: center; justify-content: space-between;
+            padding-top: 12px;
+            border-top: 1px solid rgba(0,212,255,0.08);
+            margin-top: auto;
+        }
+        .post-card-date {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.58em; color: var(--text-dim);
+            letter-spacing: 0.1em;
+        }
+        .post-card-read {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.62em; letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--neon-blue);
+            background: rgba(0,212,255,0.05);
+            border: 1px solid rgba(0,212,255,0.28);
+            border-radius: 3px;
+            padding: 5px 14px;
+            transition: all 0.2s ease;
+        }
+        .post-card:hover .post-card-read {
+            background: rgba(0,212,255,0.12);
+            color: #fff;
+            border-color: var(--neon-blue);
+        }
+
+        /* ── Mockup cards ── */
+        .post-card--mockup {
+            opacity: 0.55;
+            cursor: default;
+            pointer-events: none;
+        }
+        .post-card--mockup:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: rgba(0,212,255,0.15);
+        }
+        .post-card-tag--draft {
+            color: var(--text-dim);
+        }
+
+        /* ── States ── */
+        .posts-loading {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.68em; color: var(--text-dim);
+            letter-spacing: 0.15em; padding: 32px 0;
+            grid-column: 1 / -1;
+        }
+        .posts-empty {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.72em; color: var(--text-dim);
+            letter-spacing: 0.12em; line-height: 1.8;
+            padding: 40px 0; grid-column: 1 / -1;
+        }
+
+        /* ── Contributions ── */
+        .contributions-section {
+            margin-top: 20px; padding-top: 40px;
+            border-top: 1px solid rgba(0,212,255,0.15);
+        }
+        .contributions-toggle {
+            display: flex; align-items: center; gap: 12px;
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.82em; letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--neon-blue);
+            background: rgba(0,212,255,0.04);
+            border: 1px solid rgba(0,212,255,0.3); border-radius: 3px;
+            padding: 12px 20px; cursor: pointer; width: 100%;
+            transition: all 0.25s ease;
+        }
+        .contributions-toggle:hover { background: rgba(0,212,255,0.09); color:#fff; border-color:var(--neon-blue); }
         .contributions-toggle .toggle-arrow { margin-left:auto; transition:transform 0.3s ease; }
         .contributions-toggle.open .toggle-arrow { transform:rotate(180deg); }
         .contributions-panel { display:none; margin-top:24px; }
         .contributions-panel.open { display:block; }
         .contributions-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-        .contributions-title { font-family:'Share Tech Mono',monospace; font-size:0.68em; letter-spacing:0.3em; color:var(--neon-blue); text-transform:uppercase; }
-        .add-btn { font-family:'Share Tech Mono',monospace; font-size:0.62em; letter-spacing:0.15em; text-transform:uppercase; color:var(--neon-blue); background:rgba(0,212,255,0.06); border:1px solid rgba(0,212,255,0.3); border-radius:3px; padding:6px 14px; cursor:pointer; transition:all 0.2s ease; }
+        .contributions-title {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.68em; letter-spacing: 0.3em;
+            color: var(--neon-blue); text-transform: uppercase;
+        }
+        .add-btn {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.62em; letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--neon-blue); background: rgba(0,212,255,0.06);
+            border: 1px solid rgba(0,212,255,0.3); border-radius: 3px;
+            padding: 6px 14px; cursor: pointer; transition: all 0.2s ease;
+        }
         .add-btn:hover { background:rgba(0,212,255,0.12); color:#fff; }
         .filters { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
-        .filter-btn { font-family:'Share Tech Mono',monospace; font-size:0.6em; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-dim); background:none; border:1px solid rgba(0,212,255,0.15); border-radius:3px; padding:5px 12px; cursor:pointer; transition:all 0.2s ease; }
-        .filter-btn:hover,.filter-btn.active { color:var(--neon-blue); border-color:rgba(0,212,255,0.4); background:rgba(0,212,255,0.05); }
-        .contribution-item { background:rgba(26,30,40,0.9); border:1px solid rgba(0,212,255,0.12); border-radius:4px; padding:16px 18px; margin-bottom:12px; position:relative; }
-        .contribution-item::before { content:''; position:absolute; top:0; left:16px; right:16px; height:1px; background:linear-gradient(90deg,transparent,rgba(0,212,255,0.3),transparent); }
+        .filter-btn {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.6em; letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--text-dim); background: none;
+            border: 1px solid rgba(0,212,255,0.15); border-radius: 3px;
+            padding: 5px 12px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .filter-btn:hover, .filter-btn.active { color:var(--neon-blue); border-color:rgba(0,212,255,0.4); background:rgba(0,212,255,0.05); }
+        .contribution-item {
+            background: rgba(26,30,40,0.9);
+            border: 1px solid rgba(0,212,255,0.12); border-radius: 4px;
+            padding: 16px 18px; margin-bottom: 12px; position: relative;
+        }
+        .contribution-item::before {
+            content:''; position:absolute; top:0; left:16px; right:16px; height:1px;
+            background:linear-gradient(90deg,transparent,rgba(0,212,255,0.3),transparent);
+        }
         .contribution-meta { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
-        .contribution-type { font-family:'Share Tech Mono',monospace; font-size:0.55em; letter-spacing:0.2em; text-transform:uppercase; color:var(--neon-dim); background:rgba(0,212,255,0.06); border:1px solid rgba(0,212,255,0.15); border-radius:2px; padding:2px 7px; }
+        .contribution-type {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.55em; letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--neon-dim);
+            background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.15);
+            border-radius: 2px; padding: 2px 7px;
+        }
         .contribution-title { font-family:'Share Tech Mono',monospace; font-size:0.85em; color:#fff; margin-bottom:6px; }
         .contribution-desc { font-size:0.88em; color:var(--text-main); line-height:1.6; margin-bottom:10px; }
-        .contribution-link { font-family:'Share Tech Mono',monospace; font-size:0.65em; letter-spacing:0.15em; text-transform:uppercase; color:var(--neon-blue); text-decoration:none; border:1px solid rgba(0,212,255,0.3); border-radius:2px; padding:4px 10px; transition:all 0.2s ease; display:inline-block; }
+        .contribution-link {
+            font-family:'Share Tech Mono',monospace; font-size:0.65em;
+            letter-spacing:0.15em; text-transform:uppercase;
+            color:var(--neon-blue); text-decoration:none;
+            border:1px solid rgba(0,212,255,0.3); border-radius:2px;
+            padding:4px 10px; transition:all 0.2s ease; display:inline-block;
+        }
         .contribution-link:hover { background:rgba(0,212,255,0.08); color:#fff; }
-        .contributions-empty { font-family:'Share Tech Mono',monospace; font-size:0.75em; color:var(--text-dim); text-align:center; padding:30px 0; letter-spacing:0.1em; }
-        .contribution-form { display:none; background:rgba(0,212,255,0.03); border:1px solid rgba(0,212,255,0.2); border-radius:4px; padding:22px; margin-bottom:24px; }
+        .contributions-empty {
+            font-family:'Share Tech Mono',monospace; font-size:0.75em;
+            color:var(--text-dim); text-align:center; padding:30px 0; letter-spacing:0.1em;
+        }
+        .contribution-form {
+            display:none; background:rgba(0,212,255,0.03);
+            border:1px solid rgba(0,212,255,0.2); border-radius:4px;
+            padding:22px; margin-bottom:24px;
+        }
         .contribution-form.open { display:block; }
-        .form-title { font-family:'Share Tech Mono',monospace; font-size:0.7em; letter-spacing:0.25em; text-transform:uppercase; color:#fff; margin-bottom:18px; }
+        .form-title {
+            font-family:'Share Tech Mono',monospace; font-size:0.7em;
+            letter-spacing:0.25em; text-transform:uppercase; color:#fff; margin-bottom:18px;
+        }
         .form-type-row { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
         .type-option { display:none; }
-        .type-label { font-family:'Share Tech Mono',monospace; font-size:0.62em; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-dim); border:1px solid rgba(0,212,255,0.2); border-radius:3px; padding:6px 14px; cursor:pointer; transition:all 0.2s ease; }
+        .type-label {
+            font-family:'Share Tech Mono',monospace; font-size:0.62em;
+            letter-spacing:0.12em; text-transform:uppercase; color:var(--text-dim);
+            border:1px solid rgba(0,212,255,0.2); border-radius:3px;
+            padding:6px 14px; cursor:pointer; transition:all 0.2s ease;
+        }
         .type-option:checked + .type-label { color:var(--neon-blue); border-color:var(--neon-blue); background:rgba(0,212,255,0.08); }
         .form-field { margin-bottom:14px; }
-        .form-field label { display:block; font-family:'Share Tech Mono',monospace; font-size:0.58em; letter-spacing:0.2em; text-transform:uppercase; color:var(--neon-dim); margin-bottom:5px; }
-        .form-field input,.form-field textarea { width:100%; padding:8px 10px; background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.2); border-radius:3px; color:#fff; font-family:'Share Tech Mono',monospace; font-size:0.82em; transition:border-color 0.2s ease; resize:none; }
-        .form-field input:focus,.form-field textarea:focus { outline:none; border-color:var(--neon-blue); box-shadow:0 0 6px rgba(0,212,255,0.15); }
-        .char-counter { font-family:'Share Tech Mono',monospace; font-size:0.55em; color:var(--text-dim); text-align:right; margin-top:3px; }
-        .form-submit { font-family:'Share Tech Mono',monospace; font-size:0.68em; letter-spacing:0.18em; text-transform:uppercase; color:var(--neon-blue); background:rgba(0,212,255,0.06); border:1px solid rgba(0,212,255,0.35); border-radius:3px; padding:10px 22px; cursor:pointer; transition:all 0.25s ease; margin-top:4px; }
+        .form-field label {
+            display:block; font-family:'Share Tech Mono',monospace;
+            font-size:0.58em; letter-spacing:0.2em; text-transform:uppercase;
+            color:var(--neon-dim); margin-bottom:5px;
+        }
+        .form-field input, .form-field textarea {
+            width:100%; padding:8px 10px;
+            background:rgba(0,212,255,0.04); border:1px solid rgba(0,212,255,0.2);
+            border-radius:3px; color:#fff;
+            font-family:'Share Tech Mono',monospace; font-size:0.82em;
+            transition:border-color 0.2s ease; resize:none;
+        }
+        .form-field input:focus, .form-field textarea:focus {
+            outline:none; border-color:var(--neon-blue); box-shadow:0 0 6px rgba(0,212,255,0.15);
+        }
+        .char-counter {
+            font-family:'Share Tech Mono',monospace; font-size:0.55em;
+            color:var(--text-dim); text-align:right; margin-top:3px;
+        }
+        .form-submit {
+            font-family:'Share Tech Mono',monospace; font-size:0.68em;
+            letter-spacing:0.18em; text-transform:uppercase;
+            color:var(--neon-blue); background:rgba(0,212,255,0.06);
+            border:1px solid rgba(0,212,255,0.35); border-radius:3px;
+            padding:10px 22px; cursor:pointer; transition:all 0.25s ease; margin-top:4px;
+        }
         .form-submit:hover { background:rgba(0,212,255,0.13); color:#fff; }
         .form-submit:disabled { opacity:0.4; cursor:not-allowed; }
+
+        @media (max-width:640px) {
+            .site-nav { padding:0 1rem; }
+            .nav-logo { font-size:0.85rem; }
+            .posts-grid { grid-template-columns:1fr; }
+        }
     </style>
 </head>
 <body>
     <nav class="site-nav">
         <a href="../index.html" class="nav-logo">migue100.com</a>
-        <button class="published-btn" id="published-toggle">▼ Published</button>
-        <a href="../index.html" class="nav-back">← Home</a>
+        <div class="lang-switch">
+            <button class="lang-btn" data-lang="en" onclick="setSiteLanguage('en')" title="English">🇬🇧</button>
+            <button class="lang-btn" data-lang="es" onclick="setSiteLanguage('es')" title="Español">🇪🇸</button>
+            <button class="lang-btn" data-lang="it" onclick="setSiteLanguage('it')" title="Italiano">🇮🇹</button>
+        </div>
+        <a href="../index.html" class="nav-back notranslate" data-i18n-es="← Inicio" data-i18n-it="← Home">← Home</a>
     </nav>
+
     <div class="page-wrapper">
 
         <div class="room-header">
-            <p class="room-tag">MODULE 02</p>
-            <h1 class="room-title">🔩 Milling</h1>
-            <p class="room-subtitle">Face, peripheral and contour milling. Feeds, speeds and workholding setups.</p>
-        </div>
-        <div class="published-panel" id="published-panel">
-            <div id="published-list"></div>
-        </div>
-
-        <div class="blog-section">
-            <p class="section-label">Overview</p>
-            <h2 class="section-heading">What is Milling? <button class="read-btn" onclick="toggleRead(this,'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/audio/milling.mp3')">🔈 READ</button></h2>
-            <p class="blog-text">Milling is a machining process where a <strong>rotating multi-tooth cutter</strong> removes material from a stationary (or moving) workpiece. Unlike turning, the cutter rotates and the table feeds the part beneath it, enabling the production of flat surfaces, slots, pockets, contours, and complex 3D profiles.</p>
-            <p class="blog-text">Milling centers range from simple 3-axis vertical machining centers (VMC) to 5-axis simultaneous machines capable of producing turbine blades and medical implants in a single setup.</p>
+            <p class="room-tag notranslate" data-i18n-es="MÓDULO 02" data-i18n-it="MODULO 02">MODULE 02</p>
+            <h1 class="room-title notranslate" data-i18n-es="Fresado" data-i18n-it="Fresatura">Milling</h1>
+            <p class="room-intro">
+                <strong>Milling</strong> is a machining process where a rotating multi-tooth cutter removes material from a workpiece, enabling the production of flat surfaces, slots, pockets, contours, and complex 3D profiles. From 3-axis VMCs to 5-axis simultaneous machines, milling spans the widest range of geometries in production engineering. These cases examine where setups succeed, where parameters fail, and what the data reveals when the wrong strategy is applied to the right part.
+            </p>
         </div>
 
-        <div class="blog-section">
-            <p class="section-label">Types</p>
-            <h2 class="section-heading">Milling Operations</h2>
-            <div class="data-grid">
-                <div class="data-cell"><p class="cell-label">Face Milling</p><p class="cell-value">Flat surfaces perpendicular to the cutter axis. Large-diameter face mills for broad stock removal.</p></div>
-                <div class="data-cell"><p class="cell-label">Peripheral Milling</p><p class="cell-value">Cutting with the side of the cutter. Produces slots, steps, and side profiles.</p></div>
-                <div class="data-cell"><p class="cell-label">Pocket Milling</p><p class="cell-value">Clearing enclosed cavities using ramping, helical, or plunge entry strategies.</p></div>
-                <div class="data-cell"><p class="cell-label">Contour Milling</p><p class="cell-value">Following a 2D or 3D profile with ball-nose or bull-nose end mills.</p></div>
-                <div class="data-cell"><p class="cell-label">Slot Milling</p><p class="cell-value">Full-width slot cut using slotting cutters or end mills. Careful chip evacuation required.</p></div>
-                <div class="data-cell"><p class="cell-label">Thread Milling</p><p class="cell-value">Helical interpolation with a thread mill. One tool for many thread sizes; works in any material.</p></div>
-            </div>
-        </div>
+        <div class="posts-section">
+            <p class="section-label">Published Cases</p>
+            <div class="posts-grid" id="posts-grid">
 
-        <div class="blog-section">
-            <p class="section-label">Parameters</p>
-            <h2 class="section-heading">Feeds and Speeds</h2>
-            <p class="blog-text">Milling parameters involve the <strong>feed per tooth (fz)</strong> — how much material each cutting edge removes per revolution — along with spindle speed and width/depth of cut. Correct fz prevents rubbing (too low) or overload (too high).</p>
-            <div class="formula-block">
-                n   = (Vc × 1000) / (π × Dc)      [RPM]<br>
-                Vf  = fz × z × n                   [mm/min — table feed]<br>
-                ae  = radial depth of cut           [mm]<br>
-                ap  = axial depth of cut            [mm]<br>
-                MRR = Vf × ae × ap / 1000           [cm³/min]
-            </div>
-            <p class="blog-text"><strong>Climb milling</strong> (cutter rotation matches feed direction) gives better finish and longer tool life. <strong>Conventional milling</strong> is safer when the machine has backlash. Modern CNC machines default to climb milling.</p>
-        </div>
+                <div class="post-card post-card--mockup">
+                    <div class="post-card-img">
+                        <div class="img-placeholder">// DRAFT</div>
+                    </div>
+                    <div class="post-card-body">
+                        <span class="post-card-tag post-card-tag--draft">// Draft</span>
+                        <h3 class="post-card-title">What is Milling?</h3>
+                        <p class="post-card-desc">Milling is a machining process where a rotating multi-tooth cutter removes material from a workpiece. Unlike turning, the cutter rotates and the table feeds the part beneath it — enabling flat surfaces, slots, pockets, contours, and complex 3D profiles across 3-axis to 5-axis machines.</p>
+                        <div class="post-card-footer">
+                            <span class="post-card-date">— Unpublished</span>
+                            <span class="post-card-read">→ DRAFT</span>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="blog-section">
-            <p class="section-label">Workholding</p>
-            <h2 class="section-heading">Fixturing and Setup</h2>
-            <p class="blog-text">Secure workholding is critical in milling — cutting forces act in multiple directions. The 3-2-1 locating principle constrains all six degrees of freedom: three points on the primary datum face, two on the secondary, one on the tertiary. Common solutions include machine vises, angle plates, modular fixtures, and vacuum chucks for thin plates.</p>
-            <p class="blog-text"><strong>G54–G59 work offsets</strong> in CNC allow multiple fixtures on one table, each with its own coordinate origin — eliminating re-homing between parts.</p>
-        </div>
+                <div class="post-card post-card--mockup">
+                    <div class="post-card-img">
+                        <div class="img-placeholder">// DRAFT</div>
+                    </div>
+                    <div class="post-card-body">
+                        <span class="post-card-tag post-card-tag--draft">// Draft</span>
+                        <h3 class="post-card-title">Milling Operations</h3>
+                        <p class="post-card-desc">Face, peripheral, pocket, contour, slot, and thread milling — each strategy defined by how the cutter engages the workpiece. Entry method, radial engagement, and axial depth determine chip load, surface quality, and tool life for each operation type.</p>
+                        <div class="post-card-footer">
+                            <span class="post-card-date">— Unpublished</span>
+                            <span class="post-card-read">→ DRAFT</span>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="blog-section">
-            <p class="section-label">Tooling</p>
-            <h2 class="section-heading">Cutter Selection</h2>
-            <div class="data-grid">
-                <div class="data-cell"><p class="cell-label">End Mill</p><p class="cell-value">2–6 flutes. Fewer flutes for aluminum (chip clearance); more flutes for steel (rigidity).</p></div>
-                <div class="data-cell"><p class="cell-label">Face Mill</p><p class="cell-value">Indexable inserts on large body. High MRR on flat surfaces. Economical insert replacement.</p></div>
-                <div class="data-cell"><p class="cell-label">Ball-Nose</p><p class="cell-value">Hemispherical tip for 3D contours and smooth ramp cuts in mold and die work.</p></div>
-                <div class="data-cell"><p class="cell-label">Drill / Interpolate</p><p class="cell-value">Helical interpolation with an end mill can replace a drill for flexible hole sizing.</p></div>
+                <div class="post-card post-card--mockup">
+                    <div class="post-card-img">
+                        <div class="img-placeholder">// DRAFT</div>
+                    </div>
+                    <div class="post-card-body">
+                        <span class="post-card-tag post-card-tag--draft">// Draft</span>
+                        <h3 class="post-card-title">Feeds and Speeds</h3>
+                        <p class="post-card-desc">Feed per tooth (fz), spindle speed (n), radial depth (ae), and axial depth (ap) govern every milling cut. Correct fz prevents rubbing at low values and overload at high values. Climb vs. conventional milling and their effect on finish, tool life, and backlash sensitivity.</p>
+                        <div class="post-card-footer">
+                            <span class="post-card-date">— Unpublished</span>
+                            <span class="post-card-read">→ DRAFT</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="post-card post-card--mockup">
+                    <div class="post-card-img">
+                        <div class="img-placeholder">// DRAFT</div>
+                    </div>
+                    <div class="post-card-body">
+                        <span class="post-card-tag post-card-tag--draft">// Draft</span>
+                        <h3 class="post-card-title">Fixturing and Setup</h3>
+                        <p class="post-card-desc">Secure workholding is critical — cutting forces act in multiple directions. The 3-2-1 locating principle, machine vises, angle plates, modular fixtures, vacuum chucks, and G54–G59 work offsets for multi-fixture operations on a single table.</p>
+                        <div class="post-card-footer">
+                            <span class="post-card-date">— Unpublished</span>
+                            <span class="post-card-read">→ DRAFT</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="post-card post-card--mockup">
+                    <div class="post-card-img">
+                        <div class="img-placeholder">// DRAFT</div>
+                    </div>
+                    <div class="post-card-body">
+                        <span class="post-card-tag post-card-tag--draft">// Draft</span>
+                        <h3 class="post-card-title">Cutter Selection</h3>
+                        <p class="post-card-desc">End mills, face mills, ball-nose cutters, and helical interpolation strategies. Flute count by material — fewer flutes for aluminum chip clearance, more for steel rigidity. Indexable inserts for high-MRR face milling vs. solid carbide for precision profiling.</p>
+                        <div class="post-card-footer">
+                            <span class="post-card-date">— Unpublished</span>
+                            <span class="post-card-read">→ DRAFT</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
         <div class="contributions-section">
-            <button class="contributions-toggle" id="contrib-toggle">⬇ Deepen on This Topic<span class="toggle-arrow">▼</span></button>
+            <button class="contributions-toggle" id="contrib-toggle">
+                ⬇ Deepen on This Topic
+                <span class="toggle-arrow">▼</span>
+            </button>
             <div class="contributions-panel" id="contrib-panel">
                 <div class="contributions-header">
                     <span class="contributions-title">// Community Contributions</span>
@@ -178,92 +524,183 @@
                 <div class="contribution-form" id="contrib-form">
                     <p class="form-title">// Add a Contribution</p>
                     <div class="form-type-row">
-                        <input type="radio" name="c-type" id="t-link" value="link" class="type-option" checked><label for="t-link" class="type-label">🔗 Link</label>
-                        <input type="radio" name="c-type" id="t-pdf" value="pdf" class="type-option"><label for="t-pdf" class="type-label">📄 PDF</label>
-                        <input type="radio" name="c-type" id="t-book" value="book" class="type-option"><label for="t-book" class="type-label">📖 Book</label>
+                        <input type="radio" name="c-type" id="t-link" value="link" class="type-option" checked>
+                        <label for="t-link" class="type-label">🔗 Link</label>
+                        <input type="radio" name="c-type" id="t-pdf" value="pdf" class="type-option">
+                        <label for="t-pdf" class="type-label">📄 PDF</label>
+                        <input type="radio" name="c-type" id="t-book" value="book" class="type-option">
+                        <label for="t-book" class="type-label">📖 Book</label>
                     </div>
-                    <div class="form-field"><label>Title <span style="color:var(--text-dim)">(max 100)</span></label><input type="text" id="c-title" maxlength="100" placeholder="Resource title..."><div class="char-counter"><span id="title-count">0</span> / 100</div></div>
-                    <div class="form-field"><label>URL</label><input type="url" id="c-url" placeholder="https://..."></div>
-                    <div class="form-field"><label>Description <span style="color:var(--text-dim)">(max 280)</span></label><textarea id="c-desc" rows="3" maxlength="280" placeholder="Briefly describe why this resource is useful..."></textarea><div class="char-counter"><span id="desc-count">0</span> / 280</div></div>
+                    <div class="form-field">
+                        <label>Title <span style="color:var(--text-dim)">(max 100)</span></label>
+                        <input type="text" id="c-title" maxlength="100" placeholder="Resource title...">
+                        <div class="char-counter"><span id="title-count">0</span> / 100</div>
+                    </div>
+                    <div class="form-field">
+                        <label>URL</label>
+                        <input type="url" id="c-url" placeholder="https://...">
+                    </div>
+                    <div class="form-field">
+                        <label>Description <span style="color:var(--text-dim)">(max 280)</span></label>
+                        <textarea id="c-desc" rows="3" maxlength="280" placeholder="Briefly describe why this resource is useful..."></textarea>
+                        <div class="char-counter"><span id="desc-count">0</span> / 280</div>
+                    </div>
                     <button class="form-submit" id="form-submit">Submit Contribution</button>
                 </div>
                 <div id="contrib-list"></div>
             </div>
         </div>
+
     </div>
+
     <script>
-        let _readAudio = null;
-        function toggleRead(btn, src) {
-            if (_readAudio && !_readAudio.paused) {
-                _readAudio.pause();
-                _readAudio.currentTime = 0;
-                btn.textContent = '🔈 READ';
-                btn.classList.remove('playing');
-                _readAudio = null;
-                return;
-            }
-            _readAudio = new Audio(src);
-            btn.textContent = '⏹ STOP';
-            btn.classList.add('playing');
-            _readAudio.play();
-            _readAudio.onended = () => {
-                btn.textContent = '🔈 READ';
-                btn.classList.remove('playing');
-                _readAudio = null;
-            };
-        }
         const BACKEND_URL = 'https://web-production-47911.up.railway.app';
         const MODULE = 'milling';
 
-        /* ── Published articles ── */
-        function fmtDate(s) { try { return new Date(s).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); } catch { return s||''; } }
-        function renderArticle(a) {
-            let c; try { c = JSON.parse(a.content); } catch { c = {p1: a.content}; }
-            let h = '';
-            if (c.label)   h += `<p class="section-label">${c.label}</p>`;
-            if (c.heading) h += `<h2 class="section-heading">${c.heading}${a.audio_url?` <button class="read-btn" onclick="toggleRead(this,'${a.audio_url}')">🔈 READ</button>`:''}</h2>`;
-            if (c.p1)      h += `<p class="blog-text">${c.p1}</p>`;
-            if (c.p2)      h += `<p class="blog-text">${c.p2}</p>`;
-            if (c.formula) h += `<div class="formula-block">${c.formula}</div>`;
-            if (c.specs && c.specs.length) h += '<div class="data-grid">' + c.specs.map(s=>`<div class="data-cell"><p class="cell-label">${s.label}</p><p class="cell-value">${s.value}</p></div>`).join('') + '</div>';
-            return h;
-        }
-        function toggleArticle(id) { const el=document.getElementById(id); el.style.display=el.style.display==='none'?'block':'none'; }
-        async function loadPublished() {
-            const list = document.getElementById('published-list');
-            list.innerHTML = '<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">Loading...</p>';
+        function fmtDate(s) {
             try {
-                const res  = await fetch(`${BACKEND_URL}/articles?module=${MODULE}`);
-                const data = await res.json();
-                if (!data.length) { list.innerHTML = '<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">No publications yet.</p>'; return; }
-                list.innerHTML = data.map((a,i) => `
-                    <div class="pub-entry">
-                        <div class="pub-item" onclick="toggleArticle('art-body-${i}')">
-                            <span class="pub-num">${i+1}</span>
-                            <span class="pub-title">${a.title}</span>
-                            <span class="pub-date">${fmtDate(a.created_at)}</span>
-                        </div>
-                        <div class="pub-article" id="art-body-${i}" style="display:none">${renderArticle(a)}</div>
-                    </div>
-                `).join('');
-            } catch { list.innerHTML = '<p style="font-family:\'Share Tech Mono\',monospace;font-size:.68em;color:var(--text-dim);padding:16px;text-align:center">Could not load publications.</p>'; }
+                return new Date(s).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+            } catch { return s || ''; }
         }
-        document.getElementById('published-toggle').addEventListener('click', function() {
-            const panel = document.getElementById('published-panel');
-            const open  = panel.classList.toggle('open');
-            this.textContent = open ? '▲ Published' : '▼ Published';
-            if (open) loadPublished();
-        });
-        function getSession() { try { const token = localStorage.getItem('migue100_token'); const session = JSON.parse(localStorage.getItem('migue100_session') || 'null'); if (!token || !session) return null; const payload = JSON.parse(atob(token.split('.')[1])); if (payload.exp && payload.exp * 1000 < Date.now()) { localStorage.removeItem('migue100_token'); localStorage.removeItem('migue100_session'); return null; } return { token, ...session }; } catch { return null; } }
-        const TYPE_ICON = { link:'🔗', pdf:'📄', book:'📖' }; let activeFilter = 'all';
-        async function loadContributions(type) { const list = document.getElementById('contrib-list'); list.innerHTML = '<p class="contributions-empty">Loading...</p>'; const url = type === 'all' ? `${BACKEND_URL}/contributions/${MODULE}` : `${BACKEND_URL}/contributions/${MODULE}?type=${type}`; try { const res = await fetch(url); const data = await res.json(); if (!data.length) { list.innerHTML = '<p class="contributions-empty">No contributions yet — be the first.</p>'; return; } list.innerHTML = data.map(c => `<div class="contribution-item"><div class="contribution-meta"><span class="contribution-type">${TYPE_ICON[c.type]||''} ${c.type}</span></div><div class="contribution-title">${c.title}</div><div class="contribution-desc">${c.description}</div><a href="${c.url}" target="_blank" rel="noopener" class="contribution-link">→ Open</a></div>`).join(''); } catch { list.innerHTML = '<p class="contributions-empty">Could not load contributions.</p>'; } }
-        document.getElementById('contrib-toggle').addEventListener('click', function() { this.classList.toggle('open'); const panel = document.getElementById('contrib-panel'); panel.classList.toggle('open'); if (panel.classList.contains('open')) { loadContributions(activeFilter); document.getElementById('add-btn').style.display = getSession() ? 'inline-block' : 'none'; } });
-        document.querySelectorAll('.filter-btn').forEach(btn => { btn.addEventListener('click', function() { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); activeFilter = this.dataset.type; loadContributions(activeFilter); }); });
-        document.getElementById('add-btn').addEventListener('click', () => { document.getElementById('contrib-form').classList.toggle('open'); });
-        document.getElementById('c-title').addEventListener('input', function() { document.getElementById('title-count').textContent = this.value.length; });
-        document.getElementById('c-desc').addEventListener('input', function() { document.getElementById('desc-count').textContent = this.value.length; });
-        document.getElementById('form-submit').addEventListener('click', async () => { const session = getSession(); if (!session) { alert('You must be logged in to contribute.'); return; } const title = document.getElementById('c-title').value.trim(); const url = document.getElementById('c-url').value.trim(); const desc = document.getElementById('c-desc').value.trim(); const type = document.querySelector('input[name="c-type"]:checked').value; if (!title || !url || !desc) { alert('Please fill in all fields.'); return; } const btn = document.getElementById('form-submit'); btn.disabled = true; btn.textContent = 'Submitting...'; try { const res = await fetch(`${BACKEND_URL}/contributions`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.token}`}, body:JSON.stringify({module:MODULE,type,title,url,description:desc}) }); if (!res.ok) { const e = await res.json(); alert(e.error||'Error submitting.'); return; } document.getElementById('c-title').value=''; document.getElementById('c-url').value=''; document.getElementById('c-desc').value=''; document.getElementById('title-count').textContent='0'; document.getElementById('desc-count').textContent='0'; document.getElementById('contrib-form').classList.remove('open'); loadContributions(activeFilter); } catch { alert('Could not connect to server.'); } finally { btn.disabled=false; btn.textContent='Submit Contribution'; } });
 
+        function esc(s) {
+            return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        /* ── Session ── */
+        function getSession() {
+            try {
+                const token   = localStorage.getItem('migue100_token');
+                const session = JSON.parse(localStorage.getItem('migue100_session') || 'null');
+                if (!token || !session) return null;
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                if (payload.exp && payload.exp * 1000 < Date.now()) {
+                    localStorage.removeItem('migue100_token');
+                    localStorage.removeItem('migue100_session');
+                    return null;
+                }
+                return { token, ...session };
+            } catch { return null; }
+        }
+
+        /* ── Contributions ── */
+        const TYPE_ICON = { link:'🔗', pdf:'📄', book:'📖' };
+        let activeFilter = 'all';
+
+        async function loadContributions(type) {
+            const list = document.getElementById('contrib-list');
+            list.innerHTML = '<p class="contributions-empty">Loading...</p>';
+            const url = type === 'all'
+                ? `${BACKEND_URL}/contributions/${MODULE}`
+                : `${BACKEND_URL}/contributions/${MODULE}?type=${type}`;
+            try {
+                const res  = await fetch(url);
+                const data = await res.json();
+                if (!data.length) {
+                    list.innerHTML = '<p class="contributions-empty">No contributions yet — be the first.</p>';
+                    return;
+                }
+                list.innerHTML = data.map(c => `
+                    <div class="contribution-item">
+                        <div class="contribution-meta">
+                            <span class="contribution-type">${TYPE_ICON[c.type]||''} ${c.type}</span>
+                        </div>
+                        <div class="contribution-title">${esc(c.title)}</div>
+                        <div class="contribution-desc">${esc(c.description)}</div>
+                        <a href="${c.url}" target="_blank" rel="noopener" class="contribution-link">→ Open</a>
+                    </div>`).join('');
+            } catch {
+                list.innerHTML = '<p class="contributions-empty">Could not load contributions.</p>';
+            }
+        }
+
+        document.getElementById('contrib-toggle').addEventListener('click', function() {
+            this.classList.toggle('open');
+            const panel = document.getElementById('contrib-panel');
+            panel.classList.toggle('open');
+            if (panel.classList.contains('open')) {
+                loadContributions(activeFilter);
+                document.getElementById('add-btn').style.display = getSession() ? 'inline-block' : 'none';
+            }
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                activeFilter = this.dataset.type;
+                loadContributions(activeFilter);
+            });
+        });
+
+        document.getElementById('add-btn').addEventListener('click', () => {
+            document.getElementById('contrib-form').classList.toggle('open');
+        });
+
+        document.getElementById('c-title').addEventListener('input', function() {
+            document.getElementById('title-count').textContent = this.value.length;
+        });
+        document.getElementById('c-desc').addEventListener('input', function() {
+            document.getElementById('desc-count').textContent = this.value.length;
+        });
+
+        document.getElementById('form-submit').addEventListener('click', async () => {
+            const session = getSession();
+            if (!session) { alert('You must be logged in to contribute.'); return; }
+            const title = document.getElementById('c-title').value.trim();
+            const url   = document.getElementById('c-url').value.trim();
+            const desc  = document.getElementById('c-desc').value.trim();
+            const type  = document.querySelector('input[name="c-type"]:checked').value;
+            if (!title || !url || !desc) { alert('Please fill in all fields.'); return; }
+            const btn = document.getElementById('form-submit');
+            btn.disabled = true; btn.textContent = 'Submitting...';
+            try {
+                const res = await fetch(`${BACKEND_URL}/contributions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${session.token}` },
+                    body: JSON.stringify({ module:MODULE, type, title, url, description:desc })
+                });
+                if (!res.ok) { const e = await res.json(); alert(e.error||'Error submitting.'); return; }
+                document.getElementById('c-title').value = '';
+                document.getElementById('c-url').value   = '';
+                document.getElementById('c-desc').value  = '';
+                document.getElementById('title-count').textContent = '0';
+                document.getElementById('desc-count').textContent  = '0';
+                document.getElementById('contrib-form').classList.remove('open');
+                loadContributions(activeFilter);
+            } catch { alert('Could not connect to server.'); }
+            finally { btn.disabled = false; btn.textContent = 'Submit Contribution'; }
+        });
     </script>
+
+    <!-- ── Language switch (ES / IT via Google Website Translator) ── -->
+    <div id="google_translate_element"></div>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'es,it', autoDisplay: false }, 'google_translate_element');
+        }
+        function setSiteLanguage(lang) {
+            const expr = '/en/' + lang;
+            document.cookie = 'googtrans=' + expr + '; path=/';
+            document.cookie = 'googtrans=' + expr + '; path=/; domain=' + location.hostname;
+            localStorage.setItem('migue100_lang', lang);
+            location.reload();
+        }
+        function applyGlossary() {
+            const lang = localStorage.getItem('migue100_lang') || 'en';
+            if (lang === 'en') return;
+            document.querySelectorAll('[data-i18n-' + lang + ']').forEach(el => {
+                el.textContent = el.getAttribute('data-i18n-' + lang);
+            });
+        }
+        (function() {
+            const saved = localStorage.getItem('migue100_lang') || 'en';
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.dataset.lang === saved) btn.classList.add('active');
+            });
+            applyGlossary();
+        })();
+    </script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>

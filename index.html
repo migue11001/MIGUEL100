@@ -145,6 +145,45 @@
             gap: 0.4rem;
         }
 
+        .lang-switch {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .lang-btn {
+            background: rgba(0, 212, 255, 0.04);
+            border: 1px solid rgba(0, 212, 255, 0.22);
+            border-radius: 3px;
+            padding: 0.22rem 0.42rem;
+            font-size: 0.95rem;
+            line-height: 1;
+            cursor: pointer;
+            filter: grayscale(65%);
+            opacity: 0.6;
+            transition: all 0.25s ease;
+        }
+        .lang-btn:hover,
+        .lang-btn.active {
+            border-color: var(--neon-blue);
+            background: rgba(0, 212, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0,212,255,0.2);
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+        #google_translate_element,
+        .goog-te-banner-frame,
+        .skiptranslate { display: none !important; }
+        body { top: 0px !important; }
+        html.translated-ltr body,
+        html.translated-rtl body { top: 0 !important; }
+        @media (max-width: 560px) {
+            .lang-switch { display: none; }
+        }
+
         .nav-btn {
             padding: 0.4rem 0.9rem;
             background: rgba(0, 212, 255, 0.04);
@@ -1693,9 +1732,14 @@
     <!-- Fixed nav -->
     <nav class="site-nav">
         <button class="nav-logo" id="nav-logo">migue100.com</button>
+        <div class="lang-switch">
+            <button class="lang-btn" data-lang="en" onclick="setSiteLanguage('en')" title="English">🇬🇧</button>
+            <button class="lang-btn" data-lang="es" onclick="setSiteLanguage('es')" title="Español">🇪🇸</button>
+            <button class="lang-btn" data-lang="it" onclick="setSiteLanguage('it')" title="Italiano">🇮🇹</button>
+        </div>
         <div class="nav-buttons">
-            <button class="nav-btn" id="nav-login">Login</button>
-            <button class="nav-btn" id="nav-register">Register</button>
+            <button class="nav-btn notranslate" id="nav-login">Login</button>
+            <button class="nav-btn notranslate" id="nav-register">Register</button>
             <a href="/admin.html" class="nav-btn" id="nav-admin" style="display:none">Admin</a>
         </div>
     </nav>
@@ -1785,84 +1829,79 @@
                         <div class="status-dot"></div>
                         <span class="status-text">SYSTEM ONLINE — CNC PLATFORM ACTIVE</span>
                     </div>
-                    <button class="talk-btn" id="talk-btn">💬 TALK TO MIGUEL</button>
+                    <button class="talk-btn notranslate" id="talk-btn" data-i18n-es="💬 HABLAR CON MIGUEL" data-i18n-it="💬 PARLA CON MIGUEL">💬 TALK TO MIGUEL</button>
                 </div>
             </div>
         </section>
 
-        <!-- ── Technical Support & Collaborations ── -->
+        <!-- ── Materials ── -->
         <section class="collab-section">
-            <div class="section-heading">TECHNICAL SUPPORT &amp; COLLABORATIONS</div>
+            <div class="section-heading notranslate" data-i18n-es="MATERIALES" data-i18n-it="MATERIALI">MATERIALS</div>
 
             <div class="collab-scroll-wrap">
                 <div class="collab-track" id="collab-track">
 
-                    <div class="collab-card" data-metal="gold">
-                        <span class="collab-card-icon">🔍</span>
-                        <div class="collab-card-title">Prototype Feasibility</div>
-                        <div class="collab-card-desc">Review of your CAD file to identify manufacturability issues before committing to production.</div>
-                    </div>
                     <div class="collab-card" data-metal="silver">
-                        <span class="collab-card-icon">⚙️</span>
-                        <div class="collab-card-title">Technical Consultation</div>
-                        <div class="collab-card-desc">Material selection, tolerances and process planning tailored to your project and budget.</div>
-                    </div>
-                    <div class="collab-card" data-metal="bronze">
-                        <span class="collab-card-icon">📐</span>
-                        <div class="collab-card-title">DFM Review</div>
-                        <div class="collab-card-desc">Design for Manufacturability — optimize your part geometry for cost-effective production.</div>
+                        <span class="collab-card-icon">✈️</span>
+                        <div class="collab-card-title">Aluminum 6061</div>
+                        <div class="collab-card-desc">Lightweight and highly machinable. Ideal for prototypes, brackets and aerospace-grade parts.</div>
                     </div>
                     <div class="collab-card" data-metal="steel">
-                        <span class="collab-card-icon">📄</span>
-                        <div class="collab-card-title">Technical Drawing</div>
-                        <div class="collab-card-desc">Complete documentation: dimensions, tolerances and GD&amp;T annotations ready for the workshop.</div>
-                    </div>
-                    <div class="collab-card" data-metal="copper">
-                        <span class="collab-card-icon">🔩</span>
-                        <div class="collab-card-title">Process Optimization</div>
-                        <div class="collab-card-desc">Speeds, feeds and toolpath strategies to reduce cycle time and extend tool life.</div>
+                        <span class="collab-card-icon">⚙️</span>
+                        <div class="collab-card-title">Steel 4140</div>
+                        <div class="collab-card-desc">High-strength alloy steel for structural parts, shafts and components under heavy load.</div>
                     </div>
                     <div class="collab-card" data-metal="titanium">
-                        <span class="collab-card-icon">💻</span>
-                        <div class="collab-card-title">CNC Programming</div>
-                        <div class="collab-card-desc">G-code generation for milling and turning operations. Ready to run on your machine.</div>
+                        <span class="collab-card-icon">🚀</span>
+                        <div class="collab-card-title">Titanium Ti-6Al-4V</div>
+                        <div class="collab-card-desc">Exceptional strength-to-weight ratio. Aerospace and medical grade, demanding to machine.</div>
+                    </div>
+                    <div class="collab-card" data-metal="gold">
+                        <span class="collab-card-icon">🔶</span>
+                        <div class="collab-card-title">Brass C360</div>
+                        <div class="collab-card-desc">Excellent machinability and corrosion resistance. Ideal for fittings and electrical parts.</div>
+                    </div>
+                    <div class="collab-card" data-metal="copper">
+                        <span class="collab-card-icon">🔌</span>
+                        <div class="collab-card-title">Copper C110</div>
+                        <div class="collab-card-desc">Superior electrical and thermal conductivity. Soft material requiring sharp tooling.</div>
+                    </div>
+                    <div class="collab-card" data-metal="bronze">
+                        <span class="collab-card-icon">🔩</span>
+                        <div class="collab-card-title">Bronze</div>
+                        <div class="collab-card-desc">Wear-resistant and self-lubricating. Common in bushings, bearings and marine hardware.</div>
                     </div>
 
                     <!-- Duplicados para scroll infinito -->
-                    <div class="collab-card" data-metal="gold">
-                        <span class="collab-card-icon">🔍</span>
-                        <div class="collab-card-title">Prototype Feasibility</div>
-                        <div class="collab-card-desc">Review of your CAD file to identify manufacturability issues before committing to production.</div>
-                    </div>
                     <div class="collab-card" data-metal="silver">
+                        <span class="collab-card-icon">✈️</span>
+                        <div class="collab-card-title">Aluminum 6061</div>
+                        <div class="collab-card-desc">Lightweight and highly machinable. Ideal for prototypes, brackets and aerospace-grade parts.</div>
+                    </div>
+                    <div class="collab-card" data-metal="steel">
                         <span class="collab-card-icon">⚙️</span>
-                        <div class="collab-card-title">Technical Consultation</div>
-                        <div class="collab-card-desc">Material selection, tolerances and process planning tailored to your project and budget.</div>
-                    </div>
-                    <div class="collab-card" data-metal="bronze">
-                        <span class="collab-card-icon">📐</span>
-                        <div class="collab-card-title">DFM Review</div>
-                        <div class="collab-card-desc">Design for Manufacturability — optimize your part geometry for cost-effective production.</div>
-                    </div>
-                    <div class="collab-card" data-metal="steel">
-                        <span class="collab-card-icon">📄</span>
-                        <div class="collab-card-title">Technical Drawing</div>
-                        <div class="collab-card-desc">Complete documentation: dimensions, tolerances and GD&amp;T annotations ready for the workshop.</div>
-                    </div>
-                    <div class="collab-card" data-metal="steel">
-                        <span class="collab-card-icon">📄</span>
-                        <div class="collab-card-title">Technical Drawing</div>
-                        <div class="collab-card-desc">Complete documentation: dimensions, tolerances and GD&amp;T annotations ready for the workshop.</div>
-                    </div>
-                    <div class="collab-card" data-metal="copper">
-                        <span class="collab-card-icon">🔩</span>
-                        <div class="collab-card-title">Process Optimization</div>
-                        <div class="collab-card-desc">Speeds, feeds and toolpath strategies to reduce cycle time and extend tool life.</div>
+                        <div class="collab-card-title">Steel 4140</div>
+                        <div class="collab-card-desc">High-strength alloy steel for structural parts, shafts and components under heavy load.</div>
                     </div>
                     <div class="collab-card" data-metal="titanium">
-                        <span class="collab-card-icon">💻</span>
-                        <div class="collab-card-title">CNC Programming</div>
-                        <div class="collab-card-desc">G-code generation for milling and turning operations. Ready to run on your machine.</div>
+                        <span class="collab-card-icon">🚀</span>
+                        <div class="collab-card-title">Titanium Ti-6Al-4V</div>
+                        <div class="collab-card-desc">Exceptional strength-to-weight ratio. Aerospace and medical grade, demanding to machine.</div>
+                    </div>
+                    <div class="collab-card" data-metal="gold">
+                        <span class="collab-card-icon">🔶</span>
+                        <div class="collab-card-title">Brass C360</div>
+                        <div class="collab-card-desc">Excellent machinability and corrosion resistance. Ideal for fittings and electrical parts.</div>
+                    </div>
+                    <div class="collab-card" data-metal="copper">
+                        <span class="collab-card-icon">🔌</span>
+                        <div class="collab-card-title">Copper C110</div>
+                        <div class="collab-card-desc">Superior electrical and thermal conductivity. Soft material requiring sharp tooling.</div>
+                    </div>
+                    <div class="collab-card" data-metal="bronze">
+                        <span class="collab-card-icon">🔩</span>
+                        <div class="collab-card-title">Bronze</div>
+                        <div class="collab-card-desc">Wear-resistant and self-lubricating. Common in bushings, bearings and marine hardware.</div>
                     </div>
 
                 </div>
@@ -1872,7 +1911,7 @@
         </section>
 
         <!-- ── 3D Models ── -->
-        <div class="section-heading">3D MODELS</div>
+        <div class="section-heading notranslate" data-i18n-es="MODELOS 3D" data-i18n-it="MODELLI 3D">3D MODELS</div>
         <div class="models-scroll-wrap">
             <div class="models-track">
 
@@ -1991,45 +2030,66 @@
             </div>
         </div>
 
+        <div style="display:flex;justify-content:center;margin-bottom:50px;">
+            <a href="3d-models.html" style="
+                font-family:'Share Tech Mono',monospace;
+                font-size:0.72rem;
+                letter-spacing:0.28em;
+                text-transform:uppercase;
+                color:var(--neon-blue);
+                text-decoration:none;
+                border:1px solid rgba(0,212,255,0.35);
+                padding:10px 32px;
+                background:rgba(0,212,255,0.04);
+                border-radius:3px;
+                transition:all 0.25s ease;
+                display:inline-flex;
+                align-items:center;
+                gap:10px;
+            " onmouseover="this.style.background='rgba(0,212,255,0.1)';this.style.borderColor='rgba(0,212,255,0.7)';this.style.color='#fff';this.style.boxShadow='0 0 18px rgba(0,212,255,0.2)'" onmouseout="this.style.background='rgba(0,212,255,0.04)';this.style.borderColor='rgba(0,212,255,0.35)';this.style.color='var(--neon-blue)';this.style.boxShadow='none'">
+                <span class="notranslate" data-i18n-es="VER TODOS LOS MODELOS 3D" data-i18n-it="VEDI TUTTI I MODELLI 3D">VIEW ALL 3D MODELS</span> <span style="font-size:1.1em;">&#8594;</span>
+            </a>
+        </div>
+
         <!-- ── Cards Section ── -->
-        <div class="section-heading">MACHINING KNOWLEDGE ROOMS</div>
+        <div class="section-heading notranslate" data-i18n-es="MÓDULOS DE MECANIZADO" data-i18n-it="MODULI DI LAVORAZIONE">MACHINING KNOWLEDGE ROOMS</div>
 
         <div class="cards-grid">
 
             <a href="rooms/turning.html" class="app-card" id="card-turning">
                 <div class="card-shine"></div>
-                <div class="card-tag">MODULE 01</div>
-                <div class="app-title">Turning</div>
+                <div class="card-tag notranslate" data-i18n-es="MÓDULO 01" data-i18n-it="MODULO 01">MODULE 01</div>
+                <div class="app-title notranslate" data-i18n-es="Torneado" data-i18n-it="Tornitura">Turning</div>
             </a>
 
             <a href="rooms/milling.html" class="app-card" id="card-milling">
                 <div class="card-shine"></div>
-                <div class="card-tag">MODULE 02</div>
-                <div class="app-title">Milling</div>
+                <div class="card-tag notranslate" data-i18n-es="MÓDULO 02" data-i18n-it="MODULO 02">MODULE 02</div>
+                <div class="app-title notranslate" data-i18n-es="Fresado" data-i18n-it="Fresatura">Milling</div>
             </a>
 
             <a href="rooms/tool-library.html" class="app-card" id="card-tools">
                 <div class="card-shine"></div>
-                <div class="card-tag">MODULE 03</div>
-                <div class="app-title">Tool Library</div>
+                <div class="card-tag notranslate" data-i18n-es="MÓDULO 03" data-i18n-it="MODULO 03">MODULE 03</div>
+                <div class="app-title notranslate" data-i18n-es="Biblioteca de Herramientas" data-i18n-it="Libreria degli Utensili">Tool Library</div>
             </a>
 
             <a href="rooms/safety.html" class="app-card" id="card-cnc">
                 <div class="card-shine"></div>
-                <div class="card-tag">MODULE 04</div>
-                <div class="app-title">SAFETY</div>
+                <div class="card-tag notranslate" data-i18n-es="MÓDULO 04" data-i18n-it="MODULO 04">MODULE 04</div>
+                <div class="app-title notranslate" data-i18n-es="SEGURIDAD" data-i18n-it="SICUREZZA">SAFETY</div>
             </a>
 
             <a href="rooms/metrology.html" class="app-card" id="card-metro">
                 <div class="card-shine"></div>
-                <div class="card-tag">MODULE 05</div>
-                <div class="app-title">Metrology</div>
+                <div class="card-tag notranslate" data-i18n-es="MÓDULO 05" data-i18n-it="MODULO 05">MODULE 05</div>
+                <div class="app-title notranslate" data-i18n-es="Metrología" data-i18n-it="Metrologia">Metrology</div>
             </a>
 
             <a href="rooms/tech-assistant.html" class="app-card" id="card-ai">
                 <div class="card-shine"></div>
-                <div class="card-tag">MODULE 06</div>
-                <div class="app-title">Tech Assistant</div>
+                <div class="card-tag notranslate" data-i18n-es="MÓDULO 06" data-i18n-it="MODULO 06">MODULE 06</div>
+                <div class="app-title notranslate" data-i18n-es="Asistente Técnico" data-i18n-it="Assistente Tecnico">Tech Assistant</div>
             </a>
 
         </div>
@@ -2119,18 +2179,27 @@
             } catch { return null; }
         }
 
+        /* ── Fixed glossary (nav/titles) — bypasses machine translation for domain terms ── */
+        const NAV_I18N = {
+            en: { login: 'Login', register: 'Register', logout: 'Logout' },
+            es: { login: 'Iniciar sesión', register: 'Registrarse', logout: 'Cerrar sesión' },
+            it: { login: 'Accedi', register: 'Registrati', logout: 'Esci' }
+        };
+        function currentLang() { return localStorage.getItem('migue100_lang') || 'en'; }
+
         function updateNavState() {
             const session     = getSession();
             const loginBtn    = document.getElementById('nav-login');
             const registerBtn = document.getElementById('nav-register');
             const adminLink   = document.getElementById('nav-admin');
+            const t = NAV_I18N[currentLang()] || NAV_I18N.en;
             if (session) {
                 loginBtn.textContent    = session.email.split('@')[0];
-                registerBtn.textContent = 'Logout';
+                registerBtn.textContent = t.logout;
                 if (adminLink) adminLink.style.display = session.is_admin ? 'inline-block' : 'none';
             } else {
-                loginBtn.textContent    = 'Login';
-                registerBtn.textContent = 'Register';
+                loginBtn.textContent    = t.login;
+                registerBtn.textContent = t.register;
                 if (adminLink) adminLink.style.display = 'none';
             }
         }
@@ -2533,7 +2602,6 @@
             card.appendChild(holo);
 
             const metal   = METALS[card.dataset.metal] || METALS.steel;
-            const service = card.querySelector('.collab-card-title').textContent.trim();
 
             function applyMetal(x, y) {
                 const rotX  = (y - 0.5) * -18;
@@ -2563,21 +2631,13 @@
             }
 
             /* ── Desktop: mouse ── */
-            let dragStartX = 0;
-            card.addEventListener('mousedown', e => { dragStartX = e.clientX; });
-            card.addEventListener('click', e => {
-                if (window.matchMedia('(hover: none)').matches) return;
-                if (Math.abs(e.clientX - dragStartX) > 8) return;
-                window.location.href = 'contact.html?service=' + encodeURIComponent(service);
-            });
             card.addEventListener('mousemove', e => {
                 const r = card.getBoundingClientRect();
                 applyMetal((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
             });
             card.addEventListener('mouseleave', resetMetal);
 
-            /* ── Mobile: touch — efecto en primer tap, navega en doble tap ── */
-            let lastTap = 0;
+            /* ── Mobile: touch — efecto al tocar la tarjeta ── */
             const track = document.getElementById('collab-track');
 
             card.addEventListener('touchstart', e => {
@@ -2596,11 +2656,6 @@
             card.addEventListener('touchend', () => {
                 track.style.animationPlayState = 'running';
                 setTimeout(resetMetal, 400);
-                const now = Date.now();
-                if (now - lastTap < 350) {
-                    window.location.href = 'contact.html?service=' + encodeURIComponent(service);
-                }
-                lastTap = now;
             }, { passive: true });
         });
     })();
@@ -2778,5 +2833,35 @@
         });
     })();
     </script>
+
+    <!-- ── Language switch (ES / IT via Google Website Translator) ── -->
+    <div id="google_translate_element"></div>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'es,it', autoDisplay: false }, 'google_translate_element');
+        }
+        function setSiteLanguage(lang) {
+            const expr = '/en/' + lang;
+            document.cookie = 'googtrans=' + expr + '; path=/';
+            document.cookie = 'googtrans=' + expr + '; path=/; domain=' + location.hostname;
+            localStorage.setItem('migue100_lang', lang);
+            location.reload();
+        }
+        function applyGlossary() {
+            const lang = localStorage.getItem('migue100_lang') || 'en';
+            if (lang === 'en') return;
+            document.querySelectorAll('[data-i18n-' + lang + ']').forEach(el => {
+                el.textContent = el.getAttribute('data-i18n-' + lang);
+            });
+        }
+        (function() {
+            const saved = localStorage.getItem('migue100_lang') || 'en';
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.dataset.lang === saved) btn.classList.add('active');
+            });
+            applyGlossary();
+        })();
+    </script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
