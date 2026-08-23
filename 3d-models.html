@@ -80,23 +80,40 @@
             box-shadow: 0 0 10px rgba(0,212,255,0.2);
         }
 
-        .lang-switch {
-            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-            display: flex; align-items: center; gap: 0.35rem;
-        }
-        .lang-btn {
+        .lang-switch { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+        .lang-trigger {
+            display: flex; align-items: center; gap: 0.32rem;
             background: rgba(0,212,255,0.04); border: 1px solid rgba(0,212,255,0.22); border-radius: 3px;
-            padding: 0.22rem 0.42rem; font-size: 0.95rem; line-height: 1; cursor: pointer;
-            filter: grayscale(65%); opacity: 0.6; transition: all 0.25s ease;
+            padding: 0.22rem 0.5rem; font-family: 'Share Tech Mono', monospace; font-size: 0.68rem;
+            letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); line-height: 1;
+            cursor: pointer; transition: all 0.25s ease;
         }
-        .lang-btn:hover, .lang-btn.active {
+        .lang-trigger-flag { font-size: 0.95rem; line-height: 1; }
+        .lang-trigger-caret { font-size: 0.6rem; transition: transform 0.25s ease; }
+        .lang-trigger:hover, .lang-switch.open .lang-trigger {
             border-color: var(--neon-blue); background: rgba(0,212,255,0.1);
-            box-shadow: 0 0 10px rgba(0,212,255,0.2); filter: grayscale(0%); opacity: 1;
+            box-shadow: 0 0 10px rgba(0,212,255,0.2); color: #fff;
         }
+        .lang-switch.open .lang-trigger-caret { transform: rotate(180deg); }
+        .lang-menu {
+            position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%) translateY(-6px);
+            display: flex; flex-direction: column; gap: 0.28rem;
+            background: rgba(8,9,13,0.97); border: 1px solid rgba(0,212,255,0.22); border-radius: 4px;
+            padding: 0.35rem; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; z-index: 950;
+        }
+        .lang-switch.open .lang-menu { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+        .lang-menu .lang-btn {
+            display: flex; align-items: center; gap: 0.45rem; width: 100%; white-space: nowrap;
+            background: rgba(0,212,255,0.04); border: 1px solid rgba(0,212,255,0.18); border-radius: 3px;
+            padding: 0.3rem 0.6rem; font-family: 'Share Tech Mono', monospace; font-size: 0.72rem;
+            letter-spacing: 0.05em; color: var(--text-dim); cursor: pointer; transition: all 0.2s ease;
+        }
+        .lang-menu .lang-btn:hover { border-color: var(--neon-blue); background: rgba(0,212,255,0.1); color: #fff; }
         #google_translate_element, .goog-te-banner-frame, .skiptranslate { display: none !important; }
         body { top: 0px !important; }
         html.translated-ltr body, html.translated-rtl body { top: 0 !important; }
-        @media (max-width: 560px) { .lang-switch { display: none; } }
+        @media (max-width: 560px) { .lang-trigger-label { display: none; } }
 
         /* ── Section heading ── */
         .section-heading {
@@ -288,10 +305,17 @@
 
     <nav class="site-nav">
         <a href="index.html" class="nav-logo">migue100.com</a>
-        <div class="lang-switch">
-            <button class="lang-btn" data-lang="en" onclick="setSiteLanguage('en')" title="English">🇬🇧</button>
-            <button class="lang-btn" data-lang="es" onclick="setSiteLanguage('es')" title="Español">🇪🇸</button>
-            <button class="lang-btn" data-lang="it" onclick="setSiteLanguage('it')" title="Italiano">🇮🇹</button>
+        <div class="lang-switch" id="lang-switch">
+            <button class="lang-trigger notranslate" id="lang-trigger" onclick="toggleLangMenu(event)" title="Language">
+                <span class="lang-trigger-flag" id="lang-trigger-flag">🇬🇧</span>
+                <span class="lang-trigger-label">Language</span>
+                <span class="lang-trigger-caret">▾</span>
+            </button>
+            <div class="lang-menu" id="lang-menu">
+                <button class="lang-btn" data-lang="en" onclick="setSiteLanguage('en')" title="English">🇬🇧 English</button>
+                <button class="lang-btn" data-lang="es" onclick="setSiteLanguage('es')" title="Español">🇪🇸 Español</button>
+                <button class="lang-btn" data-lang="it" onclick="setSiteLanguage('it')" title="Italiano">🇮🇹 Italiano</button>
+            </div>
         </div>
         <a href="index.html" class="nav-back notranslate" data-i18n-es="&#8592; Volver" data-i18n-it="&#8592; Indietro">&#8592; Back</a>
     </nav>
@@ -575,6 +599,15 @@
         function googleTranslateElementInit() {
             new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'es,it', autoDisplay: false }, 'google_translate_element');
         }
+        const LANG_FLAGS = { en: '🇬🇧', es: '🇪🇸', it: '🇮🇹' };
+        function toggleLangMenu(e) {
+            e.stopPropagation();
+            document.getElementById('lang-switch').classList.toggle('open');
+        }
+        document.addEventListener('click', (e) => {
+            const ls = document.getElementById('lang-switch');
+            if (ls && !ls.contains(e.target)) ls.classList.remove('open');
+        });
         function setSiteLanguage(lang) {
             const expr = '/en/' + lang;
             document.cookie = 'googtrans=' + expr + '; path=/';
@@ -591,8 +624,10 @@
         }
         (function() {
             const saved = localStorage.getItem('migue100_lang') || 'en';
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                if (btn.dataset.lang === saved) btn.classList.add('active');
+            const flagEl = document.getElementById('lang-trigger-flag');
+            if (flagEl) flagEl.textContent = LANG_FLAGS[saved] || LANG_FLAGS.en;
+            document.querySelectorAll('.lang-menu .lang-btn').forEach(btn => {
+                if (btn.dataset.lang === saved) btn.style.display = 'none';
             });
             applyGlossary();
         })();
