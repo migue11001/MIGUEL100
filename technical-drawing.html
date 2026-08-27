@@ -926,7 +926,7 @@
         1: {
             tag: 'MODEL 01', title: 'A1-PROJECT CAM — TECHNICAL DRAWING',
             id: 'DWG-A1-001', project: 'A1-PROJECT CAM',
-            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/D1.jpg', prog: 'A1_MILLING.MPF', tool: '1', speed: '2800',
+            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D1.jpg', prog: 'A1_MILLING.MPF', tool: '1', speed: '2800',
             gcode: `%
 ;===========================================
 ; A1-PROJECT CAM  //  3-AXIS MILLING
@@ -968,7 +968,7 @@ N270 M30
         2: {
             tag: 'MODEL 02', title: 'A2-PROJECT CAM — TECHNICAL DRAWING',
             id: 'DWG-A2-001', project: 'A2-PROJECT CAM',
-            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/D2.jpg', prog: 'A2_TURNING.MPF', tool: '1', speed: '220',
+            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D2.png', prog: 'A2_TURNING.MPF', tool: '1', speed: '220',
             videos: [
                 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/media/turning1.mp4',
                 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/media/turning2.mp4',
@@ -1080,7 +1080,7 @@ N740 M30
         3: {
             tag: 'MODEL 03', title: 'A3-PROJECT CAM — TECHNICAL DRAWING',
             id: 'DWG-A3-001', project: 'A3-PROJECT CAM',
-            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/D3.jpg', prog: 'A3_FLANGE.MPF', tool: '1', speed: '1200',
+            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D3.jpg', prog: 'A3_FLANGE.MPF', tool: '1', speed: '1200',
             gcode: `%
 ;===========================================
 ; A3-PROJECT CAM  //  BOLT PATTERN FLANGE
@@ -1114,7 +1114,7 @@ N170 M30
         4: {
             tag: 'MODEL 04', title: 'A4-PROJECT CAM — TECHNICAL DRAWING',
             id: 'DWG-A4-001', project: 'A4-PROJECT CAM',
-            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/D4.jpg', prog: 'A4_GENERAL.MPF', tool: '1', speed: '8000',
+            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D4.png', prog: 'A4_GENERAL.MPF', tool: '1', speed: '8000',
             gcode: `%
 ;===========================================
 ; A4-PROJECT CAM  //  GENERAL COMPONENT
@@ -1148,6 +1148,40 @@ N190 CYCLE840(5.0,0,-1.0,-18.0,0,1.75,0,0,1,2)
 N200 G0 Z100.0
 N210 M9 M5
 N220 M30
+%`
+        },
+        5: {
+            tag: 'MODEL 05', title: 'A5-PROJECT CAM — TECHNICAL DRAWING',
+            id: 'DWG-A5-001', project: 'A5-PROJECT CAM',
+            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D5.png', prog: 'A5_PROFILE.MPF', tool: '1', speed: '3000',
+            gcode: `%
+;===========================================
+; A5-PROJECT CAM  //  PROFILE MILLING
+; TOOL  : T1-Ø12 END MILL  T2-Ø6 DRILL
+; MATERIAL : Al 6061-T6
+; MACHINE  : DMU 50  CTRL: SINUMERIK 840D sl
+;===========================================
+N10  G17 G54 G90 G94 G21
+;--- EXTERNAL PROFILE ---
+N20  T1 D1 M6
+N30  G0 X-60.0 Y-40.0 S3000 M3 M8
+N40  G43 Z50.0 H1
+N50  G0 Z5.0
+N60  G1 Z-8.0 F250
+N70  G41 D1
+N80  G1 X60.0 F1500
+N90  G1 Y40.0
+N100 G1 X-60.0
+N110 G1 Y-40.0
+N120 G40
+N130 G0 Z50.0
+;--- MOUNTING HOLES  4 x Ø6 ---
+N140 T2 D1 M6
+N150 G0 X0 Y0 S4500 M3
+N160 HOLES2(0,0,90.0,0,90.0,4,5.0,0,-20.0,,3.0,0,0,0.05,0.1,1)
+N170 G0 Z100.0
+N180 M9 M5
+N190 M30
 %`
         }
     };
