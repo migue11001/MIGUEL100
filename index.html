@@ -502,7 +502,7 @@
         /* Hero image */
         .hero-image-wrap {
             position: relative;
-            height: 340px;
+            height: 547px;
             overflow: hidden;
         }
 
@@ -546,8 +546,8 @@
             position: absolute;
             top: 0; left: 0; right: 0;
             height: 3px;
-            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
-            box-shadow: 0 0 12px var(--neon-blue), 0 0 30px var(--neon-blue);
+            background: linear-gradient(90deg, transparent, #f0f2f5, #ffffff, #d8dce2, transparent);
+            box-shadow: 0 0 12px rgba(230, 233, 240, 0.9), 0 0 30px rgba(210, 215, 225, 0.6);
             animation: scanDown 6s linear infinite;
             z-index: 5;
         }
@@ -572,20 +572,33 @@
             gap: 30px;
         }
 
+        .profile-avatar-frame {
+            position: relative;
+            width: 190px;
+            height: 190px;
+            align-self: center;
+            flex-shrink: 0;
+            background: transparent;
+            box-shadow:
+                0 0 28px rgba(185, 115, 40, 0.3),
+                0 0 55px 10px rgba(185, 115, 40, 0.15),
+                0 0 95px 20px rgba(185, 115, 40, 0.08);
+            transition: box-shadow 0.3s ease;
+        }
+
         .profile-avatar-wrap {
             position: relative;
-            width: 208px;
+            z-index: 1;
+            display: block;
+            width: 100%;
             height: 100%;
-            align-self: stretch;
-            border-radius: 4px;
+            border-radius: 0;
             overflow: hidden;
-            border: 2px solid rgba(190, 190, 200, 0.4);
+            border: 1px solid rgba(220, 145, 55, 0.7);
             box-shadow:
                 0 0 0 1px rgba(0,0,0,0.6),
-                0 0 15px rgba(0, 180, 255, 0.2),
-                0 0 24px 4px rgba(190, 190, 200, 0.18),
-                0 0 45px 8px rgba(190, 190, 200, 0.1);
-            flex-shrink: 0;
+                inset 0 1px 0 rgba(230, 160, 65, 0.25),
+                inset 0 -1px 0 rgba(110, 50, 0, 0.5);
             transition: all 0.3s ease;
         }
 
@@ -595,16 +608,24 @@
             display: block;
             object-fit: cover;
             object-position: center;
+            transform: scale(1.09);
+            transform-origin: center;
             filter: grayscale(20%) contrast(1.05);
             transition: all 0.3s ease;
         }
 
-        .profile-avatar-wrap:hover {
-            border-color: var(--smoke-gray);
-            box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 0 25px rgba(0, 212, 255, 0.4);
+        .profile-avatar-frame:hover {
+            box-shadow:
+                0 0 36px rgba(185, 115, 40, 0.4),
+                0 0 70px 14px rgba(185, 115, 40, 0.2),
+                0 0 110px 24px rgba(185, 115, 40, 0.1);
         }
 
-        .profile-avatar-wrap:hover .profile-avatar {
+        .profile-avatar-frame:hover .profile-avatar-wrap {
+            border-color: rgba(225, 150, 55, 0.9);
+        }
+
+        .profile-avatar-frame:hover .profile-avatar {
             filter: grayscale(0%) contrast(1.1);
         }
 
@@ -1089,22 +1110,21 @@
                 text-align: center;
                 padding: 22px 20px;
             }
-            .hero-image-wrap { height: 220px; }
+            .hero-image-wrap { height: 354px; }
             .cards-grid { grid-template-columns: 1fr; }
             .data-value { white-space: normal; word-break: break-word; }
             .data-row { align-items: center; }
-            .profile-avatar-wrap {
+            .profile-avatar-frame {
                 width: 160px;
                 height: 160px;
                 align-self: center;
-                border-radius: 4px;
             }
         }
 
         @media (max-width: 480px) {
             body { padding: 66px 12px 40px; }
             .site-title { font-size: 1.8em; }
-            .hero-image-wrap { height: 180px; }
+            .hero-image-wrap { height: 290px; }
             .app-card { padding: 22px 18px; }
             .app-icon { font-size: 2em; }
             .app-title { font-size: 1.25em; }
@@ -1843,8 +1863,10 @@
             </div>
 
             <div class="hero-info">
-                <div class="profile-avatar-wrap">
-                    <img src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/perfil_optimized.jpg" alt="Profile" class="profile-avatar">
+                <div class="profile-avatar-frame">
+                    <div class="profile-avatar-wrap">
+                        <img src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/perfil_optimized.jpg" alt="Profile" class="profile-avatar">
+                    </div>
                 </div>
 
                 <div class="profile-data">
