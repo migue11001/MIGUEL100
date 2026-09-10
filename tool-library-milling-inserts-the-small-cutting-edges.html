@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Milling Inserts: The Small Cutting Edges That Transform a Block of Metal · Tool Library · migue100.com</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪙</text></svg>">
+<meta name="author" content="Miguel Otero">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --neon-blue: #00d4ff; --smoke-gray: #bebec8;
+    --neon-dim:  #0099cc;
+    --steel-dark:#08090d;
+    --steel-panel:#1a1e28;
+    --chrome:    #8ab4cc;
+    --text-main: #cce8f4;
+    --text-dim:  #5a7a90;
+    --red:       #ff4d4d;
+    --amber:     #ffb347;
+    --green:     #4dff91;
+    --max:       780px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    background-color: var(--steel-dark);
+    background-image:
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,180,255,0.015) 2px, rgba(0,180,255,0.015) 4px),
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,180,255,0.02) 40px, rgba(0,180,255,0.02) 41px),
+      linear-gradient(160deg, #08090d 0%, #101520 30%, #0d1a2a 55%, #101520 80%, #08090d 100%);
+    color: var(--text-main);
+    min-height: 100vh;
+    padding: 80px 20px 80px;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+    padding: 0 2rem; height: 56px;
+    background: rgba(8,9,13,0.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(190, 190, 200, 0.18);
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.12em;
+  }
+  nav a { color: var(--neon-dim); text-decoration: none; transition: color 0.2s; }
+  nav a:hover { color: var(--neon-blue); }
+  nav a.nav-logo {
+    color: #fff;
+    text-shadow: 0 0 4px #fff, 0 0 12px var(--neon-blue), 0 0 28px rgba(0,180,255,0.35);
+    font-size: 1.05rem; letter-spacing: 0.15em;
+  }
+  nav .nav-badge {
+    margin-left: auto;
+    font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(190, 190, 200, 0.28);
+    border-radius: 3px; padding: 3px 10px;
+    color: var(--neon-blue);
+  }
+  .lang-switch { position: relative; margin-left: auto; }
+  .nav-badge + .lang-switch { margin-left: 0; }
+  .lang-trigger {
+    display: flex; align-items: center; gap: 0.32rem;
+    background: rgba(0,212,255,0.04); border: 1px solid rgba(190, 190, 200, 0.22); border-radius: 3px;
+    padding: 0.22rem 0.5rem; font-family: 'Share Tech Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); line-height: 1;
+    cursor: pointer; transition: all 0.25s ease;
+  }
+  .lang-trigger-flag { font-size: 0.95rem; line-height: 1; }
+  .lang-trigger-caret { font-size: 0.6rem; transition: transform 0.25s ease; }
+  .lang-trigger:hover, .lang-switch.open .lang-trigger {
+    border-color: var(--smoke-gray); background: rgba(0,212,255,0.1);
+    box-shadow: 0 0 10px rgba(0,212,255,0.2); color: #fff;
+  }
+  .lang-switch.open .lang-trigger-caret { transform: rotate(180deg); }
+  .lang-menu {
+    position: absolute; top: calc(100% + 8px); right: 0; transform: translateY(-6px);
+    display: flex; flex-direction: column; gap: 0.28rem;
+    background: rgba(8,9,13,0.97); border: 1px solid rgba(190, 190, 200, 0.22); border-radius: 4px;
+    padding: 0.35rem; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; z-index: 950;
+  }
+  .lang-switch.open .lang-menu { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .lang-menu .lang-btn {
+    display: flex; align-items: center; gap: 0.45rem; width: 100%; white-space: nowrap;
+    background: rgba(0,212,255,0.04); border: 1px solid rgba(190, 190, 200, 0.18); border-radius: 3px;
+    padding: 0.3rem 0.6rem; font-family: 'Share Tech Mono', monospace; font-size: 0.72rem;
+    letter-spacing: 0.05em; color: var(--text-dim); cursor: pointer; transition: all 0.2s ease;
+  }
+  .lang-menu .lang-btn:hover { border-color: var(--smoke-gray); background: rgba(0,212,255,0.1); color: #fff; }
+  #google_translate_element, .goog-te-banner-frame, .skiptranslate { display: none !important; }
+  body { top: 0px !important; }
+  html.translated-ltr body, html.translated-rtl body { top: 0 !important; }
+
+  /* ── Layout ── */
+  .page { max-width: var(--max); margin: 0 auto; position: relative; z-index: 2; }
+
+  /* ── Post header ── */
+  .post-header {
+    margin-bottom: 40px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.15);
+  }
+  .module-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62em; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--neon-dim); margin-bottom: 12px;
+  }
+  .module-tag::before { content: '// '; opacity: 0.5; }
+
+  h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(1.4em, 4vw, 2.1em);
+    font-weight: 700; letter-spacing: 0.03em;
+    text-transform: uppercase; line-height: 1.25;
+    color: #fff;
+    text-shadow: 0 0 4px #fff, 0 0 14px var(--neon-blue), 0 0 32px rgba(0,180,255,0.25);
+    margin-bottom: 10px;
+  }
+  h1 .subhead {
+    display: block;
+    font-size: 0.5em; text-transform: none; letter-spacing: 0.01em;
+    color: var(--chrome); text-shadow: none; margin-top: 8px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600;
+  }
+  .subtitle {
+    font-size: 1em; color: var(--chrome);
+    line-height: 1.7; max-width: 640px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Chapter heading ── */
+  .chapter {
+    display: flex; align-items: center; gap: 14px;
+    margin: 36px 0 18px;
+  }
+  .chapter-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6em; letter-spacing: 0.2em; color: var(--text-dim);
+    min-width: 24px;
+  }
+  .chapter h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.15rem; font-weight: 700; letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--neon-blue); white-space: nowrap;
+  }
+  .chapter-line { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,212,255,0.3), transparent); }
+
+  /* ── Narrative text ── */
+  .narrative {
+    font-size: 1.02em; color: var(--chrome);
+    line-height: 1.85; margin-bottom: 18px;
+    letter-spacing: 0.02em;
+  }
+  .narrative strong { color: var(--text-main); font-weight: 600; }
+  .narrative em     { color: var(--text-main); font-style: italic; }
+  .narrative code {
+    font-family: 'Share Tech Mono', monospace; font-size: 0.88em;
+    background: rgba(0,212,255,0.05);
+    border: 1px solid rgba(190, 190, 200, 0.15);
+    border-radius: 2px; padding: 1px 6px;
+    color: var(--neon-blue);
+  }
+
+  .pull-question {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.3em; font-weight: 700;
+    color: #fff; letter-spacing: 0.01em;
+    margin: 8px 0 18px;
+    padding-left: 16px;
+    border-left: 3px solid var(--neon-blue);
+  }
+
+  /* ── Checklist ── */
+  .checklist { margin: 0 0 22px; list-style: none; }
+  .checklist li {
+    position: relative;
+    padding: 8px 0 8px 26px;
+    color: var(--chrome);
+    font-size: 0.98em; line-height: 1.6;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.07);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before {
+    content: '?';
+    position: absolute; left: 0; top: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--neon-blue); font-size: 0.85em;
+  }
+
+  /* ── Focus callout ── */
+  .focus-box {
+    background: rgba(18,21,28,0.95);
+    border: 1px solid rgba(190, 190, 200, 0.15);
+    border-radius: 4px; margin-bottom: 22px;
+    overflow: hidden; position: relative;
+  }
+  .focus-box::before {
+    content: '';
+    position: absolute; top: 0; left: 20px; right: 20px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.4), transparent);
+  }
+  .focus-box-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.1);
+    background: rgba(0,212,255,0.03);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6em; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--neon-blue);
+  }
+  .focus-box-body {
+    padding: 16px 18px;
+    font-size: 0.96em; color: var(--chrome);
+    line-height: 1.8;
+  }
+  .focus-box-body strong { color: var(--text-main); font-weight: 600; }
+  .focus-box-body code {
+    font-family: 'Share Tech Mono', monospace; font-size: 0.88em;
+    background: rgba(0,212,255,0.05);
+    border: 1px solid rgba(190, 190, 200, 0.15);
+    border-radius: 2px; padding: 1px 6px;
+    color: var(--neon-blue);
+  }
+
+  /* ── Stat grid ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 14px; margin-bottom: 24px;
+  }
+  .stat {
+    background: rgba(26,30,40,0.9);
+    border: 1px solid rgba(190, 190, 200, 0.15);
+    border-radius: 4px; padding: 18px 16px;
+    position: relative;
+  }
+  .stat::before {
+    content: '';
+    position: absolute; top: 0; left: 14px; right: 14px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.4), transparent);
+  }
+  .stat .sl {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55em; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--neon-dim); margin-bottom: 8px;
+  }
+  .stat .sv { font-family: 'Rajdhani', sans-serif; font-size: 1.15em; font-weight: 700; letter-spacing: 0.02em; color: #fff; }
+  .stat .ss { font-family: 'Share Tech Mono', monospace; font-size: 0.58em; color: var(--text-dim); margin-top: 6px; line-height: 1.4; }
+
+  /* ── Tags ── */
+  .tag {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55em; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 2px;
+  }
+  .tag-ok   { background: rgba(77,255,145,0.1);  color: var(--green);  border: 1px solid rgba(77,255,145,0.25); }
+  .tag-ko   { background: rgba(255,77,77,0.1);   color: var(--red);    border: 1px solid rgba(255,77,77,0.25); }
+  .tag-warn { background: rgba(255,179,71,0.1);  color: var(--amber);  border: 1px solid rgba(255,179,71,0.25); }
+  .tag-info { background: rgba(0,212,255,0.08);  color: var(--neon-blue); border: 1px solid rgba(190, 190, 200, 0.25); }
+
+  /* ── Summary table ── */
+  .stbl {
+    width: 100%; border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72em; margin-bottom: 28px;
+  }
+  .stbl-wrap { overflow-x: auto; margin-bottom: 28px; }
+  .stbl-wrap .stbl { margin-bottom: 0; }
+  .stbl th {
+    text-align: left; color: var(--neon-dim); font-weight: 400;
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.15);
+    text-transform: uppercase; letter-spacing: 0.15em; font-size: 0.9em;
+    white-space: nowrap;
+  }
+  .stbl td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.06);
+    color: var(--chrome); line-height: 1.5;
+  }
+  .stbl tr:last-child td { border-bottom: none; }
+  .stbl tr:hover td { background: rgba(0,212,255,0.025); }
+
+  .accent { color: var(--neon-blue); }
+
+  /* ── Divider & footer ── */
+  .section-divider {
+    border: none;
+    border-top: 1px solid rgba(190, 190, 200, 0.12);
+    margin: 44px 0;
+  }
+  .footer-row {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  }
+  .footer-row .fr-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6em; letter-spacing: 0.1em; color: var(--text-dim);
+  }
+  .footer-row a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62em; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--neon-blue); text-decoration: none;
+    border: 1px solid rgba(190, 190, 200, 0.28); border-radius: 3px;
+    padding: 6px 14px; background: rgba(0,212,255,0.04);
+    transition: all 0.2s ease;
+  }
+  .footer-row a:hover { background: rgba(0,212,255,0.1); color: #fff; border-color: var(--smoke-gray); }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.3em; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    nav .nav-badge { display: none; }
+    .lang-trigger-label { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="https://migue100.com">migue100.com</a>
+  <span class="nav-badge">MILLING INSERTS</span>
+  <div class="lang-switch" id="lang-switch">
+    <button class="lang-trigger notranslate" id="lang-trigger" onclick="toggleLangMenu(event)" title="Language">
+      <span class="lang-trigger-flag" id="lang-trigger-flag">🇬🇧</span>
+      <span class="lang-trigger-label">Language</span>
+      <span class="lang-trigger-caret">▾</span>
+    </button>
+    <div class="lang-menu" id="lang-menu">
+      <button class="lang-btn" data-lang="en" onclick="setSiteLanguage('en')" title="English">🇬🇧 English</button>
+      <button class="lang-btn" data-lang="es" onclick="setSiteLanguage('es')" title="Español">🇪🇸 Español</button>
+      <button class="lang-btn" data-lang="it" onclick="setSiteLanguage('it')" title="Italiano">🇮🇹 Italiano</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="post-header">
+    <p class="module-tag">Milling Inserts · Module Tool Library</p>
+    <h1>The Small Cutting Edges That Transform a Block of Metal<span class="subhead">Shapes, angles, geometries, radii, and forces — how to pick the right milling insert without sacrificing precision or productivity</span></h1>
+    <p class="subtitle">
+      Up close, milling inserts look like close cousins of turning inserts. But there's one
+      fundamental difference: in milling, the cutting edge never works continuously. Every
+      tooth enters the material, cuts, exits, cools slightly, and starts again — in a
+      fraction of a second.
+    </p>
+  </div>
+
+  <div class="chapter">
+    <span class="chapter-num">01</span>
+    <h2>Close cousins, completely different job</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Up close, milling inserts look like close relatives of turning inserts. But there's one
+    fundamental difference: during milling, the cutting edge doesn't work continuously.
+    Every tooth enters the material, cuts, exits, cools slightly, and starts over again —
+    all within a fraction of a second.
+  </p>
+  <p class="narrative">
+    That intermittent rhythm makes milling a uniquely delicate balancing act between
+    geometry, stiffness, speed, feed, material, and chip control. And it means the shape of
+    a single small insert can radically change how the whole cutter behaves.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">02</span>
+    <h2>A mill doesn't have one cutting edge — it has a team</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Picture a face mill. Several inserts are mounted around its body. As the cutter spins,
+    each insert enters the workpiece at a certain angle, removes a bit of material, then
+    disengages. That cycle repeats hundreds or thousands of times.
+  </p>
+  <p class="pull-question">The first consequence is obvious: the cutting force is never constant.</p>
+  <p class="narrative">
+    Every entry into the material produces a load impulse. If the geometry isn't suited to
+    the job, vibration, abnormal wear, chipping, or even edge failure can follow. In
+    milling, choosing an insert also means deciding <strong>how the edge will enter the
+    material.</strong>
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">03</span>
+    <h2>Insert shapes: square, round, rhombic, triangular</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    There's no universal shape. Every geometry trades off robustness, accessibility, depth
+    of cut, and surface quality in its own way.
+  </p>
+
+  <div class="stbl-wrap">
+    <table class="stbl">
+      <thead>
+        <tr>
+          <th>Shape</th>
+          <th>Character</th>
+          <th>Strength</th>
+          <th>Best for</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Square</strong></td>
+          <td>The "bricklayer" of milling</td>
+          <td><span class="tag tag-ok">High</span></td>
+          <td>Facing, roughing, heavy loads</td>
+        </tr>
+        <tr>
+          <td><strong>Round</strong></td>
+          <td>No sharp corner, continuous edge</td>
+          <td><span class="tag tag-ok">Very high</span></td>
+          <td>Heavy roughing, 3D surfaces, tough materials</td>
+        </tr>
+        <tr>
+          <td><strong>Triangular</strong></td>
+          <td>Balanced general purpose</td>
+          <td><span class="tag tag-info">Medium</span></td>
+          <td>General milling</td>
+        </tr>
+        <tr>
+          <td><strong>Rhombic</strong></td>
+          <td>Sharper, more accessible</td>
+          <td><span class="tag tag-warn">Lower</span></td>
+          <td>Profiling, detail work</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="narrative">
+    The <strong>square</strong> insert generally offers a large mass of material behind
+    the edge — a very appealing geometry whenever robustness is the priority. That's why
+    it shows up so often in facing, roughing, and heavy-load work. The advantage is
+    obvious: it shrugs off demanding conditions. The disadvantage is just as obvious: a
+    very robust geometry isn't necessarily the best choice for reaching into a tight cavity
+    or following a complex profile.
+  </p>
+  <p class="narrative">
+    The <strong>round</strong> insert is one of the most interesting geometries in milling.
+    It has no sharp corner acting as an obvious weak point — its edge is continuous and
+    very strong. That makes it especially useful for heavy roughing, 3D surfacing,
+    difficult materials, and large depths of cut under the right conditions. But there's a
+    price: under equal conditions, a round insert can generate significant forces, and it's
+    not the most natural choice when you need very precise vertical walls or fine detail.
+  </p>
+  <p class="pull-question">It's like swapping a scalpel for a wheel — enormous robustness, but completely different behaviour.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">04</span>
+    <h2>The mystery of the lead angle</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    One of the most important things about a milling cutter is how the edge actually enters
+    the workpiece. Picture two inserts: in the first, the edge enters almost head-on; in
+    the second, it enters at an angle. It sounds like a minor geometric detail. In reality
+    it changes how forces are distributed, how thick the chip is, and how much stress the
+    edge is under.
+  </p>
+  <p class="narrative">
+    A more favourable lead angle can help reduce the effective chip thickness, spread the
+    load more evenly, and make the entry into the material more progressive. But there's no
+    free lunch here either — changing the angle simultaneously changes forces, usable
+    depth, accessibility, and how the edge behaves.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">05</span>
+    <h2>Why do some inserts look "sharp" and others don't?</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    This is where positive and negative geometry come in. A more positive geometry tends to
+    favour a gentler, freer cutting action — useful on low-rigidity machines, thin walls,
+    soft materials, or any job where cutting forces need to stay low.
+  </p>
+  <p class="narrative">
+    A negative geometry generally offers a more robust edge and can be the better choice for
+    heavier work. It's the same trade-off already seen in turning — but in milling it takes
+    on an extra dimension, because the edge is constantly entering and leaving the material.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">06</span>
+    <h2>The real protagonist: chip thickness</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Watching a mill at work, it's natural to assume depth of cut is the main parameter. It
+    isn't always. To really understand what's happening, you have to look at the chip.
+  </p>
+  <p class="narrative">
+    Every insert removes a small amount of material. Insert geometry, cutter diameter,
+    number of teeth, rotational speed, and — above all — <strong>feed per tooth</strong>
+    determine how thick that chip actually is. This is one of the fundamental quantities in
+    milling.
+  </p>
+  <p class="pull-question">Too thin, and part of the energy goes into rubbing instead of efficient cutting. Too thick, and the edge takes on excessive load. The ideal is cutting exactly the way the edge was designed to.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">07</span>
+    <h2>The chipbreaker: a geometry that decides the chip's fate</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    On the surface of an insert you'll often see grooves, steps, and depressions that look
+    almost decorative. They aren't. That's the <strong>chipbreaker</strong>, and its job is
+    to control chip formation and push it toward a more manageable shape.
+  </p>
+  <p class="narrative">
+    A good chipbreaker has to work in harmony with material, depth of cut, feed, cutting
+    speed, and the type of operation. A chipbreaker designed for aluminium can look
+    completely different from one designed for cast iron or stainless steel.
+  </p>
+  <p class="pull-question">Copying one insert's geometry onto a different material can produce surprising results — usually not the good kind.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">08</span>
+    <h2>Nose radius: small detail, big effect</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    In milling too, the edge radius matters enormously. A larger radius can increase edge
+    strength and contribute to surface quality under the right conditions. A smaller radius
+    can give more freedom when machining fine detail and tight geometries.
+  </p>
+  <p class="narrative">
+    Watch out for one common misconception, though: a large radius doesn't automatically
+    mean a better finish. The final surface depends on the whole system — insert geometry,
+    cutter pitch, feed per tooth, radial depth, lead angle, and machine condition.
+  </p>
+  <p class="pull-question">A milling cutter is an orchestra. The nose radius is only one instrument in it.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">09</span>
+    <h2>The number of teeth changes everything</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Another apparently minor choice: how many inserts are mounted on the cutter. More teeth
+    means potentially more edges cutting within the same time window — which can boost
+    productivity, but also demands more from the machine and changes how feed needs to be
+    managed.
+  </p>
+  <p class="narrative">
+    Fewer teeth leaves more space between one edge and the next — valuable when you need to
+    clear large volumes of chip, especially in high-removal-rate operations. This is where
+    one important relationship comes from:
+  </p>
+  <p class="pull-question">number of teeth × feed per tooth = table feed rate.</p>
+  <p class="narrative">
+    Changing the number of inserts without recalculating the parameters can completely
+    change the outcome of the job.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">10</span>
+    <h2>And then there's the material</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    A milling insert isn't simply "made of carbide." Substrate, grade, coating, and
+    geometry are all chosen around the material being cut.
+  </p>
+
+  <div class="stbl-wrap">
+    <table class="stbl">
+      <thead>
+        <tr>
+          <th>Material</th>
+          <th>What matters most</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Steels</td>
+          <td>Balance between wear resistance and edge toughness</td>
+        </tr>
+        <tr>
+          <td>Stainless steels</td>
+          <td>Geometry that keeps the cut smooth, avoiding build-up and excessive work-hardening</td>
+        </tr>
+        <tr>
+          <td>Cast iron</td>
+          <td>Hard particles and chip behaviour demand wear and chipping resistance</td>
+        </tr>
+        <tr>
+          <td>Aluminium</td>
+          <td>A very sharp edge and a geometry that resists material adhesion</td>
+        </tr>
+        <tr>
+          <td>Titanium and superalloys</td>
+          <td>A completely different challenge — high temperatures, low thermal conductivity, and heavy edge stress demand dedicated solutions</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="narrative">
+    The same cutter body can behave in a completely different way simply by swapping in
+    inserts built for a different family of materials.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">11</span>
+    <h2>Forces don't all point the same way</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    During milling, the edge has to deal with several force components at once. There's a
+    tangential component, tied mainly to the cutting action. There's a radial component,
+    which tends to push the system sideways. And there are axial components, particularly
+    important depending on the cutter's geometry.
+  </p>
+  <p class="narrative">
+    These forces can deflect the tool, the spindle, the toolholder, and the workpiece — and
+    here's the key point: <strong>a job can be perfectly correct on paper and still produce
+    a terrible surface because the real system just isn't stiff enough.</strong>
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">12</span>
+    <h2>When that annoying vibration shows up</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    The phenomenon even has a name nobody in the shop is fond of: <strong>chatter</strong>
+    — a self-excited vibration that can appear when the cutting system enters a dynamically
+    unstable condition. The result is immediately visible: the surface takes on a wavy
+    texture, noise increases, and insert wear accelerates.
+  </p>
+  <p class="narrative">
+    The instinctive reaction is to slow everything down. But the fix isn't always "go
+    slower." Sometimes what needs to change is spindle speed, feed, radial depth, cutter
+    pitch, number of teeth, or insert geometry.
+  </p>
+  <p class="pull-question">This is where milling stops being a simple mechanical operation and starts feeling like a game of chess.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">13</span>
+    <h2>Climb or conventional milling?</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    There's one more fundamental detail: the direction of feed relative to cutter rotation.
+    In <strong>climb milling</strong>, the chip tends to start thick and thin out toward
+    the exit. In <strong>conventional milling</strong>, the behaviour is reversed. This
+    changes forces, friction, surface quality, and how the machine behaves.
+  </p>
+  <p class="narrative">
+    On modern CNC machines, climb milling is often preferred when the machine and the setup
+    allow it — but the right choice always depends on kinematics, the machine, the
+    workholding, and the specific job.
+  </p>
+  <p class="pull-question">Knowing "which way the cutter spins" isn't enough. You need to know how the edge actually meets the material.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">14</span>
+    <h2>The small insert that saves a big cutter</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    One of the smartest things about indexable inserts is that the cutter body itself gets
+    reused. When an edge wears out, the whole tool doesn't necessarily need replacing — the
+    insert gets swapped or indexed to a fresh edge.
+  </p>
+  <p class="narrative">
+    This points to a fundamental idea in industrial milling: <strong>the tool isn't just
+    the cutter.</strong> It's the whole system — body + inserts + toolholder + spindle +
+    machine + workpiece. Changing any single one of those elements can radically change the
+    result.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">15</span>
+    <h2>Choosing an insert is choosing a trade-off</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <ul class="checklist">
+    <li>Need to remove a lot of material? You'll want robustness, chip evacuation, and stability.</li>
+    <li>Need a very precise surface? You'll want geometry, pitch, and radius matched to the finish.</li>
+    <li>Need to reach into a cavity? Accessibility becomes the priority.</li>
+    <li>Working on a low-rigidity machine? A geometry that limits cutting forces might matter more than anything else.</li>
+    <li>Machining a superalloy? The priority shifts again.</li>
+  </ul>
+  <p class="narrative">
+    And that's exactly what makes milling inserts so interesting.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">16</span>
+    <h2>In the end</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    A milling insert is small, but it works under extremely violent conditions. It enters
+    the metal, deforms it, generates heat, forms a chip, absorbs variable forces, and exits
+    the part only to start all over again immediately after — hundreds of times a minute,
+    for every single edge.
+  </p>
+  <p class="narrative">
+    That's why the shape of the insert is never a cosmetic detail. It's an engineering
+    decision.
+  </p>
+  <p class="narrative">
+    The <strong>shape</strong> decides how it enters the material. The <strong>angle</strong>
+    decides how it distributes forces. The <strong>radius</strong> shapes robustness and
+    surface. The <strong>chipbreaker</strong> controls the chip. The <strong>grade</strong>
+    determines how long the edge survives. The <strong>cutting parameters</strong> decide
+    whether all of it actually works.
+  </p>
+  <p class="narrative">
+    In the end, a mill that looks like nothing more than a steel disc with a few small
+    plates bolted on is hiding something far more interesting.
+  </p>
+  <p class="pull-question">Every time an insert enters the workpiece, machine, material, and geometry are negotiating which of the three comes out on top. The chip falling off the machine is the result of that negotiation.</p>
+
+  <hr class="section-divider">
+  <div class="footer-row">
+    <span class="fr-label"></span>
+    <a href="rooms/tool-library.html">← Tool Library</a>
+  </div>
+
+</div><!-- /page -->
+
+<!-- ── Language switch (ES / IT via Google Website Translator) ── -->
+<div id="google_translate_element"></div>
+<script>
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'es,it', autoDisplay: false }, 'google_translate_element');
+    }
+    const LANG_FLAGS = { en: '🇬🇧', es: '🇪🇸', it: '🇮🇹' };
+    function toggleLangMenu(e) {
+        e.stopPropagation();
+        document.getElementById('lang-switch').classList.toggle('open');
+    }
+    document.addEventListener('click', (e) => {
+        const ls = document.getElementById('lang-switch');
+        if (ls && !ls.contains(e.target)) ls.classList.remove('open');
+    });
+    function setSiteLanguage(lang) {
+        const expr = '/en/' + lang;
+        document.cookie = 'googtrans=' + expr + '; path=/';
+        document.cookie = 'googtrans=' + expr + '; path=/; domain=' + location.hostname;
+        localStorage.setItem('migue100_lang', lang);
+        location.reload();
+    }
+    function applyGlossary() {
+        const lang = localStorage.getItem('migue100_lang') || 'en';
+        if (lang === 'en') return;
+        document.querySelectorAll('[data-i18n-' + lang + ']').forEach(el => {
+            el.textContent = el.getAttribute('data-i18n-' + lang);
+        });
+    }
+    (function() {
+        const saved = localStorage.getItem('migue100_lang') || 'en';
+        const flagEl = document.getElementById('lang-trigger-flag');
+        if (flagEl) flagEl.textContent = LANG_FLAGS[saved] || LANG_FLAGS.en;
+        document.querySelectorAll('.lang-menu .lang-btn').forEach(btn => {
+            if (btn.dataset.lang === saved) btn.style.display = 'none';
+        });
+        applyGlossary();
+    })();
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>

@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quality Is Everyone's Responsibility · Metrology · migue100.com</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪙</text></svg>">
+<meta name="author" content="Miguel Otero">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --neon-blue: #00d4ff; --smoke-gray: #bebec8;
+    --neon-dim:  #0099cc;
+    --steel-dark:#08090d;
+    --steel-panel:#1a1e28;
+    --chrome:    #8ab4cc;
+    --text-main: #cce8f4;
+    --text-dim:  #5a7a90;
+    --red:       #ff4d4d;
+    --amber:     #ffb347;
+    --green:     #4dff91;
+    --max:       780px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    background-color: var(--steel-dark);
+    background-image:
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,180,255,0.015) 2px, rgba(0,180,255,0.015) 4px),
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,180,255,0.02) 40px, rgba(0,180,255,0.02) 41px),
+      linear-gradient(160deg, #08090d 0%, #101520 30%, #0d1a2a 55%, #101520 80%, #08090d 100%);
+    color: var(--text-main);
+    min-height: 100vh;
+    padding: 80px 20px 80px;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+    padding: 0 2rem; height: 56px;
+    background: rgba(8,9,13,0.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(190, 190, 200, 0.18);
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.12em;
+  }
+  nav a { color: var(--neon-dim); text-decoration: none; transition: color 0.2s; }
+  nav a:hover { color: var(--neon-blue); }
+  nav a.nav-logo {
+    color: #fff;
+    text-shadow: 0 0 4px #fff, 0 0 12px var(--neon-blue), 0 0 28px rgba(0,180,255,0.35);
+    font-size: 1.05rem; letter-spacing: 0.15em;
+  }
+  nav .nav-badge {
+    margin-left: auto;
+    font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(190, 190, 200, 0.28);
+    border-radius: 3px; padding: 3px 10px;
+    color: var(--neon-blue);
+  }
+  .lang-switch { position: relative; margin-left: auto; }
+  .nav-badge + .lang-switch { margin-left: 0; }
+  .lang-trigger {
+    display: flex; align-items: center; gap: 0.32rem;
+    background: rgba(0,212,255,0.04); border: 1px solid rgba(190, 190, 200, 0.22); border-radius: 3px;
+    padding: 0.22rem 0.5rem; font-family: 'Share Tech Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); line-height: 1;
+    cursor: pointer; transition: all 0.25s ease;
+  }
+  .lang-trigger-flag { font-size: 0.95rem; line-height: 1; }
+  .lang-trigger-caret { font-size: 0.6rem; transition: transform 0.25s ease; }
+  .lang-trigger:hover, .lang-switch.open .lang-trigger {
+    border-color: var(--smoke-gray); background: rgba(0,212,255,0.1);
+    box-shadow: 0 0 10px rgba(0,212,255,0.2); color: #fff;
+  }
+  .lang-switch.open .lang-trigger-caret { transform: rotate(180deg); }
+  .lang-menu {
+    position: absolute; top: calc(100% + 8px); right: 0; transform: translateY(-6px);
+    display: flex; flex-direction: column; gap: 0.28rem;
+    background: rgba(8,9,13,0.97); border: 1px solid rgba(190, 190, 200, 0.22); border-radius: 4px;
+    padding: 0.35rem; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; z-index: 950;
+  }
+  .lang-switch.open .lang-menu { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .lang-menu .lang-btn {
+    display: flex; align-items: center; gap: 0.45rem; width: 100%; white-space: nowrap;
+    background: rgba(0,212,255,0.04); border: 1px solid rgba(190, 190, 200, 0.18); border-radius: 3px;
+    padding: 0.3rem 0.6rem; font-family: 'Share Tech Mono', monospace; font-size: 0.72rem;
+    letter-spacing: 0.05em; color: var(--text-dim); cursor: pointer; transition: all 0.2s ease;
+  }
+  .lang-menu .lang-btn:hover { border-color: var(--smoke-gray); background: rgba(0,212,255,0.1); color: #fff; }
+  #google_translate_element, .goog-te-banner-frame, .skiptranslate { display: none !important; }
+  body { top: 0px !important; }
+  html.translated-ltr body, html.translated-rtl body { top: 0 !important; }
+
+  /* ── Layout ── */
+  .page { max-width: var(--max); margin: 0 auto; position: relative; z-index: 2; }
+
+  /* ── Post header ── */
+  .post-header {
+    margin-bottom: 40px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.15);
+  }
+  .module-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62em; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--neon-dim); margin-bottom: 12px;
+  }
+  .module-tag::before { content: '// '; opacity: 0.5; }
+
+  h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(1.5em, 4vw, 2.2em);
+    font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase; line-height: 1.25;
+    color: #fff;
+    text-shadow: 0 0 4px #fff, 0 0 14px var(--neon-blue), 0 0 32px rgba(0,180,255,0.25);
+    margin-bottom: 10px;
+  }
+  h1 .subhead {
+    display: block;
+    font-size: 0.5em; text-transform: none; letter-spacing: 0.01em;
+    color: var(--chrome); text-shadow: none; margin-top: 8px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600;
+  }
+  .subtitle {
+    font-size: 1em; color: var(--chrome);
+    line-height: 1.7; max-width: 640px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Chapter heading ── */
+  .chapter {
+    display: flex; align-items: center; gap: 14px;
+    margin: 36px 0 18px;
+  }
+  .chapter-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6em; letter-spacing: 0.2em; color: var(--text-dim);
+    min-width: 24px;
+  }
+  .chapter h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.15rem; font-weight: 700; letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--neon-blue); white-space: nowrap;
+  }
+  .chapter-line { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,212,255,0.3), transparent); }
+
+  /* ── Narrative text ── */
+  .narrative {
+    font-size: 1.02em; color: var(--chrome);
+    line-height: 1.85; margin-bottom: 18px;
+    letter-spacing: 0.02em;
+  }
+  .narrative strong { color: var(--text-main); font-weight: 600; }
+  .narrative em     { color: var(--text-main); font-style: italic; }
+
+  .pull-question {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.3em; font-weight: 700;
+    color: #fff; letter-spacing: 0.01em;
+    margin: 8px 0 18px;
+    padding-left: 16px;
+    border-left: 3px solid var(--neon-blue);
+  }
+
+  /* ── Checklist ── */
+  .checklist { margin: 0 0 22px; list-style: none; }
+  .checklist li {
+    position: relative;
+    padding: 8px 0 8px 26px;
+    color: var(--chrome);
+    font-size: 0.98em; line-height: 1.6;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.07);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before {
+    content: '?';
+    position: absolute; left: 0; top: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--neon-blue); font-size: 0.85em;
+  }
+
+  /* ── Chain list (numbered flow) ── */
+  .chain-list { margin: 0 0 22px; list-style: none; counter-reset: chain; }
+  .chain-list li {
+    position: relative;
+    padding: 8px 0 8px 30px;
+    color: var(--chrome);
+    font-size: 0.98em; line-height: 1.6;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.07);
+    counter-increment: chain;
+  }
+  .chain-list li:last-child { border-bottom: none; }
+  .chain-list li::before {
+    content: counter(chain);
+    position: absolute; left: 0; top: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--neon-dim); font-size: 0.72em;
+    border: 1px solid rgba(190, 190, 200, 0.3); border-radius: 2px;
+    width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── Focus callout (evidence-style box) ── */
+  .focus-box {
+    background: rgba(18,21,28,0.95);
+    border: 1px solid rgba(190, 190, 200, 0.15);
+    border-radius: 4px; margin-bottom: 22px;
+    overflow: hidden; position: relative;
+  }
+  .focus-box::before {
+    content: '';
+    position: absolute; top: 0; left: 20px; right: 20px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.4), transparent);
+  }
+  .focus-box-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.1);
+    background: rgba(0,212,255,0.03);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6em; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--neon-blue);
+  }
+  .focus-box-body {
+    padding: 16px 18px;
+    font-size: 0.96em; color: var(--chrome);
+    line-height: 1.8;
+  }
+  .focus-box-body strong { color: var(--text-main); font-weight: 600; }
+
+  /* ── Network diagram (roles) ── */
+  .network-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px; margin-bottom: 24px;
+  }
+  .node {
+    background: rgba(26,30,40,0.9);
+    border: 1px solid rgba(190, 190, 200, 0.15);
+    border-radius: 4px; padding: 14px 14px;
+    position: relative;
+  }
+  .node::before {
+    content: '';
+    position: absolute; top: 0; left: 12px; right: 12px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.4), transparent);
+  }
+  .node .nl {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55em; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--neon-dim); margin-bottom: 6px;
+  }
+  .node .nv { font-family: 'Rajdhani', sans-serif; font-size: 0.95em; color: var(--chrome); line-height: 1.5; }
+
+  .accent { color: var(--neon-blue); }
+
+  /* ── Divider & footer ── */
+  .section-divider {
+    border: none;
+    border-top: 1px solid rgba(190, 190, 200, 0.12);
+    margin: 44px 0;
+  }
+  .footer-row {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  }
+  .footer-row .fr-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6em; letter-spacing: 0.1em; color: var(--text-dim);
+  }
+  .footer-row a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62em; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--neon-blue); text-decoration: none;
+    border: 1px solid rgba(190, 190, 200, 0.28); border-radius: 3px;
+    padding: 6px 14px; background: rgba(0,212,255,0.04);
+    transition: all 0.2s ease;
+  }
+  .footer-row a:hover { background: rgba(0,212,255,0.1); color: #fff; border-color: var(--smoke-gray); }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.4em; }
+    nav .nav-badge { display: none; }
+    .lang-trigger-label { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="https://migue100.com">migue100.com</a>
+  <span class="nav-badge">QUALITY SYSTEMS</span>
+  <div class="lang-switch" id="lang-switch">
+    <button class="lang-trigger notranslate" id="lang-trigger" onclick="toggleLangMenu(event)" title="Language">
+      <span class="lang-trigger-flag" id="lang-trigger-flag">🇬🇧</span>
+      <span class="lang-trigger-label">Language</span>
+      <span class="lang-trigger-caret">▾</span>
+    </button>
+    <div class="lang-menu" id="lang-menu">
+      <button class="lang-btn" data-lang="en" onclick="setSiteLanguage('en')" title="English">🇬🇧 English</button>
+      <button class="lang-btn" data-lang="es" onclick="setSiteLanguage('es')" title="Español">🇪🇸 Español</button>
+      <button class="lang-btn" data-lang="it" onclick="setSiteLanguage('it')" title="Italiano">🇮🇹 Italiano</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="post-header">
+    <p class="module-tag">Quality Management · Module Metrology</p>
+    <h1>Quality Is Everyone's Responsibility<span class="subhead">How a Quality System turns responsibility into results</span></h1>
+    <p class="subtitle">
+      Walk into a well-run manufacturing company and it's tempting to think quality belongs
+      to one department — a quality manager, an inspection office, a shelf of procedures.
+      Look closer and you'll find the designer, the buyer, the machine setter, the inspector,
+      and the customer all quietly shaping the same outcome. So who's actually responsible
+      for quality? The answer is simpler than it sounds.
+    </p>
+  </div>
+
+  <div class="chapter">
+    <span class="chapter-num">01</span>
+    <h2>Who actually owns quality?</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Walk into a well-organised manufacturing company and it's easy to assume quality belongs
+    to one department. There's probably a Quality Manager. There's an inspection office with
+    measuring instruments. There are procedures, checklists, manuals, records.
+  </p>
+  <p class="narrative">
+    Now look closer. The person who designs the product shapes quality. The person who buys
+    the material shapes quality. The person who sets up the machine shapes quality. The
+    person who inspects the finished part shapes quality. And the customer — maybe more than
+    anyone — is the one who ultimately tells you whether the result actually met expectations.
+  </p>
+  <p class="pull-question">So who's responsible for quality?</p>
+  <p class="narrative">
+    The answer is surprisingly simple: <strong>quality is everyone's responsibility.</strong>
+    That's one of the foundational ideas behind a Quality Management System (QMS).
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">02</span>
+    <h2>Quality needs a structure</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Quality doesn't happen by accident. A company can have skilled people, modern machines,
+    and sophisticated inspection equipment — and still let responsibility blur if there's no
+    clear structure behind it.
+  </p>
+  <ul class="checklist">
+    <li>Who makes the final decision?</li>
+    <li>Who approves technical information?</li>
+    <li>Who defines the customer's requirements?</li>
+    <li>Who controls purchasing?</li>
+    <li>Who decides whether a product conforms?</li>
+    <li>Who manages nonconformities?</li>
+    <li>Who communicates quality problems to other departments?</li>
+  </ul>
+  <p class="narrative">
+    Without clear answers, an organisation ends up leaning too hard on the experience of a
+    handful of individuals — and the moment the most experienced person isn't around, the
+    whole system gets fragile. A Quality Management System builds a structure where
+    responsibility, authority, and communication are actually defined, not just assumed.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">03</span>
+    <h2>The Quality Manager can't own quality alone</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    One of the most common misunderstandings on a shop floor is the idea that
+    <em>"quality is the quality department's job."</em> It sounds logical. But think about
+    what the quality department can actually control on its own.
+  </p>
+  <ul class="checklist">
+    <li>Can it design the product by itself?</li>
+    <li>Can it choose every supplier?</li>
+    <li>Can it personally run every machine?</li>
+    <li>Can it check every single setup?</li>
+    <li>Can it personally inspect every component?</li>
+    <li>Can it be present at every stage of the process?</li>
+  </ul>
+  <p class="narrative">
+    Clearly not. Quality as a function can coordinate, verify, support, and challenge
+    decisions when it needs to — but quality itself is built by the whole organisation. The
+    Quality Manager's real job is far bigger than owning quality: it's helping the
+    organisation build a system where quality can be delivered consistently.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">04</span>
+    <h2>Leadership: setting the direction</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    At the top of the structure sits leadership. Management sets priorities, assigns
+    responsibility, and decides what resources are needed to hit the organisation's goals.
+    But leadership on quality is more than signing off on a manual. It means sending one
+    clear message: <strong>quality matters, and it's part of how we work.</strong>
+  </p>
+  <p class="narrative">
+    What happens when production is under pressure? Does quality suddenly become
+    negotiable? When a delivery is urgent, does a check get skipped? When a machine keeps
+    producing the same defect, does anyone look for the cause — or does the team just learn
+    to live with it?
+  </p>
+  <p class="pull-question">Leadership shows itself exactly in these moments. A real quality culture often reveals itself not when everything's running smoothly, but when the organisation is under pressure.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">05</span>
+    <h2>Sales starts the quality chain</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Quality often begins before design and production even start. It begins with
+    understanding the customer.
+  </p>
+  <ul class="checklist">
+    <li>What is the customer actually asking for?</li>
+    <li>Which dimensions are critical?</li>
+    <li>What performance is required?</li>
+    <li>Which standards or regulations apply?</li>
+    <li>What delivery conditions are needed?</li>
+    <li>What does "acceptable" actually mean here?</li>
+  </ul>
+  <p class="narrative">
+    A requirement misread at the start can turn into an expensive problem at the end.
+    Picture a customer requesting a precision component. Sales interprets the request one
+    way. Engineering interprets it slightly differently. Production gets incomplete
+    information. Inspection applies yet another interpretation.
+  </p>
+  <p class="pull-question">Everyone can do their job correctly — and the outcome can still be wrong.</p>
+  <p class="narrative">
+    That's why customer requirements have to be turned into information that's clear,
+    controlled, and shared across the organisation.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">06</span>
+    <h2>Engineering turns expectations into specs</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Once the need is understood, design and engineering turn it into something that can
+    actually be manufactured: drawings, specifications, materials, tolerances, performance
+    requirements, test requirements, production constraints.
+  </p>
+  <p class="narrative">
+    This is where customer expectations become technical requirements. Good design doesn't
+    only ask <em>"Can we design this?"</em> It also asks <em>"Can we produce this
+    consistently?"</em> and <em>"Can we verify it meets the requirements?"</em>
+  </p>
+  <p class="narrative">
+    That link between design, production, and inspection is critical. A specification that
+    can't be reliably produced or objectively verified creates problems long before the
+    first nonconforming part ever gets made.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">07</span>
+    <h2>Purchasing is part of quality too</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Now think about material. A production process can be perfectly controlled and still
+    deliver the wrong result if the incoming material doesn't meet requirements.
+    Purchasing is part of quality too — supplier selection, specifications, incoming
+    material requirements, and tracking supplier performance can all shape the final
+    product.
+  </p>
+  <p class="narrative">
+    A purchasing decision based on price alone can generate hidden costs: rework, scrap,
+    delays, extra inspection, production stoppages, customer complaints.
+  </p>
+  <p class="pull-question">The cheapest material isn't necessarily the cheapest solution — the real cost often shows up much later in the process.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">08</span>
+    <h2>Production: where the system meets reality</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Eventually the product reaches the shop floor. This is where documentation, design
+    requirements, material specifications, and process controls turn into real, physical
+    actions. The operator has to turn information into results — and that takes far more
+    than technical skill.
+  </p>
+  <p class="narrative">
+    It takes clear instructions, the right equipment, suitable tools, and a process that's
+    actually under control. A good quality system doesn't just tell the operator
+    <em>"make a good part."</em> It creates the conditions needed to make that part
+    correctly — and to repeat it.
+  </p>
+  <p class="pull-question">One person's effort can produce a good result once. A controlled process produces good results consistently.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">09</span>
+    <h2>Inspection should deliver information, not just rejects</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Quality inspection often gets reduced to "finding the bad parts." Its role can be much
+    wider than that. A good inspection process gives you information about the state of the
+    production process itself. One measurement can tell you a dimension is out of
+    tolerance. A series of measurements can tell you much more.
+  </p>
+  <ul class="checklist">
+    <li>Maybe a tool is wearing down.</li>
+    <li>Maybe the machine is losing stability.</li>
+    <li>Maybe the setup isn't robust enough.</li>
+    <li>Maybe the process needs adjusting.</li>
+  </ul>
+  <p class="narrative">
+    Inspection becomes more valuable the moment the question shifts from
+    <em>"Which parts are defective?"</em> to <em>"What is the process actually telling
+    us?"</em> That's the point where quality control starts turning into process
+    improvement.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">10</span>
+    <h2>Communication is a form of quality control</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    There's one part of a quality system that gets underrated constantly: communication.
+    A quality problem doesn't shrink just because nobody talks about it — quite the
+    opposite.
+  </p>
+  <p class="narrative">
+    Picture an operator noticing an unusual vibration during a job. They say nothing. The
+    next operator notices the same thing. Again, nobody acts. A few hours later, several
+    components come back out of tolerance. Now the company has a production problem — but
+    the real problem started much earlier: <strong>the information never moved.</strong>
+  </p>
+  <p class="narrative">
+    A strong quality culture makes it completely normal to speak up about odd conditions,
+    doubts, and potential problems — and this sits very close to the same
+    <strong>Speak Up</strong> philosophy already covered in the Safety module. Speaking up
+    doesn't just prevent injuries. It can prevent defects too.
+  </p>
+  <p class="pull-question">See something unusual? Say it before it becomes a quality problem.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">11</span>
+    <h2>The customer closes the loop</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    The quality process doesn't end when the product leaves the building. It ends when the
+    organisation actually understands the customer's experience with it.
+  </p>
+  <ul class="checklist">
+    <li>Did the product conform?</li>
+    <li>Was delivery reliable?</li>
+    <li>Did the product perform as expected?</li>
+    <li>Was the documentation complete?</li>
+    <li>Was there a problem?</li>
+    <li>What can we learn from that problem?</li>
+  </ul>
+  <p class="narrative">
+    Customer feedback shouldn't be treated as just a compliment or a complaint. It's a
+    source of information about how well the entire system performed. A complaint can
+    reveal a production problem — but it can just as easily expose a weakness in design,
+    purchasing, documentation, communication, or inspection. The customer only sees the
+    final result. The organisation has to learn how to trace that result back through the
+    whole system.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">12</span>
+    <h2>Quality is a network, not a pyramid</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Traditional org charts are shaped like pyramids. Quality doesn't really work that way.
+    It's more useful to picture it as a network of connected responsibilities:
+  </p>
+
+  <div class="network-grid">
+    <div class="node"><div class="nl">Leadership</div><div class="nv">Sets direction</div></div>
+    <div class="node"><div class="nl">Sales</div><div class="nv">Understands the customer</div></div>
+    <div class="node"><div class="nl">Engineering</div><div class="nv">Defines requirements</div></div>
+    <div class="node"><div class="nl">Purchasing</div><div class="nv">Controls the supply chain</div></div>
+    <div class="node"><div class="nl">Production</div><div class="nv">Controls the making</div></div>
+    <div class="node"><div class="nl">Quality</div><div class="nv">Verifies and supports the system</div></div>
+    <div class="node"><div class="nl">After-sales</div><div class="nv">Feeds learning back in</div></div>
+  </div>
+
+  <p class="narrative">
+    All of these functions talk to each other. Cut one connection and the whole system
+    weakens. That's why a Quality Management System is never just a manual or an org chart
+    — it's a way of connecting people, processes, and decisions.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">13</span>
+    <h2>When quality fails, ask: "Where did the system allow it?"</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Say a customer receives a defective component. The easiest reaction is:
+    <em>"Who made this part?"</em> But that question is too narrow. A fuller investigation
+    should ask:
+  </p>
+  <ul class="checklist">
+    <li>Was the drawing correct?</li>
+    <li>Was the latest revision actually available?</li>
+    <li>Was the material correct?</li>
+    <li>Was the machine set up properly?</li>
+    <li>Was the process under control?</li>
+    <li>Was the inspection method adequate?</li>
+    <li>Was the measuring instrument reliable?</li>
+    <li>Could the problem have been caught earlier?</li>
+    <li>Was the information actually communicated?</li>
+  </ul>
+  <p class="narrative">
+    These questions shift the organisation from hunting for someone to blame toward
+    learning. That doesn't mean individuals carry no responsibility. It means lasting
+    improvement takes more than knowing who made the mistake — it takes understanding why
+    the system let that mistake turn into a problem.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">14</span>
+    <h2>A quality culture starts with personal responsibility</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Maybe the most important shift here is psychological. Instead of saying
+    <em>"quality is their job,"</em> people start asking <em>"what's my role in
+    quality?"</em>
+  </p>
+  <ul class="checklist">
+    <li>The operator checks that the setup is correct.</li>
+    <li>The designer checks that the drawing is clear.</li>
+    <li>Purchasing verifies the supplier's requirements.</li>
+    <li>The inspector questions an unexpected result.</li>
+    <li>The manager makes sure people have what they need to work correctly.</li>
+    <li>The customer receives a product that meets expectations.</li>
+  </ul>
+  <p class="pull-question">Everyone is responsible for a piece of the outcome.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">15</span>
+    <h2>Quality is built before the product even exists</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    By the time a defective product reaches final inspection, an enormous number of
+    decisions have already been made. Quality was shaped when the requirement was
+    interpreted. It was shaped when the design was created. It was shaped when the material
+    was purchased. It was shaped when the process was planned. It was shaped when the
+    machine was set up. It was shaped when the measurement was taken.
+  </p>
+  <p class="narrative">
+    Final inspection simply shows the result of all those earlier decisions. That's why the
+    most mature organisations don't only ask <em>"How do we find defects?"</em> They ask:
+  </p>
+  <p class="pull-question">"How do we design the system so defects are less likely to happen in the first place?"</p>
+
+  <div class="chapter">
+    <span class="chapter-num">16</span>
+    <h2>The real purpose of a Quality Management System</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    A Quality Management System shouldn't be a stack of documents that only exists for
+    audits. Its real purpose is much more practical. It should help the organisation:
+  </p>
+
+  <div class="focus-box">
+    <div class="focus-box-header">Focus On: What a QMS should actually do</div>
+    <div class="focus-box-body">
+      Understand what the customer needs · Define who's responsible · Control how the work
+      gets done · Verify results · Communicate problems · Learn from experience.
+      <br><br>
+      In the end, it should build <strong>trust</strong>: trust that the organisation knows
+      what it's doing, that responsibilities are clear, that processes are under control,
+      that problems don't just get hidden — and above all, that the customer will get what
+      they were promised.
+    </div>
+  </div>
+
+  <div class="chapter">
+    <span class="chapter-num">17</span>
+    <h2>Quality becomes culture when we stop asking "whose job is it?"</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    The strongest quality systems aren't necessarily the ones with the most procedures.
+    They're the ones where people actually understand the link between their own work and
+    the final result. The designer understands the operator's needs. Purchasing understands
+    production's needs. Production understands inspection's role. Inspection understands the
+    customer's expectations. Leadership understands the whole system.
+  </p>
+  <p class="narrative">
+    And everyone understands one core idea:
+  </p>
+  <p class="pull-question">Quality isn't a department. Quality is a shared responsibility.</p>
+  <p class="narrative">
+    That's the moment a Quality Manual stops being just a document. It becomes a way of
+    working — and that's when quality moves off the page and into the reality of the shop
+    floor.
+  </p>
+
+  <hr class="section-divider">
+  <div class="footer-row">
+    <span class="fr-label"></span>
+    <a href="rooms/metrology.html">← Metrology</a>
+  </div>
+
+</div><!-- /page -->
+
+<!-- ── Language switch (ES / IT via Google Website Translator) ── -->
+<div id="google_translate_element"></div>
+<script>
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'es,it', autoDisplay: false }, 'google_translate_element');
+    }
+    const LANG_FLAGS = { en: '🇬🇧', es: '🇪🇸', it: '🇮🇹' };
+    function toggleLangMenu(e) {
+        e.stopPropagation();
+        document.getElementById('lang-switch').classList.toggle('open');
+    }
+    document.addEventListener('click', (e) => {
+        const ls = document.getElementById('lang-switch');
+        if (ls && !ls.contains(e.target)) ls.classList.remove('open');
+    });
+    function setSiteLanguage(lang) {
+        const expr = '/en/' + lang;
+        document.cookie = 'googtrans=' + expr + '; path=/';
+        document.cookie = 'googtrans=' + expr + '; path=/; domain=' + location.hostname;
+        localStorage.setItem('migue100_lang', lang);
+        location.reload();
+    }
+    function applyGlossary() {
+        const lang = localStorage.getItem('migue100_lang') || 'en';
+        if (lang === 'en') return;
+        document.querySelectorAll('[data-i18n-' + lang + ']').forEach(el => {
+            el.textContent = el.getAttribute('data-i18n-' + lang);
+        });
+    }
+    (function() {
+        const saved = localStorage.getItem('migue100_lang') || 'en';
+        const flagEl = document.getElementById('lang-trigger-flag');
+        if (flagEl) flagEl.textContent = LANG_FLAGS[saved] || LANG_FLAGS.en;
+        document.querySelectorAll('.lang-menu .lang-btn').forEach(btn => {
+            if (btn.dataset.lang === saved) btn.style.display = 'none';
+        });
+        applyGlossary();
+    })();
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>

@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>From Raw Bar to Finished Geometry · Turning · migue100.com</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪙</text></svg>">
+<meta name="author" content="Miguel Otero">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --neon-blue: #00d4ff; --smoke-gray: #bebec8;
+    --neon-dim:  #0099cc;
+    --steel-dark:#08090d;
+    --steel-panel:#1a1e28;
+    --chrome:    #8ab4cc;
+    --text-main: #cce8f4;
+    --text-dim:  #5a7a90;
+    --red:       #ff4d4d;
+    --amber:     #ffb347;
+    --green:     #4dff91;
+    --max:       780px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    background-color: var(--steel-dark);
+    background-image:
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,180,255,0.015) 2px, rgba(0,180,255,0.015) 4px),
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,180,255,0.02) 40px, rgba(0,180,255,0.02) 41px),
+      linear-gradient(160deg, #08090d 0%, #101520 30%, #0d1a2a 55%, #101520 80%, #08090d 100%);
+    color: var(--text-main);
+    min-height: 100vh;
+    padding: 80px 20px 80px;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+    padding: 0 2rem; height: 56px;
+    background: rgba(8,9,13,0.92);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(190, 190, 200, 0.18);
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.12em;
+  }
+  nav a { color: var(--neon-dim); text-decoration: none; transition: color 0.2s; }
+  nav a:hover { color: var(--neon-blue); }
+  nav a.nav-logo {
+    color: #fff;
+    text-shadow: 0 0 4px #fff, 0 0 12px var(--neon-blue), 0 0 28px rgba(0,180,255,0.35);
+    font-size: 1.05rem; letter-spacing: 0.15em;
+  }
+  nav .nav-badge {
+    margin-left: auto;
+    font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(190, 190, 200, 0.28);
+    border-radius: 3px; padding: 3px 10px;
+    color: var(--neon-blue);
+  }
+  .lang-switch { position: relative; margin-left: auto; }
+  .nav-badge + .lang-switch { margin-left: 0; }
+  .lang-trigger {
+    display: flex; align-items: center; gap: 0.32rem;
+    background: rgba(0,212,255,0.04); border: 1px solid rgba(190, 190, 200, 0.22); border-radius: 3px;
+    padding: 0.22rem 0.5rem; font-family: 'Share Tech Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); line-height: 1;
+    cursor: pointer; transition: all 0.25s ease;
+  }
+  .lang-trigger-flag { font-size: 0.95rem; line-height: 1; }
+  .lang-trigger-caret { font-size: 0.6rem; transition: transform 0.25s ease; }
+  .lang-trigger:hover, .lang-switch.open .lang-trigger {
+    border-color: var(--smoke-gray); background: rgba(0,212,255,0.1);
+    box-shadow: 0 0 10px rgba(0,212,255,0.2); color: #fff;
+  }
+  .lang-switch.open .lang-trigger-caret { transform: rotate(180deg); }
+  .lang-menu {
+    position: absolute; top: calc(100% + 8px); right: 0; transform: translateY(-6px);
+    display: flex; flex-direction: column; gap: 0.28rem;
+    background: rgba(8,9,13,0.97); border: 1px solid rgba(190, 190, 200, 0.22); border-radius: 4px;
+    padding: 0.35rem; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; z-index: 950;
+  }
+  .lang-switch.open .lang-menu { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .lang-menu .lang-btn {
+    display: flex; align-items: center; gap: 0.45rem; width: 100%; white-space: nowrap;
+    background: rgba(0,212,255,0.04); border: 1px solid rgba(190, 190, 200, 0.18); border-radius: 3px;
+    padding: 0.3rem 0.6rem; font-family: 'Share Tech Mono', monospace; font-size: 0.72rem;
+    letter-spacing: 0.05em; color: var(--text-dim); cursor: pointer; transition: all 0.2s ease;
+  }
+  .lang-menu .lang-btn:hover { border-color: var(--smoke-gray); background: rgba(0,212,255,0.1); color: #fff; }
+  #google_translate_element, .goog-te-banner-frame, .skiptranslate { display: none !important; }
+  body { top: 0px !important; }
+  html.translated-ltr body, html.translated-rtl body { top: 0 !important; }
+
+  /* ── Layout ── */
+  .page { max-width: var(--max); margin: 0 auto; position: relative; z-index: 2; }
+
+  /* ── Post header ── */
+  .post-header {
+    margin-bottom: 40px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.15);
+  }
+  .module-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62em; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--neon-dim); margin-bottom: 12px;
+  }
+  .module-tag::before { content: '// '; opacity: 0.5; }
+
+  h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(1.4em, 4vw, 2.1em);
+    font-weight: 700; letter-spacing: 0.03em;
+    text-transform: uppercase; line-height: 1.25;
+    color: #fff;
+    text-shadow: 0 0 4px #fff, 0 0 14px var(--neon-blue), 0 0 32px rgba(0,180,255,0.25);
+    margin-bottom: 10px;
+  }
+  h1 .subhead {
+    display: block;
+    font-size: 0.5em; text-transform: none; letter-spacing: 0.01em;
+    color: var(--chrome); text-shadow: none; margin-top: 8px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600;
+  }
+  .subtitle {
+    font-size: 1em; color: var(--chrome);
+    line-height: 1.7; max-width: 640px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Chapter heading ── */
+  .chapter {
+    display: flex; align-items: center; gap: 14px;
+    margin: 36px 0 18px;
+  }
+  .chapter-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6em; letter-spacing: 0.2em; color: var(--text-dim);
+    min-width: 24px;
+  }
+  .chapter h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.15rem; font-weight: 700; letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--neon-blue); white-space: nowrap;
+  }
+  .chapter-line { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,212,255,0.3), transparent); }
+
+  /* ── Narrative text ── */
+  .narrative {
+    font-size: 1.02em; color: var(--chrome);
+    line-height: 1.85; margin-bottom: 18px;
+    letter-spacing: 0.02em;
+  }
+  .narrative strong { color: var(--text-main); font-weight: 600; }
+  .narrative em     { color: var(--text-main); font-style: italic; }
+  .narrative code {
+    font-family: 'Share Tech Mono', monospace; font-size: 0.88em;
+    background: rgba(0,212,255,0.05);
+    border: 1px solid rgba(190, 190, 200, 0.15);
+    border-radius: 2px; padding: 1px 6px;
+    color: var(--neon-blue);
+  }
+
+  .pull-question {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.3em; font-weight: 700;
+    color: #fff; letter-spacing: 0.01em;
+    margin: 8px 0 18px;
+    padding-left: 16px;
+    border-left: 3px solid var(--neon-blue);
+  }
+
+  /* ── Checklist ── */
+  .checklist { margin: 0 0 22px; list-style: none; }
+  .checklist li {
+    position: relative;
+    padding: 8px 0 8px 26px;
+    color: var(--chrome);
+    font-size: 0.98em; line-height: 1.6;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.07);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before {
+    content: '?';
+    position: absolute; left: 0; top: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--neon-blue); font-size: 0.85em;
+  }
+
+  /* ── Chain list (numbered flow) ── */
+  .chain-list { margin: 0 0 22px; list-style: none; counter-reset: chain; }
+  .chain-list li {
+    position: relative;
+    padding: 8px 0 8px 30px;
+    color: var(--chrome);
+    font-size: 0.98em; line-height: 1.6;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.07);
+    counter-increment: chain;
+  }
+  .chain-list li:last-child { border-bottom: none; }
+  .chain-list li::before {
+    content: counter(chain);
+    position: absolute; left: 0; top: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--neon-dim); font-size: 0.72em;
+    border: 1px solid rgba(190, 190, 200, 0.3); border-radius: 2px;
+    width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── Focus callout ── */
+  .focus-box {
+    background: rgba(18,21,28,0.95);
+    border: 1px solid rgba(190, 190, 200, 0.15);
+    border-radius: 4px; margin-bottom: 22px;
+    overflow: hidden; position: relative;
+  }
+  .focus-box::before {
+    content: '';
+    position: absolute; top: 0; left: 20px; right: 20px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.4), transparent);
+  }
+  .focus-box-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.1);
+    background: rgba(0,212,255,0.03);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6em; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--neon-blue);
+  }
+  .focus-box-body {
+    padding: 16px 18px;
+    font-size: 0.96em; color: var(--chrome);
+    line-height: 1.8;
+  }
+  .focus-box-body strong { color: var(--text-main); font-weight: 600; }
+
+  /* ── Stat grid ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px; margin-bottom: 24px;
+  }
+  .stat {
+    background: rgba(26,30,40,0.9);
+    border: 1px solid rgba(190, 190, 200, 0.15);
+    border-radius: 4px; padding: 18px 16px;
+    position: relative;
+  }
+  .stat::before {
+    content: '';
+    position: absolute; top: 0; left: 14px; right: 14px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.4), transparent);
+  }
+  .stat .sl {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55em; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--neon-dim); margin-bottom: 8px;
+  }
+  .stat .sv { font-family: 'Rajdhani', sans-serif; font-size: 1.2em; font-weight: 700; letter-spacing: 0.02em; color: #fff; }
+  .stat .ss { font-family: 'Share Tech Mono', monospace; font-size: 0.58em; color: var(--text-dim); margin-top: 6px; line-height: 1.4; }
+
+  /* ── Summary table ── */
+  .stbl {
+    width: 100%; border-collapse: collapse;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72em; margin-bottom: 28px;
+  }
+  .stbl-wrap { overflow-x: auto; margin-bottom: 28px; }
+  .stbl-wrap .stbl { margin-bottom: 0; }
+  .stbl th {
+    text-align: left; color: var(--neon-dim); font-weight: 400;
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.15);
+    text-transform: uppercase; letter-spacing: 0.15em; font-size: 0.9em;
+    white-space: nowrap;
+  }
+  .stbl td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.06);
+    color: var(--chrome); line-height: 1.5;
+  }
+  .stbl tr:last-child td { border-bottom: none; }
+  .stbl tr:hover td { background: rgba(0,212,255,0.025); }
+
+  .accent { color: var(--neon-blue); }
+
+  /* ── Divider & footer ── */
+  .section-divider {
+    border: none;
+    border-top: 1px solid rgba(190, 190, 200, 0.12);
+    margin: 44px 0;
+  }
+  .footer-row {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  }
+  .footer-row .fr-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6em; letter-spacing: 0.1em; color: var(--text-dim);
+  }
+  .footer-row a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62em; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--neon-blue); text-decoration: none;
+    border: 1px solid rgba(190, 190, 200, 0.28); border-radius: 3px;
+    padding: 6px 14px; background: rgba(0,212,255,0.04);
+    transition: all 0.2s ease;
+  }
+  .footer-row a:hover { background: rgba(0,212,255,0.1); color: #fff; border-color: var(--smoke-gray); }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.3em; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    nav .nav-badge { display: none; }
+    .lang-trigger-label { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="https://migue100.com">migue100.com</a>
+  <span class="nav-badge">TURNING OPERATIONS</span>
+  <div class="lang-switch" id="lang-switch">
+    <button class="lang-trigger notranslate" id="lang-trigger" onclick="toggleLangMenu(event)" title="Language">
+      <span class="lang-trigger-flag" id="lang-trigger-flag">🇬🇧</span>
+      <span class="lang-trigger-label">Language</span>
+      <span class="lang-trigger-caret">▾</span>
+    </button>
+    <div class="lang-menu" id="lang-menu">
+      <button class="lang-btn" data-lang="en" onclick="setSiteLanguage('en')" title="English">🇬🇧 English</button>
+      <button class="lang-btn" data-lang="es" onclick="setSiteLanguage('es')" title="Español">🇪🇸 Español</button>
+      <button class="lang-btn" data-lang="it" onclick="setSiteLanguage('it')" title="Italiano">🇮🇹 Italiano</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="post-header">
+    <p class="module-tag">Turning Operations · Module Turning</p>
+    <h1>From Raw Bar to Finished Geometry<span class="subhead">Turning, facing, grooving, threading, boring, and profiling — what actually happens when a lathe turns a cylinder into a finished part</span></h1>
+    <p class="subtitle">
+      A block of steel enters the lathe looking unremarkable — a cylindrical bar, a
+      semi-finished blank, a freshly cut billet. Then the spindle starts turning. The tool
+      approaches, and within seconds that raw surface begins to change. Behind every
+      resulting surface sits a specific operation, its own tool, its own geometry, its own
+      strategy.
+    </p>
+  </div>
+
+  <div class="chapter">
+    <span class="chapter-num">01</span>
+    <h2>A cylinder becomes a part</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    A block of steel enters the lathe in a shape that's rarely interesting — a cylindrical
+    bar, a semi-finished blank, a piece just cut to length. Then the chuck starts to rotate.
+  </p>
+  <p class="narrative">
+    The tool approaches slowly and, within seconds, that raw surface starts to transform.
+    Metal peels away as chip, the diameter shrinks, shoulders appear, grooves cut in,
+    threads and profiles take shape.
+  </p>
+  <p class="narrative">
+    The finished result can look almost inevitable. In reality, behind every surface sits a
+    specific operation — its own tool, its own geometry, its own strategy.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">02</span>
+    <h2>Turning: reducing the diameter</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    This is probably the operation most people associate with a lathe. The tool moves
+    longitudinally along the axis of rotation, removing material from the outer surface of
+    the part. The goal might simply be a precise diameter, or preparing the part for the
+    operations that follow.
+  </p>
+  <p class="narrative">
+    External turning covers both <strong>roughing</strong>, when a lot of material needs
+    to come off, and <strong>finishing</strong>, when dimensional precision and surface
+    quality are the priority. The difference isn't just how much material gets removed —
+    tool, depth of cut, feed, and cutting speed all change with it.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">03</span>
+    <h2>Facing: creating a perfectly flat surface</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Before working a part, one of its ends often needs to be made flat first. That's
+    <strong>facing.</strong> The tool moves radially, toward or across the axis of the
+    part, removing material from the face. The result is a surface flat and perpendicular
+    to the axis of rotation.
+  </p>
+  <p class="pull-question">It sounds simple. It's fundamental — a poorly faced surface can compromise the accuracy of every operation that follows, especially when that surface becomes a geometric reference.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">04</span>
+    <h2>Shoulders: when the diameter changes suddenly</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Picture a part made of two cylinders with different diameters. The point where one ends
+    and the other begins is a <strong>shoulder.</strong> To cut one, the lathe has to
+    control both the diameter and the exact axial position of that step precisely.
+  </p>
+  <p class="narrative">
+    Shoulders show up everywhere: shafts, bushings, flanges, pins, mechanical components
+    are full of them. Here the angle at which the tool can reach the area matters too — a
+    bulky geometry can create interference before the cut even starts.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">05</span>
+    <h2>Grooving: carving a small trench into the part</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Grooves are narrow, precise cuts made into the surface of the part. They can house
+    retaining rings, seals, snap rings, or other mechanical elements. The operation usually
+    needs a much narrower tool than general turning — and that's exactly where things get
+    delicate.
+  </p>
+  <p class="pull-question">A thin tool has less material behind the edge, which makes it more sensitive to vibration, deflection, and breakage. Rigidity and chip control become especially important here.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">06</span>
+    <h2>Parting-off: separating the part from the bar</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    At the end of a job, the finished component often needs to be separated from the bar
+    stock. That's <strong>parting-off.</strong> The tool penetrates radially into the part
+    all the way to the axis, and at that point the machined piece breaks free.
+  </p>
+  <p class="narrative">
+    It sounds like a simple "cut." In reality, the chip has to evacuate from a groove that
+    gets deeper and deeper while the available space keeps shrinking — which is exactly why
+    edge geometry, rigidity, and cutting parameters matter so much in this operation.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">07</span>
+    <h2>Threading: motion has to be synchronised</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Threading is one of the most fascinating things a lathe does. Here the tool can't just
+    move back and forth — it has to advance in perfect synchronisation with spindle
+    rotation, so the edge always follows the same helical path.
+  </p>
+  <p class="narrative">
+    The result is a thread. Getting it right means controlling pitch, diameter, profile,
+    depth, and feed synchronisation all at once.
+  </p>
+  <p class="pull-question">A tiny error in the relationship between rotation and feed is enough to ruin the entire geometry — which makes threading a perfect example of how a lathe turns rotary motion into an extremely precise 3D shape.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">08</span>
+    <h2>Boring: working the inside of the part</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    So far this has mostly been about outer surfaces. But a lathe can work the inside too —
+    that's <strong>boring.</strong> A tool enters an existing hole and changes its
+    diameter, geometry, or finish.
+  </p>
+  <p class="narrative">
+    This matters most when a bore needs a precise diameter, high concentricity, or a
+    specific surface quality. The difficulty goes up here because the tool works inside a
+    cavity — less space means more risk of deflection and vibration.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">09</span>
+    <h2>Drilling: the hole comes before the precision</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    A lathe can also drill — especially useful when the hole needs to stay concentric with
+    the part's axis. Drilling and boring often play different roles: the drill creates the
+    hole, and boring can later bring it to the required size and quality.
+  </p>
+  <p class="narrative">
+    In industrial production, a finished hole is often the result of several consecutive
+    operations, not one.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">10</span>
+    <h2>Chamfers: small details, real importance</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    A chamfer is an angled surface cut on the edge of a part. It can look like a purely
+    cosmetic detail. In reality it does several jobs at once:
+  </p>
+  <ul class="checklist">
+    <li>Makes assembly easier</li>
+    <li>Removes a sharp edge</li>
+    <li>Reduces the risk of burrs</li>
+    <li>Prepares a surface for another operation</li>
+  </ul>
+  <p class="narrative">
+    In plenty of mechanical components, an apparently insignificant chamfer is what makes
+    the part actually usable.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">11</span>
+    <h2>Profiling: a lathe doesn't only make cylinders</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    When a part needs a more complex shape, <strong>profiling</strong> takes over. The tool
+    follows a controlled path and changes the diameter along the axis, producing cones,
+    fillets, radii, shaped grooves, concave or convex forms, complex profiles.
+  </p>
+  <p class="pull-question">This is where a CNC lathe shows one of its most interesting traits — it stops "just removing material" and starts following a mathematical trajectory, turning a cylindrical bar into a precise three-dimensional shape.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">12</span>
+    <h2>Internal turning and internal grooves</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    The same ideas used on the outside can be applied inside the part: internal diameters,
+    internal shoulders, internal grooves, internal profiles. But the difficulty grows — the
+    tool is often longer and less rigid, the working zone is hard to see, and the chip has
+    to find its way out of a cavity.
+  </p>
+  <p class="narrative">
+    That's one reason toolholder geometry becomes so important for internal work.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">13</span>
+    <h2>Knurling: when the lathe stops "cutting"</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Knurling is a special case. The goal here isn't mainly to remove material as chip — a
+    special tool presses a pattern into the surface of the part instead. The result is a
+    rough, regular texture that improves grip.
+  </p>
+  <p class="narrative">
+    It shows up on knobs, handles, mechanical instruments, and components meant to be held
+    by hand — a good example of how a lathe can be used not just to remove material, but to
+    reshape a surface.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">14</span>
+    <h2>One part, many operations</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    The most interesting thing is that these operations rarely happen in isolation. Picture
+    a simple mechanical shaft. The sequence might look like:
+  </p>
+  <ul class="chain-list">
+    <li>Facing</li>
+    <li>External turning</li>
+    <li>Shoulder</li>
+    <li>Groove</li>
+    <li>Threading</li>
+    <li>Chamfer</li>
+    <li>Parting-off</li>
+  </ul>
+  <p class="narrative">
+    A single component can pass through several stages before it takes its final shape —
+    and every stage changes not just the geometry, but how the part gets held and
+    referenced in the next one.
+  </p>
+  <p class="pull-question">Turning a part is a sequence. Not a random string of cuts.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">15</span>
+    <h2>The three parameters that decide how the cut behaves</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Behind almost every one of these operations sit three fundamental quantities.
+  </p>
+
+  <div class="stat-grid">
+    <div class="stat">
+      <div class="sl">Vc</div>
+      <div class="sv accent">Cutting speed</div>
+      <div class="ss">Too low hurts productivity; too high accelerates wear or hurts stability</div>
+    </div>
+    <div class="stat">
+      <div class="sl">f</div>
+      <div class="sv accent">Feed</div>
+      <div class="ss">Material removed per revolution; shapes surface quality</div>
+    </div>
+    <div class="stat">
+      <div class="sl">ap</div>
+      <div class="sv accent">Depth of cut</div>
+      <div class="ss">Large for roughing, small for finishing</div>
+    </div>
+  </div>
+
+  <p class="narrative">
+    These three parameters can't be chosen independently. They have to be compatible with
+    the material, the insert, the machine, its rigidity, the part's diameter, and the type
+    of operation.
+  </p>
+
+  <div class="chapter">
+    <span class="chapter-num">16</span>
+    <h2>The chip tells you what's happening</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    There's a surprisingly effective way to tell if a cut is going well: look at the chip.
+    Its shape, colour, thickness, and how it breaks all carry useful information.
+  </p>
+  <p class="narrative">
+    A well-controlled chip usually means geometry and parameters are reasonably well
+    matched. A long, uncontrolled chip can turn into both a safety and a productivity
+    problem. And a sudden shift in colour or shape can signal rising temperatures or a
+    change in cutting conditions.
+  </p>
+  <p class="pull-question">In a sense, the chip is the message the part sends back to the machinist.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">17</span>
+    <h2>Precision, but also balance</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    Knowing which operation to run isn't enough — the rigidity of the whole system matters
+    too: machine, spindle, toolholder, tool, and workpiece.
+  </p>
+  <ul class="checklist">
+    <li>A long, thin part can vibrate.</li>
+    <li>A boring bar that's too long can deflect.</li>
+    <li>Insufficient clamping can ruin the surface.</li>
+    <li>The wrong insert geometry can generate excessive forces.</li>
+  </ul>
+  <p class="pull-question">Two lathes running the same theoretical parameters can still produce different results — real mechanics is never just a formula.</p>
+
+  <div class="chapter">
+    <span class="chapter-num">18</span>
+    <h2>From raw stock to finished component</h2>
+    <div class="chapter-line"></div>
+  </div>
+
+  <p class="narrative">
+    The real strength of a lathe is in combining all of these operations. A cylindrical bar
+    can become, step by step, a shaft, a pin, a bushing, a fitting, a threaded component, or
+    a complex part destined for an industrial machine.
+  </p>
+  <p class="narrative">
+    Every pass adds a detail. Every tool has a job. Every chip represents a small amount of
+    material disappearing to make room for the final geometry.
+  </p>
+  <p class="narrative">
+    And in the end, looking at the finished part, it's easy to forget how much work sits
+    behind a perfectly cylindrical surface or a thread that looks almost unremarkable.
+  </p>
+  <p class="pull-question">A lathe does something that only looks simple: it takes raw material and turns it into geometry. And in mechanics, geometry means function.</p>
+
+  <hr class="section-divider">
+  <div class="footer-row">
+    <span class="fr-label"></span>
+    <a href="rooms/turning.html">← Turning</a>
+  </div>
+
+</div><!-- /page -->
+
+<!-- ── Language switch (ES / IT via Google Website Translator) ── -->
+<div id="google_translate_element"></div>
+<script>
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: 'es,it', autoDisplay: false }, 'google_translate_element');
+    }
+    const LANG_FLAGS = { en: '🇬🇧', es: '🇪🇸', it: '🇮🇹' };
+    function toggleLangMenu(e) {
+        e.stopPropagation();
+        document.getElementById('lang-switch').classList.toggle('open');
+    }
+    document.addEventListener('click', (e) => {
+        const ls = document.getElementById('lang-switch');
+        if (ls && !ls.contains(e.target)) ls.classList.remove('open');
+    });
+    function setSiteLanguage(lang) {
+        const expr = '/en/' + lang;
+        document.cookie = 'googtrans=' + expr + '; path=/';
+        document.cookie = 'googtrans=' + expr + '; path=/; domain=' + location.hostname;
+        localStorage.setItem('migue100_lang', lang);
+        location.reload();
+    }
+    function applyGlossary() {
+        const lang = localStorage.getItem('migue100_lang') || 'en';
+        if (lang === 'en') return;
+        document.querySelectorAll('[data-i18n-' + lang + ']').forEach(el => {
+            el.textContent = el.getAttribute('data-i18n-' + lang);
+        });
+    }
+    (function() {
+        const saved = localStorage.getItem('migue100_lang') || 'en';
+        const flagEl = document.getElementById('lang-trigger-flag');
+        if (flagEl) flagEl.textContent = LANG_FLAGS[saved] || LANG_FLAGS.en;
+        document.querySelectorAll('.lang-menu .lang-btn').forEach(btn => {
+            if (btn.dataset.lang === saved) btn.style.display = 'none';
+        });
+        applyGlossary();
+    })();
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>
