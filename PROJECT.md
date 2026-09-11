@@ -10,15 +10,20 @@
 
 ```
 migue100/
-├── index.html           ← Homepage + auth sidebar
-├── rooms/               ← Blog pages, one per module
-│   ├── turning.html         MODULE 01
-│   ├── milling.html         MODULE 02
-│   ├── tool-library.html    MODULE 03
-│   ├── cnc-compiler.html    MODULE 04
-│   ├── metrology.html       MODULE 05
-│   └── tech-assistant.html  MODULE 06
-├── backend/             ← Flask + Supabase API
+├── index.html                                    ← Homepage + auth sidebar
+├── rooms/                                        ← One page per module (index page for that topic)
+│   ├── turning.html            MODULE 01
+│   ├── milling.html            MODULE 02
+│   ├── tool-library.html       MODULE 03
+│   ├── safety.html             MODULE 04   (card id is legacy "card-cnc")
+│   ├── metrology.html          MODULE 05
+│   ├── tech-assistant.html     MODULE 06   ("Human-Machine Loop" — AI essays)
+│   ├── sheet-metal.html        MODULE 07
+│   ├── welding.html            MODULE 08
+│   ├── machinery.html          MODULE 09
+│   └── cnc-compiler.html       legacy — not linked from index.html anymore
+├── <module>-<slug>.html                          ← Standalone article pages, one per published post (see below)
+├── backend/                                      ← Flask + Supabase API
 │   ├── app.py
 │   ├── requirements.txt
 │   └── Procfile
@@ -62,23 +67,62 @@ Fonts: **Share Tech Mono** (mono / headings) + **Rajdhani** (body) — Google Fo
 
 **Module cards → rooms**
 
-| Card ID | Page | Module |
-|---|---|---|
-| `card-turning` | `rooms/turning.html` | 01 — Turning |
-| `card-milling` | `rooms/milling.html` | 02 — Milling |
-| `card-tool-library` | `rooms/tool-library.html` | 03 — Tool Library |
-| `card-cnc-compiler` | `rooms/cnc-compiler.html` | 04 — CNC Compiler |
-| `card-metrology` | `rooms/metrology.html` | 05 — Metrology |
-| `card-tech-assistant` | `rooms/tech-assistant.html` | 06 — Tech Assistant |
+Each card also has a CSS rule `#<card-id> { background-image: linear-gradient(...), url('.../images/card-<name>.png') }` (+ a `:hover` variant with a lighter gradient, same image) for its hero background in the grid.
+
+| Card ID | Page | Module | Contributions key (`MODULE` const) |
+|---|---|---|---|
+| `card-turning` | `rooms/turning.html` | 01 — Turning | `turning` |
+| `card-milling` | `rooms/milling.html` | 02 — Milling | `milling` |
+| `card-tools` | `rooms/tool-library.html` | 03 — Tool Library | `tool-library` |
+| `card-cnc` | `rooms/safety.html` | 04 — Safety (id kept for legacy reasons) | `safety` |
+| `card-metro` | `rooms/metrology.html` | 05 — Metrology | `metrology` |
+| `card-ai` | `rooms/tech-assistant.html` | 06 — Human-Machine Loop (AI essays) | `tech-assistant` |
+| `card-sheet-metal` | `rooms/sheet-metal.html` | 07 — Sheet Metal | `sheet-metal` |
+| `card-welding` | `rooms/welding.html` | 08 — Welding | `welding` |
+| `card-machinery` | `rooms/machinery.html` | 09 — Machinery | `machinery` |
+
+`rooms/cnc-compiler.html` still exists on disk (its own `MODULE = 'cnc-compiler'`) but has no card in `index.html` anymore — treat it as legacy unless it gets relinked.
 
 ### rooms/ pages
 
-All rooms share the same structure:
-- Fixed nav: logo → `../index.html`, `← Home` button → `../index.html`
-- `.room-header` → tag, title, subtitle
-- `.blog-section` blocks → `.section-label`, `.section-heading`, `.blog-text`
-- `.data-grid` / `.data-cell` for specs
-- `.formula-block` or `.code-block` for technical content
+Every room in the table above (01–09) shares the same structure:
+- Fixed nav: logo → `../index.html`, language switch, `← Home` button → `../index.html`
+- `.room-header` → `.room-tag` (`MODULE 0N`), `.room-title`, `.room-intro` (module 06 currently only has the tag — no title/intro yet)
+- `.posts-section` → `.posts-grid` of `.post-card` links, one per published article:
+  ```html
+  <a class="post-card" href="../<module>-<slug>.html">
+    <div class="post-card-img">
+      <img src="<image-url>" alt="..." loading="lazy">
+      <!-- or, before an image URL is supplied: -->
+      <div class="img-placeholder">IMAGE PENDING</div>
+    </div>
+    <div class="post-card-body">
+      <h3 class="post-card-title">…</h3>
+      <p class="post-card-desc">…</p>
+      <div class="post-card-footer"><span class="post-card-date">…</span><span class="post-card-read">→ READ</span></div>
+    </div>
+  </a>
+  ```
+- `.contributions-section` → community links/PDFs/books, fetched from the backend `/contributions/<MODULE>` endpoint (see below), filtered client-side by type
+- `cnc-compiler.html` (legacy, unlinked) and `tech-assistant.html` before its module‑06 cleanup are the only pages that used the older dynamic pattern: `.blog-section` / `.data-grid` / `.formula-block` fed by `renderArticle()` off the Supabase `/articles` endpoint. Every currently linked room uses the static `post-card` pattern above instead — **published articles are static HTML files, not rows fetched from Supabase**, despite the `/articles` API existing in the backend (only `admin.html` and `cnc-compiler.html` still call it).
+
+### Standalone article pages (`<module>-<slug>.html`)
+
+One flat HTML file per published article, at the project root (not inside `rooms/`), named `<module>-<slug-of-title>.html` (e.g. `sheet-metal-punches-and-dies.html`). All of them share one template:
+
+- `nav .nav-badge` — short topic tag (e.g. `DIE TOOLING`, `ARC WELDING`)
+- `.post-header` → `.module-tag` (`<Topic> · Module <Room Title>`), `h1` (+ optional `.subhead`), `.subtitle`
+- Body built from repeatable blocks: `.chapter` (numbered heading + decorative line), `.narrative` paragraphs, `.pull-question` callouts, occasionally `.checklist` / `.stat-grid` ("in numbers") / `.focus-box` ("// Did You Know?")
+- `.footer-row` → link back to `rooms/<module>.html`
+- Same Google Translate (ES/IT) footer script as the rooms
+
+**Mobile fix (Sep 2026):** `.chapter h2` used `white-space: nowrap`, which overflowed the viewport horizontally on long chapter titles at narrow widths (text ran past the page margin instead of wrapping). Fixed across all 17 article pages by adding, inside each file's `@media (max-width: 600px)` block:
+```css
+.chapter { flex-wrap: wrap; }
+.chapter h2 { white-space: normal; flex: 1 1 auto; min-width: 0; }
+.chapter-line { flex: 1 1 100%; margin-top: 6px; }
+```
+Apply the same three rules to any new article page copied from this template.
 
 ### SEO & Favicon
 - Favicon: 🪙 via SVG data URI

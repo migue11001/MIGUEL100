@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Safety — migue100.com</title>
+    <title>Sheet Metal — migue100.com</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon-192.png" sizes="192x192" type="image/png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -21,7 +21,7 @@
             --text-main: #cce8f4;
             --text-dim:  #5a7a90;
         }
-        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
         body {
             font-family: 'Rajdhani','Segoe UI',sans-serif;
@@ -187,7 +187,7 @@
 
         /* Card image */
         .post-card-img {
-            width: 100%; aspect-ratio: 16 / 9;
+            width: 100%; height: 200px;
             overflow: hidden;
             background: rgba(0,212,255,0.04);
             border-bottom: 1px solid rgba(190, 190, 200, 0.1);
@@ -262,22 +262,13 @@
             border-color: var(--smoke-gray);
         }
 
-        /* ── Mockup cards ── */
-        .post-card--mockup {
-            opacity: 0.55;
-            cursor: default;
-            pointer-events: none;
-        }
-        .post-card--mockup:hover {
-            transform: none;
-            box-shadow: none;
-            border-color: rgba(190, 190, 200, 0.15);
-        }
-        .post-card-tag--draft {
-            color: var(--text-dim);
-        }
-
         /* ── States ── */
+        .posts-loading {
+            font-family: 'Share Tech Mono',monospace;
+            font-size: 0.68em; color: var(--text-dim);
+            letter-spacing: 0.15em; padding: 32px 0;
+            grid-column: 1 / -1;
+        }
         .posts-empty {
             font-family: 'Share Tech Mono',monospace;
             font-size: 0.72em; color: var(--text-dim);
@@ -436,10 +427,10 @@
     <div class="page-wrapper">
 
         <div class="room-header">
-            <p class="room-tag notranslate" data-i18n-es="MÓDULO 04" data-i18n-it="MODULO 04">MODULE 04</p>
-            <h1 class="room-title notranslate" data-i18n-es="Seguridad" data-i18n-it="Sicurezza">Safety</h1>
+            <p class="room-tag notranslate" data-i18n-es="MÓDULO 07" data-i18n-it="MODULO 07">MODULE 07</p>
+            <h1 class="room-title notranslate" data-i18n-es="Chapa Metálica" data-i18n-it="Lamiera">Sheet Metal</h1>
             <p class="room-intro">
-                <strong>Safety</strong> in a machining environment is not the result of luck — it is the product of systematic hazard identification, engineering controls, administrative procedures, and consistent use of protective equipment. Rotating parts, cutting chips, coolant, noise, and stored energy all demand specific countermeasures. These cases examine where procedures held, where they failed, and what the data shows about how accidents actually happen on the shop floor.
+                <strong>Sheet metal fabrication</strong> turns flat stock into three-dimensional parts through cutting, bending, and forming — without removing a single chip. From laser-cut blanks to press-brake bends and deep-drawn shells, every operation has to respect the material's grain direction, its springback, and the minimum radius it can survive without cracking. These cases examine how flat becomes formed, and what happens when a tolerance meets the physics of bending metal.
             </p>
         </div>
 
@@ -447,29 +438,43 @@
             <p class="section-label">Published Cases</p>
             <div class="posts-grid" id="posts-grid">
 
-                <a class="post-card" href="../safety-mindset-what-could-go-wrong.html">
+                <a class="post-card" href="../sheet-metal-inside-a-progressive-die.html">
                     <div class="post-card-img">
-                        <img src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/SAFETY/art1.png" alt="What Could Go Wrong? — Safety Mindset" loading="lazy">
+                        <img src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/SAFETY/sheet-1.png" alt="The Machine That Bites Sheet Metal One Stroke at a Time" loading="lazy">
                     </div>
                     <div class="post-card-body">
-                        <h3 class="post-card-title">What Could Go Wrong?</h3>
-                        <p class="post-card-desc">It's 8:10 a.m. and nothing looks wrong — a loose sleeve, a forgotten tool, a job done a thousand times before. Real safety doesn't start when something goes wrong. It starts before. The mindset, the three-second interventions, and the courage to speak up.</p>
+                        <h3 class="post-card-title">The Machine That Bites Sheet Metal One Stroke at a Time</h3>
+                        <p class="post-card-desc">Inside a progressive die: eight steel plates, two guide pillars, and a strip that feeds through — the anatomy of a tool you rarely see but that stands behind thousands of everyday objects.</p>
                         <div class="post-card-footer">
-                            <span class="post-card-date">10 Sep 2026</span>
+                            <span class="post-card-date">11 Sep 2026</span>
                             <span class="post-card-read">→ READ</span>
                         </div>
                     </div>
                 </a>
 
-                <a class="post-card" href="../safety-mindset-the-danger-you-dont-see.html">
+                <a class="post-card" href="../sheet-metal-punches-and-dies.html">
                     <div class="post-card-img">
-                        <img src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/SAFETY/art2.png" alt="The Danger You Don't See — Safety Mindset" loading="lazy">
+                        <img src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/SAFETY/sheet-2.png" alt="Punches and Dies: The Duel Fought in Hundredths of a Millimeter" loading="lazy">
                     </div>
                     <div class="post-card-body">
-                        <h3 class="post-card-title">The Danger You Don't See</h3>
-                        <p class="post-card-desc">It's easy to think safety is only about the machine. But sometimes the hazard is on the floor, next to it, or a chuck key still sitting in the chuck when the spindle starts. Housekeeping, workholding, and the small tools that can turn into projectiles.</p>
+                        <h3 class="post-card-title">Punches and Dies: The Duel Fought in Hundredths of a Millimeter</h3>
+                        <p class="post-card-desc">The die's "working" parts — one pushes, the other receives. Between them sits the cutting clearance that decides part quality and tool life, and when they wear out, they get "reloaded" with shims as thin as a hair.</p>
                         <div class="post-card-footer">
-                            <span class="post-card-date">10 Sep 2026</span>
+                            <span class="post-card-date">11 Sep 2026</span>
+                            <span class="post-card-read">→ READ</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a class="post-card" href="../sheet-metal-the-dies-invisible-guardians.html">
+                    <div class="post-card-img">
+                        <img src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/SAFETY/sheet-3.png" alt="The Strip Never Misses: The Die's Invisible Guardians" loading="lazy">
+                    </div>
+                    <div class="post-card-body">
+                        <h3 class="post-card-title">The Strip Never Misses: The Die's Invisible Guardians</h3>
+                        <p class="post-card-desc">Pilots, strip centering guides, stop blocks, and scrap-lifters — the tiny devices nobody names that keep a strip running at 150 strokes a minute from ever drifting out of tolerance.</p>
+                        <div class="post-card-footer">
+                            <span class="post-card-date">11 Sep 2026</span>
                             <span class="post-card-read">→ READ</span>
                         </div>
                     </div>
@@ -528,7 +533,7 @@
 
     <script>
         const BACKEND_URL = 'https://web-production-47911.up.railway.app';
-        const MODULE = 'safety';
+        const MODULE = 'sheet-metal';
 
         function fmtDate(s) {
             try {

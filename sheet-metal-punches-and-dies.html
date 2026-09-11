@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Danger You Don't See · Safety · migue100.com</title>
+<title>Punches and Dies: The Duel Fought in Hundredths of a Millimeter · Sheet Metal · migue100.com</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -134,12 +134,18 @@
 
   h1 {
     font-family: 'Rajdhani', sans-serif;
-    font-size: clamp(1.6em, 4vw, 2.4em);
-    font-weight: 700; letter-spacing: 0.06em;
-    text-transform: uppercase; line-height: 1.2;
+    font-size: clamp(1.4em, 4vw, 2.1em);
+    font-weight: 700; letter-spacing: 0.03em;
+    text-transform: uppercase; line-height: 1.25;
     color: #fff;
     text-shadow: 0 0 4px #fff, 0 0 14px var(--neon-blue), 0 0 32px rgba(0,180,255,0.25);
-    margin-bottom: 14px;
+    margin-bottom: 10px;
+  }
+  h1 .subhead {
+    display: block;
+    font-size: 0.5em; text-transform: none; letter-spacing: 0.01em;
+    color: var(--chrome); text-shadow: none; margin-top: 8px;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600;
   }
   .subtitle {
     font-size: 1em; color: var(--chrome);
@@ -200,7 +206,27 @@
     color: var(--neon-blue); font-size: 0.85em;
   }
 
-  /* ── Focus callout (evidence-style box) ── */
+  /* ── Chain list (numbered flow) ── */
+  .chain-list { margin: 0 0 22px; list-style: none; counter-reset: chain; }
+  .chain-list li {
+    position: relative;
+    padding: 8px 0 8px 30px;
+    color: var(--chrome);
+    font-size: 0.98em; line-height: 1.6;
+    border-bottom: 1px solid rgba(190, 190, 200, 0.07);
+    counter-increment: chain;
+  }
+  .chain-list li:last-child { border-bottom: none; }
+  .chain-list li::before {
+    content: counter(chain);
+    position: absolute; left: 0; top: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--neon-dim); font-size: 0.72em;
+    border: 1px solid rgba(190, 190, 200, 0.3); border-radius: 2px;
+    width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── Focus callout ── */
   .focus-box {
     background: rgba(18,21,28,0.95);
     border: 1px solid rgba(190, 190, 200, 0.15);
@@ -231,7 +257,7 @@
   /* ── Stat grid ── */
   .stat-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 14px; margin-bottom: 24px;
   }
   .stat {
@@ -250,7 +276,7 @@
     font-size: 0.55em; letter-spacing: 0.22em; text-transform: uppercase;
     color: var(--neon-dim); margin-bottom: 8px;
   }
-  .stat .sv { font-family: 'Rajdhani', sans-serif; font-size: 1.2em; font-weight: 700; letter-spacing: 0.03em; color: #fff; }
+  .stat .sv { font-family: 'Rajdhani', sans-serif; font-size: 1.15em; font-weight: 700; letter-spacing: 0.02em; color: #fff; }
   .stat .ss { font-family: 'Share Tech Mono', monospace; font-size: 0.58em; color: var(--text-dim); margin-top: 6px; line-height: 1.4; }
 
   .accent { color: var(--neon-blue); }
@@ -280,7 +306,7 @@
   .footer-row a:hover { background: rgba(0,212,255,0.1); color: #fff; border-color: var(--smoke-gray); }
 
   @media (max-width: 600px) {
-    h1 { font-size: 1.5em; }
+    h1 { font-size: 1.3em; }
     .stat-grid { grid-template-columns: 1fr 1fr; }
     nav .nav-badge { display: none; }
     .lang-trigger-label { display: none; }
@@ -294,7 +320,7 @@
 
 <nav>
   <a class="nav-logo" href="https://migue100.com">migue100.com</a>
-  <span class="nav-badge">SAFETY MINDSET</span>
+  <span class="nav-badge">MATERIALS &amp; PRECISION</span>
   <div class="lang-switch" id="lang-switch">
     <button class="lang-trigger notranslate" id="lang-trigger" onclick="toggleLangMenu(event)" title="Language">
       <span class="lang-trigger-flag" id="lang-trigger-flag">🇬🇧</span>
@@ -312,331 +338,188 @@
 <div class="page">
 
   <div class="post-header">
-    <p class="module-tag">Safety Mindset · Module Safety</p>
-    <h1>The Danger You Don't See</h1>
+    <p class="module-tag">Punch &amp; Die Engineering · Module Sheet Metal</p>
+    <h1>Punches and Dies: The Duel Fought in Hundredths of a Millimeter<span class="subhead">They're the die's "working" parts — one pushes, the other receives. Between them sits a razor-thin gap that decides both part quality and tool life</span></h1>
     <p class="subtitle">
-      It's easy to think safety is only about the machine — the spinning chuck, the cutting
-      tool, the moving table. But sometimes the danger is somewhere else entirely: on the
-      floor, next to the machine, in a chuck key nobody remembered to remove. Small details.
-      Big consequences.
+      A progressive die's plates are its skeleton. Its <strong>punches</strong>
+      and <strong>dies</strong> are its teeth. Between the two sits a space
+      measured in hundredths of a millimeter, and when that space finally wears
+      too wide to hold, the tooling isn't thrown away — it gets "reloaded" with
+      shims as thin as a human hair.
     </p>
   </div>
 
   <div class="chapter">
     <span class="chapter-num">01</span>
-    <h2>Not just the machine</h2>
+    <h2>Punch meets die</h2>
     <div class="chapter-line"></div>
   </div>
 
   <p class="narrative">
-    It's easy to assume safety is all about the machine itself. The spindle that rotates.
-    The tool that cuts. The table that travels. The electrical system. The emergency stop.
+    If the plates are the die's skeleton, the <strong>punch</strong> and the
+    <strong>die</strong> (the female cavity) are its teeth. The punch is the
+    element that comes down and cuts, bends, or coins the sheet metal; the die is
+    the fixed counterpart that receives it. Their relationship comes down to
+    microscopic distances — and a large part of a tool designer's job is deciding
+    exactly how close those two surfaces should sit.
   </p>
-  <p class="narrative">
-    But sometimes the danger is somewhere else. It's on the floor. It's right next to the
-    machine. It's a tool someone forgot to put away. It's a workpiece that wasn't clamped
-    properly. Or it's a chuck key still sitting in place exactly when the machine is about
-    to start.
-  </p>
-  <p class="narrative">
-    These can look like insignificant details. They aren't.
-  </p>
-  <p class="pull-question">Sometimes the line between an ordinary shift and an accident is hiding in something nobody thought was important.</p>
 
   <div class="chapter">
     <span class="chapter-num">02</span>
-    <h2>A clean floor is part of machine safety</h2>
+    <h2>A head for every punch</h2>
     <div class="chapter-line"></div>
   </div>
 
   <p class="narrative">
-    Picture an operator who just finished a drilling job. The machine has stopped. The
-    workpiece has been removed. The operator is already thinking about the next job.
+    A punch has to be anchored to the top plate through the punch plate, and how
+    that's actually done is far from trivial. The most common approach is the
+    <strong>bolted head</strong>: the punch is fixed with one or more screws to a
+    head machined from hardened K720 tool steel, which absorbs the stripping
+    force on the way back up. It's straightforward to build and it shields the
+    backing plate from wear.
   </p>
   <p class="narrative">
-    But scattered around the machine are metal chips on the floor. Nothing seems to be
-    happening. The machine is off. There's no obvious hazard. And yet the risk is still
-    there — it only takes one foot in the wrong spot for those chips to turn into a slip
-    hazard.
+    For off-the-shelf round punches, a <strong>supplementary head</strong> is
+    often used instead — a simple ring whose only job is lifting the punch, and
+    which doesn't even need to be hardened. When a punch is too small to thread,
+    the <strong>brazed head</strong> takes over: the punch is embedded in an iron
+    head with a 0.10 mm radial clearance, filled by the brazing alloy. It's
+    treated as a critical solution, used only when nothing else works.
   </p>
   <p class="narrative">
-    A fall next to a machine can have serious consequences. The operator can lose balance,
-    strike the machine, fall against something else, or — by pure reflex — put a hand
-    exactly where it shouldn't go.
+    There's also the <strong>dowelled punch</strong>, pinned internally or
+    externally, reserved almost exclusively for bending and coining punches; the
+    <strong>collet head</strong>, wire-EDM'd, which grips the punch like a
+    clothespin — convenient, but unreliable on thicker strip; and finally the
+    punch <strong>screwed straight into the top plate</strong>, typical of
+    doweled dies where the punch plate itself carries no clearance at all.
   </p>
-
-  <div class="focus-box">
-    <div class="focus-box-header">Focus On: A hazard doesn't need the machine at all</div>
-    <div class="focus-box-body">
-      A hazard doesn't have to be part of the actual machining to cause an injury. The chips
-      didn't damage the machine. They didn't break the tool. They didn't interfere with the
-      cut. <strong>They simply changed the conditions of the workspace around it.</strong>
-      And that was enough.
-    </div>
-  </div>
 
   <div class="chapter">
     <span class="chapter-num">03</span>
-    <h2>Safety continues beyond the cut</h2>
+    <h2>The secret to long life: shims</h2>
     <div class="chapter-line"></div>
   </div>
 
   <p class="narrative">
-    When we think about a job, we tend to focus on whatever is happening right at the point
-    of cutting. But safety is much wider than that. The floor counts. Where tools are stored
-    counts. Lighting counts. Walkways count. How tidy the workstation is counts.
+    Every time a blanking punch wears, the fix is to regrind it — removing the
+    worn edge. But that shortens the punch, and in a progressive die, every tenth
+    of a millimeter matters. The solution is as simple as it is clever: hardened
+    shims (commonly called <strong>Hasberg shims</strong>), wire-cut to the exact
+    same profile as the punch, get stacked between the head and the punch to make
+    up the difference.
   </p>
   <p class="narrative">
-    A clean, organised space isn't just more pleasant to work in — it's easier to control.
-    Easier to observe. And when something unusual happens, it's easier to notice.
+    A full shim set spans <strong>0.10, 0.20, 0.30, 0.40, 0.50, 1.00, 1.50, and
+    2.00 mm</strong>, and stacking them reaches any dimension in between — to
+    recover 1.70 mm, for instance, a toolmaker stacks 1.00 + 0.50 + 0.20.
   </p>
-  <p class="pull-question">Housekeeping isn't something you do after the "real work" is done. It is part of the work.</p>
+  <p class="pull-question">The full set adds up to 6 mm. Once that's used up, the punch has reached the end of its life and gets replaced.</p>
   <p class="narrative">
-    Order + cleanliness + a clear path = more control over risk.
+    Punches with a supplementary, brazed, or collet head need <em>two</em> full
+    sets — one above the head and one below — swapped between each other at every
+    regrind so the punch's overall length never changes. Dowelled punches can't
+    use shims at the head at all; the only option there is shimming the punch
+    plate itself, which is why that plate is designed in several separate
+    sections specifically to allow it.
   </p>
 
   <div class="chapter">
     <span class="chapter-num">04</span>
-    <h2>The machine is more than a machine</h2>
+    <h2>The angle that saves the edge</h2>
     <div class="chapter-line"></div>
   </div>
 
   <p class="narrative">
-    Now step closer to the machine itself. A machine tool carries an extra layer of risk
-    because it holds moving parts and energy that can be transferred straight into motion.
-    A spindle can rotate. A table can travel. A slide can advance. A workpiece can spin.
-    An automatic feed can engage.
-  </p>
-  <p class="narrative">
-    That changes how you have to think. Working near a machine that's in motion means even
-    a small mistake can turn into consequences very, very quickly. That's why machine safety
-    doesn't start when the machine turns on. It starts before.
+    The hardest-working punch in the die is the blanking punch, because cutting
+    without a burr demands a perfect edge every single stroke. To slow that wear
+    down, the cutting face is angled — the <strong>shear angle</strong> (cutting
+    relief). Instead of striking the sheet with its whole face at once, the punch
+    engages the material progressively as the die descends, spreading a single
+    force spike into many smaller ones.
   </p>
 
   <div class="chapter">
     <span class="chapter-num">05</span>
-    <h2>Before the first rotation</h2>
+    <h2>The die and the clearance that decides everything</h2>
     <div class="chapter-line"></div>
   </div>
 
   <p class="narrative">
-    Picture an operator setting up a workpiece. The machine is still off. It might look like
-    the least dangerous moment of the whole job. In reality, during setup the operator's
-    hands are often closer to the machine than at any other point. The workpiece is being
-    positioned. The tool is being mounted. The clamping system is being adjusted.
+    On the other side of the strip sits the die — almost always an insert housed
+    in the die plate. The parameter that governs everything here is the
+    <strong>cutting clearance</strong>: the gap between the punch profile and the
+    die profile. Too large, and the cut takes little force but leaves a visible
+    burr. Too small, and the burr disappears but the force climbs, wearing out
+    both punch and die sooner. There's no universal formula — every shop keeps
+    its own empirical tables linking clearance to the sheet's material and
+    thickness.
   </p>
   <p class="narrative">
-    That's exactly why, during setup, the machine must stay in the safe state the procedure
-    calls for. The principle is simple:
+    An often underrated ally here is oil: wetting the strip's surface before it
+    enters the die cuts down both burr and cutting force, and extends the life of
+    every cutting edge in the tool.
   </p>
-  <p class="pull-question">When your hands are close to the machine, the motion has to be under control.</p>
   <p class="narrative">
-    An accidental start can trigger machine movement without warning — slides can shift,
-    the workpiece can begin to spin, or the tool can move toward the part. A machine that's
-    perfectly safe standing still can turn dangerous in an instant if it starts moving when
-    no one expects it to. That's why, before mounting or adjusting a workpiece, the first
-    question should always be:
+    The die's internal geometry matters just as much. Below the cutting edge,
+    where the relief angle begins, a <strong>scrap-relief opening</strong> lets
+    the cut slug clear the tool — and the three most common combinations are a
+    cylindrical relief with a cylindrical clearance, a cylindrical relief with a
+    conical clearance, or both conical. Dies get shimmed with Hasberg shims too,
+    with one caveat: the shim profile has to be oversized by roughly
+    <strong>0.35 mm radially</strong> relative to the punch, or the scrap won't
+    drop through cleanly.
   </p>
-  <p class="pull-question">"Is this machine definitely in the safe state this operation requires?"</p>
 
   <div class="chapter">
     <span class="chapter-num">06</span>
-    <h2>Clamp the part. Then secure the job.</h2>
+    <h2>In numbers</h2>
     <div class="chapter-line"></div>
   </div>
-
-  <p class="narrative">
-    Here's another simple detail that can make a huge difference: the workpiece has to be
-    properly clamped. Why? Because machining generates force. The tool pushes against the
-    part. Rotation creates additional forces. Vibration can build up.
-  </p>
-  <p class="narrative">
-    If the workpiece isn't held firmly, it can shift, rotate unexpectedly, or — in some
-    cases — get ejected from the machine entirely. A vise or clamping system isn't only
-    there to hold the part in position for accuracy.
-  </p>
-
-  <div class="focus-box">
-    <div class="focus-box-header">Focus On: Clamping is a safety system</div>
-    <div class="focus-box-body">
-      A properly clamped workpiece means the machine can do exactly what you expect.
-      An improperly clamped workpiece means the machine might suddenly do something
-      <strong>you never expected at all.</strong>
-    </div>
-  </div>
-
-  <div class="chapter">
-    <span class="chapter-num">07</span>
-    <h2>The small tool that can become a projectile</h2>
-    <div class="chapter-line"></div>
-  </div>
-
-  <p class="narrative">
-    Now consider something even smaller: the chuck key. It's a simple tool. It tightens the
-    chuck. But once the tightening is done, it has one very important destination — it needs
-    to be removed and put away.
-  </p>
-  <p class="narrative">
-    Leaving the key in the chuck creates a completely different situation. Picture the
-    machine starting up. The spindle begins to rotate. The key is still in place.
-  </p>
-  <p class="pull-question">That small key can suddenly become a high-speed projectile.</p>
-  <p class="narrative">
-    A tool built to tighten a machine component has turned into a mechanical hazard. This
-    shows one of the core principles of machine safety: tools used during setup must be
-    removed before any motion begins. A chuck key is never part of the machine — it's a
-    temporary tool, and its job ends the moment the tightening is done.
-  </p>
-
-  <div class="chapter">
-    <span class="chapter-num">08</span>
-    <h2>Small details, big consequences</h2>
-    <div class="chapter-line"></div>
-  </div>
-
-  <p class="narrative">
-    This is where a safety mindset becomes more powerful than simply memorising rules.
-  </p>
-  <ul class="checklist" style="margin-bottom:8px;">
-    <li>"Keep the floor clean."</li>
-    <li>"Switch off the machine before setup."</li>
-    <li>"Clamp the workpiece properly."</li>
-    <li>"Remove the chuck key."</li>
-  </ul>
-  <p class="narrative">
-    At first glance these can look like unrelated instructions. They aren't. They're all
-    built on the same idea:
-  </p>
-  <p class="pull-question">Control whatever could happen unexpectedly.</p>
-  <p class="narrative">
-    A clean floor reduces the chance of losing your footing. A machine held at rest prevents
-    unexpected movement. A properly clamped part reduces the risk of sudden shifting.
-    Removing the key stops a small tool from becoming a projectile.
-    Different hazards. <strong>Same underlying principle.</strong>
-  </p>
-
-  <div class="chapter">
-    <span class="chapter-num">09</span>
-    <h2>What could go wrong?</h2>
-    <div class="chapter-line"></div>
-  </div>
-
-  <p class="narrative">
-    Before starting a machine, take a few seconds. Look around. Don't just look at the
-    tool. Don't just look at the workpiece. Look at the whole situation. Ask yourself:
-  </p>
-  <ul class="checklist">
-    <li>Is the floor clear?</li>
-    <li>Is the workpiece properly clamped?</li>
-    <li>Have all the setup tools been removed?</li>
-    <li>Are the guards in place?</li>
-    <li>Could anything move unexpectedly?</li>
-    <li>Where will my hands be if the machine starts?</li>
-    <li>Is there anything unusual about this setup?</li>
-  </ul>
-  <p class="narrative">
-    These questions don't really slow the work down. They create a short pause between
-    preparation and action — and sometimes that pause is exactly what stops an accident
-    from happening.
-  </p>
-
-  <div class="chapter">
-    <span class="chapter-num">10</span>
-    <h2>Tidiness is a safety behaviour</h2>
-    <div class="chapter-line"></div>
-  </div>
-
-  <p class="narrative">
-    It's tempting to treat cleanliness as just an organisational chore. "We'll sweep the
-    floor later." "Someone will put the tools back." "Someone will pick up the chips."
-    But safety works differently. Often the person who creates a hazardous condition is
-    also the person who can eliminate it immediately.
-  </p>
-  <p class="narrative">
-    That's why tidiness isn't only about keeping the shop looking good. It means taking
-    responsibility for the working environment you're creating. Every chip cleared off the
-    floor is one less slip hazard. Every tool put back is one less obstacle. Every clear
-    walkway makes people's movement more predictable.
-  </p>
-  <p class="pull-question">Tidiness is a form of prevention.</p>
-
-  <div class="chapter">
-    <span class="chapter-num">11</span>
-    <h2>Before you press START</h2>
-    <div class="chapter-line"></div>
-  </div>
-
-  <p class="narrative">
-    The most dangerous moment isn't necessarily when the machine is already running.
-    Sometimes it's the second right before it starts — the moment you can still ask
-    yourself: <em>"Is everything ready for this machine to move safely?"</em>
-  </p>
-  <p class="narrative">
-    Once a machine begins to rotate, travel, or feed automatically, the chance to safely
-    correct a situation can shrink very fast. That's why a final check has to become part
-    of the routine.
-  </p>
 
   <div class="stat-grid">
     <div class="stat">
-      <div class="sl">01</div>
-      <div class="sv accent">STOP</div>
-      <div class="ss">Pause before you reach for the start button.</div>
+      <div class="sl">Full shim set</div>
+      <div class="sv accent">0.10–2.00 mm</div>
+      <div class="ss">Eight standard shim thicknesses</div>
     </div>
     <div class="stat">
-      <div class="sl">02</div>
-      <div class="sv accent">LOOK</div>
-      <div class="ss">Scan the floor, the setup, the whole area.</div>
+      <div class="sl">Max regrind</div>
+      <div class="sv accent">6 mm</div>
+      <div class="ss">Beyond this, the punch is replaced</div>
     </div>
     <div class="stat">
-      <div class="sl">03</div>
-      <div class="sv accent">CLAMP</div>
-      <div class="ss">Confirm the workpiece is properly secured.</div>
+      <div class="sl">Brazed head</div>
+      <div class="sv accent">0.10 mm</div>
+      <div class="ss">Radial clearance left for the brazing alloy</div>
     </div>
     <div class="stat">
-      <div class="sl">04</div>
-      <div class="sv accent">CLEAR</div>
-      <div class="ss">Remove every setup tool — chuck key included.</div>
+      <div class="sl">Die shim oversize</div>
+      <div class="sv accent">+0.35 mm</div>
+      <div class="ss">Radial margin so scrap drops freely</div>
     </div>
     <div class="stat">
-      <div class="sl">05</div>
-      <div class="sv accent">START</div>
-      <div class="ss">Only once every step above checks out.</div>
+      <div class="sl">Bolted heads</div>
+      <div class="sv accent">K720</div>
+      <div class="ss">Hardened tool steel</div>
     </div>
   </div>
 
-  <p class="narrative">
-    Not because a rule says so. Because you understand what can happen when something gets
-    overlooked.
-  </p>
-
-  <div class="chapter">
-    <span class="chapter-num">12</span>
-    <h2>Safety hides in the details</h2>
-    <div class="chapter-line"></div>
+  <div class="focus-box">
+    <div class="focus-box-header">// Did You Know?</div>
+    <div class="focus-box-body">
+      Burr and cutting force are two sides of the same coin — you can't drive
+      both to zero at once. The tool designer chooses the trade-off, and the
+      material decides which way to lean: a soft copper strip behaves
+      completely differently from a stainless steel strip of the exact same
+      size.
+    </div>
   </div>
-
-  <p class="narrative">
-    A safe workplace isn't built from sophisticated technology alone. It's built from small
-    behaviours repeated every single day. A clean floor. A properly clamped part. A machine
-    held in its safe state during setup. A tool removed before start-up. A person willing to
-    stop and check.
-  </p>
-  <p class="narrative">
-    These can look like ordinary actions. That's exactly what makes them so important.
-    Safety is built in the ordinary moments of the job. And sometimes the most important
-    question on the shop floor isn't <em>"Is the machine working?"</em>
-  </p>
-  <p class="pull-question">It's: "Did we make the situation safe before we let the machine move?"</p>
-  <p class="narrative">
-    That's the mindset. Not just following a rule — understanding why that rule exists in
-    the first place.
-  </p>
 
   <hr class="section-divider">
   <div class="footer-row">
     <span class="fr-label"></span>
-    <a href="rooms/safety.html">← Safety</a>
+    <a href="rooms/sheet-metal.html">← Sheet Metal</a>
   </div>
 
 </div><!-- /page -->
