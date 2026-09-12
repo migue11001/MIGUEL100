@@ -411,11 +411,7 @@
         /* ── G-CODE Grid ── */
         .gcode-grid {
             max-width: 1200px; margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
         }
-        @media (max-width: 900px) { .gcode-grid { grid-template-columns: 1fr; } }
         @media (max-width: 768px) {
             .drawing-area { min-height: unset; }
             .drawing-area img { width: 100%; height: auto; }
@@ -434,79 +430,23 @@
         .sw-titlebar {
             background: #0c0e16;
             border-bottom: 1px solid #1e2130;
-            padding: 0 10px;
-            height: 32px;
-            display: flex; align-items: center; justify-content: space-between;
+            padding: 6px 10px;
+            display: flex; align-items: flex-start;
             flex-shrink: 0;
         }
         .sw-titlebar-left {
-            display: flex; align-items: center; gap: 10px;
+            display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
         }
         .sw-logo {
             font-family: 'Rajdhani', sans-serif; font-weight: 700;
             font-size: 1.08em; letter-spacing: 0.06em; color: #3a9ad9;
             text-transform: uppercase;
         }
-        .sw-model-name {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.75em;
-            letter-spacing: 0.12em; color: #3a5060; text-transform: uppercase;
-        }
-        .sw-compiler .sw-logo {
-            color: #00ff88;
-            text-shadow: 0 0 8px rgba(0,255,136,0.7), 0 0 18px rgba(0,255,136,0.35);
-        }
-        .sw-compiler .sw-model-name {
-            color: #00ff88;
-            text-shadow: 0 0 6px rgba(0,255,136,0.6);
-        }
-        .sw-compiler .sw-editor {
-            font-size: 1.038em;
-            color: #00ff88;
-            text-shadow: 0 0 6px rgba(0,255,136,0.5);
-            caret-color: #00ff88;
-        }
-        .sw-state {
-            display: flex; align-items: center; gap: 5px;
-            font-family: 'Share Tech Mono', monospace; font-size: 0.5em;
-            letter-spacing: 0.12em;
-        }
-        .sw-led {
-            width: 6px; height: 6px; border-radius: 50%;
-            box-shadow: 0 0 4px currentColor;
-        }
-        .sw-led.ready { background: #00e676; color: #00e676; }
-        .sw-led.run   { background: #ffab40; color: #ffab40; }
-
-        /* Status bar */
-        .sw-statusbar {
-            background: #0a0c14;
-            border-bottom: 1px solid #1a1c26;
-            padding: 0 10px;
-            height: 26px;
-            display: flex; align-items: center; justify-content: space-between;
-            flex-shrink: 0;
-            gap: 16px;
-        }
-        .sw-stat-group {
-            display: flex; align-items: center; gap: 12px;
-        }
-        .sw-stat {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.46em;
-            letter-spacing: 0.1em; color: #3a5268; text-transform: uppercase;
-            white-space: nowrap;
-        }
-        .sw-stat b { color: #5a8a9a; font-weight: normal; }
-        .sw-prog-name {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.48em;
-            letter-spacing: 0.1em; color: #5a90a8; text-transform: uppercase;
-        }
 
         /* Screen area */
         .sw-screen {
             background: var(--sw-bg);
-            flex: 1; overflow: hidden;
             position: relative;
-            min-height: 360px;
         }
         /* CRT vignette */
         .sw-screen::after {
@@ -514,27 +454,103 @@
             background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.45) 100%);
         }
         .sw-code-wrap {
-            position: absolute; inset: 0; overflow-y: auto;
+            /* Height hugs the actual line count; caps at ~300 lines, then scrolls internally */
+            max-height: 8000px; overflow-y: auto;
             padding: 8px 0;
             scrollbar-width: thin;
             scrollbar-color: #1a2030 transparent;
+            /* Read-only display: no text selection / copy for site visitors */
+            user-select: none; -webkit-user-select: none;
+            -moz-user-select: none; -ms-user-select: none;
         }
         .sw-code-wrap::-webkit-scrollbar { width: 4px; }
         .sw-code-wrap::-webkit-scrollbar-thumb { background: #1e2a3a; border-radius: 2px; }
-        .sw-line {
-            display: flex; align-items: baseline;
-            padding: 1px 12px 1px 0;
+        /* 3-column code table: N° / G-CODE / COMMENT */
+        .sw-code-table {
+            width: 100%; border-collapse: collapse;
             font-family: 'Share Tech Mono', monospace;
+        }
+        .sw-code-table thead th {
+            position: sticky; top: 0; z-index: 1;
+            background: #0a0c14; border-bottom: 1px solid #1a2030;
+            text-align: left; padding: 8px 13px;
+            font-size: 0.65em; letter-spacing: 0.12em;
+            color: #3a5268; text-transform: uppercase;
+        }
+        .sw-code-table thead th.sw-ct-comment { text-align: right; }
+        .sw-code-table tbody tr:hover { background: rgba(0,160,220,0.05); }
+        .sw-code-table td {
+            padding: 2px 10px; vertical-align: baseline;
             font-size: 0.864em; line-height: 1.55;
-            white-space: pre;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
         }
-        .sw-line:hover { background: rgba(0,160,220,0.05); }
-        .sw-ln {
-            width: 36px; min-width: 36px; text-align: right;
-            padding-right: 10px; color: #1e3040;
-            font-size: 0.984em; user-select: none; flex-shrink: 0;
+        .sw-ct-n {
+            width: 44px; min-width: 44px; text-align: right;
+            color: #1e3040; user-select: none; white-space: nowrap;
         }
-        .sw-lc { color: var(--sw-text); }
+        /* Line-flag button — click to mark a line as critical; stays highlighted until toggled again */
+        .sw-ct-flag {
+            background: none; border: none; width: 100%;
+            font: inherit; color: inherit; text-align: right;
+            padding: 2px 4px; margin: -2px -4px;
+            cursor: pointer; border-radius: 3px;
+            transition: color 0.15s, text-shadow 0.15s, background 0.15s;
+        }
+        .sw-ct-flag:hover { color: #7ab4c8; background: rgba(0,180,255,0.08); }
+        .sw-ct-row.sw-ct-flagged { background: rgba(255,23,68,0.08); }
+        .sw-ct-row.sw-ct-flagged .sw-ct-flag {
+            color: #ff1744;
+            text-shadow: 0 0 6px rgba(255,23,68,0.85), 0 0 16px rgba(255,23,68,0.4);
+        }
+        .sw-ct-row.sw-ct-flagged .sw-ct-code { color: #ffb3ab; }
+        .sw-ct-row.sw-ct-flagged .sw-ct-ctext,
+        .sw-ct-row.sw-ct-flagged.sw-ct-detail .sw-ct-detail-box { color: #d98a86; }
+        tr.sw-ct-detail.sw-ct-flagged .sw-ct-detail-box {
+            border-left-color: #ff1744;
+            background: rgba(255,23,68,0.08);
+        }
+        .sw-ct-code { color: var(--sw-text); white-space: pre; }
+        .sw-ct-comment {
+            color: var(--sw-comment);
+            font-family: 'Rajdhani', sans-serif; font-size: 0.92em;
+            text-align: right;
+        }
+        /* Mobile-only comment toggle button */
+        .sw-ct-cbtn {
+            display: none;
+            background: rgba(0,180,255,0.08);
+            border: 1px solid rgba(0,212,255,0.45);
+            color: var(--neon-blue);
+            border-radius: 5px;
+            font-size: 0.95em; line-height: 1;
+            padding: 4px 8px; cursor: pointer;
+            box-shadow: 0 0 6px rgba(0,212,255,0.35);
+            transition: box-shadow 0.15s, background 0.15s;
+        }
+        .sw-ct-cbtn:hover, .sw-ct-cbtn:active {
+            background: rgba(0,180,255,0.2);
+            box-shadow: 0 0 12px rgba(0,212,255,0.65);
+        }
+        .sw-ct-detail td { padding: 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        .sw-ct-detail-box {
+            display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+            margin: 4px 8px; padding: 8px 10px;
+            background: rgba(0,180,255,0.06);
+            border-left: 2px solid var(--neon-blue);
+            border-radius: 3px;
+            font-family: 'Rajdhani', sans-serif; font-size: 0.92em;
+            color: var(--sw-text);
+        }
+        .sw-ct-close {
+            background: none; border: none; flex-shrink: 0;
+            color: #ef5350; font-size: 1em; line-height: 1;
+            cursor: pointer; padding: 0 2px;
+        }
+        @media (max-width: 768px) {
+            .sw-ct-ctext { display: none; }
+            .sw-ct-cbtn { display: inline-block; }
+            .sw-ct-comment { width: 40px; text-align: center; }
+        }
         /* G-code syntax classes */
         .gk-n  { color: var(--sw-n); }
         .gk-g  { color: var(--sw-g);   font-weight: bold; }
@@ -546,36 +562,6 @@
         .gk-pct{ color: #3a5060; }
         .gk-lbl{ color: #7e57c2; }
 
-        /* Editor (right window) */
-        .sw-editor {
-            position: absolute; inset: 0;
-            background: var(--sw-bg); color: var(--sw-text);
-            font-family: 'Share Tech Mono', monospace; font-size: 0.864em; line-height: 1.55;
-            border: none; outline: none; resize: none; padding: 10px 12px;
-            caret-color: var(--neon-blue);
-            scrollbar-width: thin; scrollbar-color: #1a2030 transparent;
-        }
-        .sw-editor::-webkit-scrollbar { width: 4px; }
-        .sw-editor::-webkit-scrollbar-thumb { background: #1e2a3a; border-radius: 2px; }
-        .sw-editor::selection { background: rgba(0,180,255,0.18); }
-
-        /* Console output */
-        .sw-console {
-            background: #06080f; border-top: 1px solid #141820;
-            padding: 8px 12px;
-            max-height: 110px; overflow-y: auto;
-            font-family: 'Share Tech Mono', monospace; font-size: 0.62em;
-            line-height: 1.6; color: #3a6040;
-            flex-shrink: 0;
-            scrollbar-width: thin; scrollbar-color: #1a2030 transparent;
-        }
-        .sw-console::-webkit-scrollbar { width: 3px; }
-        .sw-console.ok  .con-msg { color: #00e676; }
-        .sw-console.err .con-msg { color: #ef5350; }
-        .con-line { display: flex; gap: 8px; }
-        .con-pfx  { color: #1e4030; flex-shrink: 0; }
-        .con-msg  { }
-
         /* Softkey bar */
         .sw-softkeys {
             background: #0c0e16; border-top: 1px solid #1a1c28;
@@ -585,17 +571,13 @@
         .sw-sk {
             flex: 1; background: none;
             border: none; border-right: 1px solid #1a1c28;
-            font-family: 'Share Tech Mono', monospace; font-size: 0.46em;
-            letter-spacing: 0.08em; color: #3a5060; cursor: pointer;
-            text-transform: uppercase; transition: background 0.15s, color 0.15s;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9em; cursor: default;
+            transition: background 0.15s;
             padding: 0 4px;
         }
         .sw-sk:last-child { border-right: none; }
-        .sw-sk:hover { background: rgba(0,180,255,0.07); color: #7ab4c8; }
-        .sw-sk.active { background: rgba(0,180,255,0.12); color: var(--neon-blue); }
-        .sw-sk-fn {
-            display: block; font-size: 0.72em; color: #1e3040; margin-bottom: 1px;
-        }
+        .sw-sk:hover { background: rgba(0,180,255,0.07); }
     </style>
 </head>
 <body>
@@ -708,82 +690,29 @@
         </div>
     </div>
 
-    <!-- G-Code Compiler -->
-    <div class="section-label">G-CODE Compiler</div>
+    <!-- G-Code Program -->
+    <div class="section-label">G-CODE Program</div>
     <div class="gcode-grid">
 
-        <!-- Left: Program Viewer -->
+        <!-- Program Viewer (read-only) -->
         <div class="siemens-win">
             <div class="sw-titlebar">
                 <div class="sw-titlebar-left">
-                    <span class="sw-logo">Sinumerik 840D sl</span>
-                    <span class="sw-model-name" id="sw-prog-viewer">A1_MILLING.MPF</span>
+                    <span class="sw-logo" id="sw-logo-title">G-CODE</span>
                 </div>
-                <div class="sw-state">
-                    <span class="sw-led ready"></span>
-                    <span style="font-family:'Share Tech Mono',monospace;font-size:0.5em;letter-spacing:.1em;color:#00e676;">READY</span>
-                </div>
-            </div>
-            <div class="sw-statusbar">
-                <div class="sw-stat-group">
-                    <span class="sw-stat">CH <b>1</b></span>
-                    <span class="sw-stat">MODE <b>AUTO</b></span>
-                    <span class="sw-stat">T <b id="sw-tool-v">1</b></span>
-                    <span class="sw-stat">S <b id="sw-speed-v">2800</b> rpm</span>
-                </div>
-                <span class="sw-prog-name" id="sw-viewer-pname">A1_MILLING.MPF</span>
             </div>
             <div class="sw-screen">
                 <div class="sw-code-wrap" id="viewer-code"></div>
             </div>
             <div class="sw-softkeys">
-                <button class="sw-sk"><span class="sw-sk-fn">F1</span>Select</button>
-                <button class="sw-sk"><span class="sw-sk-fn">F2</span>Open</button>
-                <button class="sw-sk"><span class="sw-sk-fn">F3</span>Mark</button>
-                <button class="sw-sk active" onclick="downloadMPF()"><span class="sw-sk-fn">F4</span>Download</button>
-                <button class="sw-sk"><span class="sw-sk-fn">F5</span>Find</button>
-                <button class="sw-sk"><span class="sw-sk-fn">F6</span>—</button>
-                <button class="sw-sk"><span class="sw-sk-fn">F7</span>—</button>
-                <button class="sw-sk"><span class="sw-sk-fn">F8</span>Close</button>
-            </div>
-        </div>
-
-        <!-- Right: G-Code Editor / Compiler -->
-        <div class="siemens-win sw-compiler">
-            <div class="sw-titlebar">
-                <div class="sw-titlebar-left">
-                    <span class="sw-logo">Sinumerik 840D sl</span>
-                    <span class="sw-model-name">G-CODE COMPILER</span>
-                </div>
-                <div class="sw-state" id="editor-state">
-                    <span class="sw-led ready" id="editor-led"></span>
-                    <span id="editor-state-txt" style="font-family:'Share Tech Mono',monospace;font-size:0.5em;letter-spacing:.1em;color:#00e676;">READY</span>
-                </div>
-            </div>
-            <div class="sw-statusbar">
-                <div class="sw-stat-group">
-                    <span class="sw-stat">CH <b>2</b></span>
-                    <span class="sw-stat">MODE <b>MDA</b></span>
-                    <span class="sw-stat" id="editor-lc">LN <b>1</b></span>
-                    <span class="sw-stat" id="editor-cc">COL <b>1</b></span>
-                </div>
-                <span class="sw-prog-name">MDA_USER.MPF</span>
-            </div>
-            <div class="sw-screen">
-                <textarea class="sw-editor" id="gcode-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
-            </div>
-            <div class="sw-console" id="compile-out">
-                <div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg">System ready. Press COMPILE to validate program.</span></div>
-            </div>
-            <div class="sw-softkeys">
-                <button class="sw-sk" onclick="resetEditor()"><span class="sw-sk-fn">F1</span>Reset</button>
-                <button class="sw-sk" onclick="clearEditor()"><span class="sw-sk-fn">F2</span>Clear</button>
-                <button class="sw-sk" onclick="copyEditor()"><span class="sw-sk-fn">F3</span>Copy</button>
-                <button class="sw-sk active" onclick="compileGcode()"><span class="sw-sk-fn">F4</span>Compile</button>
-                <button class="sw-sk active" onclick="cycleStart()"><span class="sw-sk-fn">F5</span>Cycle Start</button>
-                <button class="sw-sk" onclick="cycleStop()"><span class="sw-sk-fn">F6</span>Cycle Stop</button>
-                <button class="sw-sk"><span class="sw-sk-fn">F7</span>—</button>
-                <button class="sw-sk"><span class="sw-sk-fn">F8</span>Reset NC</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
             </div>
         </div>
 
@@ -932,7 +861,7 @@
 ; A1-PROJECT CAM  //  3-AXIS MILLING
 ; TOOL  : T1 - Ø16 FACE MILL  P35
 ; MATERIAL : 1.4301 STAINLESS STEEL
-; MACHINE  : DMU 50  CTRL: SINUMERIK 840D sl
+; MACHINE  : DMU 50
 ;===========================================
 N10  G17 G54 G90 G94 G21
 N20  T1 D1 M6
@@ -969,24 +898,12 @@ N270 M30
             tag: 'MODEL 02', title: 'A2-PROJECT CAM — TECHNICAL DRAWING',
             id: 'DWG-A2-001', project: 'A2-PROJECT CAM',
             image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D2.png', prog: 'A2_TURNING.MPF', tool: '1', speed: '220',
-            videos: [
-                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/media/video.mp4',
-                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/media/video.mp4',
-                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/media/video.mp4',
-                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/media/video.mp4'
-            ],
-            posters: [
-                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/modelo-unico.png',
-                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/modelo-unico.png',
-                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/modelo-unico.png',
-                'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/modelo-unico.png'
-            ],
             gcode: `%
 ;===========================================
 ; A2-PROJECT CAM  //  CNC TURNING
 ; TOOL  : T1-BORING BAR  T2-CNMG  T3-FINISH
 ; MATERIAL : STEEL
-; MACHINE  : CNC LATHE  CTRL: SINUMERIK 840D sl
+; MACHINE  : CNC LATHE
 ;===========================================
 N10  G18 G95 G90 G54
 ;--- T1 : BORING ---
@@ -1086,7 +1003,7 @@ N740 M30
 ; A3-PROJECT CAM  //  BOLT PATTERN FLANGE
 ; TOOL  : T1-Ø12 DRILL  T2-BORING BAR
 ; MATERIAL : GGG40 CAST IRON  Ø200 x 75
-; MACHINE  : DMC 635V  CTRL: SINUMERIK 840D sl
+; MACHINE  : DMC 635V
 ;===========================================
 N10  G17 G54 G90 G94 G21
 ;--- CENTER BORE Ø60H7 ---
@@ -1120,7 +1037,7 @@ N170 M30
 ; A4-PROJECT CAM  //  GENERAL COMPONENT
 ; TOOL  : T1-Ø10 END MILL  T2-Ø20 BORE
 ; MATERIAL : Al 6061-T6  120 x 80 x 40
-; MACHINE  : HAAS VF2  CTRL: SINUMERIK 840D sl
+; MACHINE  : HAAS VF2
 ;===========================================
 N10  G17 G54 G90 G94 G21
 ;--- RECTANGULAR POCKET 60 x 40 ---
@@ -1159,7 +1076,7 @@ N220 M30
 ; A5-PROJECT CAM  //  PROFILE MILLING
 ; TOOL  : T1-Ø12 END MILL  T2-Ø6 DRILL
 ; MATERIAL : Al 6061-T6
-; MACHINE  : DMU 50  CTRL: SINUMERIK 840D sl
+; MACHINE  : DMU 50
 ;===========================================
 N10  G17 G54 G90 G94 G21
 ;--- EXTERNAL PROFILE ---
@@ -1186,8 +1103,38 @@ N190 M30
         }
     };
 
-    /* ── G-code starter for editor ── */
-    const EDITOR_STARTER = `N10  `;
+    /* ── Shared G-code program (drilling / tapping / chamfering cycle) ──
+       Temporary: same program shown on every drawing until each model
+       gets its own line-by-line commented program. */
+    const SHARED_PROGRAM = [
+        { n: 'N10',  code: 'G90 G17',              comment: 'Program start — absolute programming, XY plane' },
+        { n: 'N20',  code: 'T1 M6',                 comment: 'Tool call: center drill Ø2.5 mm — tool change' },
+        { n: 'N30',  code: 'S1200 M13',             comment: 'Spindle 1200 rpm, CW rotation with coolant ON' },
+        { n: 'N40',  code: 'G0 X50 Y10',            comment: 'Rapid positioning to point P4' },
+        { n: 'N50',  code: 'Z2',                    comment: 'Rapid approach to workpiece at safety height' },
+        { n: 'N60',  code: 'G81 Z-6 F80',           comment: 'Drilling canned cycle — depth -6 mm, feed 80 mm/min' },
+        { n: 'N70',  code: 'Y30',                   comment: 'Rapid move to point P3 — hole executed automatically' },
+        { n: 'N80',  code: 'X10',                   comment: 'Rapid move to point P2 — hole executed automatically' },
+        { n: 'N90',  code: 'Y10',                   comment: 'Rapid move to point P1 — hole executed automatically' },
+        { n: 'N100', code: 'G80 X-50 T2 M6',        comment: 'Cancel canned cycle, tool change: twist drill Ø6.5 mm' },
+        { n: 'N120', code: 'G0 X10 Y10 S950 M13',   comment: 'Position at P1, spindle 950 rpm CW with coolant ON' },
+        { n: 'N130', code: 'Z2',                    comment: 'Rapid approach to workpiece at safety height' },
+        { n: 'N140', code: 'G81 Z-20 F60',          comment: 'Drilling canned cycle — depth -20 mm, feed 60 mm/min' },
+        { n: 'N150', code: 'Y30',                   comment: 'Rapid move to point P2 — hole executed automatically' },
+        { n: 'N160', code: 'X50',                   comment: 'Rapid move to point P3 — hole executed automatically' },
+        { n: 'N170', code: 'Y10',                   comment: 'Rapid move to point P4 — hole executed automatically' },
+        { n: 'N180', code: 'G80 X100 T3 M6',        comment: 'Cancel canned cycle, tool change: M8 tap' },
+        { n: 'N190', code: 'G0 X50 Y30 S200 M13',   comment: 'Position at P3, spindle 200 rpm CW with coolant ON' },
+        { n: 'N200', code: 'Z2',                    comment: 'Rapid approach to workpiece at safety height' },
+        { n: 'N210', code: 'G84 Z-20 F250',         comment: 'Tapping canned cycle — depth -20 mm, feed 250 mm/min' },
+        { n: 'N220', code: 'X10 Y10',                comment: 'Rapid move to point P1 — thread executed automatically' },
+        { n: 'N230', code: 'G80 X-50 T4 M6',        comment: 'Cancel canned cycle, tool change: 90° countersink' },
+        { n: 'N240', code: 'G0 X10 Y10 S400 M13',   comment: 'Position at P1, spindle 400 rpm CW with coolant ON' },
+        { n: 'N250', code: 'Z2',                    comment: 'Rapid approach to workpiece at safety height' },
+        { n: 'N260', code: 'G81 Z-2.5 F80',         comment: 'Chamfering canned cycle — depth -2.5 mm, feed 80 mm/min' },
+        { n: 'N270', code: 'X50 Y30',                comment: 'Rapid move to point P3 — chamfer executed automatically' },
+        { n: 'N280', code: 'G0 X100 Y50 Z30 M30',   comment: 'Move out of work area for part change — spindle stop, program end' }
+    ];
 
     /* ── Init ── */
     const num = parseInt(window.location.hash.replace('#', '')) || 1;
@@ -1195,14 +1142,11 @@ N190 M30
 
     document.title = m.project + ' Drawing — migue100.com';
     document.getElementById('page-tag').textContent     = m.tag;
+    document.getElementById('sw-logo-title').textContent = 'G-CODE: ' + m.tag;
     document.getElementById('panel-title').textContent  = m.title;
     document.getElementById('panel-id').textContent     = m.id;
     document.getElementById('meta-project').textContent = m.project;
     document.getElementById('video-prog-name').textContent = m.prog;
-    document.getElementById('sw-prog-viewer').textContent  = m.prog;
-    document.getElementById('sw-viewer-pname').textContent = m.prog;
-    document.getElementById('sw-tool-v').textContent       = m.tool;
-    document.getElementById('sw-speed-v').textContent      = m.speed;
 
     const drawingArea = document.getElementById('drawing-area');
     drawingArea.querySelectorAll('img').forEach(el => el.remove());
@@ -1408,187 +1352,81 @@ N190 M30
         items.forEach(function(item) { obs.observe(item); });
     }
 
-    /* ── G-code syntax highlighter ── */
-    function highlightGcode(raw) {
-        const lines = raw.split('\n');
-        let html = '';
-        lines.forEach((line, i) => {
-            const ln = i + 1;
-            let hl = escH(line);
-
-            if (/^\s*%/.test(line)) {
-                hl = `<span class="gk-pct">${escH(line)}</span>`;
-            } else if (/^\s*;/.test(line)) {
-                hl = `<span class="gk-cm">${escH(line)}</span>`;
-            } else {
-                hl = hl
-                    .replace(/(;.*)$/, '<span class="gk-cm">$1</span>')
-                    .replace(/\b(CYCLE\d+|HOLES\d+|PROF_\w+|RET)\b/g, '<span class="gk-cy">$1</span>')
-                    .replace(/\b(N\d+)\b/g, '<span class="gk-n">$1</span>')
-                    .replace(/\b(G\d+\.?\d*)/g, '<span class="gk-g">$1</span>')
-                    .replace(/\b(M\d+)\b/g, '<span class="gk-m">$1</span>')
-                    .replace(/\b([TDH]\d+)\b/g, '<span class="gk-t">$1</span>')
-                    .replace(/\b(F[\d.]+)\b/g, '<span class="gk-f">$1</span>')
-                    .replace(/^([A-Z_]+:)/, '<span class="gk-lbl">$1</span>');
-            }
-            html += `<div class="sw-line"><span class="sw-ln">${ln}</span><span class="sw-lc">${hl}</span></div>`;
-        });
-        return html;
+    /* ── G-code token highlighter (single line) ── */
+    function highlightCode(line) {
+        return escH(line)
+            .replace(/\b(G\d+\.?\d*)/g, '<span class="gk-g">$1</span>')
+            .replace(/\b(M\d+)\b/g, '<span class="gk-m">$1</span>')
+            .replace(/\b([TDH]\d+)\b/g, '<span class="gk-t">$1</span>')
+            .replace(/\b(F[\d.]+)\b/g, '<span class="gk-f">$1</span>');
     }
     function escH(s) {
         return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
-    /* Render viewer */
-    document.getElementById('viewer-code').innerHTML = highlightGcode(m.gcode);
-
-    /* Render editor with starter */
-    const editor = document.getElementById('gcode-editor');
-    editor.value = EDITOR_STARTER;
-
-    /* Track cursor position */
-    editor.addEventListener('keyup', updateCursor);
-    editor.addEventListener('click', updateCursor);
-    function updateCursor() {
-        const v = editor.value.substring(0, editor.selectionStart);
-        const ln  = v.split('\n').length;
-        const col = v.split('\n').pop().length + 1;
-        document.getElementById('editor-lc').innerHTML = `LN <b>${ln}</b>`;
-        document.getElementById('editor-cc').innerHTML = `COL <b>${col}</b>`;
-    }
-
-    /* ── Compiler ── */
-    const KNOWN_G = new Set([0,1,2,3,4,17,18,19,20,21,28,40,41,42,43,44,49,54,55,56,57,58,59,90,91,92,94,95,96,97,98,99]);
-    const KNOWN_M = new Set([0,1,2,3,4,5,6,8,9,17,19,30,41,42]);
-
-    function compileGcode() {
-        const code    = editor.value;
-        const lines   = code.split('\n');
-        const out     = document.getElementById('compile-out');
-        const led     = document.getElementById('editor-led');
-        const statTxt = document.getElementById('editor-state-txt');
-        const msgs    = [];
-        let errors = 0, warnings = 0;
-
-        msgs.push({ t: 'info', m: `Compiling ${lines.length} lines...` });
-
-        const hasStart = lines.some(l => /^\s*%/.test(l));
-        const hasM30   = lines.some(l => /\bM30\b/.test(l));
-        const hasG54   = lines.some(l => /\bG5[4-9]\b/.test(l));
-        const hasT     = lines.some(l => /\bT\d/.test(l));
-
-        if (!hasStart)   { msgs.push({t:'warn', m:'WARNING: Missing % delimiter'}); warnings++; }
-        if (!hasM30)     { msgs.push({t:'err',  m:'ERROR:   Missing M30 (end of program)'}); errors++; }
-        if (!hasG54)     { msgs.push({t:'warn', m:'WARNING: No work offset (G54-G59) found'}); warnings++; }
-        if (!hasT)       { msgs.push({t:'warn', m:'WARNING: No tool call (T_) found'}); warnings++; }
-
-        lines.forEach((raw, i) => {
-            const line = raw.replace(/;.*$/, '').trim();
-            if (!line || /^%/.test(line)) return;
-
-            const gMatches = line.match(/G(\d+\.?\d*)/g) || [];
-            gMatches.forEach(gw => {
-                const gn = parseFloat(gw.slice(1));
-                if (!KNOWN_G.has(Math.floor(gn))) {
-                    msgs.push({t:'warn', m:`L${i+1}: Unknown code ${gw}`});
-                    warnings++;
-                }
-            });
-            const mMatches = line.match(/M(\d+)/g) || [];
-            mMatches.forEach(mw => {
-                const mn = parseInt(mw.slice(1));
-                if (!KNOWN_M.has(mn) && mn < 100) {
-                    msgs.push({t:'warn', m:`L${i+1}: Uncommon M-code ${mw}`});
-                }
-            });
-            if (/\bG2\b/.test(line) || /\bG3\b/.test(line)) {
-                if (!/[IJ]/.test(line) && !/R[\d.]/.test(line)) {
-                    msgs.push({t:'warn', m:`L${i+1}: G2/G3 without I/J or R param`});
-                    warnings++;
-                }
-            }
-        });
-
-        if (errors === 0) {
-            msgs.push({t:'ok', m:`OK  —  ${errors} error(s), ${warnings} warning(s). Program accepted.`});
-            led.className = 'sw-led ready';
-            statTxt.textContent = 'READY'; statTxt.style.color = '#00e676';
-            out.className = 'sw-console ok';
-        } else {
-            msgs.push({t:'err', m:`FAIL  —  ${errors} error(s), ${warnings} warning(s). Cannot execute.`});
-            led.className = 'sw-led'; led.style.background='#ef5350'; led.style.color='#ef5350';
-            statTxt.textContent = 'ALARM'; statTxt.style.color = '#ef5350';
-            out.className = 'sw-console err';
-        }
-
-        out.innerHTML = msgs.map(({t, m}) => {
-            const cls = t === 'err' ? '#ef5350' : t === 'ok' ? '#00e676' : t === 'warn' ? '#ffab40' : '#5a8a9a';
-            return `<div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg" style="color:${cls}">${escH(m)}</span></div>`;
+    /* ── Render the 3-column read-only code table: N° / G-CODE / COMMENT ──
+       On mobile the comment column collapses into a 💬 button; tapping it
+       opens a detail row with the full comment and an ✕ to close it. */
+    function renderCodeTable(program) {
+        const rows = program.map(row => {
+            const comment = escH(row.comment);
+            return `<tr class="sw-ct-row">` +
+                `<td class="sw-ct-n">` +
+                    `<button type="button" class="sw-ct-flag" onclick="toggleFlag(this)" aria-label="Flag line ${escH(row.n)}">${escH(row.n)}</button>` +
+                `</td>` +
+                `<td class="sw-ct-code">${highlightCode(row.code)}</td>` +
+                `<td class="sw-ct-comment">` +
+                    `<span class="sw-ct-ctext">${comment}</span>` +
+                    `<button type="button" class="sw-ct-cbtn" onclick="toggleComment(this)" aria-label="Show comment">💬</button>` +
+                `</td>` +
+            `</tr>` +
+            `<tr class="sw-ct-detail" hidden>` +
+                `<td colspan="3">` +
+                    `<div class="sw-ct-detail-box">` +
+                        `<span>${comment}</span>` +
+                        `<button type="button" class="sw-ct-close" onclick="toggleComment(this)" aria-label="Close comment">✕</button>` +
+                    `</div>` +
+                `</td>` +
+            `</tr>`;
         }).join('');
-        out.scrollTop = out.scrollHeight;
+        return `<table class="sw-code-table">` +
+            `<thead><tr>` +
+                `<th class="sw-ct-n">N°</th>` +
+                `<th class="sw-ct-code">G-CODE · ISO</th>` +
+                `<th class="sw-ct-comment">COMMENT (EN)</th>` +
+            `</tr></thead>` +
+            `<tbody>${rows}</tbody>` +
+        `</table>`;
     }
 
-    function cycleStart() {
-        compileGcode();
-        const led     = document.getElementById('editor-led');
-        const statTxt = document.getElementById('editor-state-txt');
-        const out     = document.getElementById('compile-out');
-        if (out.className.includes('ok')) {
-            led.className = 'sw-led run';
-            statTxt.textContent = 'RUNNING'; statTxt.style.color = '#ffab40';
-            const line = `<div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg" style="color:#ffab40">CYCLE START  —  Simulation running...</span></div>`;
-            out.innerHTML += line;
-            out.scrollTop = out.scrollHeight;
-            setTimeout(() => {
-                led.className = 'sw-led ready'; led.style.background=''; led.style.color='';
-                statTxt.textContent = 'READY'; statTxt.style.color = '#00e676';
-                out.innerHTML += `<div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg" style="color:#00e676">CYCLE END  —  Program completed. M30 reached.</span></div>`;
-                out.scrollTop = out.scrollHeight;
-            }, 2200);
+    document.getElementById('viewer-code').innerHTML = renderCodeTable(SHARED_PROGRAM);
+
+    /* Read-only display: block copy / cut / right-click / drag on the code window */
+    (function() {
+        const wrap = document.getElementById('viewer-code');
+        ['copy', 'cut', 'contextmenu', 'dragstart'].forEach(evt => {
+            wrap.addEventListener(evt, e => e.preventDefault());
+        });
+    })();
+
+    /* Toggle the mobile comment detail row open/closed */
+    function toggleComment(btn) {
+        if (btn.classList.contains('sw-ct-cbtn')) {
+            const detail = btn.closest('tr').nextElementSibling;
+            if (detail) detail.hidden = false;
+        } else {
+            btn.closest('tr').hidden = true;
         }
     }
 
-    function cycleStop() {
-        const led     = document.getElementById('editor-led');
-        const statTxt = document.getElementById('editor-state-txt');
-        const out     = document.getElementById('compile-out');
-        led.className = 'sw-led'; led.style.background='#ef5350'; led.style.color='#ef5350';
-        statTxt.textContent = 'STOP'; statTxt.style.color = '#ef5350';
-        out.innerHTML += `<div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg" style="color:#ef5350">CYCLE STOP  —  Execution interrupted.</span></div>`;
-        out.scrollTop = out.scrollHeight;
-    }
-
-    function resetEditor() {
-        editor.value = EDITOR_STARTER;
-        const out = document.getElementById('compile-out');
-        const led = document.getElementById('editor-led');
-        const statTxt = document.getElementById('editor-state-txt');
-        led.className = 'sw-led ready'; led.style.background=''; led.style.color='';
-        statTxt.textContent = 'READY'; statTxt.style.color = '#00e676';
-        out.className = 'sw-console';
-        out.innerHTML = `<div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg">System reset. Editor restored to default program.</span></div>`;
-    }
-
-    function clearEditor() {
-        editor.value = '';
-        document.getElementById('compile-out').innerHTML =
-            `<div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg">Editor cleared.</span></div>`;
-    }
-
-    function copyEditor() {
-        navigator.clipboard.writeText(editor.value).then(() => {
-            const out = document.getElementById('compile-out');
-            out.innerHTML += `<div class="con-line"><span class="con-pfx">&gt;&gt;</span><span class="con-msg" style="color:#00e676">Program copied to clipboard.</span></div>`;
-            out.scrollTop = out.scrollHeight;
-        });
-    }
-
-    function downloadMPF() {
-        const blob = new Blob([m.gcode], {type: 'text/plain'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = m.prog;
-        a.click();
+    /* Flag a line as critical for analysis — stays highlighted until clicked again */
+    function toggleFlag(btn) {
+        const row = btn.closest('tr');
+        row.classList.toggle('sw-ct-flagged');
+        const detail = row.nextElementSibling;
+        if (detail && detail.classList.contains('sw-ct-detail')) {
+            detail.classList.toggle('sw-ct-flagged');
+        }
     }
 
     </script>
