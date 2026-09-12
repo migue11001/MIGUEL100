@@ -222,191 +222,39 @@
             font-weight: 600; color: var(--text-main); letter-spacing: 0.04em;
         }
 
-        /* ── CAM Video Panel ── */
-        .video-panel {
-            max-width: 1200px; margin: 0 auto;
-            background: linear-gradient(160deg, rgba(22,26,36,0.97) 0%, rgba(14,18,28,1) 100%);
-            border: 1px solid rgba(190, 190, 200, 0.18); border-radius: 4px; overflow: hidden;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.6);
-            position: relative; z-index: 1000;
+        /* ── Floating drawing preview (toggled from the G-CODE window) ── */
+        .drawing-float {
+            position: fixed; top: 76px; left: 50%; transform: translateX(-50%);
+            width: min(94vw, 720px); z-index: 500;
+            background: linear-gradient(160deg, rgba(26,30,40,0.98) 0%, rgba(16,20,30,0.99) 100%);
+            border: 1px solid rgba(255,23,68,0.4); border-radius: 4px;
+            box-shadow: 0 10px 34px rgba(0,0,0,0.65), 0 0 22px rgba(255,23,68,0.15);
+            overflow: hidden;
         }
-        .video-panel-header {
+        .drawing-float-header {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 10px 16px; border-bottom: 1px solid rgba(190, 190, 200, 0.1);
-            background: rgba(0,0,0,0.3);
+            padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.25);
         }
-        .video-panel-label {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.58em;
-            letter-spacing: 0.2em; color: var(--neon-dim); text-transform: uppercase;
+        .drawing-float-title {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.62em;
+            letter-spacing: 0.14em; color: #ff8a80; text-transform: uppercase;
         }
-        .video-panel-badge {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.5em;
-            letter-spacing: 0.12em; color: rgba(0,212,255,0.4); text-transform: uppercase;
+        .drawing-float-close {
+            background: none; border: none; color: #ff8a80; cursor: pointer;
+            font-size: 0.95em; line-height: 1; padding: 2px 4px;
         }
-        .video-wrap {
-            background: #000;
-            position: relative;
-            user-select: none;
-            aspect-ratio: 16 / 9;
-            width: 100%;
-        }
-        .video-wrap video {
-            position: absolute; inset: 0;
-            width: 100%; height: 100%;
-            display: block; outline: none;
-            object-fit: contain;
-        }
-        /* center overlay (play/pause) */
-        .vp-overlay {
-            position: absolute; inset: 0;
+        .drawing-float-close:hover { color: #fff; }
+        .drawing-float-body {
+            max-height: 80vh; overflow-y: auto;
             display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.22s ease;
-            pointer-events: none;
-            z-index: 10;
+            padding: 6px;
         }
-        .vp-overlay.faded { opacity: 0; }
-        .vp-play-btn {
-            width: 70px; height: 70px; border-radius: 50%;
-            background: rgba(0,0,0,0.52);
-            border: 2px solid rgba(190, 190, 200, 0.75);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 22px rgba(0,212,255,0.3);
-            transition: transform 0.14s, border-color 0.14s, box-shadow 0.14s;
-            pointer-events: all; cursor: pointer;
+        .drawing-float-body img {
+            width: 100%; height: auto; display: block;
+            filter: invert(1) sepia(1) hue-rotate(175deg) saturate(6) brightness(1.1);
         }
-        .vp-play-btn:hover {
-            transform: scale(1.09);
-            border-color: #00d4ff;
-            box-shadow: 0 0 36px rgba(0,212,255,0.5);
-        }
-        .vp-icon-play {
-            width: 0; height: 0;
-            border: solid transparent;
-            border-width: 11px 0 11px 20px;
-            border-left-color: #00d4ff;
-            margin-left: 5px;
-        }
-        .vp-icon-pause {
-            display: flex; gap: 5px;
-        }
-        .vp-icon-pause b {
-            display: block; width: 4px; height: 20px;
-            background: #00d4ff; border-radius: 2px; font-weight: normal;
-        }
-        /* bottom bar */
-        .vp-bar {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            padding: 10px 16px 12px;
-            background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%);
-            display: flex; flex-direction: column; gap: 7px;
-            z-index: 11;
-            transition: opacity 0.22s ease;
-        }
-        .vp-bar.faded { opacity: 0; pointer-events: none; }
-        /* progress */
-        .vp-progress {
-            width: 100%; height: 4px;
-            background: rgba(255,255,255,0.14);
-            border-radius: 2px; cursor: pointer; position: relative;
-        }
-        .vp-progress:hover { height: 6px; }
-        .vp-fill {
-            height: 100%; width: 0%;
-            background: #00d4ff; border-radius: 2px;
-            box-shadow: 0 0 6px rgba(0,212,255,0.55);
-            pointer-events: none;
-        }
-        .vp-knob {
-            position: absolute; top: 50%;
-            width: 12px; height: 12px; border-radius: 50%;
-            background: #fff; margin-left: -6px;
-            transform: translateY(-50%);
-            opacity: 0; transition: opacity 0.14s;
-            pointer-events: none;
-            box-shadow: 0 0 6px rgba(0,212,255,0.8);
-        }
-        .vp-progress:hover .vp-knob { opacity: 1; }
-        /* row */
-        .vp-row {
-            display: flex; align-items: center; gap: 10px;
-        }
-        .vp-btn {
-            background: none; border: none; cursor: pointer; padding: 0;
-            display: flex; align-items: center; color: rgba(255,255,255,0.75);
-            transition: color 0.14s; position: static;
-        }
-        .vp-btn:hover { color: #fff; }
-        .vp-btn svg { width: 18px; height: 18px; display: block; fill: currentColor; }
-        .vp-time {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.5em; letter-spacing: 0.08em;
-            color: rgba(255,255,255,0.55); white-space: nowrap;
-        }
-        .vp-spacer { flex: 1; }
-        .vp-vol {
-            -webkit-appearance: none; appearance: none;
-            width: 68px; height: 3px;
-            background: rgba(255,255,255,0.2); border-radius: 2px;
-            outline: none; cursor: pointer;
-        }
-        .vp-vol::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 11px; height: 11px; border-radius: 50%;
-            background: #00d4ff;
-            box-shadow: 0 0 5px rgba(0,212,255,0.7);
-        }
-
-        /* ── Turning Video Gallery (horizontal scroll) ── */
-        .turning-gallery-scroll {
-            display: flex; gap: 0; padding: 0;
-            overflow-x: auto; scroll-snap-type: x mandatory;
-            scrollbar-width: thin; scrollbar-color: rgba(0,212,255,0.3) transparent;
-        }
-        .turning-gallery-scroll::-webkit-scrollbar { height: 4px; }
-        .turning-gallery-scroll::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.3); border-radius: 2px; }
-        .turning-video-item {
-            flex: 0 0 100%; width: 100%;
-            scroll-snap-align: start; display: flex; flex-direction: column;
-            background: #000;
-        }
-        .turning-video-label {
-            padding: 7px 12px;
-            background: rgba(0,0,0,0.5);
-            border-bottom: 1px solid rgba(190, 190, 200, 0.1);
-            font-family: 'Share Tech Mono', monospace; font-size: 0.5em;
-            letter-spacing: 0.14em; color: rgba(0,212,255,0.55); text-transform: uppercase;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .turning-video-num {
-            font-size: 1.5em; font-weight: 700; color: #00d4ff;
-            text-shadow: 0 0 10px rgba(0,212,255,0.55);
-        }
-        .turning-video-wrap {
-            position: relative; background: #000;
-            user-select: none; aspect-ratio: 16/9; width: 100%;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06),
-                        0 4px 32px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.04);
-        }
-        .turning-video-item video {
-            position: absolute; inset: 0;
-            width: 100%; height: 100%; display: block; outline: none;
-            object-fit: contain;
-        }
-        /* ── Video index indicator ── */
-        .tg-index {
-            display: flex; align-items: center; gap: 8px;
-            font-family: 'Share Tech Mono', monospace; font-size: 0.48em;
-            letter-spacing: 0.12em; color: rgba(255,255,255,0.2); text-transform: uppercase;
-        }
-        .tg-index-label { color: rgba(0,212,255,0.35); }
-        .tg-idx-num {
-            cursor: pointer; padding: 1px 3px;
-            transition: color 0.2s, text-shadow 0.2s;
-        }
-        .tg-idx-num.active {
-            color: #ff1744;
-            text-shadow: 0 0 8px rgba(255,23,68,0.9), 0 0 22px rgba(255,23,68,0.5);
-        }
+        @media (max-width: 600px) { .drawing-float { top: 66px; } }
 
         /* ── G-CODE Grid ── */
         .gcode-grid {
@@ -510,10 +358,10 @@
             background: rgba(255,23,68,0.08);
         }
         .sw-ct-code { color: var(--sw-text); white-space: pre; }
-        .sw-ct-comment {
+        .sw-code-table td.sw-ct-comment {
             color: var(--sw-comment);
-            font-family: 'Rajdhani', sans-serif; font-size: 0.92em;
-            text-align: right;
+            font-family: 'Rajdhani', sans-serif; font-size: 1em;
+            text-align: right; padding-right: 14px;
         }
         /* Mobile-only comment toggle button */
         .sw-ct-cbtn {
@@ -549,7 +397,7 @@
         @media (max-width: 768px) {
             .sw-ct-ctext { display: none; }
             .sw-ct-cbtn { display: inline-block; }
-            .sw-ct-comment { width: 40px; text-align: center; }
+            .sw-code-table td.sw-ct-comment { width: 40px; text-align: center; padding-right: 10px; }
         }
         /* G-code syntax classes */
         .gk-n  { color: var(--sw-n); }
@@ -578,6 +426,20 @@
         }
         .sw-sk:last-child { border-right: none; }
         .sw-sk:hover { background: rgba(0,180,255,0.07); }
+        #drawing-toggle-btn {
+            cursor: pointer; line-height: 1.15;
+        }
+        #drawing-toggle-btn .sw-sk-label {
+            font-family: 'Share Tech Mono', monospace; font-size: 9.75px;
+            letter-spacing: 0.03em; color: #fff; text-transform: uppercase;
+            text-shadow: 0 0 4px #fff, 0 0 10px rgba(255,255,255,0.7);
+            white-space: normal; text-align: center;
+        }
+        #drawing-toggle-btn.active {
+            background: rgba(255,23,68,0.14);
+            box-shadow: inset 0 0 0 1px rgba(255,23,68,0.45);
+        }
+        #drawing-toggle-btn.active .sw-sk-label { color: #ff8a80; }
     </style>
 </head>
 <body>
@@ -598,6 +460,17 @@
         </div>
         <a href="index.html" class="nav-back notranslate" data-i18n-es="← Volver" data-i18n-it="← Indietro">← Back</a>
     </nav>
+
+    <!-- Floating drawing preview — toggled by the DRAWING softkey, stays pinned while scrolling through the code -->
+    <div class="drawing-float" id="drawing-float" hidden>
+        <div class="drawing-float-header">
+            <span class="drawing-float-title">Technical Drawing</span>
+            <button class="drawing-float-close" onclick="toggleDrawingFloat(false)" aria-label="Close drawing preview">✕</button>
+        </div>
+        <div class="drawing-float-body">
+            <img id="drawing-float-img" alt="Technical drawing preview">
+        </div>
+    </div>
 
     <!-- Page Header -->
     <div class="page-header">
@@ -647,49 +520,6 @@
         </div>
     </div>
 
-    <!-- CAM Video -->
-    <div class="section-label">CAM Simulation</div>
-    <div class="video-panel" id="cam-video-panel">
-        <div class="video-panel-header">
-            <span class="video-panel-label">CAM — Toolpath Simulation</span>
-            <span class="video-panel-badge" id="video-prog-name">A1-PROJECT CAM.mpf</span>
-        </div>
-        <div class="video-wrap" id="vp-wrap">
-            <video id="cam-video" playsinline preload="metadata" poster="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/modelo-unico.png">
-                <source src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/media/video.mp4" type="video/mp4">
-            </video>
-
-            <!-- center overlay -->
-            <div class="vp-overlay" id="vp-overlay">
-                <div class="vp-play-btn" id="vp-play-btn">
-                    <div class="vp-icon-play" id="vp-icon"></div>
-                </div>
-            </div>
-
-            <!-- bottom bar -->
-            <div class="vp-bar" id="vp-bar">
-                <div class="vp-progress" id="vp-progress">
-                    <div class="vp-fill" id="vp-fill"></div>
-                    <div class="vp-knob" id="vp-knob"></div>
-                </div>
-                <div class="vp-row">
-                    <button class="vp-btn" id="vp-pp" title="Play / Pause">
-                        <svg viewBox="0 0 24 24"><path id="vp-pp-icon" d="M8 5v14l11-7z"/></svg>
-                    </button>
-                    <span class="vp-time" id="vp-time">0:00 / 0:00</span>
-                    <div class="vp-spacer"></div>
-                    <button class="vp-btn" id="vp-mute" title="Mute">
-                        <svg viewBox="0 0 24 24"><path id="vp-mute-icon" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-                    </button>
-                    <input class="vp-vol" id="vp-vol" type="range" min="0" max="1" step="0.02" value="1">
-                    <button class="vp-btn" id="vp-fs" title="Fullscreen">
-                        <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- G-Code Program -->
     <div class="section-label">G-CODE Program</div>
     <div class="gcode-grid">
@@ -705,7 +535,9 @@
                 <div class="sw-code-wrap" id="viewer-code"></div>
             </div>
             <div class="sw-softkeys">
-                <button class="sw-sk">🟢</button>
+                <button class="sw-sk" id="drawing-toggle-btn" onclick="toggleDrawingFloat()" title="Show technical drawing" aria-pressed="false">
+                    <span class="sw-sk-label">Active Drawing</span>
+                </button>
                 <button class="sw-sk">🟢</button>
                 <button class="sw-sk">🟢</button>
                 <button class="sw-sk">🟢</button>
@@ -717,135 +549,6 @@
         </div>
 
     </div>
-
-    <script>
-    /* ── Custom Video Player ── */
-    (function() {
-        const vid      = document.getElementById('cam-video');
-        const wrap     = document.getElementById('vp-wrap');
-        const overlay  = document.getElementById('vp-overlay');
-        const playBtn  = document.getElementById('vp-play-btn');
-        const icon     = document.getElementById('vp-icon');
-        const bar      = document.getElementById('vp-bar');
-        const progress = document.getElementById('vp-progress');
-        const fill     = document.getElementById('vp-fill');
-        const knob     = document.getElementById('vp-knob');
-        const ppBtn    = document.getElementById('vp-pp');
-        const ppIcon   = document.getElementById('vp-pp-icon');
-        const timeEl   = document.getElementById('vp-time');
-        const muteBtn  = document.getElementById('vp-mute');
-        const muteIcon = document.getElementById('vp-mute-icon');
-        const volSlider= document.getElementById('vp-vol');
-        const fsBtn    = document.getElementById('vp-fs');
-
-        let hideTimer = null;
-        let scrubbing = false;
-
-        function fmt(s) {
-            s = Math.floor(s || 0);
-            const m = Math.floor(s / 60), ss = s % 60;
-            return m + ':' + String(ss).padStart(2, '0');
-        }
-        function setPlaying(playing) {
-            /* center icon */
-            icon.className = playing ? 'vp-icon-pause' : 'vp-icon-play';
-            if (playing) {
-                icon.innerHTML = '<b></b><b></b>';
-            } else {
-                icon.innerHTML = '';
-            }
-            /* bottom bar icon */
-            ppIcon.setAttribute('d', playing
-                ? 'M6 19h4V5H6v14zm8-14v14h4V5h-4z'
-                : 'M8 5v14l11-7z');
-        }
-        function showControls() {
-            overlay.classList.remove('faded');
-            bar.classList.remove('faded');
-            clearTimeout(hideTimer);
-            if (!vid.paused) {
-                hideTimer = setTimeout(() => {
-                    overlay.classList.add('faded');
-                    bar.classList.add('faded');
-                }, 2800);
-            }
-        }
-        function updateProgress() {
-            if (!vid.duration || scrubbing) return;
-            const pct = (vid.currentTime / vid.duration) * 100;
-            fill.style.width = pct + '%';
-            knob.style.left  = pct + '%';
-            timeEl.textContent = fmt(vid.currentTime) + ' / ' + fmt(vid.duration);
-        }
-        function seekTo(e) {
-            const rect = progress.getBoundingClientRect();
-            const pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-            vid.currentTime = pct * vid.duration;
-            fill.style.width = (pct * 100) + '%';
-            knob.style.left  = (pct * 100) + '%';
-        }
-
-        /* play / pause */
-        function togglePlay() {
-            if (vid.paused) { vid.play(); } else { vid.pause(); }
-        }
-        playBtn.addEventListener('click', togglePlay);
-        ppBtn.addEventListener('click',  togglePlay);
-        wrap.addEventListener('click', e => {
-            if (e.target === vid) togglePlay();
-        });
-
-        vid.addEventListener('play',  () => { setPlaying(true);  showControls(); });
-        vid.addEventListener('pause', () => { setPlaying(false); showControls(); });
-        vid.addEventListener('timeupdate', updateProgress);
-        vid.addEventListener('loadedmetadata', updateProgress);
-        vid.addEventListener('ended', () => { setPlaying(false); showControls(); });
-
-        /* scrub */
-        progress.addEventListener('mousedown', e => {
-            scrubbing = true; seekTo(e);
-        });
-        window.addEventListener('mousemove', e => { if (scrubbing) seekTo(e); });
-        window.addEventListener('mouseup',   () => { scrubbing = false; });
-
-        /* show controls on mouse move */
-        wrap.addEventListener('mousemove', showControls);
-        wrap.addEventListener('mouseenter', showControls);
-        wrap.addEventListener('mouseleave', () => {
-            if (!vid.paused) {
-                overlay.classList.add('faded');
-                bar.classList.add('faded');
-            }
-        });
-
-        /* mute */
-        muteBtn.addEventListener('click', () => {
-            vid.muted = !vid.muted;
-            muteIcon.setAttribute('d', vid.muted
-                ? 'M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0 0 17.73 18L19 19.27 20.27 18 5.27 3 4.27 3zM12 4L9.91 6.09 12 8.18V4z'
-                : 'M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z');
-        });
-
-        /* volume */
-        volSlider.addEventListener('input', () => {
-            vid.volume = parseFloat(volSlider.value);
-            vid.muted  = vid.volume === 0;
-        });
-
-        /* fullscreen */
-        fsBtn.addEventListener('click', () => {
-            if (!document.fullscreenElement) {
-                wrap.requestFullscreen && wrap.requestFullscreen();
-            } else {
-                document.exitFullscreen && document.exitFullscreen();
-            }
-        });
-
-        /* init */
-        setPlaying(false);
-        showControls();
-    })();
-    </script>
 
     <script>
     /* ═══════════════════════════════════════════════════════════
@@ -1146,7 +849,6 @@ N190 M30
     document.getElementById('panel-title').textContent  = m.title;
     document.getElementById('panel-id').textContent     = m.id;
     document.getElementById('meta-project').textContent = m.project;
-    document.getElementById('video-prog-name').textContent = m.prog;
 
     const drawingArea = document.getElementById('drawing-area');
     drawingArea.querySelectorAll('img').forEach(el => el.remove());
@@ -1162,194 +864,6 @@ N190 M30
         drawingArea.appendChild(img);
     } else {
         document.getElementById('drawing-placeholder').style.display = '';
-    }
-
-    /* ── Horizontal video gallery for models with multiple videos ── */
-    if (m.videos && m.videos.length) {
-        const panel = document.getElementById('cam-video-panel');
-        const indexNums = m.videos.map(function(_, i) {
-            return '<span class="tg-idx-num' + (i === 0 ? ' active' : '') + '" data-idx="' + i + '">' + (i + 1) + '</span>';
-        }).join('');
-        panel.innerHTML =
-            '<div class="video-panel-header">' +
-                '<span class="video-panel-label">CAM — Machining Footage</span>' +
-                '<div class="tg-index">' +
-                    '<span class="tg-index-label">Videos:</span>' +
-                    indexNums +
-                '</div>' +
-            '</div>' +
-            '<div class="turning-gallery-scroll" id="tg-scroll">' +
-                m.videos.map(function(url, i) {
-                    return '<div class="turning-video-item" data-idx="' + i + '">' +
-                        '<div class="turning-video-label">' +
-                            '<span class="turning-video-num">0' + (i + 1) + '</span>' +
-                            '<span>Turning Sequence ' + (i + 1) + '</span>' +
-                        '</div>' +
-                        '<div class="turning-video-wrap">' +
-                            '<video src="' + url + '" poster="' + (m.posters && m.posters[i] ? m.posters[i] : '') + '" playsinline preload="metadata"></video>' +
-                            '<div class="vp-overlay">' +
-                                '<div class="vp-play-btn">' +
-                                    '<div class="vp-icon-play"></div>' +
-                                '</div>' +
-                            '</div>' +
-                            '<div class="vp-bar">' +
-                                '<div class="vp-progress">' +
-                                    '<div class="vp-fill"></div>' +
-                                    '<div class="vp-knob"></div>' +
-                                '</div>' +
-                                '<div class="vp-row">' +
-                                    '<button class="vp-btn" title="Play / Pause">' +
-                                        '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>' +
-                                    '</button>' +
-                                    '<span class="vp-time">0:00 / 0:00</span>' +
-                                    '<div class="vp-spacer"></div>' +
-                                    '<button class="vp-btn" title="Mute">' +
-                                        '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>' +
-                                    '</button>' +
-                                    '<input class="vp-vol" type="range" min="0" max="1" step="0.02" value="1">' +
-                                    '<button class="vp-btn" title="Fullscreen">' +
-                                        '<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>' +
-                                    '</button>' +
-                                '</div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>';
-                }).join('') +
-            '</div>';
-
-        /* ── Custom player per video ── */
-        function makeTurningPlayer(wrap) {
-            const vid      = wrap.querySelector('video');
-            const overlay  = wrap.querySelector('.vp-overlay');
-            const playBtn  = wrap.querySelector('.vp-play-btn');
-            const icon     = playBtn.querySelector('div');
-            const bar      = wrap.querySelector('.vp-bar');
-            const progress = wrap.querySelector('.vp-progress');
-            const fill     = wrap.querySelector('.vp-fill');
-            const knob     = wrap.querySelector('.vp-knob');
-            const ppBtn    = wrap.querySelectorAll('.vp-btn')[0];
-            const ppPath   = ppBtn.querySelector('path');
-            const timeEl   = wrap.querySelector('.vp-time');
-            const muteBtn  = wrap.querySelectorAll('.vp-btn')[1];
-            const mutePath = muteBtn.querySelector('path');
-            const volSlider= wrap.querySelector('.vp-vol');
-            const fsBtn    = wrap.querySelectorAll('.vp-btn')[2];
-
-            let hideTimer = null, scrubbing = false;
-
-            function fmt(s) {
-                s = Math.floor(s || 0);
-                return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
-            }
-            let overlayTimer = null;
-            function setPlaying(playing) {
-                icon.className = playing ? 'vp-icon-pause' : 'vp-icon-play';
-                icon.innerHTML = playing ? '<b></b><b></b>' : '';
-                ppPath.setAttribute('d', playing ? 'M6 19h4V5H6v14zm8-14v14h4V5h-4z' : 'M8 5v14l11-7z');
-                if (playing) {
-                    overlay.classList.remove('faded');
-                    clearTimeout(overlayTimer);
-                    overlayTimer = setTimeout(function() { overlay.classList.add('faded'); }, 500);
-                } else {
-                    clearTimeout(overlayTimer);
-                    overlay.classList.remove('faded');
-                }
-            }
-            function showControls() {
-                bar.classList.remove('faded');
-                clearTimeout(hideTimer);
-                if (!vid.paused) {
-                    hideTimer = setTimeout(function() { bar.classList.add('faded'); }, 2800);
-                }
-            }
-            function updateProgress() {
-                if (!vid.duration || scrubbing) return;
-                var pct = (vid.currentTime / vid.duration) * 100;
-                fill.style.width = pct + '%';
-                knob.style.left  = pct + '%';
-                timeEl.textContent = fmt(vid.currentTime) + ' / ' + fmt(vid.duration);
-            }
-            function seekTo(e) {
-                var rect = progress.getBoundingClientRect();
-                var pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-                vid.currentTime = pct * vid.duration;
-                fill.style.width = (pct * 100) + '%';
-                knob.style.left  = (pct * 100) + '%';
-            }
-            function togglePlay() { vid.paused ? vid.play() : vid.pause(); }
-
-            playBtn.addEventListener('click', togglePlay);
-            ppBtn.addEventListener('click', togglePlay);
-            wrap.addEventListener('click', function(e) { if (e.target === vid) togglePlay(); });
-
-            vid.addEventListener('play',  function() { setPlaying(true);  showControls(); });
-            vid.addEventListener('pause', function() { setPlaying(false); showControls(); });
-            vid.addEventListener('timeupdate', updateProgress);
-            vid.addEventListener('loadedmetadata', updateProgress);
-            vid.addEventListener('ended', function() { setPlaying(false); showControls(); });
-
-            progress.addEventListener('mousedown', function(e) { scrubbing = true; seekTo(e); });
-            window.addEventListener('mousemove', function(e) { if (scrubbing) seekTo(e); });
-            window.addEventListener('mouseup',   function() { scrubbing = false; });
-
-            wrap.addEventListener('mousemove',  showControls);
-            wrap.addEventListener('mouseenter', showControls);
-            wrap.addEventListener('mouseleave', function() {
-                if (!vid.paused) { bar.classList.add('faded'); }
-            });
-
-            muteBtn.addEventListener('click', function() {
-                vid.muted = !vid.muted;
-                mutePath.setAttribute('d', vid.muted
-                    ? 'M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0 0 17.73 18L19 19.27 20.27 18 5.27 3 4.27 3zM12 4L9.91 6.09 12 8.18V4z'
-                    : 'M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z');
-            });
-            volSlider.addEventListener('input', function() {
-                vid.volume = parseFloat(volSlider.value);
-                vid.muted  = vid.volume === 0;
-            });
-            fsBtn.addEventListener('click', function() {
-                if (!document.fullscreenElement) {
-                    wrap.requestFullscreen && wrap.requestFullscreen();
-                } else {
-                    document.exitFullscreen && document.exitFullscreen();
-                }
-            });
-
-            setPlaying(false);
-            showControls();
-        }
-
-        /* Index indicator — highlight active video on scroll */
-        const scroll = document.getElementById('tg-scroll');
-        const items  = scroll.querySelectorAll('.turning-video-item');
-
-        scroll.querySelectorAll('.turning-video-wrap').forEach(makeTurningPlayer);
-        const dots   = panel.querySelectorAll('.tg-idx-num');
-
-        function setActive(idx) {
-            dots.forEach(function(d) {
-                d.classList.toggle('active', parseInt(d.dataset.idx) === idx);
-            });
-        }
-
-        /* Click on number to jump to that video */
-        dots.forEach(function(d) {
-            d.addEventListener('click', function() {
-                const target = items[parseInt(d.dataset.idx)];
-                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
-            });
-        });
-
-        const obs = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
-                if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-                    setActive(parseInt(entry.target.dataset.idx));
-                }
-            });
-        }, { root: scroll, threshold: 0.5 });
-
-        items.forEach(function(item) { obs.observe(item); });
     }
 
     /* ── G-code token highlighter (single line) ── */
@@ -1426,6 +940,23 @@ N190 M30
         const detail = row.nextElementSibling;
         if (detail && detail.classList.contains('sw-ct-detail')) {
             detail.classList.toggle('sw-ct-flagged');
+        }
+    }
+
+    /* Show/hide the floating drawing preview — pinned on screen while scrolling the code */
+    function toggleDrawingFloat(forceState) {
+        const panel = document.getElementById('drawing-float');
+        const btn   = document.getElementById('drawing-toggle-btn');
+        const show  = typeof forceState === 'boolean' ? forceState : panel.hidden;
+        if (show) {
+            document.getElementById('drawing-float-img').src = m.image || '';
+            panel.hidden = false;
+            btn.classList.add('active');
+            btn.setAttribute('aria-pressed', 'true');
+        } else {
+            panel.hidden = true;
+            btn.classList.remove('active');
+            btn.setAttribute('aria-pressed', 'false');
         }
     }
 
