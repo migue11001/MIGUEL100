@@ -834,6 +834,136 @@ N180 M9 M5
 N190 M30
 %`
         },
+        6: {
+            tag: 'MODEL 06', title: 'A6-PROJECT CAM — TECHNICAL DRAWING',
+            id: 'DWG-A6-001', project: 'A6-PROJECT CAM',
+            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D6.png', prog: 'A6_TURNING.MPF', tool: '1', speed: '220',
+            gcode: `%
+N010 P50 G95
+N020 T1 M6
+(Utensile a sfacciare)
+N030 S800 M4
+N040 G0 X60 Z1.6
+N050 G1 X0 F0.3
+N060 G0 Z3
+N070 X60
+N080 Z0.2
+N090 G1 X0
+N100 G0 Z2
+N110 X100 Z80 T2 M6
+(Punta da centri ø 2.5)
+N120 S1200 M4
+N130 G0 X0 Z3
+N140 G81 Z6 F0.2
+N150 G80 X100 Z80 T3 M6
+(Punta ø 10)
+N160 S600 M4
+N170 G83 Z-43 F0.2
+N180 G80 X100 Z80 T4 M6
+(Utensile sgrossatore interni)
+N190 G0 X15 Z3
+N200 G1 Z-32 F0.2
+N210 X10 Z-37
+N220 G0 Z3
+N230 X20
+N240 G1 Z-27
+N250 X15 Z-37
+N260 G0 Z3
+N270 X25
+N280 G1 Z-22
+N290 X20 Z-27
+N300 G0 Z3
+N310 X30
+N320 G1 Z-17
+N330 X25 Z-22
+N340 G0 Z3
+N350 X34.5
+N360 G1 Z-12
+N370 X30 Z-17
+N380 G0 Z3
+N390 X39
+N400 G1 Z-8
+N410 X34.5 Z-12
+N420 G0 Z3
+N430 X100 Z80 T5 M6
+(Utensile finitore interni)
+N440 S1000 M4
+N450 G0 X45 Z3
+N460 G1 Z0 F0.1
+N470 G2 X40 Z-2.5 I45 K-2.5
+N480 G1 Z-10
+N490 X10 Z-40
+N500 G0 Z3
+N510 X100 Z80 T6 M6
+(Utensile sgrossatore esterni)
+N520 S800 M4
+N530 G0 X51 Z3
+N540 G1 Z-36 F0.2
+N550 G0 X53
+N560 Z13
+N570 G1 X50
+N580 X45 Z-18
+N590 Z-23
+N600 G0 X50
+N610 Z-18
+N620 X45
+N630 G1 X40 Z-23
+N640 Z-72.5
+N650 G0 X45
+N660 Z-23
+N670 X40
+N680 G1 X35 Z-28
+N690 Z-72
+N700 G0 X40
+N710 Z-28
+N720 X35
+N730 G1 X30 Z-33
+N740 Z-71.5
+N750 G0 X35
+N760 Z-33
+N770 X30
+N780 G1 X25 Z-38
+N790 Z-71
+N800 G0 X30
+N810 Z-38
+N820 X25
+N830 G1 X20 Z-43
+N840 Z-70.5
+N850 G0 X25
+N860 Z-43
+N870 X20
+N880 G1 X15.5 Z-48
+N890 Z-70
+N900 G0 X20
+N910 Z-48
+N920 X11 Z-52
+N930 Z-69.5
+N940 G0 X55
+N950 X100 Z80 T7 M6
+(Utensile finitore esterni)
+N960 S1200 M4
+N970 G0 X45 Z3
+N980 G1 Z0 F0.1
+N990 G3 X50 Z-2.5 I45 K-2.5
+N1000 G1 Z-10
+N1010 X10 Z-50
+N1020 Z-70
+N1030 X50 Z-75
+N1040 Z-86
+N1050 G0 X100 Z80 T8 M6
+(Utensile troncatore sp. 3)
+N1060 S350 M4
+N1070 G0 X60 Z-83
+N1080 G1 X21 F0.1
+N1090 G0 X60
+N1100 Z-86
+N1110 G1 X22
+N1120 Z-83
+N1130 X0.5
+N1140 G0 X100 Z80 M5
+N1150 M30
+%`
+        },
         10: {
             tag: 'MODEL 10', title: 'A10-PROJECT CAM — TECHNICAL DRAWING',
             id: 'DWG-A10-001', project: 'A10-PROJECT CAM',
@@ -996,7 +1126,7 @@ N190 M30
 
     /* ── Per-model programs — falls back to SHARED_PROGRAM until a model
        gets its own line-by-line commented program. ── */
-    const MODEL_PROGRAMS = { 2: PROGRAM_2 };
+    const MODEL_PROGRAMS = { 2: PROGRAM_2, 6: PROGRAM_2 };
 
     /* ── Init ── */
     const num = parseInt(window.location.hash.replace('#', '')) || 1;
