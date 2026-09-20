@@ -2,1852 +2,450 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Miguel Otero — Machining Mechanisms & CNC Engineering</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>migue100.com — Under Construction</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon-192.png" sizes="192x192" type="image/png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-
-    <!-- SEO -->
-    <meta name="description" content="Miguel Otero's machining engineering platform — CNC programming, turning, milling, metrology, tool libraries and industrial mechanism design.">
-    <meta name="keywords" content="Miguel Otero, machining mechanism, CNC engineering, turning, milling, G-code, metrology, tool library, mechanism design, machining blog">
     <meta name="author" content="Miguel Otero">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://migue100.com/">
-
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Miguel Otero — Machining Mechanisms & CNC Engineering">
-    <meta property="og:description" content="CNC programming, turning, milling, metrology and mechanism design by Miguel Otero.">
-    <meta property="og:url" content="https://migue100.com/">
-    <meta property="og:image" content="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/hero-1.png">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Miguel Otero — Machining Mechanisms & CNC Engineering">
-    <meta name="twitter:description" content="CNC programming, turning, milling, metrology and mechanism design by Miguel Otero.">
-    <meta name="twitter:image" content="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/hero-1.png">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap">
     <style>
-
         :root {
-            --neon-blue:    #00d4ff;
-            --smoke-gray:   #b4b4c2;
-            --neon-cyan:    #00ffff;
-            --neon-dim:     #0099cc;
-            --steel-dark:   #08090d;
-            --steel-mid:    #12151c;
-            --steel-panel:  #1a1e28;
-            --steel-edge:   #2a3040;
-            --chrome:       #8ab4cc;
-            --chrome-bright:#b8d4e8;
-            --text-main:    #cce8f4;
-            --text-dim:     #5a7a90;
+            --neon-blue:   #00d4ff; --smoke-gray: #bebec8;
+            --neon-dim:    #0099cc;
+            --steel-dark:  #08090d;
+            --steel-panel: #1a1e28;
+            --chrome:      #8ab4cc;
+            --text-main:   #cce8f4;
+            --text-dim:    #5a7a90;
+            --sw-bg:       #020408;
+            --sw-text:     #a8c8e0;
+            --sw-g:        #4fc3f7;
+            --sw-m:        #ffb74d;
+            --sw-n:        #455a64;
+            --sw-comment:  #2e4a58;
+            --sw-cycle:    #ce93d8;
+            --sw-val:      #80cbc4;
+            --sw-tf:       #81c784;
+            --amber:       #ffb300;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* ── Background: dark brushed steel ── */
         body {
             font-family: 'Rajdhani', 'Segoe UI', sans-serif;
             background-color: var(--steel-dark);
             background-image:
-                repeating-linear-gradient(
-                    90deg,
-                    transparent,
-                    transparent 2px,
-                    rgba(0, 180, 255, 0.015) 2px,
-                    rgba(0, 180, 255, 0.015) 4px
-                ),
-                repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 40px,
-                    rgba(0, 180, 255, 0.02) 40px,
-                    rgba(0, 180, 255, 0.02) 41px
-                ),
-                linear-gradient(160deg,
-                    #08090d 0%,
-                    #101520 30%,
-                    #0d1a2a 55%,
-                    #101520 80%,
-                    #08090d 100%
-                );
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,180,255,0.015) 2px, rgba(0,180,255,0.015) 4px),
+                repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,180,255,0.02) 40px, rgba(0,180,255,0.02) 41px),
+                linear-gradient(160deg, #08090d 0%, #101520 30%, #0d1a2a 55%, #101520 80%, #08090d 100%);
             min-height: 100vh;
             color: var(--text-main);
-            padding: 80px 20px 50px;
+            padding: 80px 20px 80px;
             overflow-x: hidden;
-            position: relative;
         }
 
-        /* ── Scanline overlay ── */
         body::after {
             content: '';
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 3px,
-                rgba(0,0,0,0.08) 3px,
-                rgba(0,0,0,0.08) 4px
-            );
-            pointer-events: none;
-            z-index: 999;
+            position: fixed; inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px);
+            pointer-events: none; z-index: 999;
         }
 
-        /* ══════════════════════════════════════
-           FIXED HEADER (estructura de GRAFITER,
-           estilo visual de migue100)
-        ══════════════════════════════════════ */
+        /* ── Nav ── */
         .site-nav {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 900;
-            padding: 0 2rem;
-            height: 56px;
-            background: rgba(8, 9, 13, 0.9);
-            backdrop-filter: blur(14px);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+            padding: 0 2rem; height: 56px;
+            background: rgba(8,9,13,0.9); backdrop-filter: blur(14px);
             border-bottom: 1px solid rgba(190, 190, 200, 0.18);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; align-items: center; justify-content: space-between;
         }
-
         .nav-logo {
             font-family: 'Share Tech Mono', monospace;
-            font-size: 1.15rem;
-            font-weight: 400;
-            letter-spacing: 0.15em;
-            color: #fff;
-            text-shadow:
-                0 0 4px #fff,
-                0 0 12px var(--neon-blue),
-                0 0 28px rgba(0,180,255,0.35);
-            background: none;
-            border: none;
+            font-size: 1.15rem; font-weight: 400; letter-spacing: 0.15em;
+            color: #fff; text-decoration: none; background: none; border: none;
             cursor: pointer;
+            text-shadow: 0 0 4px #fff, 0 0 12px var(--neon-blue), 0 0 28px rgba(0,180,255,0.35);
             transition: text-shadow 0.3s ease;
         }
         .nav-logo:hover {
-            text-shadow:
-                0 0 6px #fff,
-                0 0 18px var(--neon-blue),
-                0 0 40px rgba(0,180,255,0.5);
+            text-shadow: 0 0 6px #fff, 0 0 18px var(--neon-blue), 0 0 40px rgba(0,180,255,0.5);
         }
 
-        .nav-buttons {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .lang-switch {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
+        .lang-switch { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
         .lang-trigger {
-            display: flex;
-            align-items: center;
-            gap: 0.32rem;
-            background: rgba(0, 212, 255, 0.04);
-            border: 1px solid rgba(190, 190, 200, 0.22);
-            border-radius: 3px;
-            padding: 0.22rem 0.5rem;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.68rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--text-dim);
-            line-height: 1;
-            cursor: pointer;
-            transition: all 0.25s ease;
+            display: flex; align-items: center; gap: 0.32rem;
+            background: rgba(0,212,255,0.04); border: 1px solid rgba(190, 190, 200, 0.22); border-radius: 3px;
+            padding: 0.22rem 0.5rem; font-family: 'Share Tech Mono', monospace; font-size: 0.68rem;
+            letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); line-height: 1;
+            cursor: pointer; transition: all 0.25s ease;
         }
         .lang-trigger-flag { font-size: 0.95rem; line-height: 1; }
-        .lang-trigger-caret {
-            font-size: 0.6rem;
-            transition: transform 0.25s ease;
-        }
-        .lang-trigger:hover,
-        .lang-switch.open .lang-trigger {
-            border-color: var(--smoke-gray);
-            background: rgba(0, 212, 255, 0.1);
-            box-shadow: 0 0 10px rgba(0,212,255,0.2);
-            color: #fff;
+        .lang-trigger-caret { font-size: 0.6rem; transition: transform 0.25s ease; }
+        .lang-trigger:hover, .lang-switch.open .lang-trigger {
+            border-color: var(--smoke-gray); background: rgba(0,212,255,0.1);
+            box-shadow: 0 0 10px rgba(0,212,255,0.2); color: #fff;
         }
         .lang-switch.open .lang-trigger-caret { transform: rotate(180deg); }
         .lang-menu {
-            position: absolute;
-            top: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%) translateY(-6px);
-            display: flex;
-            flex-direction: column;
-            gap: 0.28rem;
-            background: rgba(8, 9, 13, 0.97);
-            border: 1px solid rgba(190, 190, 200, 0.22);
-            border-radius: 4px;
-            padding: 0.35rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            z-index: 950;
+            position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%) translateY(-6px);
+            display: flex; flex-direction: column; gap: 0.28rem;
+            background: rgba(8,9,13,0.97); border: 1px solid rgba(190, 190, 200, 0.22); border-radius: 4px;
+            padding: 0.35rem; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; z-index: 950;
         }
-        .lang-switch.open .lang-menu {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateX(-50%) translateY(0);
-        }
+        .lang-switch.open .lang-menu { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
         .lang-menu .lang-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.45rem;
-            width: 100%;
-            white-space: nowrap;
-            background: rgba(0, 212, 255, 0.04);
-            border: 1px solid rgba(190, 190, 200, 0.18);
-            border-radius: 3px;
-            padding: 0.3rem 0.6rem;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.72rem;
-            letter-spacing: 0.05em;
-            color: var(--text-dim);
-            cursor: pointer;
-            transition: all 0.2s ease;
+            display: flex; align-items: center; gap: 0.45rem; width: 100%; white-space: nowrap;
+            background: rgba(0,212,255,0.04); border: 1px solid rgba(190, 190, 200, 0.18); border-radius: 3px;
+            padding: 0.3rem 0.6rem; font-family: 'Share Tech Mono', monospace; font-size: 0.72rem;
+            letter-spacing: 0.05em; color: var(--text-dim); cursor: pointer; transition: all 0.2s ease;
         }
-        .lang-menu .lang-btn:hover {
-            border-color: var(--smoke-gray);
-            background: rgba(0, 212, 255, 0.1);
-            color: #fff;
-        }
-        #google_translate_element,
-        .goog-te-banner-frame,
-        .skiptranslate { display: none !important; }
+        .lang-menu .lang-btn:hover { border-color: var(--smoke-gray); background: rgba(0,212,255,0.1); color: #fff; }
+        #google_translate_element, .goog-te-banner-frame, .skiptranslate { display: none !important; }
         body { top: 0px !important; }
-        html.translated-ltr body,
-        html.translated-rtl body { top: 0 !important; }
-        @media (max-width: 560px) {
-            .lang-trigger-label { display: none; }
-        }
-
-        .nav-btn {
-            padding: 0.4rem 0.9rem;
-            background: rgba(0, 212, 255, 0.04);
-            border: 1px solid rgba(190, 190, 200, 0.22);
-            border-radius: 3px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.7rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--neon-blue);
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-        .nav-btn:hover {
-            background: rgba(0, 212, 255, 0.1);
-            border-color: var(--smoke-gray);
-            color: #fff;
-            box-shadow: 0 0 10px rgba(0,212,255,0.2);
-        }
-
-        /* Auth sidebar */
-        .auth-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.55);
-            z-index: 800;
-            backdrop-filter: blur(3px);
-        }
-        .auth-overlay.open { display: block; }
-
-        .auth-sidebar {
-            position: fixed;
-            top: 0; right: 0; bottom: 0;
-            width: 320px;
-            z-index: 850;
-            background: linear-gradient(160deg, rgba(18,21,28,0.98), rgba(10,14,22,1));
-            border-left: 1px solid rgba(190,190,200,0.2);
-            padding: 4rem 2rem 2rem;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            overflow-y: auto;
-        }
-        .auth-sidebar.open { transform: translateX(0); }
-
-        .auth-close {
-            position: absolute;
-            top: 1rem; right: 1.2rem;
-            background: none;
-            border: none;
-            color: var(--text-dim);
-            font-size: 1.6rem;
-            cursor: pointer;
-            line-height: 1;
-            transition: color 0.2s ease;
-        }
-        .auth-close:hover { color: var(--neon-blue); }
-
-        .auth-title {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 1rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: #fff;
-            text-shadow: 0 0 8px var(--neon-blue);
-            margin-bottom: 2rem;
-        }
-
-        .auth-field {
-            margin-bottom: 1.2rem;
-        }
-        .auth-field label {
-            display: block;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.6rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--neon-dim);
-            margin-bottom: 0.4rem;
-        }
-        .auth-field input {
-            width: 100%;
-            padding: 0.6rem 0.8rem;
-            background: rgba(0,212,255,0.04);
-            border: 1px solid rgba(190,190,200,0.2);
-            border-radius: 3px;
-            color: #fff;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.85rem;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .auth-field input:focus {
-            outline: none;
-            border-color: var(--smoke-gray);
-            box-shadow: 0 0 8px rgba(0,212,255,0.2);
-        }
-
-        .auth-submit {
-            width: 100%;
-            padding: 0.7rem;
-            margin-top: 0.5rem;
-            background: rgba(0,212,255,0.08);
-            border: 1px solid rgba(190,190,200,0.4);
-            border-radius: 3px;
-            color: var(--neon-blue);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-        .auth-submit:hover {
-            background: rgba(0,212,255,0.15);
-            color: #fff;
-            box-shadow: 0 0 12px rgba(0,212,255,0.25);
-        }
-        .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .gdpr-field { margin-top: 0.4rem; }
-        .gdpr-label {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.6rem;
-            cursor: pointer;
-        }
-        .gdpr-label input[type="checkbox"] {
-            width: 14px;
-            min-width: 14px;
-            height: 14px;
-            margin-top: 3px;
-            accent-color: var(--neon-blue);
-            cursor: pointer;
-        }
-        .gdpr-label span {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.6rem;
-            letter-spacing: 0.05em;
-            color: var(--text-dim);
-            line-height: 1.5;
-        }
-        .gdpr-label span a {
-            color: var(--neon-blue);
-            text-decoration: underline;
-        }
-
-        .auth-switch {
-            margin-top: 1.2rem;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--text-dim);
-            letter-spacing: 0.05em;
-        }
-        .auth-switch span {
-            color: var(--neon-blue);
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .auth-user-info {
-            text-align: center;
-            padding-top: 1rem;
-        }
-        .auth-user-email {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-            color: var(--neon-blue);
-            margin-bottom: 1.5rem;
-            word-break: break-all;
-        }
-        .auth-logout {
-            padding: 0.55rem 1.2rem;
-            background: none;
-            border: 1px solid rgba(190,190,200,0.3);
-            border-radius: 3px;
-            color: var(--text-dim);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .auth-logout:hover { color: #fff; border-color: var(--smoke-gray); }
-
-        @media (max-width: 480px) {
-            .auth-sidebar { width: 100%; }
-        }
-
+        html.translated-ltr body, html.translated-rtl body { top: 0 !important; }
+        @media (max-width: 560px) { .lang-trigger-label { display: none; } }
         @media (max-width: 768px) {
             .site-nav { padding: 0 1rem; height: 50px; }
             .nav-logo { font-size: 0.9rem; }
-            .nav-btn { font-size: 0.6rem; padding: 0.35rem 0.6rem; }
-            body { padding-top: 66px; }
         }
         @media (max-width: 480px) {
             .site-nav { padding: 0 0.6rem; }
             .nav-logo { font-size: 0.78rem; letter-spacing: 0.1em; }
-            .nav-btn { font-size: 0.55rem; padding: 0.28rem 0.45rem; letter-spacing: 0.12em; }
         }
 
-        /* ── Page wrapper ── */
-        .page-wrapper {
-            max-width: 1100px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 2;
-        }
-
-        /* ══════════════════════════════════════
-           SITE HEADER (title block)
-        ══════════════════════════════════════ */
-        .site-header {
+        /* ── Under-construction notice ── */
+        .construction-banner {
+            max-width: 1200px; margin: 0 auto 40px;
             text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(190, 190, 200, 0.2);
-            position: relative;
+        }
+        .construction-title {
+            font-family: 'Share Tech Mono', monospace; font-size: 1.4em;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--amber);
+            text-shadow: 0 0 12px rgba(255,179,0,0.4);
         }
 
+        /* ── Page Header (one per model block) ── */
+        .page-header { max-width: 1200px; margin: 0 auto 32px; }
+        .page-header + .page-header { margin-top: 56px; }
+        .page-tag {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.6em;
+            letter-spacing: 0.22em; color: var(--neon-dim); margin-bottom: 6px;
+        }
+        .page-tag::before { content: '['; }
+        .page-tag::after  { content: ']'; }
+        .page-title {
+            font-family: 'Share Tech Mono', monospace; font-size: 1.6em;
+            letter-spacing: 0.1em; color: var(--text-main); text-transform: uppercase;
+        }
+        .page-title span { color: var(--neon-blue); }
+        .page-divider {
+            margin-top: 12px; height: 1px;
+            background: linear-gradient(90deg, rgba(0,212,255,0.5), transparent);
+        }
 
-        .site-title {
+        /* ── Section Label ── */
+        .section-label {
+            max-width: 1200px; margin: 48px auto 16px;
             font-family: 'Share Tech Mono', monospace;
-            font-size: clamp(2em, 5vw, 3.5em);
-            font-weight: 400;
-            letter-spacing: 0.15em;
-            color: #fff;
-            text-shadow:
-                0 0 4px #fff,
-                0 0 12px var(--neon-blue),
-                0 0 30px var(--neon-blue),
-                0 0 60px rgba(0, 180, 255, 0.4);
-            animation: titlePulse 4s ease-in-out infinite alternate;
+            font-size: 0.58em; letter-spacing: 0.28em;
+            color: var(--neon-dim); text-transform: uppercase;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .section-label::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(90deg, rgba(0,212,255,0.2), transparent);
         }
 
-.site-subtitle {
-            font-size: 1em;
-            letter-spacing: 0.25em;
-            color: var(--chrome);
-            margin-top: 4px;
-            text-transform: uppercase;
-        }
-
-        @keyframes titlePulse {
-            0%   { text-shadow: 0 0 4px #fff, 0 0 12px var(--neon-blue), 0 0 30px var(--neon-blue), 0 0 60px rgba(0,180,255,0.3); }
-            100% { text-shadow: 0 0 2px #fff, 0 0 8px var(--neon-blue), 0 0 18px var(--neon-blue), 0 0 40px rgba(0,180,255,0.2); }
-        }
-
-        /* ══════════════════════════════════════
-           HERO / BUSINESS CARD
-        ══════════════════════════════════════ */
-        .hero-card {
-            position: relative;
-            border-radius: 6px;
-            overflow: hidden;
-            margin-bottom: 50px;
-            border: none;
-            box-shadow:
-                0 0 30px 6px rgba(190, 190, 200, 0.28),
-                0 0 70px 15px rgba(190, 190, 200, 0.16);
-        }
-
-        /* Hero image */
-        .hero-image-wrap {
-            position: relative;
-            height: 547px;
-            overflow: hidden;
-        }
-
-        .hero-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-            display: block;
-            filter:
-                contrast(1.1)
-                saturate(0.85)
-                brightness(0.7)
-                hue-rotate(10deg);
-        }
-
-        /* Metal overlay on image */
-        .hero-image-wrap::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background:
-                linear-gradient(
-                    to bottom,
-                    rgba(8,9,13,0.1) 0%,
-                    rgba(8,9,13,0.0) 40%,
-                    rgba(8,9,13,0.6) 80%,
-                    rgba(8,9,13,0.95) 100%
-                ),
-                repeating-linear-gradient(
-                    90deg,
-                    transparent,
-                    transparent 3px,
-                    rgba(0,212,255,0.03) 3px,
-                    rgba(0,212,255,0.03) 4px
-                );
-        }
-
-        /* Neon scan line on image */
-        .hero-scanline {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #f0f2f5, #ffffff, #d8dce2, transparent);
-            box-shadow: 0 0 12px rgba(230, 233, 240, 0.9), 0 0 30px rgba(210, 215, 225, 0.6);
-            animation: scanDown 6s linear infinite;
-            z-index: 5;
-        }
-
-        @keyframes scanDown {
-            0%   { top: 0; opacity: 1; }
-            90%  { top: 100%; opacity: 0.3; }
-            100% { top: 100%; opacity: 0; }
-        }
-
-        /* ── Profile panel inside hero ── */
-        .hero-info {
-            position: relative;
-            background: linear-gradient(135deg,
-                rgba(18, 21, 28, 0.95) 0%,
-                rgba(10, 14, 22, 0.98) 100%
-            );
-            border-top: 1px solid rgba(190, 190, 200, 0.2);
-            padding: 28px 35px;
-            display: flex;
-            align-items: center;
-            gap: 30px;
-        }
-
-        .profile-avatar-frame {
-            position: relative;
-            width: 190px;
-            height: 190px;
-            align-self: center;
-            flex-shrink: 0;
-            background: transparent;
-            box-shadow:
-                0 0 28px rgba(185, 115, 40, 0.3),
-                0 0 55px 10px rgba(185, 115, 40, 0.15),
-                0 0 95px 20px rgba(185, 115, 40, 0.08);
-            transition: box-shadow 0.3s ease;
-        }
-
-        .profile-avatar-wrap {
-            position: relative;
-            z-index: 1;
-            display: block;
-            width: 100%;
-            height: 100%;
-            border-radius: 0;
-            overflow: hidden;
-            border: 1px solid rgba(220, 145, 55, 0.7);
-            box-shadow:
-                0 0 0 1px rgba(0,0,0,0.6),
-                inset 0 1px 0 rgba(230, 160, 65, 0.25),
-                inset 0 -1px 0 rgba(110, 50, 0, 0.5);
-            transition: all 0.3s ease;
-        }
-
-        .profile-avatar {
-            width: 100%;
-            height: 100%;
-            display: block;
-            object-fit: cover;
-            object-position: center;
-            transform: scale(1.09);
-            transform-origin: center;
-            filter: grayscale(20%) contrast(1.05);
-            transition: all 0.3s ease;
-        }
-
-        .profile-avatar-frame:hover {
-            box-shadow:
-                0 0 36px rgba(185, 115, 40, 0.4),
-                0 0 70px 14px rgba(185, 115, 40, 0.2),
-                0 0 110px 24px rgba(185, 115, 40, 0.1);
-        }
-
-        .profile-avatar-frame:hover .profile-avatar-wrap {
-            border-color: rgba(225, 150, 55, 0.9);
-        }
-
-        .profile-avatar-frame:hover .profile-avatar {
-            filter: grayscale(0%) contrast(1.1);
-        }
-
-        .profile-data {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .data-row {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 10px;
-        }
-
-        .data-label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.65em;
-            letter-spacing: 0.25em;
-            color: var(--neon-dim);
-            margin-bottom: 3px;
-        }
-
-        .data-value {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: clamp(1em, 2.5vw, 1.5em);
-            color: #ffffff;
-            text-shadow:
-                0 0 3px #fff,
-                0 0 8px var(--neon-blue),
-                0 0 18px rgba(0, 180, 255, 0.4);
-            letter-spacing: 0.08em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .data-value.small {
-            font-size: clamp(0.8em, 2vw, 1.1em);
-            color: var(--chrome-bright);
-            text-shadow: 0 0 6px rgba(0, 180, 255, 0.3);
-        }
-
-        .linkedin-link {
-            text-decoration: none;
-            transition: text-shadow 0.3s ease, color 0.3s ease;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 7px;
-        }
-        .linkedin-link svg { flex-shrink: 0; }
-        .linkedin-link:hover {
-            color: var(--neon-cyan);
-            text-shadow: 0 0 10px var(--neon-cyan), 0 0 22px rgba(0,255,255,0.4);
-        }
-
-        .data-value .cursor {
-            animation: blink 1s step-end infinite;
-            color: var(--neon-blue);
-        }
-
-        @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
-
-        /* Status badge */
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .status-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: #00ff88;
-            box-shadow: 0 0 6px #00ff88, 0 0 14px #00ff88;
-            animation: statusPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes statusPulse {
-            0%,100%{ opacity:1; box-shadow: 0 0 6px #00ff88, 0 0 14px #00ff88; }
-            50%    { opacity:0.5; box-shadow: 0 0 2px #00ff88; }
-        }
-
-        .status-text {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.7em;
-            letter-spacing: 0.2em;
-            color: #00ff88;
-        }
-
-        /* ══════════════════════════════════════
-           SECTION HEADING
-        ══════════════════════════════════════ */
-        .section-heading {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75em;
-            letter-spacing: 0.35em;
-            color: var(--neon-blue);
-            text-transform: uppercase;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .section-heading::before { content: '//'; opacity: 0.5; }
-        .section-heading::after  { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,212,255,0.3), transparent); }
-
-        /* ══════════════════════════════════════
-           CARDS GRID
-        ══════════════════════════════════════ */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-            gap: 20px;
-        }
-
-        .app-card {
-            background: linear-gradient(160deg,
-                rgba(26, 30, 40, 0.95) 0%,
-                rgba(18, 22, 32, 0.98) 50%,
-                rgba(22, 26, 38, 0.95) 100%
-            );
-            border: 1px solid rgba(190, 190, 200, 0.18);
-            border-radius: 4px;
-            padding: 28px 26px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow:
-                0 4px 20px rgba(0,0,0,0.5),
-                inset 0 1px 0 rgba(255,255,255,0.03),
-                inset 0 0 50px 8px rgba(190, 190, 200, 0.14),
-                inset 0 0 18px rgba(190, 190, 200, 0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            min-height: 290px;
-        }
-
-        /* Top edge accent */
-        .app-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 20px; right: 20px;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(0,212,255,0.5), transparent);
-        }
-
-        /* Corner marks */
-        .app-card::after {
-            content: '';
-            position: absolute;
-            top: 6px; right: 6px;
-            width: 8px; height: 8px;
-            border-top: 2px solid rgba(190, 190, 200, 0.4);
-            border-right: 2px solid rgba(190, 190, 200, 0.4);
-        }
-
-        .app-card:hover {
-            border-color: rgba(190, 190, 200, 0.45);
-            transform: translateY(-4px);
-            box-shadow:
-                0 8px 35px rgba(0,0,0,0.6),
-                0 0 20px rgba(0, 180, 255, 0.08),
-                inset 0 1px 0 rgba(255,255,255,0.05);
-            background: linear-gradient(160deg,
-                rgba(28, 34, 48, 0.98) 0%,
-                rgba(20, 25, 38, 1) 50%,
-                rgba(24, 30, 44, 0.98) 100%
-            );
-        }
-
-        /* Sweep shine on hover */
-        .app-card .card-shine {
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
-            transition: left 0.5s ease;
-            pointer-events: none;
-        }
-        .app-card:hover .card-shine { left: 100%; }
-
-        .card-tag {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.6em;
-            letter-spacing: 0.2em;
-            color: var(--neon-dim);
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .card-tag::before { content: '['; } .card-tag::after { content: ']'; }
-
-        .app-icon {
-            font-size: 2.6em;
-            margin-bottom: 12px;
-            display: block;
-            filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.35));
-            transition: transform 0.3s ease, filter 0.3s ease;
-        }
-        .app-card:hover .app-icon {
-            transform: scale(1.08);
-            filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.6));
-        }
-
-        .app-title {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.5em;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: #fff;
-            text-shadow:
-                0 0 4px #fff,
-                0 0 10px var(--neon-blue),
-                0 0 22px rgba(0, 180, 255, 0.35);
-            margin-bottom: 8px;
-            line-height: 1.1;
-        }
-
-        .app-description {
-            font-size: 0.9em;
-            color: var(--text-dim);
-            line-height: 1.5;
-            margin-bottom: 22px;
-            min-height: 38px;
-            letter-spacing: 0.03em;
-        }
-
-        .app-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.82em;
-            letter-spacing: 0.2em;
-            text-decoration: none;
-            text-transform: uppercase;
-            color: var(--neon-blue);
-            border: 1px solid rgba(190, 190, 200, 0.4);
-            padding: 10px 20px;
-            border-radius: 2px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            min-height: 44px;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            background: rgba(0, 212, 255, 0.04);
-            margin-top: auto;
-        }
-
-        .app-link::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 212, 255, 0);
-            transition: background 0.3s ease;
-        }
-
-        .app-link::after { content: '→'; transition: transform 0.3s ease; }
-
-        .app-link:hover {
-            color: #fff;
-            border-color: var(--smoke-gray);
-            box-shadow:
-                0 0 12px rgba(0, 212, 255, 0.2),
-                inset 0 0 12px rgba(0, 212, 255, 0.06);
-            text-shadow: 0 0 8px var(--neon-blue);
-        }
-        .app-link:hover::before { background: rgba(0, 212, 255, 0.06); }
-        .app-link:hover::after { transform: translateX(4px); }
-
-        a.app-card {
-            text-decoration: none;
-            color: inherit;
-            cursor: pointer;
-        }
-
-
-        /* Background image cards */
-        #card-turning {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(10, 14, 22, 0.61) 0%,
-                    rgba(8, 12, 20, 0.64) 50%,
-                    rgba(10, 14, 22, 0.61) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-turning.jpg');
-            background-size: cover;
-            background-position: center;
-        }
-        #card-turning:hover {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(12, 18, 30, 0.59) 0%,
-                    rgba(10, 15, 26, 0.62) 50%,
-                    rgba(12, 18, 30, 0.59) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-turning.jpg');
-            background-size: cover;
-            background-position: center;
-        }
-        #card-milling {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(10, 14, 22, 0.61) 0%,
-                    rgba(8, 12, 20, 0.64) 50%,
-                    rgba(10, 14, 22, 0.61) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-milling.jpg');
-            background-size: cover;
-            background-position: center;
-        }
-        #card-milling:hover {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(12, 18, 30, 0.59) 0%,
-                    rgba(10, 15, 26, 0.62) 50%,
-                    rgba(12, 18, 30, 0.59) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-milling.jpg');
-            background-size: cover;
-            background-position: center;
-        }
-
-        #card-tools {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(10, 14, 22, 0.61) 0%,
-                    rgba(8, 12, 20, 0.64) 50%,
-                    rgba(10, 14, 22, 0.61) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-tool-library.jpg');
-            background-size: cover;
-            background-position: center;
-        }
-        #card-tools:hover {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(12, 18, 30, 0.59) 0%,
-                    rgba(10, 15, 26, 0.62) 50%,
-                    rgba(12, 18, 30, 0.59) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-tool-library.jpg');
-            background-size: cover;
-            background-position: center;
-        }
-
-        #card-metro {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(10, 14, 22, 0.61) 0%,
-                    rgba(8, 12, 20, 0.64) 50%,
-                    rgba(10, 14, 22, 0.61) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-metrology.jpg');
-            background-size: cover;
-            background-position: center;
-        }
-        #card-metro:hover {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(12, 18, 30, 0.59) 0%,
-                    rgba(10, 15, 26, 0.62) 50%,
-                    rgba(12, 18, 30, 0.59) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-metrology.jpg');
-            background-size: cover;
-            background-position: center;
-        }
-
-        #card-cnc {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(10, 14, 22, 0.61) 0%,
-                    rgba(8, 12, 20, 0.64) 50%,
-                    rgba(10, 14, 22, 0.61) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-security.png');
-            background-size: cover;
-            background-position: center;
-        }
-        #card-cnc:hover {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(12, 18, 30, 0.59) 0%,
-                    rgba(10, 15, 26, 0.62) 50%,
-                    rgba(12, 18, 30, 0.59) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-security.png');
-            background-size: cover;
-            background-position: center;
-        }
-
-        #card-ai {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(10, 14, 22, 0.61) 0%,
-                    rgba(8, 12, 20, 0.64) 50%,
-                    rgba(10, 14, 22, 0.61) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-tech-assistant.jpg');
-            background-size: cover;
-            background-position: center;
-        }
-        #card-ai:hover {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(12, 18, 30, 0.59) 0%,
-                    rgba(10, 15, 26, 0.62) 50%,
-                    rgba(12, 18, 30, 0.59) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-tech-assistant.jpg');
-            background-size: cover;
-            background-position: center;
-        }
-
-        #card-sheet-metal {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(10, 14, 22, 0.61) 0%,
-                    rgba(8, 12, 20, 0.64) 50%,
-                    rgba(10, 14, 22, 0.61) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-sheet-metal.png');
-            background-size: cover;
-            background-position: center;
-        }
-        #card-sheet-metal:hover {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(12, 18, 30, 0.59) 0%,
-                    rgba(10, 15, 26, 0.62) 50%,
-                    rgba(12, 18, 30, 0.59) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-sheet-metal.png');
-            background-size: cover;
-            background-position: center;
-        }
-
-        #card-welding {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(10, 14, 22, 0.61) 0%,
-                    rgba(8, 12, 20, 0.64) 50%,
-                    rgba(10, 14, 22, 0.61) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-welding.png');
-            background-size: cover;
-            background-position: center;
-        }
-        #card-welding:hover {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(12, 18, 30, 0.59) 0%,
-                    rgba(10, 15, 26, 0.62) 50%,
-                    rgba(12, 18, 30, 0.59) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-welding.png');
-            background-size: cover;
-            background-position: center;
-        }
-
-        #card-machinery {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(10, 14, 22, 0.61) 0%,
-                    rgba(8, 12, 20, 0.64) 50%,
-                    rgba(10, 14, 22, 0.61) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-machinery.png');
-            background-size: cover;
-            background-position: center;
-        }
-        #card-machinery:hover {
-            background-image:
-                linear-gradient(160deg,
-                    rgba(12, 18, 30, 0.59) 0%,
-                    rgba(10, 15, 26, 0.62) 50%,
-                    rgba(12, 18, 30, 0.59) 100%
-                ),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/card-machinery.png');
-            background-size: cover;
-            background-position: center;
-        }
-
-        /* Coming-soon card variant */
-        .app-card.coming-soon {
-            border-style: dashed;
-            border-color: rgba(190, 190, 200, 0.12);
-            opacity: 0.7;
-        }
-        .app-card.coming-soon .app-link {
-            pointer-events: none;
-            color: var(--text-dim);
-            border-color: rgba(190,190,200,0.15);
-        }
-
-        /* ══════════════════════════════════════
-           FLOATING PARTICLES (gear symbols)
-        ══════════════════════════════════════ */
-        .particles-layer {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        .gear-particle {
-            position: absolute;
-            color: rgba(0, 180, 255, 0.12);
-            font-size: 1em;
-            animation: driftUp linear infinite;
-            text-shadow: 0 0 4px rgba(0, 180, 255, 0.2);
-            user-select: none;
-        }
-
-        @keyframes driftUp {
-            0%   { transform: translateY(110vh) rotate(0deg);   opacity: 0; }
-            5%   { opacity: 1; }
-            95%  { opacity: 0.5; }
-            100% { transform: translateY(-20vh) rotate(720deg); opacity: 0; }
-        }
-
-        /* ══════════════════════════════════════
-           FOOTER
-        ══════════════════════════════════════ */
-        .site-footer {
-            text-align: center;
-            margin-top: 55px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(190, 190, 200, 0.1);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.65em;
-            letter-spacing: 0.2em;
-            color: var(--text-dim);
-        }
-
-        /* ══════════════════════════════════════
-           RESPONSIVE
-        ══════════════════════════════════════ */
-        @media (max-width: 768px) {
-            .hero-info {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                padding: 22px 20px;
-            }
-            .hero-image-wrap { height: 354px; }
-            .cards-grid { grid-template-columns: 1fr; }
-            .data-value { white-space: normal; word-break: break-word; }
-            .data-row { align-items: center; }
-            .profile-avatar-frame {
-                width: 160px;
-                height: 160px;
-                align-self: center;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body { padding: 66px 12px 40px; }
-            .site-title { font-size: 1.8em; }
-            .hero-image-wrap { height: 290px; }
-            .app-card { padding: 22px 18px; }
-            .app-icon { font-size: 2em; }
-            .app-title { font-size: 1.25em; }
-        }
-
-        @media (hover: none) and (pointer: coarse) {
-            .app-card:active { transform: translateY(-2px); transition: all 0.1s ease; }
-            .app-link:active  { color: #fff; background: rgba(0,212,255,0.1); }
-        }
-
-        /* ══════════════════════════════════════
-           3D MODELS SCROLL
-        ══════════════════════════════════════ */
-        .models-scroll-wrap {
-            overflow-x: auto;
-            overflow-y: hidden;
-            margin-bottom: 50px;
-            padding-bottom: 12px;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(0,212,255,0.25) transparent;
-        }
-        .models-scroll-wrap::-webkit-scrollbar { height: 4px; }
-        .models-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
-        .models-scroll-wrap::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.25); border-radius: 2px; }
-        .models-track {
-            display: flex;
-            gap: 20px;
-            width: max-content;
-            padding: 4px 2px;
-        }
-        .model-card {
-            flex-shrink: 0;
-            width: 450px;
-            background: linear-gradient(160deg,
-                rgba(26,30,40,0.95) 0%,
-                rgba(18,22,32,0.98) 50%,
-                rgba(22,26,38,0.95) 100%
-            );
-            border: 1px solid rgba(190,190,200,0.18);
-            border-radius: 4px;
-            overflow: hidden;
+        /* ── Drawing Panel ── */
+        .drawing-panel {
+            max-width: 1200px; margin: 0 auto;
+            background: linear-gradient(160deg, rgba(26,30,40,0.95) 0%, rgba(18,22,32,0.98) 50%, rgba(22,26,38,0.95) 100%);
+            border: 1px solid rgba(190, 190, 200, 0.18); border-radius: 4px; overflow: hidden;
             position: relative;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
-            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
         }
-        .model-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 20px; right: 20px; height: 1px;
+        .drawing-panel::before {
+            content: ''; position: absolute; top: 0; left: 20px; right: 20px; height: 1px;
             background: linear-gradient(90deg, transparent, rgba(0,212,255,0.5), transparent);
-            z-index: 1;
         }
-        .model-card::after {
-            content: '';
-            position: absolute;
-            top: 6px; right: 6px;
+        .drawing-panel::after {
+            content: ''; position: absolute; top: 6px; right: 6px;
             width: 8px; height: 8px;
-            border-top: 2px solid rgba(190,190,200,0.4);
-            border-right: 2px solid rgba(190,190,200,0.4);
-            z-index: 1;
+            border-top: 2px solid rgba(190, 190, 200, 0.4); border-right: 2px solid rgba(190, 190, 200, 0.4);
             pointer-events: none;
         }
-        .model-card:hover {
-            border-color: rgba(190,190,200,0.45);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 35px rgba(0,0,0,0.6), 0 0 18px rgba(0,180,255,0.08), inset 0 1px 0 rgba(255,255,255,0.05);
+        .drawing-panel-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px; border-bottom: 1px solid rgba(190, 190, 200, 0.1);
         }
-        .model-card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 14px;
-            border-bottom: 1px solid rgba(190,190,200,0.1);
-            position: relative; z-index: 2;
+        .drawing-panel-title {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.62em;
+            letter-spacing: 0.16em; color: var(--text-dim); text-transform: uppercase;
         }
-        .model-card-tag {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.6em; letter-spacing: 0.2em; color: var(--neon-dim);
+        .drawing-panel-id {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.56em;
+            letter-spacing: 0.1em; color: rgba(0,212,255,0.4);
         }
-        .model-card-tag::before { content: '['; }
-        .model-card-tag::after  { content: ']'; }
-        .model-card-filename {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.54em; letter-spacing: 0.06em; color: var(--text-dim);
-            max-width: 155px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        .drawing-area {
+            min-height: 560px; display: flex; align-items: center;
+            justify-content: center; padding: 0; position: relative; overflow: hidden;
         }
-        .model-viewport {
-            position: relative; height: 330px;
-            background-image:
-                linear-gradient(rgba(8,9,13,0.45), rgba(8,9,13,0.45)),
-                url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/background.jpg');
-            background-size: cover;
-            background-position: center;
+        .drawing-area img {
+            width: 100%; height: auto; display: block;
+            filter: invert(1) sepia(1) hue-rotate(175deg) saturate(6) brightness(1.1);
+        }
+        .drawing-placeholder {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 16px; opacity: 0.4;
+        }
+        .drawing-placeholder svg { width: 120px; height: 120px; }
+        .drawing-placeholder-text {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.6em;
+            letter-spacing: 0.2em; color: var(--text-dim); text-transform: uppercase;
+        }
+        .drawing-panel-footer {
+            padding: 10px 16px; border-top: 1px solid rgba(190, 190, 200, 0.1);
+            display: flex; gap: 32px; align-items: center; flex-wrap: wrap;
+        }
+        .drawing-meta { display: flex; flex-direction: column; gap: 2px; }
+        .drawing-meta-label {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.46em;
+            letter-spacing: 0.18em; color: rgba(0,212,255,0.35); text-transform: uppercase;
+        }
+        .drawing-meta-value {
+            font-family: 'Rajdhani', sans-serif; font-size: 0.78em;
+            font-weight: 600; color: var(--text-main); letter-spacing: 0.04em;
+        }
+
+        /* ── Floating drawing preview (toggled from the G-CODE window) ── */
+        .drawing-float {
+            position: fixed; top: 76px; left: 50%; transform: translateX(-50%);
+            width: min(94vw, 720px); z-index: 500;
+            background: linear-gradient(160deg, rgba(26,30,40,0.98) 0%, rgba(16,20,30,0.99) 100%);
+            border: 1px solid rgba(255,23,68,0.4); border-radius: 4px;
+            box-shadow: 0 10px 34px rgba(0,0,0,0.65), 0 0 22px rgba(255,23,68,0.15);
             overflow: hidden;
         }
-        .model-status-overlay {
-            position: absolute; inset: 0;
+        .drawing-float-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.25);
+        }
+        .drawing-float-title {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.62em;
+            letter-spacing: 0.14em; color: #ff8a80; text-transform: uppercase;
+        }
+        .drawing-float-close {
+            background: none; border: none; color: #ff8a80; cursor: pointer;
+            font-size: 0.95em; line-height: 1; padding: 2px 4px;
+        }
+        .drawing-float-close:hover { color: #fff; }
+        .drawing-float-body {
+            max-height: 80vh; overflow-y: auto;
+            display: flex; align-items: center; justify-content: center;
+            padding: 6px;
+        }
+        .drawing-float-body img {
+            width: 100%; height: auto; display: block;
+            filter: invert(1) sepia(1) hue-rotate(175deg) saturate(6) brightness(1.1);
+        }
+        @media (max-width: 600px) { .drawing-float { top: 66px; } }
+
+        /* ── G-CODE Grid ── */
+        .gcode-grid {
+            max-width: 1200px; margin: 0 auto;
+        }
+        @media (max-width: 768px) {
+            .drawing-area { min-height: unset; }
+            .drawing-area img { width: 100%; height: auto; }
+        }
+
+        /* ── Siemens Window Chrome ── */
+        .siemens-win {
+            border-radius: 3px; overflow: hidden;
+            box-shadow: 0 6px 28px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
             display: flex; flex-direction: column;
-            align-items: center; justify-content: center; gap: 10px;
-        }
-        .model-spin-icon {
-            font-size: 2em; color: rgba(0,212,255,0.3);
-            animation: mcSpin 3s linear infinite;
-        }
-        @keyframes mcSpin { to { transform: rotate(360deg); } }
-        .model-status-txt {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.6em; letter-spacing: 0.15em; color: var(--text-dim);
-        }
-        .model-canvas-el {
-            display: none; width: 100%; height: 330px; cursor: grab;
-        }
-        .model-canvas-el:active { cursor: grabbing; }
-        .model-card-footer {
-            padding: 10px 14px;
-            border-top: 1px solid rgba(190,190,200,0.1);
-            display: flex; justify-content: space-between; align-items: center; gap: 8px;
-        }
-        .model-footer-desc {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.82em; color: var(--text-dim); line-height: 1.35;
-            flex: 1; letter-spacing: 0.02em;
-        }
-        .model-footer-tris {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.5em; letter-spacing: 0.1em;
-            color: rgba(0,212,255,0.35); white-space: nowrap;
-        }
-        .model-drawing-btn {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.5em; letter-spacing: 0.12em;
-            color: var(--neon-blue);
-            border: 1px solid rgba(190,190,200,0.3);
-            padding: 4px 9px;
-            text-decoration: none;
-            text-transform: uppercase;
-            white-space: nowrap;
-            transition: color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .model-drawing-btn:hover {
-            color: #fff;
-            border-color: rgba(190,190,200,0.7);
-            box-shadow: 0 0 10px rgba(0,212,255,0.2);
+            background: #12141c;
+            border: 2px solid #252830;
         }
 
-        /* ══════════════════════════════════════
-           SOPORTE TÉCNICO & COLABORACIONES
-        ══════════════════════════════════════ */
-        .collab-section {
-            margin-bottom: 50px;
-        }
-        .collab-scroll-wrap {
-            overflow: hidden;
-            position: relative;
-            margin-bottom: 28px;
-        }
-        .collab-scroll-wrap::before,
-        .collab-scroll-wrap::after {
-            content: '';
-            position: absolute;
-            top: 0; bottom: 0;
-            width: 80px;
-            z-index: 2;
-            pointer-events: none;
-        }
-        .collab-scroll-wrap::before {
-            left: 0;
-            background: linear-gradient(90deg, var(--steel-dark), transparent);
-        }
-        .collab-scroll-wrap::after {
-            right: 0;
-            background: linear-gradient(-90deg, var(--steel-dark), transparent);
-        }
-        .collab-track {
-            display: flex;
-            gap: 18px;
-            width: max-content;
-            padding: 4px 2px 12px;
-            animation: collabScroll 112.5s linear infinite;
-        }
-        @media (hover: hover) {
-            .collab-track:hover { animation-play-state: paused; }
-        }
-        @keyframes collabScroll {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        .collab-card {
+        /* Title bar — dark Siemens header */
+        .sw-titlebar {
+            background: #0c0e16;
+            border-bottom: 1px solid #1e2130;
+            padding: 6px 10px;
+            display: flex; align-items: flex-start;
             flex-shrink: 0;
-            width: 432px;
-            height: 281px;
-            background: linear-gradient(160deg,
-                rgba(26,30,40,0.95) 0%,
-                rgba(18,22,32,0.98) 100%
-            );
-            border: 1px solid rgba(190,190,200,0.15);
-            border-radius: 4px;
-            padding: 0;
+        }
+        .sw-titlebar-left {
+            display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+        }
+        .sw-logo {
+            font-family: 'Rajdhani', sans-serif; font-weight: 700;
+            font-size: 1.08em; letter-spacing: 0.06em; color: #3a9ad9;
+            text-transform: uppercase;
+        }
+
+        /* Screen area */
+        .sw-screen {
+            background: var(--sw-bg);
             position: relative;
-            overflow: hidden;
-            cursor: pointer;
-            user-select: none;
-            -webkit-user-select: none;
         }
-        .collab-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 16px; right: 16px; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(0,212,255,0.45), transparent);
-            z-index: 2;
+        /* CRT vignette */
+        .sw-screen::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.45) 100%);
         }
-        .collab-card::after {
-            content: '';
-            position: absolute;
-            top: 6px; right: 6px;
-            width: 7px; height: 7px;
-            border-top: 1px solid rgba(190,190,200,0.35);
-            border-right: 1px solid rgba(190,190,200,0.35);
-            z-index: 2;
-        }
-        .collab-card-photo {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 1;
-        }
-        .holo-layer {
-            position: absolute;
-            inset: 0;
-            border-radius: 4px;
-            opacity: 0;
-            mix-blend-mode: overlay;
-            transition: opacity 0.35s ease;
-            pointer-events: none;
-            z-index: 3;
-        }
-        /* ── Metal plate card variants ── */
-
-        /* VIVID — Gold */
-        [data-metal="gold"] {
-            background:
-                linear-gradient(120deg, rgba(255,230,100,0.13) 0%, transparent 45%),
-                repeating-linear-gradient(88deg, transparent, transparent 3px, rgba(212,168,40,0.05) 3px, rgba(212,168,40,0.05) 4px),
-                linear-gradient(160deg, rgba(62,46,8,0.98) 0%, rgba(36,26,4,1) 50%, rgba(50,36,6,0.98) 100%);
-            border: 1px solid rgba(255,200,50,0.7);
-            box-shadow: 0 0 28px rgba(212,168,40,0.22), 0 2px 8px rgba(0,0,0,0.6),
-                        inset 0 1px 0 rgba(255,230,80,0.25), inset 0 -1px 0 rgba(120,80,0,0.5);
-        }
-        [data-metal="gold"]::before { background: linear-gradient(90deg, transparent, rgba(255,215,60,0.85), transparent); }
-        [data-metal="gold"]::after  { border-color: rgba(255,215,60,0.85); width: 10px; height: 10px; }
-
-        /* NEUTRAL — Silver */
-        [data-metal="silver"] {
-            background:
-                linear-gradient(120deg, rgba(230,238,250,0.06) 0%, transparent 45%),
-                repeating-linear-gradient(88deg, transparent, transparent 3px, rgba(190,205,225,0.03) 3px, rgba(190,205,225,0.03) 4px),
-                linear-gradient(160deg, rgba(28,34,44,0.98) 0%, rgba(18,22,30,1) 50%, rgba(24,30,40,0.98) 100%);
-            border: 1px solid rgba(190,205,225,0.4);
-            box-shadow: 0 0 14px rgba(190,205,225,0.07), 0 2px 8px rgba(0,0,0,0.6),
-                        inset 0 1px 0 rgba(230,238,250,0.08), inset 0 -1px 0 rgba(60,70,90,0.4);
-        }
-        [data-metal="silver"]::before { background: linear-gradient(90deg, transparent, rgba(210,222,240,0.5), transparent); }
-        [data-metal="silver"]::after  { border-color: rgba(210,222,240,0.5); width: 10px; height: 10px; }
-
-        /* VIVID — Bronze */
-        [data-metal="bronze"] {
-            background:
-                linear-gradient(120deg, rgba(230,155,60,0.13) 0%, transparent 45%),
-                repeating-linear-gradient(88deg, transparent, transparent 3px, rgba(185,115,40,0.05) 3px, rgba(185,115,40,0.05) 4px),
-                linear-gradient(160deg, rgba(56,30,8,0.98) 0%, rgba(32,16,4,1) 50%, rgba(46,24,6,0.98) 100%);
-            border: 1px solid rgba(220,145,55,0.7);
-            box-shadow: 0 0 28px rgba(185,115,40,0.22), 0 2px 8px rgba(0,0,0,0.6),
-                        inset 0 1px 0 rgba(230,160,65,0.22), inset 0 -1px 0 rgba(110,50,0,0.5);
-        }
-        [data-metal="bronze"]::before { background: linear-gradient(90deg, transparent, rgba(225,150,55,0.85), transparent); }
-        [data-metal="bronze"]::after  { border-color: rgba(225,150,55,0.85); width: 10px; height: 10px; }
-
-        /* NEUTRAL — Steel */
-        [data-metal="steel"] {
-            background:
-                linear-gradient(120deg, rgba(110,150,185,0.06) 0%, transparent 45%),
-                repeating-linear-gradient(88deg, transparent, transparent 3px, rgba(80,120,155,0.03) 3px, rgba(80,120,155,0.03) 4px),
-                linear-gradient(160deg, rgba(14,20,30,0.98) 0%, rgba(8,14,22,1) 50%, rgba(12,18,28,0.98) 100%);
-            border: 1px solid rgba(90,130,165,0.38);
-            box-shadow: 0 0 14px rgba(90,130,165,0.07), 0 2px 8px rgba(0,0,0,0.6),
-                        inset 0 1px 0 rgba(120,160,195,0.08), inset 0 -1px 0 rgba(20,40,60,0.4);
-        }
-        [data-metal="steel"]::before { background: linear-gradient(90deg, transparent, rgba(110,155,190,0.5), transparent); }
-        [data-metal="steel"]::after  { border-color: rgba(110,155,190,0.5); width: 10px; height: 10px; }
-
-        /* VIVID — Copper */
-        [data-metal="copper"] {
-            background:
-                linear-gradient(120deg, rgba(240,130,65,0.13) 0%, transparent 45%),
-                repeating-linear-gradient(88deg, transparent, transparent 3px, rgba(200,105,45,0.05) 3px, rgba(200,105,45,0.05) 4px),
-                linear-gradient(160deg, rgba(54,22,8,0.98) 0%, rgba(30,12,4,1) 50%, rgba(44,18,6,0.98) 100%);
-            border: 1px solid rgba(230,125,60,0.7);
-            box-shadow: 0 0 28px rgba(200,105,45,0.22), 0 2px 8px rgba(0,0,0,0.6),
-                        inset 0 1px 0 rgba(240,145,70,0.22), inset 0 -1px 0 rgba(110,40,0,0.5);
-        }
-        [data-metal="copper"]::before { background: linear-gradient(90deg, transparent, rgba(230,130,60,0.85), transparent); }
-        [data-metal="copper"]::after  { border-color: rgba(230,130,60,0.85); width: 10px; height: 10px; }
-
-        /* NEUTRAL — Titanium */
-        [data-metal="titanium"] {
-            background:
-                linear-gradient(120deg, rgba(150,185,220,0.06) 0%, transparent 45%),
-                repeating-linear-gradient(88deg, transparent, transparent 3px, rgba(120,160,200,0.03) 3px, rgba(120,160,200,0.03) 4px),
-                linear-gradient(160deg, rgba(16,22,34,0.98) 0%, rgba(10,16,28,1) 50%, rgba(14,20,32,0.98) 100%);
-            border: 1px solid rgba(125,165,205,0.38);
-            box-shadow: 0 0 14px rgba(125,165,205,0.07), 0 2px 8px rgba(0,0,0,0.6),
-                        inset 0 1px 0 rgba(160,200,235,0.08), inset 0 -1px 0 rgba(30,50,80,0.4);
-        }
-        [data-metal="titanium"]::before { background: linear-gradient(90deg, transparent, rgba(145,185,220,0.5), transparent); }
-        [data-metal="titanium"]::after  { border-color: rgba(145,185,220,0.5); width: 10px; height: 10px; }
-
-        .collab-cta {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 14px;
-            padding: 22px;
-            margin-top: 28px;
-            border: 1px solid rgba(190,190,200,0.12);
-            border-radius: 4px;
-            background: linear-gradient(135deg, rgba(18,21,28,0.6), rgba(10,14,22,0.8));
-            text-align: center;
-        }
-        .collab-cta-text {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.68em;
-            letter-spacing: 0.2em;
-            color: var(--text-dim);
-            text-transform: uppercase;
-        }
-        .collab-cta-btn {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75em;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            text-decoration: none;
-            color: var(--neon-blue);
-            border: 1px solid rgba(190,190,200,0.4);
-            padding: 10px 28px;
-            border-radius: 2px;
-            background: rgba(0,212,255,0.05);
-            transition: all 0.25s ease;
-            min-height: 44px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .collab-cta-btn:hover {
-            color: #fff;
-            border-color: var(--smoke-gray);
-            background: rgba(0,212,255,0.1);
-            box-shadow: 0 0 16px rgba(0,212,255,0.2);
-            text-shadow: 0 0 8px var(--neon-blue);
-        }
-        /* ── Model Lock Overlay ── */
-        .model-lock-overlay {
-            position: absolute;
-            inset: 0;
-            z-index: 10;
-            background: rgba(8,9,13,0.25);
-            backdrop-filter: blur(0.5px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 22px;
-        }
-        .mlo-icon {
-            color: var(--neon-blue);
-            animation: mloPulse 3s ease-in-out infinite alternate;
-        }
-        @keyframes mloPulse {
-            from { filter: drop-shadow(0 0 10px rgba(0,212,255,0.55)) drop-shadow(0 0 24px rgba(0,212,255,0.2)); }
-            to   { filter: drop-shadow(0 0 20px rgba(0,212,255,1))    drop-shadow(0 0 44px rgba(0,212,255,0.5)); }
-        }
-        .mlo-btn {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.68em;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            text-decoration: none;
-            color: var(--neon-blue);
-            background: none;
-            border: none;
-            padding: 0;
-            text-align: center;
-            text-shadow: 0 0 8px rgba(0,212,255,0.6);
-            transition: color 0.25s ease, text-shadow 0.25s ease;
-            cursor: pointer;
-        }
-        .mlo-btn:hover {
-            color: #fff;
-            text-shadow: 0 0 12px var(--neon-blue), 0 0 28px rgba(0,212,255,0.5);
-        }
-
-        /* ── Chat Widget ── */
-        .talk-btn {
-            background: none;
-            border: none;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.72em;
-            letter-spacing: 0.15em;
-            color: var(--neon-blue);
-            cursor: pointer;
-            padding: 6px 0;
-            margin-top: 14px;
-            text-transform: uppercase;
-            transition: color 0.2s ease, text-shadow 0.2s ease;
-        }
-        .talk-btn:hover { color: #fff; text-shadow: 0 0 8px var(--neon-blue); }
-
-        .chat-panel {
-            position: fixed;
-            bottom: 24px; right: 24px;
-            width: 340px;
-            z-index: 960;
-            background: linear-gradient(160deg, rgba(18,21,28,0.98), rgba(10,14,22,1));
-            border: 1px solid rgba(190,190,200,0.25);
-            border-radius: 6px;
-            display: flex;
-            flex-direction: column;
-            transform: translateY(16px);
-            opacity: 0;
-            pointer-events: none;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 20px rgba(0,180,255,0.06);
-        }
-        .chat-panel.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
-
-        .chat-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 11px 14px;
-            border-bottom: 1px solid rgba(190,190,200,0.15);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.68em;
-            letter-spacing: 0.15em;
-            color: var(--neon-blue);
-        }
-        .chat-timer-row { display: flex; gap: 5px; align-items: center; }
-        .timer-dot {
-            width: 7px; height: 7px;
-            border-radius: 50%;
-            background: rgba(0,212,255,0.15);
-            border: 1px solid rgba(190,190,200,0.28);
-            transition: background 0.5s ease, box-shadow 0.5s ease;
-        }
-        .timer-dot.active { background: var(--neon-blue); box-shadow: 0 0 6px var(--neon-blue); }
-        .timer-dot.warn   { background: #ffaa00; box-shadow: 0 0 6px #ffaa00; border-color: #ffaa00; }
-
-        .chat-close {
-            background: none; border: none;
-            color: var(--text-dim); font-size: 1.2em;
-            cursor: pointer; line-height: 1;
-            transition: color 0.2s ease;
-        }
-        .chat-close:hover { color: var(--neon-blue); }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 13px 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 9px;
-            min-height: 200px;
-            max-height: 300px;
+        .sw-code-wrap {
+            /* Height hugs the actual line count; caps at ~300 lines, then scrolls internally */
+            max-height: 8000px; overflow-y: auto;
+            padding: 8px 0;
             scrollbar-width: thin;
-            scrollbar-color: rgba(0,212,255,0.18) transparent;
+            scrollbar-color: #1a2030 transparent;
+            /* Read-only display: no text selection / copy for site visitors */
+            user-select: none; -webkit-user-select: none;
+            -moz-user-select: none; -ms-user-select: none;
         }
-        .chat-msg {
+        .sw-code-wrap::-webkit-scrollbar { width: 4px; }
+        .sw-code-wrap::-webkit-scrollbar-thumb { background: #1e2a3a; border-radius: 2px; }
+        /* 3-column code table: N° / G-CODE / COMMENT */
+        .sw-code-table {
+            width: 100%; border-collapse: collapse;
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.71em;
-            letter-spacing: 0.03em;
-            line-height: 1.5;
-            max-width: 88%;
         }
-        .chat-msg.user {
-            align-self: flex-end;
-            color: var(--chrome-bright);
-            background: rgba(0,212,255,0.07);
-            border: 1px solid rgba(190,190,200,0.15);
-            border-radius: 4px 4px 0 4px;
-            padding: 6px 10px;
+        .sw-code-table thead th {
+            position: sticky; top: 0; z-index: 1;
+            background: #0a0c14; border-bottom: 1px solid #1a2030;
+            text-align: left; padding: 8px 13px;
+            font-size: 0.65em; letter-spacing: 0.12em;
+            color: #3a5268; text-transform: uppercase;
         }
-        .chat-msg.bot {
-            align-self: flex-start;
-            color: var(--text-main);
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 4px 4px 4px 0;
-            padding: 6px 10px;
+        .sw-code-table thead th.sw-ct-comment { text-align: right; }
+        .sw-code-table tbody tr:hover { background: rgba(0,160,220,0.05); }
+        .sw-code-table td {
+            padding: 2px 10px; vertical-align: baseline;
+            font-size: 0.864em; line-height: 1.55;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
         }
-        .chat-msg.warn-msg { color: #ffaa00; border-color: rgba(255,170,0,0.3); }
-        .chat-msg.system {
-            align-self: center;
-            color: var(--text-dim);
-            font-size: 0.64em;
-            text-align: center;
-            background: none; border: none;
-            max-width: 100%;
+        .sw-ct-n {
+            width: 44px; min-width: 44px; text-align: right;
+            color: #1e3040; user-select: none; white-space: nowrap;
         }
-
-        .chat-input-row {
-            display: flex;
-            gap: 8px;
-            padding: 11px 13px;
-            border-top: 1px solid rgba(190,190,200,0.12);
+        /* Line-flag button — click to mark a line as critical; stays highlighted until toggled again */
+        .sw-ct-flag {
+            background: none; border: none; width: 100%;
+            font: inherit; color: inherit; text-align: right;
+            padding: 2px 4px; margin: -2px -4px;
+            cursor: pointer; border-radius: 3px;
+            transition: color 0.15s, text-shadow 0.15s, background 0.15s;
         }
-        .chat-input {
-            flex: 1;
-            background: rgba(0,212,255,0.04);
-            border: 1px solid rgba(190,190,200,0.2);
-            border-radius: 3px;
-            padding: 7px 10px;
-            color: #fff;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.74em;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        .sw-ct-flag:hover { color: #7ab4c8; background: rgba(0,180,255,0.08); }
+        .sw-ct-row.sw-ct-flagged { background: rgba(255,23,68,0.08); }
+        .sw-ct-row.sw-ct-flagged .sw-ct-flag {
+            color: #ff1744;
+            text-shadow: 0 0 6px rgba(255,23,68,0.85), 0 0 16px rgba(255,23,68,0.4);
         }
-        .chat-input:focus { outline: none; border-color: var(--smoke-gray); box-shadow: 0 0 6px rgba(0,212,255,0.15); }
-        .chat-input:disabled { opacity: 0.4; }
-        .chat-send {
-            background: rgba(0,212,255,0.07);
-            border: 1px solid rgba(190,190,200,0.28);
-            border-radius: 3px;
-            color: var(--neon-blue);
-            font-size: 1em;
-            width: 36px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        .sw-ct-row.sw-ct-flagged .sw-ct-code { color: #ffb3ab; }
+        .sw-ct-row.sw-ct-flagged .sw-ct-ctext,
+        .sw-ct-row.sw-ct-flagged.sw-ct-detail .sw-ct-detail-box { color: #d98a86; }
+        tr.sw-ct-detail.sw-ct-flagged .sw-ct-detail-box {
+            border-left-color: #ff1744;
+            background: rgba(255,23,68,0.08);
         }
-        .chat-send:hover { background: rgba(0,212,255,0.15); color: #fff; }
-        .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        @media (max-width: 480px) {
-            .chat-panel { right: 10px; left: 10px; width: auto; bottom: 10px; }
+        .sw-ct-code { color: var(--sw-text); white-space: pre; }
+        .sw-code-table td.sw-ct-comment {
+            color: var(--sw-comment);
+            font-family: 'Rajdhani', sans-serif; font-size: 1em;
+            text-align: right; padding-right: 14px;
         }
-
-        /* ── Model Code Modal ── */
-        .code-modal-overlay {
+        /* Mobile-only comment toggle button */
+        .sw-ct-cbtn {
             display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.65);
-            backdrop-filter: blur(4px);
-            z-index: 970;
-            align-items: center;
-            justify-content: center;
-        }
-        .code-modal-overlay.open { display: flex; }
-        .code-modal {
-            background: linear-gradient(160deg, rgba(18,21,28,0.99), rgba(10,14,22,1));
-            border: 1px solid rgba(190,190,200,0.25);
-            border-radius: 6px;
-            padding: 2.2rem 2rem;
-            width: 320px;
-            max-width: 90vw;
-            position: relative;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.7), 0 0 20px rgba(0,180,255,0.07);
-        }
-        .code-modal-title {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.85rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: #fff;
-            text-shadow: 0 0 8px var(--neon-blue);
-            margin-bottom: 0.4rem;
-        }
-        .code-modal-sub {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.58rem;
-            letter-spacing: 0.1em;
-            color: var(--text-dim);
-            margin-bottom: 1.6rem;
-        }
-        .code-modal-input {
-            width: 100%;
-            padding: 0.65rem 0.9rem;
-            background: rgba(0,212,255,0.04);
-            border: 1px solid rgba(190,190,200,0.22);
-            border-radius: 3px;
-            color: #fff;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 1rem;
-            letter-spacing: 0.18em;
-            text-align: center;
-            text-transform: uppercase;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            margin-bottom: 1rem;
-        }
-        .code-modal-input:focus {
-            outline: none;
-            border-color: var(--smoke-gray);
-            box-shadow: 0 0 8px rgba(0,212,255,0.2);
-        }
-        .code-modal-submit {
-            width: 100%;
-            padding: 0.65rem;
-            background: rgba(0,212,255,0.07);
-            border: 1px solid rgba(190,190,200,0.35);
-            border-radius: 3px;
+            background: rgba(0,180,255,0.08);
+            border: 1px solid rgba(0,212,255,0.45);
             color: var(--neon-blue);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.72rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.25s ease;
+            border-radius: 5px;
+            font-size: 0.95em; line-height: 1;
+            padding: 4px 8px; cursor: pointer;
+            box-shadow: 0 0 6px rgba(0,212,255,0.35);
+            transition: box-shadow 0.15s, background 0.15s;
         }
-        .code-modal-submit:hover {
-            background: rgba(0,212,255,0.14);
-            color: #fff;
-            box-shadow: 0 0 12px rgba(0,212,255,0.2);
+        .sw-ct-cbtn:hover, .sw-ct-cbtn:active {
+            background: rgba(0,180,255,0.2);
+            box-shadow: 0 0 12px rgba(0,212,255,0.65);
         }
-        .code-modal-submit:disabled { opacity: 0.45; cursor: not-allowed; }
-        .code-modal-error {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.6rem;
-            letter-spacing: 0.1em;
-            color: #ff4466;
-            text-align: center;
-            margin-top: 0.7rem;
-            min-height: 1em;
+        .sw-ct-detail td { padding: 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        .sw-ct-detail-box {
+            display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+            margin: 4px 8px; padding: 8px 10px;
+            background: rgba(0,180,255,0.06);
+            border-left: 2px solid var(--neon-blue);
+            border-radius: 3px;
+            font-family: 'Rajdhani', sans-serif; font-size: 0.92em;
+            color: var(--sw-text);
         }
-        .code-modal-close {
-            position: absolute;
-            top: 0.8rem; right: 1rem;
-            background: none; border: none;
-            color: var(--text-dim);
-            font-size: 1.4rem;
-            cursor: pointer;
-            line-height: 1;
-            transition: color 0.2s;
+        .sw-ct-close {
+            background: none; border: none; flex-shrink: 0;
+            color: #ef5350; font-size: 1em; line-height: 1;
+            cursor: pointer; padding: 0 2px;
         }
-        .code-modal-close:hover { color: var(--neon-blue); }
+        @media (max-width: 768px) {
+            .sw-ct-ctext { display: none; }
+            .sw-ct-cbtn { display: inline-block; }
+            .sw-code-table td.sw-ct-comment { width: 40px; text-align: center; padding-right: 10px; }
+        }
+        /* G-code syntax classes */
+        .gk-n  { color: var(--sw-n); }
+        .gk-g  { color: var(--sw-g);   font-weight: bold; }
+        .gk-m  { color: var(--sw-m);   font-weight: bold; }
+        .gk-t  { color: var(--sw-tf); }
+        .gk-f  { color: var(--sw-tf); }
+        .gk-cy { color: var(--sw-cycle); font-style: italic; }
+        .gk-cm { color: var(--sw-comment); }
+        .gk-pct{ color: #3a5060; }
+        .gk-lbl{ color: #7e57c2; }
+
+        /* Softkey bar */
+        .sw-softkeys {
+            background: #0c0e16; border-top: 1px solid #1a1c28;
+            display: flex; align-items: stretch;
+            height: 38px; flex-shrink: 0;
+        }
+        .sw-sk {
+            flex: 1; background: none;
+            border: none; border-right: 1px solid #1a1c28;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9em; cursor: default;
+            transition: background 0.15s;
+            padding: 0 4px;
+        }
+        .sw-sk:last-child { border-right: none; }
+        .sw-sk:hover { background: rgba(0,180,255,0.07); }
+        .drawing-toggle-btn {
+            cursor: pointer; line-height: 1.15;
+        }
+        .drawing-toggle-btn .sw-sk-label {
+            font-family: 'Share Tech Mono', monospace; font-size: 9.75px;
+            letter-spacing: 0.03em; color: #fff; text-transform: uppercase;
+            text-shadow: 0 0 4px #fff, 0 0 10px rgba(255,255,255,0.7);
+            white-space: normal; text-align: center;
+        }
+        .drawing-toggle-btn.active {
+            background: rgba(255,23,68,0.14);
+            box-shadow: inset 0 0 0 1px rgba(255,23,68,0.45);
+        }
+        .drawing-toggle-btn.active .sw-sk-label { color: #ff8a80; }
     </style>
 </head>
 <body>
 
-    <!-- Fixed nav -->
     <nav class="site-nav">
-        <button class="nav-logo" id="nav-logo">migue100.com</button>
+        <a href="index.html" class="nav-logo">migue100.com</a>
         <div class="lang-switch" id="lang-switch">
             <button class="lang-trigger notranslate" id="lang-trigger" onclick="toggleLangMenu(event)" title="Language">
                 <span class="lang-trigger-flag" id="lang-trigger-flag">🇬🇧</span>
@@ -1860,1183 +458,472 @@
                 <button class="lang-btn" data-lang="it" onclick="setSiteLanguage('it')" title="Italiano">🇮🇹 Italiano</button>
             </div>
         </div>
-        <div class="nav-buttons">
-            <button class="nav-btn notranslate" id="nav-login">Login</button>
-            <button class="nav-btn notranslate" id="nav-register">Register</button>
-            <a href="/admin.html" class="nav-btn" id="nav-admin" style="display:none">Admin</a>
-        </div>
     </nav>
 
-    <!-- Auth sidebar -->
-    <div class="auth-overlay" id="auth-overlay"></div>
-    <aside class="auth-sidebar" id="auth-sidebar">
-        <button class="auth-close" id="auth-close">&times;</button>
-        <div class="auth-user-info" id="auth-user-info" style="display:none;">
-            <p class="auth-user-email" id="auth-user-email"></p>
-            <button class="auth-logout" id="auth-logout">Log out</button>
+    <!-- Floating drawing preview — toggled by the DRAWING softkey, stays pinned while scrolling through the code -->
+    <div class="drawing-float" id="drawing-float" hidden>
+        <div class="drawing-float-header">
+            <span class="drawing-float-title">Technical Drawing</span>
+            <button class="drawing-float-close" onclick="toggleDrawingFloat(false)" aria-label="Close drawing preview">✕</button>
         </div>
+        <div class="drawing-float-body">
+            <img id="drawing-float-img" alt="Technical drawing preview">
+        </div>
+    </div>
 
-        <!-- Login form -->
-        <form class="auth-form" id="form-login" style="display:none;">
-            <h2 class="auth-title">Login</h2>
-            <div class="auth-field">
-                <label>Email</label>
-                <input type="email" id="login-email" required>
-            </div>
-            <div class="auth-field">
-                <label>Password</label>
-                <input type="password" id="login-password" required>
-            </div>
-            <button type="submit" class="auth-submit" id="login-submit">Log In</button>
-            <p class="auth-switch">No account? <span id="switch-to-register">Register here</span></p>
-        </form>
+    <!-- Under-construction notice -->
+    <div class="construction-banner">
+        <div class="construction-title notranslate" data-i18n-es="Este sitio está en construcción" data-i18n-it="Questo sito è in costruzione">This site is under construction</div>
+    </div>
 
-        <!-- Register form -->
-        <form class="auth-form" id="form-register" style="display:none;">
-            <h2 class="auth-title">Register</h2>
-            <div class="auth-field">
-                <label>Username</label>
-                <input type="text" id="reg-username" required>
-            </div>
-            <div class="auth-field">
-                <label>Email</label>
-                <input type="email" id="reg-email" required>
-            </div>
-            <div class="auth-field">
-                <label>Password</label>
-                <input type="password" id="reg-password" required>
-            </div>
-            <div class="auth-field">
-                <label>Confirm Password</label>
-                <input type="password" id="reg-confirm" required>
-            </div>
-            <div class="auth-field gdpr-field">
-                <label class="gdpr-label">
-                    <input type="checkbox" id="reg-gdpr" required>
-                    <span>I have read and accept the <a href="/privacy-policy.html" target="_blank">Privacy Policy</a> and consent to the processing of my personal data under the GDPR.</span>
-                </label>
-            </div>
-            <button type="submit" class="auth-submit" id="register-submit">Create Account</button>
-            <p class="auth-switch">Already have an account? <span id="switch-to-login">Login here</span></p>
-        </form>
-    </aside>
+    <!-- ═══ MODEL 06 block ═══ -->
+    <div class="page-header">
+        <div class="page-tag">MODEL 06</div>
+        <div class="page-title"><span class="notranslate" style="color:var(--text-main)" data-i18n-es="Dibujo" data-i18n-it="Disegno">Technical</span> <span class="notranslate" data-i18n-es="Técnico" data-i18n-it="Tecnico">Drawing</span></div>
+        <div class="page-divider"></div>
+    </div>
 
-    <!-- Floating gear particles -->
-    <div class="particles-layer" id="particlesLayer"></div>
-
-    <div class="page-wrapper">
-
-        <!-- ── Hero / Business Card ── -->
-        <section class="hero-card">
-            <div class="hero-image-wrap">
-                <img src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/hero-1.png" alt="Industrial robotic machining cell" class="hero-image">
-                <div class="hero-scanline"></div>
-            </div>
-
-            <div class="hero-info">
-                <div class="profile-avatar-frame">
-                    <div class="profile-avatar-wrap">
-                        <img src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/perfil_optimized.jpg" alt="Profile" class="profile-avatar">
-                    </div>
-                </div>
-
-                <div class="profile-data">
-                    <div class="data-row">
-                        <span class="data-label">OPERATOR</span>
-                        <span class="data-value">Miguel Otero<span class="cursor">_</span></span>
-                    </div>
-                    <div class="data-row">
-                        <span class="data-label">CONTACT</span>
-                        <a href="https://www.linkedin.com/in/0123456789miguel/" target="_blank" class="data-value small linkedin-link">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                            LinkedIn
-                        </a>
-                    </div>
-                    <div class="status-badge">
-                        <div class="status-dot"></div>
-                        <span class="status-text">SYSTEM ONLINE — CNC PLATFORM ACTIVE</span>
-                    </div>
-                    <button class="talk-btn notranslate" id="talk-btn" data-i18n-es="💬 HABLAR CON MIGUEL" data-i18n-it="💬 PARLA CON MIGUEL">💬 TALK TO MIGUEL</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- ── Materials ── -->
-        <section class="collab-section">
-            <div class="section-heading notranslate" data-i18n-es="MATERIALES" data-i18n-it="MATERIALI">MATERIALS</div>
-
-            <div class="collab-scroll-wrap">
-                <div class="collab-track" id="collab-track">
-
-                    <div class="collab-card" data-metal="silver">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/1-aluminum.png" alt="Aluminum 6061" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="steel">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/2-carbon-steel.png" alt="Carbon Steel" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="steel">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/3-steel-304.png" alt="Stainless Steel 304" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="silver">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/4-steel-316.png" alt="Stainless Steel 316" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="steel">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/5-alloy-steel.png" alt="Alloy Steel 4140" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="gold">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/6-brass.png" alt="Brass C360" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="copper">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/7-copper.png" alt="Copper C110" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="bronze">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/8-bronze.png" alt="Bronze" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="titanium">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/9-titanium.png" alt="Titanium Ti-6Al-4V" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="steel">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/10-cast-iron.png" alt="Cast Iron" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="silver">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/11-pom.png" alt="POM (Delrin)" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="gold">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/12-nylon.png" alt="Nylon" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="copper">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/13-teflon.png" alt="Teflon (PTFE)" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="bronze">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/14-peek.png" alt="PEEK" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="titanium">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/15-abs.png" alt="ABS" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="silver">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/16-acrylic.png" alt="Acrylic" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="steel">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/17-policarbonate.png" alt="Polycarbonate" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="gold">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/18-hdpe.png" alt="HDPE" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="copper">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/19-pvc.png" alt="PVC" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="titanium">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/20-carbon-fiber.png" alt="Carbon Fiber" loading="lazy">
-                    </div>
-
-                    <!-- Duplicados para scroll infinito -->
-                    <div class="collab-card" data-metal="silver">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/1-aluminum.png" alt="Aluminum 6061" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="steel">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/2-carbon-steel.png" alt="Carbon Steel" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="steel">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/3-steel-304.png" alt="Stainless Steel 304" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="silver">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/4-steel-316.png" alt="Stainless Steel 316" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="steel">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/5-alloy-steel.png" alt="Alloy Steel 4140" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="gold">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/6-brass.png" alt="Brass C360" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="copper">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/7-copper.png" alt="Copper C110" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="bronze">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/8-bronze.png" alt="Bronze" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="titanium">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/9-titanium.png" alt="Titanium Ti-6Al-4V" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="steel">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/10-cast-iron.png" alt="Cast Iron" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="silver">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/11-pom.png" alt="POM (Delrin)" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="gold">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/12-nylon.png" alt="Nylon" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="copper">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/13-teflon.png" alt="Teflon (PTFE)" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="bronze">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/14-peek.png" alt="PEEK" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="titanium">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/15-abs.png" alt="ABS" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="silver">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/16-acrylic.png" alt="Acrylic" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="steel">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/17-policarbonate.png" alt="Polycarbonate" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="gold">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/18-hdpe.png" alt="HDPE" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="copper">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/19-pvc.png" alt="PVC" loading="lazy">
-                    </div>
-                    <div class="collab-card" data-metal="titanium">
-                        <img class="collab-card-photo" src="https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/MATERIALS/20-carbon-fiber.png" alt="Carbon Fiber" loading="lazy">
-                    </div>
-
-                </div>
-            </div>
-
-
-        </section>
-
-        <!-- ── 3D Models ── -->
-        <div class="section-heading notranslate" data-i18n-es="MODELOS 3D" data-i18n-it="MODELLI 3D">3D MODELS</div>
-        <div class="models-scroll-wrap">
-            <div class="models-track">
-
-                <div class="model-card">
-                    <div class="model-card-header">
-                        <span class="model-card-tag">MODEL 01</span>
-                        <span class="model-card-filename">A1-PROJECT CAM</span>
-                    </div>
-                    <div class="model-viewport">
-                        <div class="model-lock-overlay">
-                            <div class="mlo-icon">
-                                <svg width="80" height="92" viewBox="0 0 100 114" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M24 58 L24 36 A26 26 0 0 1 76 36 L76 58"
-                                          stroke="currentColor" stroke-width="10"
-                                          stroke-linecap="round" stroke-linejoin="round"/>
-                                    <rect x="8" y="54" width="84" height="57" rx="9"
-                                          fill="rgba(0,212,255,0.07)" stroke="currentColor" stroke-width="5"/>
-                                    <circle cx="50" cy="79" r="11"
-                                            fill="rgba(0,212,255,0.12)" stroke="currentColor" stroke-width="3.5"/>
-                                    <rect x="45.5" y="86" width="9" height="15" rx="2.5"
-                                          fill="rgba(0,212,255,0.12)" stroke="currentColor" stroke-width="3.5"/>
-                                </svg>
-                            </div>
-                            <a href="https://www.linkedin.com/in/0123456789miguel/" target="_blank" class="mlo-btn">
-                                Click for more information about this project
-                            </a>
-                        </div>
-                        <div class="model-status-overlay" id="mc-ov-0">
-                            <span class="model-spin-icon">⬡</span>
-                            <span class="model-status-txt" id="mc-st-0">Loading...</span>
-                        </div>
-                        <canvas class="model-canvas-el" id="mc-cv-0"></canvas>
-                    </div>
-                    <div class="model-card-footer">
-                        <span class="model-footer-desc">3-axis milling component designed for contour and face operations.</span>
-                        <a href="technical-drawing.html#1" class="model-drawing-btn" id="model01-drawing-btn">Technical Drawing</a>
-                        <span class="model-footer-tris" id="mc-tris-0">—</span>
-                    </div>
-                </div>
-
-                <div class="model-card">
-                    <div class="model-card-header">
-                        <span class="model-card-tag">MODEL 02</span>
-                        <span class="model-card-filename">A2-PROJECT CAM</span>
-                    </div>
-                    <div class="model-viewport">
-                        <div class="model-status-overlay" id="mc-ov-1">
-                            <span class="model-spin-icon">⬡</span>
-                            <span class="model-status-txt" id="mc-st-1">Loading...</span>
-                        </div>
-                        <canvas class="model-canvas-el" id="mc-cv-1"></canvas>
-                    </div>
-                    <div class="model-card-footer">
-                        <span class="model-footer-desc">Rotationally symmetric turning part machined on a CNC lathe.</span>
-                        <a href="technical-drawing.html#2" class="model-drawing-btn">Technical Drawing</a>
-                        <span class="model-footer-tris" id="mc-tris-1">—</span>
-                    </div>
-                </div>
-
-                <div class="model-card">
-                    <div class="model-card-header">
-                        <span class="model-card-tag">MODEL 03</span>
-                        <span class="model-card-filename">A3-PROJECT CAM</span>
-                    </div>
-                    <div class="model-viewport">
-                        <div class="model-lock-overlay">
-                            <div class="mlo-icon">
-                                <svg width="80" height="92" viewBox="0 0 100 114" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M24 58 L24 36 A26 26 0 0 1 76 36 L76 58"
-                                          stroke="currentColor" stroke-width="10"
-                                          stroke-linecap="round" stroke-linejoin="round"/>
-                                    <rect x="8" y="54" width="84" height="57" rx="9"
-                                          fill="rgba(0,212,255,0.07)" stroke="currentColor" stroke-width="5"/>
-                                    <circle cx="50" cy="79" r="11"
-                                            fill="rgba(0,212,255,0.12)" stroke="currentColor" stroke-width="3.5"/>
-                                    <rect x="45.5" y="86" width="9" height="15" rx="2.5"
-                                          fill="rgba(0,212,255,0.12)" stroke="currentColor" stroke-width="3.5"/>
-                                </svg>
-                            </div>
-                            <a href="https://www.linkedin.com/in/0123456789miguel/" target="_blank" class="mlo-btn">
-                                Click for more information about this project
-                            </a>
-                        </div>
-                        <div class="model-status-overlay" id="mc-ov-2">
-                            <span class="model-spin-icon">⬡</span>
-                            <span class="model-status-txt" id="mc-st-2">Loading...</span>
-                        </div>
-                        <canvas class="model-canvas-el" id="mc-cv-2"></canvas>
-                    </div>
-                    <div class="model-card-footer">
-                        <span class="model-footer-desc">Bolt-pattern coupling flange for mechanical assembly and sealing.</span>
-                        <a href="technical-drawing.html#3" class="model-drawing-btn" id="model03-drawing-btn">Technical Drawing</a>
-                        <span class="model-footer-tris" id="mc-tris-2">—</span>
-                    </div>
-                </div>
-
-                <div class="model-card">
-                    <div class="model-card-header">
-                        <span class="model-card-tag">MODEL 04</span>
-                        <span class="model-card-filename">A4-PROJECT CAM</span>
-                    </div>
-                    <div class="model-viewport">
-                        <div class="model-status-overlay" id="mc-ov-3">
-                            <span class="model-spin-icon">⬡</span>
-                            <span class="model-status-txt" id="mc-st-3">Loading...</span>
-                        </div>
-                        <canvas class="model-canvas-el" id="mc-cv-3"></canvas>
-                    </div>
-                    <div class="model-card-footer">
-                        <span class="model-footer-desc">General-purpose CNC machined component with optimized geometry.</span>
-                        <a href="technical-drawing.html#4" class="model-drawing-btn">Technical Drawing</a>
-                        <span class="model-footer-tris" id="mc-tris-3">—</span>
-                    </div>
-                </div>
-
+    <div class="drawing-panel">
+        <div class="drawing-panel-header">
+            <span class="drawing-panel-title" id="panel-title-6">A6-PROJECT CAM — TECHNICAL DRAWING</span>
+            <span class="drawing-panel-id" id="panel-id-6">DWG-A6-001</span>
+        </div>
+        <div class="drawing-area" id="drawing-area-6">
+            <div class="drawing-placeholder" id="drawing-placeholder-6">
+                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="8" y="8" width="104" height="104" stroke="rgba(0,212,255,0.4)" stroke-width="1.5" stroke-dasharray="6 4"/>
+                    <line x1="8"  y1="60" x2="112" y2="60" stroke="rgba(0,212,255,0.25)" stroke-width="1"/>
+                    <line x1="60" y1="8"  x2="60"  y2="112" stroke="rgba(0,212,255,0.25)" stroke-width="1"/>
+                    <rect x="28" y="28" width="64" height="64" stroke="rgba(0,212,255,0.5)" stroke-width="1.5"/>
+                    <circle cx="60" cy="60" r="24" stroke="rgba(0,212,255,0.35)" stroke-width="1.5" stroke-dasharray="4 3"/>
+                    <line x1="28" y1="28" x2="92" y2="92" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+                    <line x1="92" y1="28" x2="28" y2="92" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+                    <circle cx="60" cy="60" r="3" fill="rgba(0,212,255,0.5)"/>
+                </svg>
+                <span class="drawing-placeholder-text">Drawing not available</span>
             </div>
         </div>
-
-        <div style="display:flex;justify-content:center;margin-bottom:50px;">
-            <a href="3d-models.html" style="
-                font-family:'Share Tech Mono',monospace;
-                font-size:0.72rem;
-                letter-spacing:0.28em;
-                text-transform:uppercase;
-                color:var(--neon-blue);
-                text-decoration:none;
-                border:1px solid rgba(190,190,200,0.35);
-                padding:10px 32px;
-                background:rgba(0,212,255,0.04);
-                border-radius:3px;
-                transition:all 0.25s ease;
-                display:inline-flex;
-                align-items:center;
-                gap:10px;
-            " onmouseover="this.style.background='rgba(0,212,255,0.1)';this.style.borderColor='rgba(190,190,200,0.7)';this.style.color='#fff';this.style.boxShadow='0 0 18px rgba(0,212,255,0.2)'" onmouseout="this.style.background='rgba(0,212,255,0.04)';this.style.borderColor='rgba(190,190,200,0.35)';this.style.color='var(--neon-blue)';this.style.boxShadow='none'">
-                <span class="notranslate" data-i18n-es="VER TODOS LOS MODELOS 3D" data-i18n-it="VEDI TUTTI I MODELLI 3D">VIEW ALL 3D MODELS</span> <span style="font-size:1.1em;">&#8594;</span>
-            </a>
-        </div>
-
-        <!-- ── Cards Section ── -->
-        <div class="section-heading notranslate" data-i18n-es="MÓDULOS DE MECANIZADO" data-i18n-it="MODULI DI LAVORAZIONE">MACHINING KNOWLEDGE ROOMS</div>
-
-        <div class="cards-grid">
-
-            <a href="rooms/turning.html" class="app-card" id="card-turning">
-                <div class="card-shine"></div>
-                <div class="card-tag notranslate" data-i18n-es="MÓDULO 01" data-i18n-it="MODULO 01">MODULE 01</div>
-                <div class="app-title notranslate" data-i18n-es="Torneado" data-i18n-it="Tornitura">Turning</div>
-            </a>
-
-            <a href="rooms/milling.html" class="app-card" id="card-milling">
-                <div class="card-shine"></div>
-                <div class="card-tag notranslate" data-i18n-es="MÓDULO 02" data-i18n-it="MODULO 02">MODULE 02</div>
-                <div class="app-title notranslate" data-i18n-es="Fresado" data-i18n-it="Fresatura">Milling</div>
-            </a>
-
-            <a href="rooms/tool-library.html" class="app-card" id="card-tools">
-                <div class="card-shine"></div>
-                <div class="card-tag notranslate" data-i18n-es="MÓDULO 03" data-i18n-it="MODULO 03">MODULE 03</div>
-                <div class="app-title notranslate" data-i18n-es="Biblioteca de Herramientas" data-i18n-it="Libreria degli Utensili">Tool Library</div>
-            </a>
-
-            <a href="rooms/safety.html" class="app-card" id="card-cnc">
-                <div class="card-shine"></div>
-                <div class="card-tag notranslate" data-i18n-es="MÓDULO 04" data-i18n-it="MODULO 04">MODULE 04</div>
-                <div class="app-title notranslate" data-i18n-es="SEGURIDAD" data-i18n-it="SICUREZZA">SAFETY</div>
-            </a>
-
-            <a href="rooms/metrology.html" class="app-card" id="card-metro">
-                <div class="card-shine"></div>
-                <div class="card-tag notranslate" data-i18n-es="MÓDULO 05" data-i18n-it="MODULO 05">MODULE 05</div>
-                <div class="app-title notranslate" data-i18n-es="Metrología" data-i18n-it="Metrologia">Metrology</div>
-            </a>
-
-            <a href="rooms/tech-assistant.html" class="app-card" id="card-ai">
-                <div class="card-shine"></div>
-                <div class="card-tag notranslate" data-i18n-es="MÓDULO 06" data-i18n-it="MODULO 06">MODULE 06</div>
-                <div class="app-title notranslate" data-i18n-es="Bucle Humano-Máquina" data-i18n-it="Ciclo Uomo-Macchina">Human-Machine Loop</div>
-            </a>
-
-            <a href="rooms/sheet-metal.html" class="app-card" id="card-sheet-metal">
-                <div class="card-shine"></div>
-                <div class="card-tag notranslate" data-i18n-es="MÓDULO 07" data-i18n-it="MODULO 07">MODULE 07</div>
-                <div class="app-title notranslate" data-i18n-es="Chapa Metálica" data-i18n-it="Lamiera">Sheet Metal</div>
-            </a>
-
-            <a href="rooms/welding.html" class="app-card" id="card-welding">
-                <div class="card-shine"></div>
-                <div class="card-tag notranslate" data-i18n-es="MÓDULO 08" data-i18n-it="MODULO 08">MODULE 08</div>
-                <div class="app-title notranslate" data-i18n-es="Soldadura" data-i18n-it="Saldatura">Welding</div>
-            </a>
-
-            <a href="rooms/machinery.html" class="app-card" id="card-machinery">
-                <div class="card-shine"></div>
-                <div class="card-tag notranslate" data-i18n-es="MÓDULO 09" data-i18n-it="MODULO 09">MODULE 09</div>
-                <div class="app-title notranslate" data-i18n-es="Maquinaria" data-i18n-it="Macchinari">Machinery</div>
-            </a>
-
-        </div>
-
-
-    </div><!-- /page-wrapper -->
-
-    <script>
-        const BACKEND_URL = 'https://web-production-47911.up.railway.app';
-
-        /* ── Floating gear particles ── */
-        const SYMBOLS = ['⚙', '◈', '⬡', '◇', '△', '⊕', '⊗', '▷'];
-        const layer   = document.getElementById('particlesLayer');
-        function spawnParticle() {
-            const el = document.createElement('div');
-            el.className = 'gear-particle';
-            el.textContent = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
-            el.style.left     = (Math.random() * 100) + '%';
-            el.style.fontSize = (0.6 + Math.random() * 1.4) + 'em';
-            el.style.animationDuration  = (18 + Math.random() * 22) + 's';
-            el.style.animationDelay     = (Math.random() * -20) + 's';
-            layer.appendChild(el);
-            setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 42000);
-        }
-        for (let i = 0; i < 18; i++) spawnParticle();
-        setInterval(spawnParticle, 1800);
-
-        /* ── Logo scroll ── */
-        document.getElementById('nav-logo').addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        /* ── Auth sidebar ── */
-        const sidebar  = document.getElementById('auth-sidebar');
-        const overlay  = document.getElementById('auth-overlay');
-        const formLogin    = document.getElementById('form-login');
-        const formRegister = document.getElementById('form-register');
-        const userInfo     = document.getElementById('auth-user-info');
-        const userEmail    = document.getElementById('auth-user-email');
-
-        let activeForm = null;
-
-        function openSidebar(mode) {
-            sidebar.classList.add('open');
-            overlay.classList.add('open');
-            showForm(mode);
-        }
-
-        function closeSidebar() {
-            sidebar.classList.remove('open');
-            overlay.classList.remove('open');
-        }
-
-        function showForm(mode) {
-            const session = getSession();
-            formLogin.style.display    = 'none';
-            formRegister.style.display = 'none';
-            userInfo.style.display     = 'none';
-
-            if (session) {
-                activeForm = 'user';
-                userEmail.textContent = session.email;
-                userInfo.style.display = 'block';
-            } else if (mode === 'login') {
-                activeForm = 'login';
-                formLogin.style.display = 'flex';
-                formLogin.style.flexDirection = 'column';
-            } else {
-                activeForm = 'register';
-                formRegister.style.display = 'flex';
-                formRegister.style.flexDirection = 'column';
-            }
-        }
-
-        function getSession() {
-            try {
-                const token = localStorage.getItem('migue100_token');
-                const session = JSON.parse(localStorage.getItem('migue100_session') || 'null');
-                if (!token || !session) return null;
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                if (payload.exp && payload.exp * 1000 < Date.now()) {
-                    localStorage.removeItem('migue100_token');
-                    localStorage.removeItem('migue100_session');
-                    return null;
-                }
-                return session;
-            } catch { return null; }
-        }
-
-        /* ── Fixed glossary (nav/titles) — bypasses machine translation for domain terms ── */
-        const NAV_I18N = {
-            en: { login: 'Login', register: 'Register', logout: 'Logout' },
-            es: { login: 'Iniciar sesión', register: 'Registrarse', logout: 'Cerrar sesión' },
-            it: { login: 'Accedi', register: 'Registrati', logout: 'Esci' }
-        };
-        function currentLang() { return localStorage.getItem('migue100_lang') || 'en'; }
-
-        function updateNavState() {
-            const session     = getSession();
-            const loginBtn    = document.getElementById('nav-login');
-            const registerBtn = document.getElementById('nav-register');
-            const adminLink   = document.getElementById('nav-admin');
-            const t = NAV_I18N[currentLang()] || NAV_I18N.en;
-            if (session) {
-                loginBtn.textContent    = session.email.split('@')[0];
-                registerBtn.textContent = t.logout;
-                if (adminLink) adminLink.style.display = session.is_admin ? 'inline-block' : 'none';
-            } else {
-                loginBtn.textContent    = t.login;
-                registerBtn.textContent = t.register;
-                if (adminLink) adminLink.style.display = 'none';
-            }
-        }
-
-        document.getElementById('nav-login').addEventListener('click', () => {
-            if (getSession()) {
-                const isOpen = sidebar.classList.contains('open');
-                if (isOpen) { closeSidebar(); return; }
-                openSidebar('user');
-                return;
-            }
-            const isOpen = sidebar.classList.contains('open');
-            if (isOpen && activeForm === 'login') { closeSidebar(); return; }
-            openSidebar('login');
-        });
-
-        document.getElementById('nav-register').addEventListener('click', () => {
-            if (getSession()) {
-                localStorage.removeItem('migue100_token');
-                localStorage.removeItem('migue100_session');
-                updateNavState();
-                closeSidebar();
-                return;
-            }
-            const isOpen = sidebar.classList.contains('open');
-            if (isOpen && activeForm === 'register') { closeSidebar(); return; }
-            openSidebar('register');
-        });
-
-        document.getElementById('auth-close').addEventListener('click', closeSidebar);
-        overlay.addEventListener('click', closeSidebar);
-
-        document.getElementById('auth-logout').addEventListener('click', () => {
-            localStorage.removeItem('migue100_token');
-            localStorage.removeItem('migue100_session');
-            updateNavState();
-            closeSidebar();
-        });
-
-        document.getElementById('switch-to-register').addEventListener('click', () => showForm('register'));
-        document.getElementById('switch-to-login').addEventListener('click',    () => showForm('login'));
-
-        /* ── Login submit ── */
-        formLogin.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('login-submit');
-            btn.textContent = 'Connecting...';
-            btn.disabled = true;
-            try {
-                const res = await fetch(`${BACKEND_URL}/token`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email:    document.getElementById('login-email').value,
-                        password: document.getElementById('login-password').value
-                    })
-                });
-                const data = await res.json();
-                if (!res.ok) { alert(data.error || 'Incorrect credentials.'); return; }
-                const token = data.access_token;
-                localStorage.setItem('migue100_token', token);
-                // Verificar rol en servidor
-                let is_admin = false;
-                try {
-                    const meRes  = await fetch(`${BACKEND_URL}/me`, { headers: { 'Authorization': 'Bearer ' + token } });
-                    const meData = await meRes.json();
-                    is_admin = meData.is_admin === true;
-                } catch {}
-                localStorage.setItem('migue100_session', JSON.stringify({ email: document.getElementById('login-email').value, is_admin }));
-                updateNavState();
-                closeSidebar();
-            } catch { alert('Could not connect to server.'); }
-            finally { btn.textContent = 'Log In'; btn.disabled = false; }
-        });
-
-        /* ── Register submit ── */
-        formRegister.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const password = document.getElementById('reg-password').value;
-            const confirm  = document.getElementById('reg-confirm').value;
-            if (password !== confirm) { alert('Passwords do not match.'); return; }
-            if (password.length < 6)  { alert('Password must be at least 6 characters.'); return; }
-            const btn = document.getElementById('register-submit');
-            btn.textContent = 'Creating...';
-            btn.disabled = true;
-            try {
-                const res = await fetch(`${BACKEND_URL}/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        username: document.getElementById('reg-username').value,
-                        email:    document.getElementById('reg-email').value,
-                        password,
-                        gdpr_consent: true,
-                        gdpr_consent_version: 'v1.0-2026'
-                    })
-                });
-                const data = await res.json();
-                if (!res.ok) { alert(data.error || 'Registration error.'); return; }
-                alert('Account created! Please log in.');
-                showForm('login');
-            } catch { alert('Could not connect to server.'); }
-            finally { btn.textContent = 'Create Account'; btn.disabled = false; }
-        });
-
-        updateNavState();
-    </script>
-
-    <!-- Chat panel -->
-    <div class="chat-panel" id="chat-panel">
-        <div class="chat-header">
-            <span>💬 MIGUEL OTERO</span>
-            <div class="chat-timer-row">
-                <div class="timer-dot" id="td0"></div>
-                <div class="timer-dot" id="td1"></div>
-                <div class="timer-dot" id="td2"></div>
-                <div class="timer-dot" id="td3"></div>
-                <div class="timer-dot" id="td4"></div>
+        <div class="drawing-panel-footer">
+            <div class="drawing-meta">
+                <span class="drawing-meta-label">Project</span>
+                <span class="drawing-meta-value" id="meta-project-6">A6-PROJECT CAM</span>
             </div>
-            <button class="chat-close" id="chat-close">&times;</button>
+            <div class="drawing-meta">
+                <span class="drawing-meta-label">Scale</span>
+                <span class="drawing-meta-value">1:1</span>
+            </div>
+            <div class="drawing-meta">
+                <span class="drawing-meta-label">Standard</span>
+                <span class="drawing-meta-value">ISO 128</span>
+            </div>
+            <div class="drawing-meta">
+                <span class="drawing-meta-label">Author</span>
+                <span class="drawing-meta-value">Miguel Otero</span>
+            </div>
         </div>
-        <div class="chat-messages" id="chat-messages"></div>
-        <div class="chat-input-row">
-            <input type="text" class="chat-input" id="chat-input" maxlength="200" placeholder="Ask about CNC machining...">
-            <button class="chat-send" id="chat-send">→</button>
+    </div>
+
+    <div class="section-label">G-CODE Program</div>
+    <div class="gcode-grid">
+        <div class="siemens-win">
+            <div class="sw-titlebar">
+                <div class="sw-titlebar-left">
+                    <span class="sw-logo" id="sw-logo-title-6">G-CODE</span>
+                </div>
+            </div>
+            <div class="sw-screen">
+                <div class="sw-code-wrap" id="viewer-code-6"></div>
+            </div>
+            <div class="sw-softkeys">
+                <button class="sw-sk drawing-toggle-btn" id="drawing-toggle-btn-6" onclick="toggleDrawingFloat(6)" title="Show technical drawing" aria-pressed="false">
+                    <span class="sw-sk-label">Active Drawing</span>
+                </button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODEL 04 block ═══ -->
+    <div class="page-header">
+        <div class="page-tag">MODEL 04</div>
+        <div class="page-title"><span class="notranslate" style="color:var(--text-main)" data-i18n-es="Dibujo" data-i18n-it="Disegno">Technical</span> <span class="notranslate" data-i18n-es="Técnico" data-i18n-it="Tecnico">Drawing</span></div>
+        <div class="page-divider"></div>
+    </div>
+
+    <div class="drawing-panel">
+        <div class="drawing-panel-header">
+            <span class="drawing-panel-title" id="panel-title-4">A4-PROJECT CAM — TECHNICAL DRAWING</span>
+            <span class="drawing-panel-id" id="panel-id-4">DWG-A4-001</span>
+        </div>
+        <div class="drawing-area" id="drawing-area-4">
+            <div class="drawing-placeholder" id="drawing-placeholder-4">
+                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="8" y="8" width="104" height="104" stroke="rgba(0,212,255,0.4)" stroke-width="1.5" stroke-dasharray="6 4"/>
+                    <line x1="8"  y1="60" x2="112" y2="60" stroke="rgba(0,212,255,0.25)" stroke-width="1"/>
+                    <line x1="60" y1="8"  x2="60"  y2="112" stroke="rgba(0,212,255,0.25)" stroke-width="1"/>
+                    <rect x="28" y="28" width="64" height="64" stroke="rgba(0,212,255,0.5)" stroke-width="1.5"/>
+                    <circle cx="60" cy="60" r="24" stroke="rgba(0,212,255,0.35)" stroke-width="1.5" stroke-dasharray="4 3"/>
+                    <line x1="28" y1="28" x2="92" y2="92" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+                    <line x1="92" y1="28" x2="28" y2="92" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+                    <circle cx="60" cy="60" r="3" fill="rgba(0,212,255,0.5)"/>
+                </svg>
+                <span class="drawing-placeholder-text">Drawing not available</span>
+            </div>
+        </div>
+        <div class="drawing-panel-footer">
+            <div class="drawing-meta">
+                <span class="drawing-meta-label">Project</span>
+                <span class="drawing-meta-value" id="meta-project-4">A4-PROJECT CAM</span>
+            </div>
+            <div class="drawing-meta">
+                <span class="drawing-meta-label">Scale</span>
+                <span class="drawing-meta-value">1:1</span>
+            </div>
+            <div class="drawing-meta">
+                <span class="drawing-meta-label">Standard</span>
+                <span class="drawing-meta-value">ISO 128</span>
+            </div>
+            <div class="drawing-meta">
+                <span class="drawing-meta-label">Author</span>
+                <span class="drawing-meta-value">Miguel Otero</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-label">G-CODE Program</div>
+    <div class="gcode-grid">
+        <div class="siemens-win">
+            <div class="sw-titlebar">
+                <div class="sw-titlebar-left">
+                    <span class="sw-logo" id="sw-logo-title-4">G-CODE</span>
+                </div>
+            </div>
+            <div class="sw-screen">
+                <div class="sw-code-wrap" id="viewer-code-4"></div>
+            </div>
+            <div class="sw-softkeys">
+                <button class="sw-sk drawing-toggle-btn" id="drawing-toggle-btn-4" onclick="toggleDrawingFloat(4)" title="Show technical drawing" aria-pressed="false">
+                    <span class="sw-sk-label">Active Drawing</span>
+                </button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+                <button class="sw-sk">🟢</button>
+            </div>
         </div>
     </div>
 
     <script>
+    /* ═══════════════════════════════════════════════════════════
+       MODEL DATA
+    ═══════════════════════════════════════════════════════════ */
+    const MODELS = {
+        6: {
+            title: 'A6-PROJECT CAM — TECHNICAL DRAWING',
+            id: 'DWG-A6-001', project: 'A6-PROJECT CAM',
+            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D6.png'
+        },
+        4: {
+            title: 'A4-PROJECT CAM — TECHNICAL DRAWING',
+            id: 'DWG-A4-001', project: 'A4-PROJECT CAM',
+            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D4.png'
+        }
+    };
+
+    /* ── Shared G-code program (drilling / tapping / chamfering cycle) ──
+       Fallback program for any model without its own line-by-line
+       commented program (currently MODEL 04). */
+    const SHARED_PROGRAM = [
+        { n: 'N10',  code: 'G90 G17',              comment: 'Program start — absolute programming, XY plane' },
+        { n: 'N20',  code: 'T1 M6',                 comment: 'Tool call: center drill Ø2.5 mm — tool change' },
+        { n: 'N30',  code: 'S1200 M13',             comment: 'Spindle 1200 rpm, CW rotation with coolant ON' },
+        { n: 'N40',  code: 'G0 X50 Y10',            comment: 'Rapid positioning to point P4' },
+        { n: 'N50',  code: 'Z2',                    comment: 'Rapid approach to workpiece at safety height' },
+        { n: 'N60',  code: 'G81 Z-6 F80',           comment: 'Drilling canned cycle — depth -6 mm, feed 80 mm/min' },
+        { n: 'N70',  code: 'Y30',                   comment: 'Rapid move to point P3 — hole executed automatically' },
+        { n: 'N80',  code: 'X10',                   comment: 'Rapid move to point P2 — hole executed automatically' },
+        { n: 'N90',  code: 'Y10',                   comment: 'Rapid move to point P1 — hole executed automatically' },
+        { n: 'N100', code: 'G80 X-50 T2 M6',        comment: 'Cancel canned cycle, tool change: twist drill Ø6.5 mm' },
+        { n: 'N120', code: 'G0 X10 Y10 S950 M13',   comment: 'Position at P1, spindle 950 rpm CW with coolant ON' },
+        { n: 'N130', code: 'Z2',                    comment: 'Rapid approach to workpiece at safety height' },
+        { n: 'N140', code: 'G81 Z-20 F60',          comment: 'Drilling canned cycle — depth -20 mm, feed 60 mm/min' },
+        { n: 'N150', code: 'Y30',                   comment: 'Rapid move to point P2 — hole executed automatically' },
+        { n: 'N160', code: 'X50',                   comment: 'Rapid move to point P3 — hole executed automatically' },
+        { n: 'N170', code: 'Y10',                   comment: 'Rapid move to point P4 — hole executed automatically' },
+        { n: 'N180', code: 'G80 X100 T3 M6',        comment: 'Cancel canned cycle, tool change: M8 tap' },
+        { n: 'N190', code: 'G0 X50 Y30 S200 M13',   comment: 'Position at P3, spindle 200 rpm CW with coolant ON' },
+        { n: 'N200', code: 'Z2',                    comment: 'Rapid approach to workpiece at safety height' },
+        { n: 'N210', code: 'G84 Z-20 F250',         comment: 'Tapping canned cycle — depth -20 mm, feed 250 mm/min' },
+        { n: 'N220', code: 'X10 Y10',                comment: 'Rapid move to point P1 — thread executed automatically' },
+        { n: 'N230', code: 'G80 X-50 T4 M6',        comment: 'Cancel canned cycle, tool change: 90° countersink' },
+        { n: 'N240', code: 'G0 X10 Y10 S400 M13',   comment: 'Position at P1, spindle 400 rpm CW with coolant ON' },
+        { n: 'N250', code: 'Z2',                    comment: 'Rapid approach to workpiece at safety height' },
+        { n: 'N260', code: 'G81 Z-2.5 F80',         comment: 'Chamfering canned cycle — depth -2.5 mm, feed 80 mm/min' },
+        { n: 'N270', code: 'X50 Y30',                comment: 'Rapid move to point P3 — chamfer executed automatically' },
+        { n: 'N280', code: 'G0 X100 Y50 Z30 M30',   comment: 'Move out of work area for part change — spindle stop, program end' }
+    ];
+
+    /* ── Model 06 program (CNC turning — facing, centre drill, drill,
+       internal roughing/finishing, external roughing/finishing, parting) ── */
+    const PROGRAM_2 = [
+        { n: 'N010', code: 'P50 G95',                  comment: 'Program start — reference P50, feed per revolution mode (G95)' },
+        { n: 'N020', code: 'T1 M6',                     comment: 'Tool change: T1 — facing tool' },
+        { n: 'N030', code: 'S800 M4',                   comment: 'Spindle 800 rpm, counter-clockwise (M4)' },
+        { n: 'N040', code: 'G0 X60 Z1.6',               comment: 'Rapid approach to X60 Z1.6' },
+        { n: 'N050', code: 'G1 X0 F0.3',                comment: 'Facing cut to centre (X0), feed 0.3 mm/rev' },
+        { n: 'N060', code: 'G0 Z3',                     comment: 'Rapid retract to Z3' },
+        { n: 'N070', code: 'X60',                       comment: 'Rapid move to X60' },
+        { n: 'N080', code: 'Z0.2',                      comment: 'Rapid approach to Z0.2 for finishing pass' },
+        { n: 'N090', code: 'G1 X0',                     comment: 'Facing finishing cut to X0' },
+        { n: 'N100', code: 'G0 Z2',                     comment: 'Rapid retract to Z2' },
+        { n: 'N110', code: 'X100 Z80 T2 M6',            comment: 'Retract to tool-change position, tool change: T2 — Ø2.5 centre drill' },
+        { n: 'N120', code: 'S1200 M4',                  comment: 'Spindle 1200 rpm, counter-clockwise' },
+        { n: 'N130', code: 'G0 X0 Z3',                  comment: 'Rapid approach on axis to Z3' },
+        { n: 'N140', code: 'G81 Z6 F0.2',               comment: 'Centre-drilling canned cycle, feed 0.2 mm/rev' },
+        { n: 'N150', code: 'G80 X100 Z80 T3 M6',        comment: 'Cancel canned cycle, retract, tool change: T3 — Ø10 drill' },
+        { n: 'N160', code: 'S600 M4',                   comment: 'Spindle 600 rpm, counter-clockwise' },
+        { n: 'N170', code: 'G83 Z-43 F0.2',             comment: 'Peck-drilling canned cycle to Z-43, feed 0.2 mm/rev' },
+        { n: 'N180', code: 'G80 X100 Z80 T4 M6',        comment: 'Cancel canned cycle, retract, tool change: T4 — internal roughing tool' },
+        { n: 'N190', code: 'G0 X15 Z3',                 comment: 'Rapid approach to bore' },
+        { n: 'N200', code: 'G1 Z-32 F0.2',              comment: 'Roughing pass to Z-32, feed 0.2 mm/rev' },
+        { n: 'N210', code: 'X10 Z-37',                  comment: 'Taper cut to X10 Z-37' },
+        { n: 'N220', code: 'G0 Z3',                     comment: 'Rapid retract to Z3' },
+        { n: 'N230', code: 'X20',                       comment: 'Rapid move to X20 for next pass' },
+        { n: 'N240', code: 'G1 Z-27',                   comment: 'Roughing pass to Z-27' },
+        { n: 'N250', code: 'X15 Z-37',                  comment: 'Taper cut to X15 Z-37' },
+        { n: 'N260', code: 'G0 Z3',                     comment: 'Rapid retract to Z3' },
+        { n: 'N270', code: 'X25',                       comment: 'Rapid move to X25 for next pass' },
+        { n: 'N280', code: 'G1 Z-22',                   comment: 'Roughing pass to Z-22' },
+        { n: 'N290', code: 'X20 Z-27',                  comment: 'Taper cut to X20 Z-27' },
+        { n: 'N300', code: 'G0 Z3',                     comment: 'Rapid retract to Z3' },
+        { n: 'N310', code: 'X30',                       comment: 'Rapid move to X30 for next pass' },
+        { n: 'N320', code: 'G1 Z-17',                   comment: 'Roughing pass to Z-17' },
+        { n: 'N330', code: 'X25 Z-22',                  comment: 'Taper cut to X25 Z-22' },
+        { n: 'N340', code: 'G0 Z3',                     comment: 'Rapid retract to Z3' },
+        { n: 'N350', code: 'X34.5',                     comment: 'Rapid move to X34.5 for next pass' },
+        { n: 'N360', code: 'G1 Z-12',                   comment: 'Roughing pass to Z-12' },
+        { n: 'N370', code: 'X30 Z-17',                  comment: 'Taper cut to X30 Z-17' },
+        { n: 'N380', code: 'G0 Z3',                     comment: 'Rapid retract to Z3' },
+        { n: 'N390', code: 'X39',                       comment: 'Rapid move to X39 for last roughing pass' },
+        { n: 'N400', code: 'G1 Z-8',                    comment: 'Roughing pass to Z-8' },
+        { n: 'N410', code: 'X34.5 Z-12',                comment: 'Taper cut to X34.5 Z-12' },
+        { n: 'N420', code: 'G0 Z3',                     comment: 'Rapid retract to Z3' },
+        { n: 'N430', code: 'X100 Z80 T5 M6',            comment: 'Retract to tool-change position, tool change: T5 — internal finishing tool' },
+        { n: 'N440', code: 'S1000 M4',                  comment: 'Spindle 1000 rpm, counter-clockwise' },
+        { n: 'N450', code: 'G0 X45 Z3',                 comment: 'Rapid approach to X45 Z3' },
+        { n: 'N460', code: 'G1 Z0 F0.1',                comment: 'Approach to face at Z0, finishing feed 0.1 mm/rev' },
+        { n: 'N470', code: 'G2 X40 Z-2.5 I45 K-2.5',    comment: 'CW arc — internal chamfer/radius to X40 Z-2.5' },
+        { n: 'N480', code: 'G1 Z-10',                   comment: 'Finishing pass to Z-10' },
+        { n: 'N490', code: 'X10 Z-40',                  comment: 'Taper finishing cut to X10 Z-40, completing bore profile' },
+        { n: 'N500', code: 'G0 Z3',                     comment: 'Rapid retract to Z3' },
+        { n: 'N510', code: 'X100 Z80 T6 M6',            comment: 'Retract to tool-change position, tool change: T6 — external roughing tool' },
+        { n: 'N520', code: 'S800 M4',                   comment: 'Spindle 800 rpm, counter-clockwise' },
+        { n: 'N530', code: 'G0 X51 Z3',                 comment: 'Rapid approach to X51 Z3' },
+        { n: 'N540', code: 'G1 Z-36 F0.2',              comment: 'Roughing pass to Z-36, feed 0.2 mm/rev' },
+        { n: 'N550', code: 'G0 X53',                    comment: 'Rapid retract to X53' },
+        { n: 'N560', code: 'Z13',                       comment: 'Rapid move to Z13' },
+        { n: 'N570', code: 'G1 X50',                    comment: 'Roughing cut to X50' },
+        { n: 'N580', code: 'X45 Z-18',                  comment: 'Taper cut to X45 Z-18' },
+        { n: 'N590', code: 'Z-23',                      comment: 'Roughing pass to Z-23' },
+        { n: 'N600', code: 'G0 X50',                    comment: 'Rapid retract to X50' },
+        { n: 'N610', code: 'Z-18',                      comment: 'Rapid move to Z-18' },
+        { n: 'N620', code: 'X45',                       comment: 'Rapid move to X45' },
+        { n: 'N630', code: 'G1 X40 Z-23',               comment: 'Taper cut to X40 Z-23' },
+        { n: 'N640', code: 'Z-72.5',                    comment: 'Roughing pass to Z-72.5' },
+        { n: 'N650', code: 'G0 X45',                    comment: 'Rapid retract to X45' },
+        { n: 'N660', code: 'Z-23',                      comment: 'Rapid move to Z-23' },
+        { n: 'N670', code: 'X40',                       comment: 'Rapid move to X40' },
+        { n: 'N680', code: 'G1 X35 Z-28',               comment: 'Taper cut to X35 Z-28' },
+        { n: 'N690', code: 'Z-72',                      comment: 'Roughing pass to Z-72' },
+        { n: 'N700', code: 'G0 X40',                    comment: 'Rapid retract to X40' },
+        { n: 'N710', code: 'Z-28',                      comment: 'Rapid move to Z-28' },
+        { n: 'N720', code: 'X35',                       comment: 'Rapid move to X35' },
+        { n: 'N730', code: 'G1 X30 Z-33',               comment: 'Taper cut to X30 Z-33' },
+        { n: 'N740', code: 'Z-71.5',                    comment: 'Roughing pass to Z-71.5' },
+        { n: 'N750', code: 'G0 X35',                    comment: 'Rapid retract to X35' },
+        { n: 'N760', code: 'Z-33',                      comment: 'Rapid move to Z-33' },
+        { n: 'N770', code: 'X30',                       comment: 'Rapid move to X30' },
+        { n: 'N780', code: 'G1 X25 Z-38',               comment: 'Taper cut to X25 Z-38' },
+        { n: 'N790', code: 'Z-71',                      comment: 'Roughing pass to Z-71' },
+        { n: 'N800', code: 'G0 X30',                    comment: 'Rapid retract to X30' },
+        { n: 'N810', code: 'Z-38',                      comment: 'Rapid move to Z-38' },
+        { n: 'N820', code: 'X25',                       comment: 'Rapid move to X25' },
+        { n: 'N830', code: 'G1 X20 Z-43',               comment: 'Taper cut to X20 Z-43' },
+        { n: 'N840', code: 'Z-70.5',                    comment: 'Roughing pass to Z-70.5' },
+        { n: 'N850', code: 'G0 X25',                    comment: 'Rapid retract to X25' },
+        { n: 'N860', code: 'Z-43',                      comment: 'Rapid move to Z-43' },
+        { n: 'N870', code: 'X20',                       comment: 'Rapid move to X20' },
+        { n: 'N880', code: 'G1 X15.5 Z-48',             comment: 'Taper cut to X15.5 Z-48' },
+        { n: 'N890', code: 'Z-70',                      comment: 'Roughing pass to Z-70' },
+        { n: 'N900', code: 'G0 X20',                    comment: 'Rapid retract to X20' },
+        { n: 'N910', code: 'Z-48',                      comment: 'Rapid move to Z-48' },
+        { n: 'N920', code: 'X11 Z-52',                  comment: 'Taper cut to X11 Z-52, last roughing step' },
+        { n: 'N930', code: 'Z-69.5',                    comment: 'Roughing pass to Z-69.5' },
+        { n: 'N940', code: 'G0 X55',                    comment: 'Rapid retract to X55' },
+        { n: 'N950', code: 'X100 Z80 T7 M6',            comment: 'Retract to tool-change position, tool change: T7 — external finishing tool' },
+        { n: 'N960', code: 'S1200 M4',                  comment: 'Spindle 1200 rpm, counter-clockwise' },
+        { n: 'N970', code: 'G0 X45 Z3',                 comment: 'Rapid approach to X45 Z3' },
+        { n: 'N980', code: 'G1 Z0 F0.1',                comment: 'Approach to face at Z0, finishing feed 0.1 mm/rev' },
+        { n: 'N990', code: 'G3 X50 Z-2.5 I45 K-2.5',    comment: 'CCW arc — external chamfer/radius to X50 Z-2.5' },
+        { n: 'N1000', code: 'G1 Z-10',                  comment: 'Finishing pass to Z-10' },
+        { n: 'N1010', code: 'X10 Z-50',                 comment: 'Taper finishing cut to X10 Z-50' },
+        { n: 'N1020', code: 'Z-70',                     comment: 'Finishing pass to Z-70' },
+        { n: 'N1030', code: 'X50 Z-75',                 comment: 'Taper finishing cut to X50 Z-75' },
+        { n: 'N1040', code: 'Z-86',                     comment: 'Finishing pass to Z-86' },
+        { n: 'N1050', code: 'G0 X100 Z80 T8 M6',        comment: 'Retract to tool-change position, tool change: T8 — parting tool, 3 mm width' },
+        { n: 'N1060', code: 'S350 M4',                  comment: 'Spindle 350 rpm, counter-clockwise' },
+        { n: 'N1070', code: 'G0 X60 Z-83',              comment: 'Rapid approach to X60 Z-83' },
+        { n: 'N1080', code: 'G1 X21 F0.1',              comment: 'Parting cut to X21, feed 0.1 mm/rev' },
+        { n: 'N1090', code: 'G0 X60',                   comment: 'Rapid retract to X60' },
+        { n: 'N1100', code: 'Z-86',                     comment: 'Rapid move to Z-86' },
+        { n: 'N1110', code: 'G1 X22',                   comment: 'Parting cut to X22' },
+        { n: 'N1120', code: 'Z-83',                     comment: 'Linear move to Z-83 (feed 0.1 mm/rev, modal G1)' },
+        { n: 'N1130', code: 'X0.5',                     comment: 'Parting cut through to X0.5 — part-off' },
+        { n: 'N1140', code: 'G0 X100 Z80 M5',           comment: 'Rapid retract to safe position, spindle stop' },
+        { n: 'N1150', code: 'M30',                      comment: 'End of program, reset to program start' }
+    ];
+
+    /* ── Per-model programs — falls back to SHARED_PROGRAM until a model
+       gets its own line-by-line commented program. ── */
+    const MODEL_PROGRAMS = { 6: PROGRAM_2 };
+
+    /* ── G-code token highlighter (single line) ── */
+    function highlightCode(line) {
+        return escH(line)
+            .replace(/\b(G\d+\.?\d*)/g, '<span class="gk-g">$1</span>')
+            .replace(/\b(M\d+)\b/g, '<span class="gk-m">$1</span>')
+            .replace(/\b([TDH]\d+)\b/g, '<span class="gk-t">$1</span>')
+            .replace(/\b(F[\d.]+)\b/g, '<span class="gk-f">$1</span>');
+    }
+    function escH(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    /* ── Render the 3-column read-only code table: N° / G-CODE / COMMENT ──
+       On mobile the comment column collapses into a 💬 button; tapping it
+       opens a detail row with the full comment and an ✕ to close it. */
+    function renderCodeTable(program) {
+        const rows = program.map(row => {
+            const comment = escH(row.comment);
+            return `<tr class="sw-ct-row">` +
+                `<td class="sw-ct-n">` +
+                    `<button type="button" class="sw-ct-flag" onclick="toggleFlag(this)" aria-label="Flag line ${escH(row.n)}">${escH(row.n)}</button>` +
+                `</td>` +
+                `<td class="sw-ct-code">${highlightCode(row.code)}</td>` +
+                `<td class="sw-ct-comment">` +
+                    `<span class="sw-ct-ctext">${comment}</span>` +
+                    `<button type="button" class="sw-ct-cbtn" onclick="toggleComment(this)" aria-label="Show comment">💬</button>` +
+                `</td>` +
+            `</tr>` +
+            `<tr class="sw-ct-detail" hidden>` +
+                `<td colspan="3">` +
+                    `<div class="sw-ct-detail-box">` +
+                        `<span>${comment}</span>` +
+                        `<button type="button" class="sw-ct-close" onclick="toggleComment(this)" aria-label="Close comment">✕</button>` +
+                    `</div>` +
+                `</td>` +
+            `</tr>`;
+        }).join('');
+        return `<table class="sw-code-table">` +
+            `<thead><tr>` +
+                `<th class="sw-ct-n">N°</th>` +
+                `<th class="sw-ct-code">G-CODE · ISO</th>` +
+                `<th class="sw-ct-comment">COMMENT (EN)</th>` +
+            `</tr></thead>` +
+            `<tbody>${rows}</tbody>` +
+        `</table>`;
+    }
+
+    /* ── Fill a single model's drawing panel + G-CODE panel (static, no switching) ── */
+    function renderModel(num) {
+        const m = MODELS[num];
+
+        document.getElementById('panel-title-' + num).textContent  = m.title;
+        document.getElementById('panel-id-' + num).textContent     = m.id;
+        document.getElementById('meta-project-' + num).textContent = m.project;
+        document.getElementById('sw-logo-title-' + num).textContent = 'G-CODE: MODEL ' + String(num).padStart(2, '0');
+
+        const drawingArea = document.getElementById('drawing-area-' + num);
+        if (m.image) {
+            const img = document.createElement('img');
+            img.src = m.image; img.alt = m.project + ' technical drawing';
+            img.onerror = function() {
+                if (img.src.endsWith('.jpg')) { img.src = m.image.replace(/\.jpg$/, '.png'); }
+                else if (img.src.endsWith('.png')) { img.src = m.image.replace(/\.png$/, '.jpg'); }
+                img.onerror = null;
+            };
+            document.getElementById('drawing-placeholder-' + num).style.display = 'none';
+            drawingArea.appendChild(img);
+        }
+
+        document.getElementById('viewer-code-' + num).innerHTML = renderCodeTable(MODEL_PROGRAMS[num] || SHARED_PROGRAM);
+    }
+
+    renderModel(6);
+    renderModel(4);
+
+    /* Read-only display: block copy / cut / right-click / drag on both code windows */
     (function() {
-        const CHAT_UUID_KEY  = 'migue100_chat_uuid';
-        const CHAT_START_KEY = 'migue100_chat_start';
-        const SESSION_MINS   = 10;
-
-        function getChatUUID() {
-            let id = localStorage.getItem(CHAT_UUID_KEY);
-            if (!id) {
-                id = 'u_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-                localStorage.setItem(CHAT_UUID_KEY, id);
-            }
-            return id;
-        }
-
-        const panel      = document.getElementById('chat-panel');
-        const talkBtn    = document.getElementById('talk-btn');
-        const closeBtn   = document.getElementById('chat-close');
-        const messagesEl = document.getElementById('chat-messages');
-        const inputEl    = document.getElementById('chat-input');
-        const sendBtn    = document.getElementById('chat-send');
-        const dots       = [0,1,2,3,4].map(i => document.getElementById('td' + i));
-
-        let chatOpen      = false;
-        let timerInterval = null;
-        let sessionBlocked = false;
-        let pending        = false;
-        let greeted        = false;
-
-        function openChat() {
-            chatOpen = true;
-            panel.classList.add('open');
-            if (!greeted) {
-                greeted = true;
-                appendMsg('bot', 'Hi — ask me anything about CNC machining.');
-            }
-            inputEl.focus();
-            resumeTimer();
-        }
-
-        function closeChat() {
-            chatOpen = false;
-            panel.classList.remove('open');
-        }
-
-        talkBtn.addEventListener('click', () => { chatOpen ? closeChat() : openChat(); });
-        closeBtn.addEventListener('click', closeChat);
-
-        function appendMsg(type, text, extra) {
-            const div = document.createElement('div');
-            div.className = 'chat-msg ' + type + (extra ? ' ' + extra : '');
-            div.textContent = text;
-            messagesEl.appendChild(div);
-            messagesEl.scrollTop = messagesEl.scrollHeight;
-            return div;
-        }
-
-        function startTimer() {
-            const now = Date.now();
-            localStorage.setItem(CHAT_START_KEY, now);
-            scheduleTimer();
-        }
-
-        function resumeTimer() {
-            const saved = localStorage.getItem(CHAT_START_KEY);
-            if (saved) {
-                const elapsed = Date.now() - parseInt(saved, 10);
-                if (elapsed >= SESSION_MINS * 60000) { endSession(); return; }
-                scheduleTimer();
-                tickTimer();
-            }
-        }
-
-        function scheduleTimer() {
-            if (timerInterval) return;
-            timerInterval = setInterval(tickTimer, 20000);
-        }
-
-        function tickTimer() {
-            const saved = localStorage.getItem(CHAT_START_KEY);
-            if (!saved) return;
-            const elapsed = Date.now() - parseInt(saved, 10);
-            const minutes = Math.floor(elapsed / 60000);
-
-            dots.forEach((d, i) => {
-                d.classList.remove('active', 'warn');
-                if (i < Math.floor(minutes / 2)) d.classList.add(i >= 3 ? 'warn' : 'active');
+        ['viewer-code-6', 'viewer-code-4'].forEach(id => {
+            const wrap = document.getElementById(id);
+            ['copy', 'cut', 'contextmenu', 'dragstart'].forEach(evt => {
+                wrap.addEventListener(evt, e => e.preventDefault());
             });
-
-            if (minutes >= SESSION_MINS) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                endSession();
-            }
-        }
-
-        function endSession() {
-            sessionBlocked = true;
-            inputEl.disabled = true;
-            sendBtn.disabled = true;
-            dots.forEach(d => { d.classList.remove('active'); d.classList.add('warn'); });
-            appendMsg('system', '— Session ended. Come back tomorrow! —');
-            localStorage.removeItem(CHAT_UUID_KEY);
-            localStorage.removeItem(CHAT_START_KEY);
-        }
-
-        async function sendMessage() {
-            const text = inputEl.value.trim().slice(0, 200);
-            if (!text || pending || sessionBlocked) return;
-
-            inputEl.value = '';
-            appendMsg('user', text);
-
-            if (!localStorage.getItem(CHAT_START_KEY)) startTimer();
-            tickTimer();
-
-            pending = true;
-            sendBtn.disabled = true;
-            const loadEl = appendMsg('system', '⏳');
-
-            try {
-                const res = await fetch(BACKEND_URL + '/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text, session_id: getChatUUID() })
-                });
-
-                loadEl.remove();
-
-                if (res.status === 429) {
-                    appendMsg('system', 'System busy — please try again in a moment.');
-                    return;
-                }
-
-                if (res.status === 503) {
-                    appendMsg('bot', 'Miguel is at the work');
-                    return;
-                }
-
-                const data = await res.json().catch(() => ({}));
-                const reply = (data.reply || '').slice(0, 200);
-
-                if (!reply) {
-                    appendMsg('bot', 'Miguel is at work, try again after.');
-                    return;
-                }
-
-                if (data.block) {
-                    appendMsg('bot', reply, 'warn-msg');
-                    sessionBlocked = true;
-                    inputEl.disabled = true;
-                    sendBtn.disabled = true;
-                    return;
-                }
-
-                appendMsg('bot', reply, data.warn ? 'warn-msg' : '');
-
-            } catch {
-                loadEl.remove();
-                appendMsg('system', 'Connection error — try again.');
-            } finally {
-                pending = false;
-                if (!sessionBlocked) sendBtn.disabled = false;
-            }
-        }
-
-        sendBtn.addEventListener('click', sendMessage);
-        inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
-
-        // Restore timer dots if session was already started
-        resumeTimer();
-    })();
-    </script>
-
-    <!-- Model code modal -->
-    <div class="code-modal-overlay" id="code-modal-overlay">
-        <div class="code-modal">
-            <button class="code-modal-close" id="code-modal-close">&times;</button>
-            <div class="code-modal-title">🔒 Access Code</div>
-            <div class="code-modal-sub">Enter the code to access this technical drawing</div>
-            <input type="text" class="code-modal-input" id="code-modal-input"
-                   maxlength="20" placeholder="_ _ _ _ _ _" autocomplete="off" spellcheck="false">
-            <button class="code-modal-submit" id="code-modal-submit">Verify</button>
-            <div class="code-modal-error" id="code-modal-error"></div>
-        </div>
-    </div>
-
-    <script>
-    (function() {
-        const BACKEND_URL = 'https://web-production-47911.up.railway.app';
-        const overlay  = document.getElementById('code-modal-overlay');
-        const closeBtn = document.getElementById('code-modal-close');
-        const input    = document.getElementById('code-modal-input');
-        const submit   = document.getElementById('code-modal-submit');
-        const errorEl  = document.getElementById('code-modal-error');
-        const drawBtn  = document.getElementById('model01-drawing-btn');
-
-        let currentModel = '01';
-        let currentTarget = 'technical-drawing.html#1';
-
-        function openModal(model, target) {
-            currentModel  = model;
-            currentTarget = target;
-            input.value = '';
-            errorEl.textContent = '';
-            overlay.classList.add('open');
-            setTimeout(() => input.focus(), 80);
-        }
-
-        document.getElementById('model01-drawing-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            openModal('01', 'technical-drawing.html#1');
-        });
-
-        document.getElementById('model03-drawing-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            openModal('03', 'technical-drawing.html#3');
-        });
-
-        closeBtn.addEventListener('click', () => overlay.classList.remove('open'));
-        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
-
-        async function verify() {
-            const code = input.value.trim().toUpperCase();
-            if (!code) return;
-            submit.disabled = true;
-            submit.textContent = 'Verifying...';
-            errorEl.textContent = '';
-            try {
-                const res  = await fetch(BACKEND_URL + '/verify-model', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code, model: currentModel })
-                });
-                const data = await res.json();
-                if (data.ok) {
-                    overlay.classList.remove('open');
-                    window.location.href = currentTarget;
-                } else {
-                    errorEl.textContent = 'Incorrect code — try again.';
-                    input.value = '';
-                    input.focus();
-                }
-            } catch {
-                errorEl.textContent = 'Connection error — try again.';
-            } finally {
-                submit.disabled = false;
-                submit.textContent = 'Verify';
-            }
-        }
-
-        submit.addEventListener('click', verify);
-        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') verify(); });
-    })();
-    </script>
-
-    <script>
-    /* ── Metallic sheen card effect ── */
-    (function() {
-        const METALS = {
-            gold:     { a: 'rgba(255,215,0,0.55)',   b: 'rgba(184,134,11,0.4)',  c: 'rgba(255,245,160,0.6)', glow: 'rgba(220,170,0,0.35)'   },
-            titanium: { a: 'rgba(120,160,210,0.45)', b: 'rgba(70,105,155,0.38)', c: 'rgba(200,225,245,0.5)', glow: 'rgba(90,140,200,0.28)'   },
-            silver:   { a: 'rgba(210,215,225,0.55)', b: 'rgba(160,168,180,0.4)', c: 'rgba(255,255,255,0.65)',glow: 'rgba(190,200,215,0.35)'  },
-            bronze:   { a: 'rgba(205,127,50,0.55)',  b: 'rgba(150,75,28,0.4)',   c: 'rgba(235,185,110,0.58)',glow: 'rgba(180,100,30,0.32)'   },
-            steel:    { a: 'rgba(90,115,140,0.48)',  b: 'rgba(60,85,115,0.38)',  c: 'rgba(170,195,220,0.52)',glow: 'rgba(80,120,165,0.28)'   },
-            copper:   { a: 'rgba(184,115,51,0.55)',  b: 'rgba(140,70,28,0.4)',   c: 'rgba(240,165,90,0.58)', glow: 'rgba(190,110,45,0.32)'   },
-        };
-
-        document.querySelectorAll('.collab-card').forEach(card => {
-            const holo  = document.createElement('div');
-            holo.className = 'holo-layer';
-            card.appendChild(holo);
-
-            const metal   = METALS[card.dataset.metal] || METALS.steel;
-
-            function applyMetal(x, y) {
-                const rotX  = (y - 0.5) * -18;
-                const rotY  = (x - 0.5) *  18;
-                const angle = Math.atan2(y - 0.5, x - 0.5) * (180 / Math.PI) + 90;
-                card.style.transition = 'box-shadow 0.15s ease';
-                card.style.transform  = `perspective(500px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.05)`;
-                card.style.boxShadow  = `0 ${20 - rotX}px 40px rgba(0,0,0,0.65), 0 0 28px ${metal.glow}`;
-                card.style.zIndex     = '10';
-                holo.style.background = `
-                    linear-gradient(${angle}deg,
-                        transparent 15%, ${metal.b} 28%, ${metal.c} 42%,
-                        ${metal.a} 56%, ${metal.b} 70%, transparent 82%
-                    ),
-                    radial-gradient(ellipse at ${x*100}% ${y*100}%,
-                        ${metal.c} 0%, ${metal.a} 25%, transparent 60%
-                    )`;
-                holo.style.opacity = '1';
-            }
-
-            function resetMetal() {
-                card.style.transition = 'transform 0.45s ease, box-shadow 0.45s ease';
-                card.style.transform  = '';
-                card.style.boxShadow  = '';
-                card.style.zIndex     = '';
-                holo.style.opacity    = '0';
-            }
-
-            /* ── Desktop: mouse ── */
-            card.addEventListener('mousemove', e => {
-                const r = card.getBoundingClientRect();
-                applyMetal((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
-            });
-            card.addEventListener('mouseleave', resetMetal);
-
-            /* ── Mobile: touch — efecto al tocar la tarjeta ── */
-            const track = document.getElementById('collab-track');
-
-            card.addEventListener('touchstart', e => {
-                track.style.animationPlayState = 'paused';
-                const t = e.touches[0];
-                const r = card.getBoundingClientRect();
-                applyMetal((t.clientX - r.left) / r.width, (t.clientY - r.top) / r.height);
-            }, { passive: true });
-
-            card.addEventListener('touchmove', e => {
-                const t = e.touches[0];
-                const r = card.getBoundingClientRect();
-                applyMetal((t.clientX - r.left) / r.width, (t.clientY - r.top) / r.height);
-            }, { passive: true });
-
-            card.addEventListener('touchend', () => {
-                track.style.animationPlayState = 'running';
-                setTimeout(resetMetal, 400);
-            }, { passive: true });
         });
     })();
-    </script>
 
-    <script>
-    /* ── 3D Model Cards ──────────────────────────────────────────────────────── */
-    (function() {
-        const STL_FILES = [
-            'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/models/A1.stl',
-            'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/models/A2.stl',
-            'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/models/A3.stl',
-            'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/models/A4.stl'
-        ];
-
-        /* STL Parser */
-        function parseSTL(buf) { return isBin(buf) ? parseBin(buf) : parseASC(buf); }
-        function isBin(buf) {
-            const h = String.fromCharCode(...new Uint8Array(buf,0,5)).toLowerCase();
-            if (!h.startsWith('solid')) return true;
-            const n = new DataView(buf).getUint32(80,true);
-            return buf.byteLength === 84 + n*50;
+    /* Toggle the mobile comment detail row open/closed */
+    function toggleComment(btn) {
+        if (btn.classList.contains('sw-ct-cbtn')) {
+            const detail = btn.closest('tr').nextElementSibling;
+            if (detail) detail.hidden = false;
+        } else {
+            btn.closest('tr').hidden = true;
         }
-        function parseBin(buf) {
-            const v = new DataView(buf), n = v.getUint32(80,true);
-            const pos = new Float32Array(n*9), nor = new Float32Array(n*9);
-            let o = 84;
-            for (let i=0;i<n;i++) {
-                const nx=v.getFloat32(o,true),ny=v.getFloat32(o+4,true),nz=v.getFloat32(o+8,true); o+=12;
-                for (let k=0;k<3;k++) {
-                    const b=i*9+k*3;
-                    pos[b]=v.getFloat32(o,true); pos[b+1]=v.getFloat32(o+4,true); pos[b+2]=v.getFloat32(o+8,true);
-                    nor[b]=nx; nor[b+1]=ny; nor[b+2]=nz; o+=12;
-                }
-                o+=2;
-            }
-            return {pos,nor,count:n*3};
+    }
+
+    /* Flag a line as critical for analysis — stays highlighted until clicked again */
+    function toggleFlag(btn) {
+        const row = btn.closest('tr');
+        row.classList.toggle('sw-ct-flagged');
+        const detail = row.nextElementSibling;
+        if (detail && detail.classList.contains('sw-ct-detail')) {
+            detail.classList.toggle('sw-ct-flagged');
         }
-        function parseASC(buf) {
-            const txt = new TextDecoder().decode(buf), pos=[], nor=[];
-            const re=/facet\s+normal\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)[\s\S]*?vertex\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+vertex\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+vertex\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)\s+([\d.eE+\-]+)/g;
-            let m; while((m=re.exec(txt))!==null){const[,nx,ny,nz,x1,y1,z1,x2,y2,z2,x3,y3,z3]=m.map(Number);pos.push(x1,y1,z1,x2,y2,z2,x3,y3,z3);nor.push(nx,ny,nz,nx,ny,nz,nx,ny,nz);}
-            return {pos:new Float32Array(pos),nor:new Float32Array(nor),count:pos.length/3};
-        }
+    }
 
-        /* WebGL shaders */
-        const VS=`attribute vec3 aPos;attribute vec3 aNorm;uniform mat4 uMVP;varying vec3 vN,vP;void main(){vN=aNorm;vP=aPos;gl_Position=uMVP*vec4(aPos,1.0);}`;
-        const FS=`precision mediump float;varying vec3 vN,vP;uniform vec3 uL,uE;void main(){vec3 N=normalize(vN),L=normalize(uL-vP),V=normalize(uE-vP),H=normalize(L+V);float d=max(dot(N,L),0.0),s=pow(max(dot(N,H),0.0),64.0),b=max(dot(-N,L),0.0)*.15;vec3 c=vec3(.04,.07,.10)+vec3(.15,.22,.30)*(d+b)+vec3(0.,.83,1.)*s*.9;gl_FragColor=vec4(c,1.);}`;
-
-        function mkProg(gl,vs,fs){
-            const v=gl.createShader(gl.VERTEX_SHADER);gl.shaderSource(v,vs);gl.compileShader(v);
-            const f=gl.createShader(gl.FRAGMENT_SHADER);gl.shaderSource(f,fs);gl.compileShader(f);
-            const p=gl.createProgram();gl.attachShader(p,v);gl.attachShader(p,f);gl.linkProgram(p);return p;
-        }
-        function persp(fov,asp,n,f){const t=1/Math.tan(fov/2),nf=1/(n-f);return new Float32Array([t/asp,0,0,0,0,t,0,0,0,0,(f+n)*nf,-1,0,0,2*f*n*nf,0]);}
-        function lookAt(e,c,u){const f=n3(s3(c,e)),s=n3(x3(f,u)),up=x3(s,f);return new Float32Array([s[0],up[0],-f[0],0,s[1],up[1],-f[1],0,s[2],up[2],-f[2],0,-d3(s,e),-d3(up,e),d3(f,e),1]);}
-        function mul4(a,b){const r=new Float32Array(16);for(let i=0;i<4;i++)for(let j=0;j<4;j++){let v=0;for(let k=0;k<4;k++)v+=a[i+k*4]*b[k+j*4];r[i+j*4]=v;}return r;}
-        function s3(a,b){return[a[0]-b[0],a[1]-b[1],a[2]-b[2]];}
-        function x3(a,b){return[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];}
-        function d3(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
-        function n3(v){const l=Math.sqrt(d3(v,v))||1;return[v[0]/l,v[1]/l,v[2]/l];}
-
-        function launchViewer(canvas, mesh) {
-            const W = canvas.offsetWidth  || 450;
-            const H = canvas.offsetHeight || 330;
-            canvas.width = W; canvas.height = H;
-            const gl = canvas.getContext('webgl', { alpha: true }) || canvas.getContext('experimental-webgl', { alpha: true });
-            if (!gl) return;
-            const prog = mkProg(gl,VS,FS); gl.useProgram(prog);
-            const pL = gl.getAttribLocation(prog,'aPos'), nL = gl.getAttribLocation(prog,'aNorm');
-            const pb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,pb); gl.bufferData(gl.ARRAY_BUFFER,mesh.pos,gl.STATIC_DRAW);
-            const nb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,nb); gl.bufferData(gl.ARRAY_BUFFER,mesh.nor,gl.STATIC_DRAW);
-            let x0=1e9,y0=1e9,z0=1e9,x1=-1e9,y1=-1e9,z1=-1e9;
-            for(let i=0;i<mesh.pos.length;i+=3){x0=Math.min(x0,mesh.pos[i]);x1=Math.max(x1,mesh.pos[i]);y0=Math.min(y0,mesh.pos[i+1]);y1=Math.max(y1,mesh.pos[i+1]);z0=Math.min(z0,mesh.pos[i+2]);z1=Math.max(z1,mesh.pos[i+2]);}
-            const cx=(x0+x1)/2, cy=(y0+y1)/2, cz=(z0+z1)/2;
-            const sz = Math.max(x1-x0, y1-y0, z1-z0) || 1;
-            const cam = {theta:0.6, phi:1.1, r:sz*2.2, tx:cx, ty:cy, tz:cz};
-            let spin=true, drag=false, last=null, hovered=false;
-
-            canvas.addEventListener('mouseenter', () => { hovered = true; });
-            canvas.addEventListener('mouseleave', () => { hovered = false; drag = false; last = null; });
-            canvas.addEventListener('mousedown',  e => { drag=true; spin=false; last=[e.clientX,e.clientY]; e.preventDefault(); });
-            window.addEventListener('mouseup',    () => { drag=false; last=null; });
-            window.addEventListener('mousemove',  e => {
-                if (!drag||!last) return;
-                cam.theta -= (e.clientX-last[0])*0.014;
-                cam.phi = Math.max(0.05, Math.min(Math.PI-0.05, cam.phi-(e.clientY-last[1])*0.014));
-                last = [e.clientX, e.clientY];
-            });
-            canvas.addEventListener('wheel', e => {
-                if (!hovered) return;
-                e.preventDefault();
-                cam.r = Math.max(sz*0.1, cam.r*(1+e.deltaY*0.001));
-            }, {passive:false});
-
-            /* Touch support */
-            let pinchDist = null;
-            canvas.addEventListener('touchstart', e => {
-                e.preventDefault();
-                spin = false;
-                if (e.touches.length === 1) {
-                    drag = true;
-                    last = [e.touches[0].clientX, e.touches[0].clientY];
-                } else if (e.touches.length === 2) {
-                    drag = false;
-                    const dx = e.touches[0].clientX - e.touches[1].clientX;
-                    const dy = e.touches[0].clientY - e.touches[1].clientY;
-                    pinchDist = Math.sqrt(dx*dx + dy*dy);
-                }
-            }, {passive:false});
-            canvas.addEventListener('touchmove', e => {
-                e.preventDefault();
-                if (e.touches.length === 1 && drag && last) {
-                    cam.theta -= (e.touches[0].clientX - last[0]) * 0.014;
-                    cam.phi = Math.max(0.05, Math.min(Math.PI-0.05, cam.phi - (e.touches[0].clientY - last[1]) * 0.014));
-                    last = [e.touches[0].clientX, e.touches[0].clientY];
-                } else if (e.touches.length === 2 && pinchDist !== null) {
-                    const dx = e.touches[0].clientX - e.touches[1].clientX;
-                    const dy = e.touches[0].clientY - e.touches[1].clientY;
-                    const newDist = Math.sqrt(dx*dx + dy*dy);
-                    cam.r = Math.max(sz*0.1, cam.r * (pinchDist / newDist));
-                    pinchDist = newDist;
-                }
-            }, {passive:false});
-            canvas.addEventListener('touchend', e => {
-                if (e.touches.length === 0) { drag = false; last = null; pinchDist = null; }
-                if (e.touches.length === 1) { pinchDist = null; drag = true; last = [e.touches[0].clientX, e.touches[0].clientY]; }
-            }, {passive:false});
-
-            const uM=gl.getUniformLocation(prog,'uMVP'), uLoc=gl.getUniformLocation(prog,'uL'), uE=gl.getUniformLocation(prog,'uE');
-            gl.enable(gl.DEPTH_TEST); gl.clearColor(0, 0, 0, 0);
-
-            let visible = false;
-            const observer = new IntersectionObserver(entries => {
-                visible = entries[0].isIntersecting;
-                if (visible) requestAnimationFrame(render);
-            }, { threshold: 0.1 });
-            observer.observe(canvas);
-
-            function render() {
-                if (!visible) return;
-                requestAnimationFrame(render);
-                if (spin) cam.theta += 0.006;
-                const eye=[cam.tx+cam.r*Math.sin(cam.phi)*Math.sin(cam.theta), cam.ty+cam.r*Math.cos(cam.phi), cam.tz+cam.r*Math.sin(cam.phi)*Math.cos(cam.theta)];
-                const mvp = mul4(persp(Math.PI/4,W/H,sz*0.001,sz*200), lookAt(eye,[cam.tx,cam.ty,cam.tz],[0,1,0]));
-                gl.viewport(0,0,W,H); gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-                gl.bindBuffer(gl.ARRAY_BUFFER,pb); gl.enableVertexAttribArray(pL); gl.vertexAttribPointer(pL,3,gl.FLOAT,false,0,0);
-                gl.bindBuffer(gl.ARRAY_BUFFER,nb); gl.enableVertexAttribArray(nL); gl.vertexAttribPointer(nL,3,gl.FLOAT,false,0,0);
-                gl.uniformMatrix4fv(uM,false,mvp); gl.uniform3fv(uLoc,[eye[0]+sz,eye[1]+sz*.5,eye[2]]); gl.uniform3fv(uE,eye);
-                gl.drawArrays(gl.TRIANGLES,0,mesh.count);
-            }
-        }
-
-        /* Fetch and render each model */
-        STL_FILES.forEach((file, idx) => {
-            const ov   = document.getElementById('mc-ov-'   + idx);
-            const stxt = document.getElementById('mc-st-'   + idx);
-            const cv   = document.getElementById('mc-cv-'   + idx);
-            const tri  = document.getElementById('mc-tris-' + idx);
-            if (!cv) return;
-            fetch(encodeURI(file))
-                .then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
-                .then(buf => {
-                    const mesh = parseSTL(buf);
-                    if (tri) tri.textContent = mesh.count.toLocaleString() + ' tri';
-                    if (ov)  ov.style.display = 'none';
-                    cv.style.display = 'block';
-                    launchViewer(cv, mesh);
-                })
-                .catch(() => {
-                    const icon = ov && ov.querySelector('.model-spin-icon');
-                    if (icon) { icon.style.animation='none'; icon.textContent='⚠'; icon.style.color='rgba(255,68,102,0.5)'; }
-                    if (stxt) stxt.textContent = 'File unavailable';
-                });
+    /* Show/hide the floating drawing preview (shared between both blocks) — pinned on screen while scrolling */
+    let floatOpenFor = null;
+    function toggleDrawingFloat(num) {
+        const panel = document.getElementById('drawing-float');
+        const show  = typeof num === 'boolean' ? num : (floatOpenFor !== num || panel.hidden);
+        [6, 4].forEach(n => {
+            const btn = document.getElementById('drawing-toggle-btn-' + n);
+            btn.classList.remove('active');
+            btn.setAttribute('aria-pressed', 'false');
         });
-    })();
+        if (show && typeof num === 'number') {
+            document.getElementById('drawing-float-img').src = (MODELS[num] && MODELS[num].image) || '';
+            panel.hidden = false;
+            floatOpenFor = num;
+            const btn = document.getElementById('drawing-toggle-btn-' + num);
+            btn.classList.add('active');
+            btn.setAttribute('aria-pressed', 'true');
+        } else {
+            panel.hidden = true;
+            floatOpenFor = null;
+        }
+    }
+
     </script>
 
     <!-- ── Language switch (ES / IT via Google Website Translator) ── -->

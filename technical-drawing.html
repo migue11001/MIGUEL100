@@ -147,6 +147,20 @@
             margin-top: 12px; height: 1px;
             background: linear-gradient(90deg, rgba(0,212,255,0.5), transparent);
         }
+        .model-tabs { display: flex; gap: 8px; margin-top: 16px; }
+        .model-tab {
+            font-family: 'Share Tech Mono', monospace; font-size: 0.7em;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: var(--text-dim); background: rgba(0,212,255,0.04);
+            border: 1px solid rgba(190, 190, 200, 0.22); border-radius: 3px;
+            padding: 8px 18px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .model-tab:hover { border-color: var(--smoke-gray); color: #fff; background: rgba(0,212,255,0.1); }
+        .model-tab.active {
+            color: #fff; border-color: var(--neon-blue);
+            background: rgba(0,212,255,0.14);
+            box-shadow: 0 0 10px rgba(0,212,255,0.25);
+        }
 
         /* ── Section Label ── */
         .section-label {
@@ -474,16 +488,20 @@
 
     <!-- Page Header -->
     <div class="page-header">
-        <div class="page-tag" id="page-tag">MODEL 01</div>
+        <div class="page-tag" id="page-tag">MODEL 06</div>
         <div class="page-title"><span class="notranslate" style="color:var(--text-main)" data-i18n-es="Dibujo" data-i18n-it="Disegno">Technical</span> <span class="notranslate" data-i18n-es="Técnico" data-i18n-it="Tecnico">Drawing</span></div>
+        <div class="model-tabs">
+            <button type="button" class="model-tab" data-model="6">MODEL 06</button>
+            <button type="button" class="model-tab" data-model="4">MODEL 04</button>
+        </div>
         <div class="page-divider"></div>
     </div>
 
     <!-- Drawing Panel -->
     <div class="drawing-panel">
         <div class="drawing-panel-header">
-            <span class="drawing-panel-title" id="panel-title">A1-PROJECT CAM — TECHNICAL DRAWING</span>
-            <span class="drawing-panel-id" id="panel-id">DWG-A1-001</span>
+            <span class="drawing-panel-title" id="panel-title">A6-PROJECT CAM — TECHNICAL DRAWING</span>
+            <span class="drawing-panel-id" id="panel-id">DWG-A6-001</span>
         </div>
         <div class="drawing-area" id="drawing-area">
             <div class="drawing-placeholder" id="drawing-placeholder">
@@ -503,7 +521,7 @@
         <div class="drawing-panel-footer">
             <div class="drawing-meta">
                 <span class="drawing-meta-label">Project</span>
-                <span class="drawing-meta-value" id="meta-project">A1-PROJECT CAM</span>
+                <span class="drawing-meta-value" id="meta-project">A6-PROJECT CAM</span>
             </div>
             <div class="drawing-meta">
                 <span class="drawing-meta-label">Scale</span>
@@ -555,285 +573,6 @@
        MODEL DATA
     ═══════════════════════════════════════════════════════════ */
     const MODELS = {
-        1: {
-            tag: 'MODEL 01', title: 'A1-PROJECT CAM — TECHNICAL DRAWING',
-            id: 'DWG-A1-001', project: 'A1-PROJECT CAM',
-            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D1.jpg', prog: 'A1_MILLING.MPF', tool: '1', speed: '2800',
-            gcode: `%
-;===========================================
-; A1-PROJECT CAM  //  3-AXIS MILLING
-; TOOL  : T1 - Ø16 FACE MILL  P35
-; MATERIAL : 1.4301 STAINLESS STEEL
-; MACHINE  : DMU 50
-;===========================================
-N10  G17 G54 G90 G94 G21
-N20  T1 D1 M6
-N30  G0 X-90.0 Y-60.0 S2800 M3 M8
-N40  G43 Z100.0 H1
-N50  G0 Z5.0
-;--- FACE MILLING PASS ---
-N60  G1 Z-0.5 F300
-N70  G1 X90.0 F1200
-N80  G1 Y-30.0
-N90  G1 X-90.0
-N100 G1 Y0.0
-N110 G1 X90.0
-N120 G1 Y30.0
-N130 G1 X-90.0
-N140 G1 Y60.0
-N150 G1 X90.0
-N160 G0 Z5.0
-;--- CONTOUR FINISHING ---
-N170 G0 X-72.0 Y-52.0
-N180 G1 Z-5.0 F200
-N190 G41 D1
-N200 G1 X72.0 F800
-N210 G2 X72.0 Y52.0 I0 J52.0
-N220 G1 X-72.0
-N230 G2 X-72.0 Y-52.0 I0 J-52.0
-N240 G40 G1 X-90.0
-N250 G0 Z100.0
-N260 M9 M5
-N270 M30
-%`
-        },
-        2: {
-            tag: 'MODEL 02', title: 'A2-PROJECT CAM — TECHNICAL DRAWING',
-            id: 'DWG-A2-001', project: 'A2-PROJECT CAM',
-            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D2.png', prog: 'A2_TURNING.MPF', tool: '1', speed: '220',
-            gcode: `%
-N010 P50 G95
-N020 T1 M6
-(Utensile a sfacciare)
-N030 S800 M4
-N040 G0 X60 Z1.6
-N050 G1 X0 F0.3
-N060 G0 Z3
-N070 X60
-N080 Z0.2
-N090 G1 X0
-N100 G0 Z2
-N110 X100 Z80 T2 M6
-(Punta da centri ø 2.5)
-N120 S1200 M4
-N130 G0 X0 Z3
-N140 G81 Z6 F0.2
-N150 G80 X100 Z80 T3 M6
-(Punta ø 10)
-N160 S600 M4
-N170 G83 Z-43 F0.2
-N180 G80 X100 Z80 T4 M6
-(Utensile sgrossatore interni)
-N190 G0 X15 Z3
-N200 G1 Z-32 F0.2
-N210 X10 Z-37
-N220 G0 Z3
-N230 X20
-N240 G1 Z-27
-N250 X15 Z-37
-N260 G0 Z3
-N270 X25
-N280 G1 Z-22
-N290 X20 Z-27
-N300 G0 Z3
-N310 X30
-N320 G1 Z-17
-N330 X25 Z-22
-N340 G0 Z3
-N350 X34.5
-N360 G1 Z-12
-N370 X30 Z-17
-N380 G0 Z3
-N390 X39
-N400 G1 Z-8
-N410 X34.5 Z-12
-N420 G0 Z3
-N430 X100 Z80 T5 M6
-(Utensile finitore interni)
-N440 S1000 M4
-N450 G0 X45 Z3
-N460 G1 Z0 F0.1
-N470 G2 X40 Z-2.5 I45 K-2.5
-N480 G1 Z-10
-N490 X10 Z-40
-N500 G0 Z3
-N510 X100 Z80 T6 M6
-(Utensile sgrossatore esterni)
-N520 S800 M4
-N530 G0 X51 Z3
-N540 G1 Z-36 F0.2
-N550 G0 X53
-N560 Z13
-N570 G1 X50
-N580 X45 Z-18
-N590 Z-23
-N600 G0 X50
-N610 Z-18
-N620 X45
-N630 G1 X40 Z-23
-N640 Z-72.5
-N650 G0 X45
-N660 Z-23
-N670 X40
-N680 G1 X35 Z-28
-N690 Z-72
-N700 G0 X40
-N710 Z-28
-N720 X35
-N730 G1 X30 Z-33
-N740 Z-71.5
-N750 G0 X35
-N760 Z-33
-N770 X30
-N780 G1 X25 Z-38
-N790 Z-71
-N800 G0 X30
-N810 Z-38
-N820 X25
-N830 G1 X20 Z-43
-N840 Z-70.5
-N850 G0 X25
-N860 Z-43
-N870 X20
-N880 G1 X15.5 Z-48
-N890 Z-70
-N900 G0 X20
-N910 Z-48
-N920 X11 Z-52
-N930 Z-69.5
-N940 G0 X55
-N950 X100 Z80 T7 M6
-(Utensile finitore esterni)
-N960 S1200 M4
-N970 G0 X45 Z3
-N980 G1 Z0 F0.1
-N990 G3 X50 Z-2.5 I45 K-2.5
-N1000 G1 Z-10
-N1010 X10 Z-50
-N1020 Z-70
-N1030 X50 Z-75
-N1040 Z-86
-N1050 G0 X100 Z80 T8 M6
-(Utensile troncatore sp. 3)
-N1060 S350 M4
-N1070 G0 X60 Z-83
-N1080 G1 X21 F0.1
-N1090 G0 X60
-N1100 Z-86
-N1110 G1 X22
-N1120 Z-83
-N1130 X0.5
-N1140 G0 X100 Z80 M5
-N1150 M30
-%`
-        },
-        3: {
-            tag: 'MODEL 03', title: 'A3-PROJECT CAM — TECHNICAL DRAWING',
-            id: 'DWG-A3-001', project: 'A3-PROJECT CAM',
-            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D3.jpg', prog: 'A3_FLANGE.MPF', tool: '1', speed: '1200',
-            gcode: `%
-;===========================================
-; A3-PROJECT CAM  //  BOLT PATTERN FLANGE
-; TOOL  : T1-Ø12 DRILL  T2-BORING BAR
-; MATERIAL : GGG40 CAST IRON  Ø200 x 75
-; MACHINE  : DMC 635V
-;===========================================
-N10  G17 G54 G90 G94 G21
-;--- CENTER BORE Ø60H7 ---
-N20  T1 D1 M6
-N30  G0 X0 Y0 S1200 M3 M8
-N40  G43 Z50.0 H1
-N50  CYCLE83(5.0,0,-1.0,-75.0,,15.0,0,0,1,0.08,0.1,1)
-;--- BORING TO FINAL DIA ---
-N60  T2 D1 M6
-N70  G0 X0 Y0 S800 M3
-N80  CYCLE85(5.0,0,-1.0,-72.0,0.05,0.03,0.02)
-;--- BOLT CIRCLE  6 x Ø8  PCD Ø120 ---
-N90  T3 D1 M6
-N100 S2400 M3
-N110 HOLES2(0,0,120.0,0,60.0,6,5.0,0,-22.0,,4.0,0,0,0.06,0.1,1)
-;--- COUNTERBORE  6 x Ø14  DEPTH 5 ---
-N120 T4 D1 M6
-N130 S1800 M3
-N140 HOLES2(0,0,120.0,0,60.0,6,5.0,0,-5.0,,7.0,0,0,0.05,0.1,1)
-N150 G0 Z100.0
-N160 M9 M5
-N170 M30
-%`
-        },
-        4: {
-            tag: 'MODEL 04', title: 'A4-PROJECT CAM — TECHNICAL DRAWING',
-            id: 'DWG-A4-001', project: 'A4-PROJECT CAM',
-            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D4.png', prog: 'A4_GENERAL.MPF', tool: '1', speed: '8000',
-            gcode: `%
-;===========================================
-; A4-PROJECT CAM  //  GENERAL COMPONENT
-; TOOL  : T1-Ø10 END MILL  T2-Ø20 BORE
-; MATERIAL : Al 6061-T6  120 x 80 x 40
-; MACHINE  : HAAS VF2
-;===========================================
-N10  G17 G54 G90 G94 G21
-;--- RECTANGULAR POCKET 60 x 40 ---
-N20  T1 D1 M6
-N30  G0 X0 Y0 S8000 M3 M8
-N40  G43 Z50.0 H1
-N50  CYCLE76(5.0,0,-1.0,-15.0,2.0,,60.0,40.0,5.0,0,0,0,3000,0.3,0.1,0)
-;--- EXTERNAL CONTOUR ---
-N60  G0 X-55.0 Y-35.0
-N70  G1 Z-5.0 F300
-N80  G41 D1
-N90  G1 X55.0 F1800
-N100 G1 Y35.0
-N110 G1 X-55.0
-N120 G1 Y-35.0
-N130 G40
-;--- BORE Ø20H7 ---
-N140 T2 D1 M6
-N150 G0 X0 Y0 S5000 M3
-N160 CYCLE82(5.0,0,-1.0,-25.0,,0.1)
-;--- TAP M12x1.75 ---
-N170 T3 D1 M6
-N180 G0 X30.0 Y0 S600 M3
-N190 CYCLE840(5.0,0,-1.0,-18.0,0,1.75,0,0,1,2)
-N200 G0 Z100.0
-N210 M9 M5
-N220 M30
-%`
-        },
-        5: {
-            tag: 'MODEL 05', title: 'A5-PROJECT CAM — TECHNICAL DRAWING',
-            id: 'DWG-A5-001', project: 'A5-PROJECT CAM',
-            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D5.png', prog: 'A5_PROFILE.MPF', tool: '1', speed: '3000',
-            gcode: `%
-;===========================================
-; A5-PROJECT CAM  //  PROFILE MILLING
-; TOOL  : T1-Ø12 END MILL  T2-Ø6 DRILL
-; MATERIAL : Al 6061-T6
-; MACHINE  : DMU 50
-;===========================================
-N10  G17 G54 G90 G94 G21
-;--- EXTERNAL PROFILE ---
-N20  T1 D1 M6
-N30  G0 X-60.0 Y-40.0 S3000 M3 M8
-N40  G43 Z50.0 H1
-N50  G0 Z5.0
-N60  G1 Z-8.0 F250
-N70  G41 D1
-N80  G1 X60.0 F1500
-N90  G1 Y40.0
-N100 G1 X-60.0
-N110 G1 Y-40.0
-N120 G40
-N130 G0 Z50.0
-;--- MOUNTING HOLES  4 x Ø6 ---
-N140 T2 D1 M6
-N150 G0 X0 Y0 S4500 M3
-N160 HOLES2(0,0,90.0,0,90.0,4,5.0,0,-20.0,,3.0,0,0,0.05,0.1,1)
-N170 G0 Z100.0
-N180 M9 M5
-N190 M30
-%`
-        },
         6: {
             tag: 'MODEL 06', title: 'A6-PROJECT CAM — TECHNICAL DRAWING',
             id: 'DWG-A6-001', project: 'A6-PROJECT CAM',
@@ -964,10 +703,10 @@ N1140 G0 X100 Z80 M5
 N1150 M30
 %`
         },
-        10: {
-            tag: 'MODEL 10', title: 'A10-PROJECT CAM — TECHNICAL DRAWING',
-            id: 'DWG-A10-001', project: 'A10-PROJECT CAM',
-            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D10.png'
+        4: {
+            tag: 'MODEL 04', title: 'A4-PROJECT CAM — TECHNICAL DRAWING',
+            id: 'DWG-A4-001', project: 'A4-PROJECT CAM',
+            image: 'https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/DRAWINGS/D4.png'
         }
     };
 
@@ -1126,34 +865,7 @@ N1150 M30
 
     /* ── Per-model programs — falls back to SHARED_PROGRAM until a model
        gets its own line-by-line commented program. ── */
-    const MODEL_PROGRAMS = { 2: PROGRAM_2, 6: PROGRAM_2 };
-
-    /* ── Init ── */
-    const num = parseInt(window.location.hash.replace('#', '')) || 1;
-    const m   = MODELS[num] || MODELS[1];
-
-    document.title = m.project + ' Drawing — migue100.com';
-    document.getElementById('page-tag').textContent     = m.tag;
-    document.getElementById('sw-logo-title').textContent = 'G-CODE: ' + m.tag;
-    document.getElementById('panel-title').textContent  = m.title;
-    document.getElementById('panel-id').textContent     = m.id;
-    document.getElementById('meta-project').textContent = m.project;
-
-    const drawingArea = document.getElementById('drawing-area');
-    drawingArea.querySelectorAll('img').forEach(el => el.remove());
-    if (m.image) {
-        const img = document.createElement('img');
-        img.src = m.image; img.alt = m.project + ' technical drawing';
-        img.onerror = function() {
-            if (img.src.endsWith('.jpg')) { img.src = m.image.replace(/\.jpg$/, '.png'); }
-            else if (img.src.endsWith('.png')) { img.src = m.image.replace(/\.png$/, '.jpg'); }
-            img.onerror = null;
-        };
-        document.getElementById('drawing-placeholder').style.display = 'none';
-        drawingArea.appendChild(img);
-    } else {
-        document.getElementById('drawing-placeholder').style.display = '';
-    }
+    const MODEL_PROGRAMS = { 6: PROGRAM_2 };
 
     /* ── G-code token highlighter (single line) ── */
     function highlightCode(line) {
@@ -1202,7 +914,54 @@ N1150 M30
         `</table>`;
     }
 
-    document.getElementById('viewer-code').innerHTML = renderCodeTable(MODEL_PROGRAMS[num] || SHARED_PROGRAM);
+    /* ── Load a model into the drawing panel + G-CODE panel ── */
+    function loadModel(num) {
+        const m = MODELS[num] || MODELS[6];
+
+        document.title = m.project + ' Drawing — migue100.com';
+        document.getElementById('page-tag').textContent      = m.tag;
+        document.getElementById('sw-logo-title').textContent = 'G-CODE: ' + m.tag;
+        document.getElementById('panel-title').textContent   = m.title;
+        document.getElementById('panel-id').textContent      = m.id;
+        document.getElementById('meta-project').textContent  = m.project;
+
+        const drawingArea = document.getElementById('drawing-area');
+        drawingArea.querySelectorAll('img').forEach(el => el.remove());
+        if (m.image) {
+            const img = document.createElement('img');
+            img.src = m.image; img.alt = m.project + ' technical drawing';
+            img.onerror = function() {
+                if (img.src.endsWith('.jpg')) { img.src = m.image.replace(/\.jpg$/, '.png'); }
+                else if (img.src.endsWith('.png')) { img.src = m.image.replace(/\.png$/, '.jpg'); }
+                img.onerror = null;
+            };
+            document.getElementById('drawing-placeholder').style.display = 'none';
+            drawingArea.appendChild(img);
+        } else {
+            document.getElementById('drawing-placeholder').style.display = '';
+        }
+
+        document.getElementById('viewer-code').innerHTML = renderCodeTable(MODEL_PROGRAMS[num] || SHARED_PROGRAM);
+
+        document.querySelectorAll('.model-tab').forEach(btn => {
+            btn.classList.toggle('active', parseInt(btn.dataset.model, 10) === num);
+        });
+
+        window.currentModel = m;
+    }
+
+    document.querySelectorAll('.model-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const num = parseInt(btn.dataset.model, 10);
+            window.location.hash = num;
+            loadModel(num);
+        });
+    });
+    window.addEventListener('hashchange', () => {
+        loadModel(parseInt(window.location.hash.replace('#', ''), 10) || 6);
+    });
+
+    loadModel(parseInt(window.location.hash.replace('#', ''), 10) || 6);
 
     /* Read-only display: block copy / cut / right-click / drag on the code window */
     (function() {
@@ -1238,7 +997,7 @@ N1150 M30
         const btn   = document.getElementById('drawing-toggle-btn');
         const show  = typeof forceState === 'boolean' ? forceState : panel.hidden;
         if (show) {
-            document.getElementById('drawing-float-img').src = m.image || '';
+            document.getElementById('drawing-float-img').src = (window.currentModel && window.currentModel.image) || '';
             panel.hidden = false;
             btn.classList.add('active');
             btn.setAttribute('aria-pressed', 'true');
