@@ -260,6 +260,7 @@
         .gcode-grid {
             max-width: 1200px; margin: 0 auto;
         }
+        .gcode-grid + .drawing-panel { margin-top: 56px; }
         @media (max-width: 768px) {
             .drawing-area { min-height: unset; }
             .drawing-area img { width: 100%; height: auto; }
@@ -279,7 +280,7 @@
             background: #0c0e16;
             border-bottom: 1px solid #1e2130;
             padding: 6px 10px;
-            display: flex; align-items: flex-start;
+            display: flex; align-items: center; justify-content: space-between;
             flex-shrink: 0;
         }
         .sw-titlebar-left {
@@ -289,6 +290,21 @@
             font-family: 'Rajdhani', sans-serif; font-weight: 700;
             font-size: 1.08em; letter-spacing: 0.06em; color: #3a9ad9;
             text-transform: uppercase;
+        }
+        .sw-vis-controls { display: flex; gap: 6px; }
+        .sw-vis-btn {
+            font-size: 0.7em; line-height: 1;
+            color: var(--text-dim); background: rgba(0,212,255,0.04);
+            border: 1px solid rgba(190, 190, 200, 0.22); border-radius: 3px;
+            width: 26px; height: 26px;
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .sw-vis-btn:hover { border-color: var(--smoke-gray); color: #fff; background: rgba(0,212,255,0.1); }
+        .sw-vis-btn.active {
+            color: #fff; border-color: var(--neon-blue);
+            background: rgba(0,212,255,0.14);
+            box-shadow: 0 0 8px rgba(0,212,255,0.25);
         }
 
         /* Screen area */
@@ -416,6 +432,7 @@
             display: flex; align-items: stretch;
             height: 38px; flex-shrink: 0;
         }
+        .sw-softkeys[hidden], .sw-screen[hidden] { display: none; }
         .sw-sk {
             flex: 1; background: none;
             border: none; border-right: 1px solid #1a1c28;
@@ -477,12 +494,6 @@
     </div>
 
     <!-- ═══ MODEL 06 block ═══ -->
-    <div class="page-header">
-        <div class="page-tag">MODEL 06</div>
-        <div class="page-title"><span class="notranslate" style="color:var(--text-main)" data-i18n-es="Dibujo" data-i18n-it="Disegno">Technical</span> <span class="notranslate" data-i18n-es="Técnico" data-i18n-it="Tecnico">Drawing</span></div>
-        <div class="page-divider"></div>
-    </div>
-
     <div class="drawing-panel">
         <div class="drawing-panel-header">
             <span class="drawing-panel-title" id="panel-title-6">A6-PROJECT CAM — TECHNICAL DRAWING</span>
@@ -530,11 +541,15 @@
                 <div class="sw-titlebar-left">
                     <span class="sw-logo" id="sw-logo-title-6">G-CODE</span>
                 </div>
+                <div class="sw-vis-controls">
+                    <button type="button" class="sw-vis-btn" id="gcode-show-6" onclick="setGcodeVisible(6, true)" title="Show G-CODE" aria-label="Show G-CODE">▼</button>
+                    <button type="button" class="sw-vis-btn" id="gcode-hide-6" onclick="setGcodeVisible(6, false)" title="Hide G-CODE" aria-label="Hide G-CODE">▲</button>
+                </div>
             </div>
-            <div class="sw-screen">
+            <div class="sw-screen" id="sw-screen-6">
                 <div class="sw-code-wrap" id="viewer-code-6"></div>
             </div>
-            <div class="sw-softkeys">
+            <div class="sw-softkeys" id="sw-softkeys-6">
                 <button class="sw-sk drawing-toggle-btn" id="drawing-toggle-btn-6" onclick="toggleDrawingFloat(6)" title="Show technical drawing" aria-pressed="false">
                     <span class="sw-sk-label">Active Drawing</span>
                 </button>
@@ -550,12 +565,6 @@
     </div>
 
     <!-- ═══ MODEL 04 block ═══ -->
-    <div class="page-header">
-        <div class="page-tag">MODEL 04</div>
-        <div class="page-title"><span class="notranslate" style="color:var(--text-main)" data-i18n-es="Dibujo" data-i18n-it="Disegno">Technical</span> <span class="notranslate" data-i18n-es="Técnico" data-i18n-it="Tecnico">Drawing</span></div>
-        <div class="page-divider"></div>
-    </div>
-
     <div class="drawing-panel">
         <div class="drawing-panel-header">
             <span class="drawing-panel-title" id="panel-title-4">A4-PROJECT CAM — TECHNICAL DRAWING</span>
@@ -603,11 +612,15 @@
                 <div class="sw-titlebar-left">
                     <span class="sw-logo" id="sw-logo-title-4">G-CODE</span>
                 </div>
+                <div class="sw-vis-controls">
+                    <button type="button" class="sw-vis-btn" id="gcode-show-4" onclick="setGcodeVisible(4, true)" title="Show G-CODE" aria-label="Show G-CODE">▼</button>
+                    <button type="button" class="sw-vis-btn" id="gcode-hide-4" onclick="setGcodeVisible(4, false)" title="Hide G-CODE" aria-label="Hide G-CODE">▲</button>
+                </div>
             </div>
-            <div class="sw-screen">
+            <div class="sw-screen" id="sw-screen-4">
                 <div class="sw-code-wrap" id="viewer-code-4"></div>
             </div>
-            <div class="sw-softkeys">
+            <div class="sw-softkeys" id="sw-softkeys-4">
                 <button class="sw-sk drawing-toggle-btn" id="drawing-toggle-btn-4" onclick="toggleDrawingFloat(4)" title="Show technical drawing" aria-pressed="false">
                     <span class="sw-sk-label">Active Drawing</span>
                 </button>
@@ -900,6 +913,16 @@
             detail.classList.toggle('sw-ct-flagged');
         }
     }
+
+    /* Show/hide a model's G-CODE window */
+    function setGcodeVisible(num, show) {
+        document.getElementById('sw-screen-' + num).hidden = !show;
+        document.getElementById('sw-softkeys-' + num).hidden = !show;
+        document.getElementById('gcode-show-' + num).classList.toggle('active', show);
+        document.getElementById('gcode-hide-' + num).classList.toggle('active', !show);
+    }
+    setGcodeVisible(6, false);
+    setGcodeVisible(4, false);
 
     /* Show/hide the floating drawing preview (shared between both blocks) — pinned on screen while scrolling */
     let floatOpenFor = null;
