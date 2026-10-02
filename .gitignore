@@ -20,3 +20,6 @@ assets/
 
 # Local environment variables
 .env
+
+# Backend lives in its own repo (ejercicios-de-prueba) — never commit or serve it from the frontend
+backend/

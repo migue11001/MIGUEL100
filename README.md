@@ -43,7 +43,7 @@ Si falta la miniatura, la galería carga el original (más pesado, pero no se ro
 
 ## Usuarios (Login / Register)
 
-`auth.js` habla con el backend **Flask + Supabase Auth** en Railway:
+`auth.js` habla con el backend **Flask + Supabase Auth** en Railway. El backend es un proyecto aparte, con su propio repositorio (`migue11001/ejercicios-de-prueba`) y despliegue. Si tienes su carpeta `backend/` dentro de este proyecto para trabajar en local, el `.gitignore` la excluye: nunca se sube ni se publica con la web.
 
 - Backend: `https://web-production-47911.up.railway.app`
 - `POST /register` → `{ username, email, password, gdpr_consent, gdpr_consent_version }`
