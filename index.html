@@ -8,6 +8,8 @@
     <link rel="icon" href="/favicon-192.png" sizes="192x192" type="image/png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <meta name="author" content="Miguel Otero">
+    <meta name="referrer" content="strict-origin-when-cross-origin">  <!-- YouTube embed requires a Referer -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://jzvezovdglfzjyslahoz.supabase.co">  <!-- avatar + drawings -->
@@ -232,6 +234,31 @@
             text-shadow: 0 0 12px rgba(255,179,0,0.4);
         }
 
+        /* ── Video window: full-bleed like the avatar (cancels the body's 20px side padding),
+              16:9 at any width so it scales down to phones without black bars ── */
+        .video-window { margin: 0 -20px 40px; }
+        .video-window-frame { position: relative; aspect-ratio: 16 / 9; background: #000; }
+        .video-window-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+        /* Click-to-play cover: the YouTube player is only created on click */
+        .video-cover {
+            position: absolute; inset: 0; display: block; width: 100%; height: 100%;
+            padding: 0; border: 0; cursor: pointer; background: #000;
+        }
+        .video-cover img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0.85; transition: opacity 0.2s; }
+        .video-cover:hover img { opacity: 1; }
+        .video-cover-play {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            width: clamp(56px, 8vw, 96px); aspect-ratio: 1; border-radius: 50%;
+            background: rgba(8,9,13,0.7); border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 18px rgba(0,212,255,0.5);
+        }
+        .video-cover-play::after {
+            content: ''; position: absolute; left: 54%; top: 50%; transform: translate(-50%, -50%);
+            border-style: solid; border-width: 0.9em 0 0.9em 1.5em;
+            border-color: transparent transparent transparent #fff;
+            font-size: clamp(12px, 1.4vw, 20px);
+        }
+
         /* ── Drawing gallery: full width like the avatar, 3 drawings visible at a time,
               each image is only downloaded when its card comes into view ── */
         .gallery { margin: 0 -20px 56px; scroll-margin-top: 76px; }
@@ -339,6 +366,35 @@
 
     <!-- Drawing gallery — rows are rendered from GALLERY_ROWS in the script below -->
     <section class="gallery" id="gallery"></section>
+
+    <!-- Video window (YouTube) -->
+    <section class="video-window">
+        <div class="video-window-frame" id="video-frame" data-video-id="16uPkb0quZw">
+            <button type="button" class="video-cover" aria-label="Play video: FILETTATURA - Fusion 360">
+                <img src="https://i.ytimg.com/vi/16uPkb0quZw/maxresdefault.jpg" alt="" loading="lazy" decoding="async"
+                     onerror="this.onerror=null; this.src='https://i.ytimg.com/vi/16uPkb0quZw/hqdefault.jpg'">
+                <span class="video-cover-play" aria-hidden="true"></span>
+            </button>
+        </div>
+    </section>
+    <script>
+    /* ── Video: the YouTube player is created in place on click. It needs the page served over
+          http(s) — opened as file:// the browser sends no Referer and YouTube shows error 153 ── */
+    (function setupVideo() {
+        const frame = document.getElementById('video-frame');
+        const cover = frame.querySelector('.video-cover');
+        cover.addEventListener('click', () => {
+            const iframe = document.createElement('iframe');
+            iframe.src = 'https://www.youtube.com/embed/' + frame.dataset.videoId +
+                         '?autoplay=1&rel=0&playsinline=1&origin=' + encodeURIComponent(location.origin);
+            iframe.title = 'YouTube video';
+            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+            iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+            iframe.allowFullscreen = true;
+            cover.replaceWith(iframe);
+        });
+    })();
+    </script>
 
     <script src="drawings.js"></script>
     <script>
