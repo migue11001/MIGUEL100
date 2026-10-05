@@ -267,8 +267,13 @@
             100% { transform: translate(-5%, 4%) scale(0.95) rotate(-6deg); }
         }
         @media (prefers-reduced-motion: reduce) { .video-smoke span { animation: none; } }
-        .video-window-frame {
+        /* The red-bordered window is a horizontal scroll track: one 16:9 slide per video,
+           changed by swipe / trackpad or the arrows */
+        .video-track {
             position: relative; z-index: 1;
+            display: flex; overflow-x: auto; overflow-y: hidden;
+            scroll-snap-type: x mandatory; scroll-behavior: smooth;
+            scrollbar-width: none;
             /* The border sits outside the 16:9 box, so the video area itself is exactly 16:9 at every size */
             box-sizing: content-box;
             /* Always 16:9, sized like YouTube's player: as wide as allowed (84%) but never taller
@@ -277,16 +282,31 @@
                (and the 1280px thumbnail is never stretched) and the smoke keeps room around it */
             width: min(84%, 1280px, calc((100vh - 56px - 48px) * 16 / 9));
             aspect-ratio: 16 / 9; background: #000;
-            border: 2px solid #ff0000; border-radius: 6px; overflow: hidden;
+            border: 2px solid #ff0000; border-radius: 6px;
             box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 0 24px rgba(255,0,0,0.45), 0 0 60px rgba(255,0,0,0.25);
         }
+        .video-track::-webkit-scrollbar { display: none; }
+        .video-slide { position: relative; flex: 0 0 100%; scroll-snap-align: start; }
+        /* Prev / next arrows in the free space beside the window; touch screens just swipe */
+        .video-nav {
+            position: absolute; top: 50%; z-index: 2; transform: translateY(-50%);
+            width: 44px; height: 44px; cursor: pointer;
+            background: none; border: 0; color: #ff0000;
+            font-size: 48px; line-height: 1; padding: 0;
+            text-shadow: 0 0 12px rgba(255,0,0,0.6);
+            transition: opacity 0.2s;
+        }
+        .video-nav-prev { left: max(8px, calc(4% - 22px)); }
+        .video-nav-next { right: max(8px, calc(4% - 22px)); }
+        .video-nav:disabled { opacity: 0.25; cursor: default; }
+        @media (hover: none) { .video-nav { display: none; } }
         /* Phones: like the YouTube app, the video uses (almost) the full width; the smoke stays as a halo */
         @media (max-width: 600px) {
             .video-window { padding: 40px 0; }
-            .video-window-frame { width: min(96%, calc((100vh - 50px - 48px) * 16 / 9)); }
+            .video-track { width: min(96%, calc((100vh - 50px - 48px) * 16 / 9)); }
             .video-smoke span { filter: blur(24px); }
         }
-        .video-window-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+        .video-slide iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
         /* Click-to-play cover: the YouTube player is only created on click */
         .video-cover {
             position: absolute; inset: 0; display: block; width: 100%; height: 100%;
@@ -420,30 +440,67 @@
     <!-- Video window (YouTube) -->
     <section class="video-window">
         <div class="video-smoke" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-        <div class="video-window-frame" id="video-frame" data-video-id="16uPkb0quZw">
-            <button type="button" class="video-cover" aria-label="Play video: FILETTATURA - Fusion 360">
-                <img src="https://i.ytimg.com/vi/16uPkb0quZw/maxresdefault.jpg" alt="" loading="lazy" decoding="async"
-                     onerror="this.onerror=null; this.src='https://i.ytimg.com/vi/16uPkb0quZw/hqdefault.jpg'">
-                <span class="video-cover-play" aria-hidden="true"></span>
-            </button>
+        <button type="button" class="video-nav video-nav-prev" aria-label="Previous video">‹</button>
+        <div class="video-track" id="video-track">
+            <div class="video-slide" data-video-id="16uPkb0quZw">
+                <button type="button" class="video-cover" aria-label="Play video: FILETTATURA - Fusion 360">
+                    <img src="https://i.ytimg.com/vi/16uPkb0quZw/maxresdefault.jpg" alt="" loading="lazy" decoding="async"
+                         onerror="this.onerror=null; this.src='https://i.ytimg.com/vi/16uPkb0quZw/hqdefault.jpg'">
+                    <span class="video-cover-play" aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="video-slide" data-video-id="0uF3AcQk0mk">
+                <button type="button" class="video-cover" aria-label="Play video">
+                    <img src="https://i.ytimg.com/vi/0uF3AcQk0mk/maxresdefault.jpg" alt="" loading="lazy" decoding="async"
+                         onerror="this.onerror=null; this.src='https://i.ytimg.com/vi/0uF3AcQk0mk/hqdefault.jpg'">
+                    <span class="video-cover-play" aria-hidden="true"></span>
+                </button>
+            </div>
         </div>
+        <button type="button" class="video-nav video-nav-next" aria-label="Next video">›</button>
     </section>
     <script>
-    /* ── Video: the YouTube player is created in place on click. It needs the page served over
+    /* ── Videos: each YouTube player is created in place on click. It needs the page served over
           http(s) — opened as file:// the browser sends no Referer and YouTube shows error 153 ── */
-    (function setupVideo() {
-        const frame = document.getElementById('video-frame');
-        const cover = frame.querySelector('.video-cover');
-        cover.addEventListener('click', () => {
-            const iframe = document.createElement('iframe');
-            iframe.src = 'https://www.youtube.com/embed/' + frame.dataset.videoId +
-                         '?autoplay=1&rel=0&playsinline=1&origin=' + encodeURIComponent(location.origin);
-            iframe.title = 'YouTube video';
-            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-            iframe.referrerPolicy = 'strict-origin-when-cross-origin';
-            iframe.allowFullscreen = true;
-            cover.replaceWith(iframe);
+    (function setupVideos() {
+        const track = document.getElementById('video-track');
+        const slides = [...track.querySelectorAll('.video-slide')];
+        const prev = document.querySelector('.video-nav-prev');
+        const next = document.querySelector('.video-nav-next');
+        const covers = new Map();   // slide → its cover, to put back when the slide is scrolled away
+
+        slides.forEach(slide => {
+            const cover = slide.querySelector('.video-cover');
+            covers.set(slide, cover);
+            cover.addEventListener('click', () => {
+                const iframe = document.createElement('iframe');
+                iframe.src = 'https://www.youtube.com/embed/' + slide.dataset.videoId +
+                             '?autoplay=1&rel=0&playsinline=1&origin=' + encodeURIComponent(location.origin);
+                iframe.title = 'YouTube video';
+                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+                iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+                iframe.allowFullscreen = true;
+                cover.replaceWith(iframe);
+            });
         });
+
+        const current = () => Math.round(track.scrollLeft / track.clientWidth);
+        const goTo = i => track.scrollTo({ left: i * track.clientWidth });
+        const update = () => {
+            const i = current();
+            prev.disabled = i <= 0;
+            next.disabled = i >= slides.length - 1;
+            // A video left playing off-screen is stopped by swapping its player back for the cover
+            slides.forEach((slide, j) => {
+                const iframe = slide.querySelector('iframe');
+                if (j !== i && iframe) iframe.replaceWith(covers.get(slide));
+            });
+        };
+        prev.addEventListener('click', () => goTo(current() - 1));
+        next.addEventListener('click', () => goTo(current() + 1));
+        let scrollTimer;
+        track.addEventListener('scroll', () => { clearTimeout(scrollTimer); scrollTimer = setTimeout(update, 120); });
+        update();
     })();
     </script>
 
