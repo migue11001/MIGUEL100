@@ -240,9 +240,46 @@
            holds a YouTube-red smoke that fades out into the page background */
         .video-window {
             position: relative; overflow: hidden;
-            margin: 0 -20px 40px; padding: 6vw 0;
-            display: flex; justify-content: center;
+            margin: 0 -20px 56px; padding: 40px 0;
         }
+        /* Channel header: avatar in a neon-red ring + channel name */
+        .yt-header {
+            position: relative; z-index: 1;
+            display: flex; align-items: center; justify-content: center; gap: 16px;
+            margin-bottom: 16px; padding: 0 20px;
+        }
+        /* The whole 16:9 avatar photo fits inside the circle: at 87% width its corners just touch the ring */
+        .yt-avatar {
+            width: 80px; height: 80px; border-radius: 50%; flex-shrink: 0;
+            background: #000 url('https://jzvezovdglfzjyslahoz.supabase.co/storage/v1/object/public/images/AVATAR.jpeg') center / 87% auto no-repeat;
+            border: 2px solid #ff0000;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 0 14px rgba(255,0,0,0.7), 0 0 36px rgba(255,0,0,0.4), inset 0 0 10px rgba(255,0,0,0.35);
+        }
+        .yt-title {
+            font-family: 'Share Tech Mono', monospace; font-size: 1.6em;
+            letter-spacing: 0.08em; color: #f2f6fa;
+            /* Softer version of the nav logo's white neon */
+            text-shadow: 0 0 2px rgba(255,255,255,0.5), 0 0 8px rgba(0,212,255,0.35), 0 0 18px rgba(0,180,255,0.15);
+        }
+        .yt-title-red {
+            color: #ffd6d6;
+            text-shadow: 0 0 3px rgba(255,255,255,0.6), 0 0 10px rgba(255,0,0,0.85), 0 0 24px rgba(255,0,0,0.5);
+        }
+        /* Prev / next buttons on each side of the title, shaped like the YouTube logo
+           (red rounded rectangle) but with a white arrow instead of the play triangle */
+        .yt-nav {
+            width: 48px; height: 34px; flex-shrink: 0; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            background: #ff0000; border: 0; border-radius: 9px; padding: 0;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255,0,0,0.4);
+            transition: opacity 0.2s, box-shadow 0.2s, transform 0.2s;
+        }
+        .yt-nav svg { width: 18px; height: 18px; }
+        .yt-nav:hover:not(:disabled) { transform: scale(1.06); box-shadow: 0 0 16px rgba(255,0,0,0.65); }
+        .yt-nav:disabled { opacity: 0.3; cursor: default; }
+        .yt-nav-prev { margin-right: 8px; }
+        .yt-nav-next { margin-left: 8px; }
         .video-smoke {
             position: absolute; inset: 0; pointer-events: none;
             /* Fade on every edge so the smoke dissolves into --steel-dark with no seam */
@@ -267,44 +304,32 @@
             100% { transform: translate(-5%, 4%) scale(0.95) rotate(-6deg); }
         }
         @media (prefers-reduced-motion: reduce) { .video-smoke span { animation: none; } }
-        /* The red-bordered window is a horizontal scroll track: one 16:9 slide per video,
-           changed by swipe / trackpad or the arrows */
-        .video-track {
+        /* Laid out like the drawing gallery: full width, 2 large cards per view, more by the title buttons or swipe.
+           Vertical padding keeps the cards' red glow from being clipped by the scroll box */
+        .video-grid {
             position: relative; z-index: 1;
-            display: flex; overflow-x: auto; overflow-y: hidden;
+            display: flex; gap: 16px; overflow-x: auto;
+            padding: 12px 20px; scroll-padding: 0 20px;
             scroll-snap-type: x mandatory; scroll-behavior: smooth;
             scrollbar-width: none;
-            /* The border sits outside the 16:9 box, so the video area itself is exactly 16:9 at every size */
-            box-sizing: content-box;
-            /* Always 16:9, sized like YouTube's player: as wide as allowed (84%) but never taller
-               than the visible screen under the nav, so the whole video fits in view on any display */
-            /* Capped at 1280px like YouTube's own player, so on big monitors it doesn't blow up
-               (and the 1280px thumbnail is never stretched) and the smoke keeps room around it */
-            width: min(84%, 1280px, calc((100vh - 56px - 48px) * 16 / 9));
-            aspect-ratio: 16 / 9; background: #000;
+        }
+        .video-grid::-webkit-scrollbar { display: none; }
+        .video-slide {
+            position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #000;
             border: 2px solid #ff0000; border-radius: 6px;
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 0 24px rgba(255,0,0,0.45), 0 0 60px rgba(255,0,0,0.25);
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 0 16px rgba(255,0,0,0.4), 0 0 40px rgba(255,0,0,0.2);
+            flex: 0 0 calc((100% - 16px) / 2); scroll-snap-align: start;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .video-track::-webkit-scrollbar { display: none; }
-        .video-slide { position: relative; flex: 0 0 100%; scroll-snap-align: start; }
-        /* Prev / next arrows in the free space beside the window; touch screens just swipe */
-        .video-nav {
-            position: absolute; top: 50%; z-index: 2; transform: translateY(-50%);
-            width: 44px; height: 44px; cursor: pointer;
-            background: none; border: 0; color: #ff0000;
-            font-size: 48px; line-height: 1; padding: 0;
-            text-shadow: 0 0 12px rgba(255,0,0,0.6);
-            transition: opacity 0.2s;
-        }
-        .video-nav-prev { left: max(8px, calc(4% - 22px)); }
-        .video-nav-next { right: max(8px, calc(4% - 22px)); }
-        .video-nav:disabled { opacity: 0.25; cursor: default; }
-        @media (hover: none) { .video-nav { display: none; } }
-        /* Phones: like the YouTube app, the video uses (almost) the full width; the smoke stays as a halo */
-        @media (max-width: 600px) {
-            .video-window { padding: 40px 0; }
-            .video-track { width: min(96%, calc((100vh - 50px - 48px) * 16 / 9)); }
+        .video-slide:hover { transform: translateY(-3px); box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 0 22px rgba(255,0,0,0.6), 0 0 50px rgba(255,0,0,0.3); }
+        /* Phones: one card per view, like the drawings */
+        @media (max-width: 768px) {
+            .video-slide { flex-basis: 100%; }
             .video-smoke span { filter: blur(24px); }
+            .yt-avatar { width: 64px; height: 64px; }
+            .yt-title { font-size: 1.25em; }
+            .yt-header { gap: 10px; }
+            .yt-nav { width: 42px; height: 30px; border-radius: 8px; margin: 0; }
         }
         .video-slide iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
         /* Click-to-play cover: the YouTube player is only created on click */
@@ -318,7 +343,7 @@
         .video-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
         .video-cover-play {
             position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-            width: clamp(56px, 8vw, 96px); aspect-ratio: 1; border-radius: 50%;
+            width: clamp(40px, 4vw, 60px); aspect-ratio: 1; border-radius: 50%;
             background: rgba(8,9,13,0.7); border: 2px solid var(--neon-blue);
             box-shadow: 0 0 18px rgba(0,212,255,0.5);
         }
@@ -326,7 +351,7 @@
             content: ''; position: absolute; left: 54%; top: 50%; transform: translate(-50%, -50%);
             border-style: solid; border-width: 0.9em 0 0.9em 1.5em;
             border-color: transparent transparent transparent #fff;
-            font-size: clamp(12px, 1.4vw, 20px);
+            font-size: clamp(9px, 0.9vw, 13px);
         }
 
         /* ── Drawing gallery: full width like the avatar, 3 drawings visible at a time,
@@ -440,8 +465,13 @@
     <!-- Video window (YouTube) -->
     <section class="video-window">
         <div class="video-smoke" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-        <button type="button" class="video-nav video-nav-prev" aria-label="Previous video">‹</button>
-        <div class="video-track" id="video-track">
+        <div class="yt-header">
+            <button type="button" class="yt-nav yt-nav-prev" aria-label="Previous videos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <div class="yt-avatar" aria-hidden="true"></div>
+            <h2 class="yt-title notranslate">migue100<span class="yt-title-red">-youtube</span></h2>
+            <button type="button" class="yt-nav yt-nav-next" aria-label="Next videos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+        <div class="video-grid" id="video-grid">
             <div class="video-slide" data-video-id="16uPkb0quZw">
                 <button type="button" class="video-cover" aria-label="Play video: FILETTATURA - Fusion 360">
                     <img src="https://i.ytimg.com/vi/16uPkb0quZw/maxresdefault.jpg" alt="" loading="lazy" decoding="async"
@@ -456,23 +486,34 @@
                     <span class="video-cover-play" aria-hidden="true"></span>
                 </button>
             </div>
+            <div class="video-slide" data-video-id="SgpP5jTPlPA">
+                <button type="button" class="video-cover" aria-label="Play video">
+                    <img src="https://i.ytimg.com/vi/SgpP5jTPlPA/maxresdefault.jpg" alt="" loading="lazy" decoding="async"
+                         onerror="this.onerror=null; this.src='https://i.ytimg.com/vi/SgpP5jTPlPA/hqdefault.jpg'">
+                    <span class="video-cover-play" aria-hidden="true"></span>
+                </button>
+            </div>
         </div>
-        <button type="button" class="video-nav video-nav-next" aria-label="Next video">›</button>
     </section>
     <script>
     /* ── Videos: each YouTube player is created in place on click. It needs the page served over
           http(s) — opened as file:// the browser sends no Referer and YouTube shows error 153 ── */
     (function setupVideos() {
-        const track = document.getElementById('video-track');
-        const slides = [...track.querySelectorAll('.video-slide')];
-        const prev = document.querySelector('.video-nav-prev');
-        const next = document.querySelector('.video-nav-next');
-        const covers = new Map();   // slide → its cover, to put back when the slide is scrolled away
+        const grid = document.getElementById('video-grid');
+        const slides = [...grid.querySelectorAll('.video-slide')];
+        const prev = document.querySelector('.yt-nav-prev');
+        const next = document.querySelector('.yt-nav-next');
+        const covers = new Map();   // slide → its cover, to put back when another video starts
 
         slides.forEach(slide => {
             const cover = slide.querySelector('.video-cover');
             covers.set(slide, cover);
             cover.addEventListener('click', () => {
+                // Only one video plays at a time: any other open player goes back to its cover
+                slides.forEach(other => {
+                    const playing = other.querySelector('iframe');
+                    if (playing) playing.replaceWith(covers.get(other));
+                });
                 const iframe = document.createElement('iframe');
                 iframe.src = 'https://www.youtube.com/embed/' + slide.dataset.videoId +
                              '?autoplay=1&rel=0&playsinline=1&origin=' + encodeURIComponent(location.origin);
@@ -484,22 +525,17 @@
             });
         });
 
-        const current = () => Math.round(track.scrollLeft / track.clientWidth);
-        const goTo = i => track.scrollTo({ left: i * track.clientWidth });
+        // Title buttons scroll one card at a time; they grey out at either end
+        const step = () => slides[0].offsetWidth + parseFloat(getComputedStyle(grid).columnGap || 0);
+        prev.addEventListener('click', () => grid.scrollBy({ left: -step() }));
+        next.addEventListener('click', () => grid.scrollBy({ left: step() }));
         const update = () => {
-            const i = current();
-            prev.disabled = i <= 0;
-            next.disabled = i >= slides.length - 1;
-            // A video left playing off-screen is stopped by swapping its player back for the cover
-            slides.forEach((slide, j) => {
-                const iframe = slide.querySelector('iframe');
-                if (j !== i && iframe) iframe.replaceWith(covers.get(slide));
-            });
+            prev.disabled = grid.scrollLeft <= 4;
+            next.disabled = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 4;
         };
-        prev.addEventListener('click', () => goTo(current() - 1));
-        next.addEventListener('click', () => goTo(current() + 1));
         let scrollTimer;
-        track.addEventListener('scroll', () => { clearTimeout(scrollTimer); scrollTimer = setTimeout(update, 120); });
+        grid.addEventListener('scroll', () => { clearTimeout(scrollTimer); scrollTimer = setTimeout(update, 100); });
+        window.addEventListener('resize', update);
         update();
     })();
     </script>
