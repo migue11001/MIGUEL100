@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Haas plate board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Patrick+Hand&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: bacheca di sughero dell'officina — foglietti adesivi appuntati su una griglia che si adatta, un foglio grande con lo schizzo del pezzo e un tasto G-CODE in basso. Aspetto unico di proposito (sughero), con tutti i colori espliciti. */
+:root {
+  --cork: #b98a55;
+  --cork-dark: #8d6438;
+  --cork-light: #d3a873;
+  --frame: #5b3d22;
+  --ink: #23201b;
+  --pencil: #4d4a44;
+  --yellow: #fff1a0;
+  --blue: #cfe8f7;
+  --pink: #ffd0d6;
+  --green: #d5f0c4;
+  --white: #fbfaf5;
+  --orange: #ffd9a8;
+  --red: #c4232b;
+  --blue-ink: #1f4f8f;
+  --pin: #d8322f;
+  --key-top: #fbfcfc;
+  --key-bot: #c8cfd5;
+  --key-ink: #1b232a;
+  --font-hand: "Kalam", "Comic Sans MS", cursive;
+  --font-note: "Patrick Hand", "Comic Sans MS", cursive;
+  --font-code: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background-color: var(--frame);
+  font: 18px/1.35 var(--font-note);
+  padding-inline: 16px;
+  padding-block: 20px 40px;
+}
+.board {
+  max-width: 1240px;
+  margin: 0 auto;
+  border: 14px solid var(--frame);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 2px #3f2a17, 0 10px 30px rgba(0,0,0,.35);
+  background-color: var(--cork);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.10) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 70% 60%, rgba(0,0,0,.12) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(0,0,0,.08) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 85% 15%, rgba(255,255,255,.08) 0 1px, transparent 1.5px);
+  background-size: 13px 13px, 17px 17px, 11px 11px, 19px 19px;
+  padding: 28px 24px 36px;
+}
+.title {
+  text-align: center;
+  margin: 0 auto 26px;
+  max-width: 640px;
+  background: var(--white);
+  padding: 14px 20px 12px;
+  transform: rotate(-1deg);
+  box-shadow: 0 6px 12px rgba(0,0,0,.28);
+  position: relative;
+}
+.title h1 { font-family: var(--font-hand); font-size: clamp(30px, 5vw, 44px); line-height: 1.05; margin: 0; text-wrap: balance; }
+.title p { margin: 6px 0 0; color: var(--pencil); }
+.notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 28px 24px;
+  align-items: start;
+}
+.note {
+  position: relative;
+  padding: 26px 18px 18px;
+  box-shadow: 0 8px 14px rgba(0,0,0,.28), 0 1px 0 rgba(0,0,0,.08);
+  transform: rotate(var(--r, 0deg));
+  transition: transform .2s ease;
+  min-width: 0;
+}
+.note:hover { transform: rotate(0deg) scale(1.02); z-index: 2; }
+.note::before {
+  content: "";
+  position: absolute; top: 8px; left: 50%;
+  width: 16px; height: 16px; margin-left: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff8a80, var(--pin) 55%, #8f1414);
+  box-shadow: 2px 3px 4px rgba(0,0,0,.4);
+}
+.note.tape::before {
+  width: 90px; height: 24px; top: -10px; margin-left: -45px; border-radius: 2px;
+  background: rgba(255,255,255,.55); box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+.note h2 { font-family: var(--font-hand); font-weight: 700; font-size: 25px; line-height: 1.1; margin: 0 0 8px; }
+.note p { margin: 0 0 8px; }
+.note p:last-child { margin-bottom: 0; }
+.note ul, .note ol { margin: 0; padding-left: 1.15em; display: grid; gap: 5px; }
+.note .why { color: var(--blue-ink); }
+.note .red { color: var(--red); }
+.note code, .note .mono { font-family: var(--font-code); font-size: 14.5px; background: rgba(0,0,0,.06); padding: 0 3px; border-radius: 2px; white-space: nowrap; }
+.note .big { font-family: var(--font-code); font-size: 19px; font-weight: 600; }
+.note small { color: var(--pencil); font-size: 15px; }
+.yellow { background: var(--yellow); }
+.blue { background: var(--blue); }
+.pink { background: var(--pink); }
+.green { background: var(--green); }
+.white { background: var(--white); background-image: repeating-linear-gradient(transparent 0 25px, #c9d8e6 25px 26px); background-position: 0 50px; }
+.orange { background: var(--orange); }
+.wide { grid-column: span 2; }
+.kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; }
+.kv dt { color: var(--pencil); }
+.kv dd { margin: 0; }
+.circle { border: 2px solid var(--red); border-radius: 50% 45% 50% 48%; padding: 0 6px; }
+.under { text-decoration: underline wavy var(--red); text-underline-offset: 3px; }
+.sketch { width: 100%; height: auto; display: block; margin: 4px 0 6px; }
+.sketch text { font-family: var(--font-note); }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; font-size: 16px; width: 100%; }
+td, th { padding: 2px 6px; border-bottom: 1px dashed rgba(0,0,0,.25); text-align: right; font-variant-numeric: tabular-nums; }
+th { font-weight: 400; color: var(--pencil); }
+td:first-child, th:first-child { text-align: left; }
+.check { list-style: none; padding-left: 0 !important; }
+.check li::before { content: "☐ "; font-family: var(--font-code); }
+.tag { display: inline-block; font-family: var(--font-code); font-size: 13px; background: rgba(0,0,0,.08); padding: 0 4px; border-radius: 2px; }
+
+.cta { display: grid; justify-items: center; gap: 10px; margin-top: 36px; }
+.cta p { margin: 0; color: #f6e7d2; font-size: 17px; text-align: center; }
+.gkey {
+  display: inline-grid;
+  place-items: center;
+  min-width: 260px;
+  padding: 16px 38px 14px;
+  font-family: var(--font-code);
+  font-weight: 600;
+  font-size: 28px;
+  letter-spacing: .12em;
+  color: var(--key-ink);
+  text-decoration: none;
+  background: linear-gradient(var(--key-top), var(--key-bot));
+  border: 2px solid #5f6b75;
+  border-radius: 6px;
+  box-shadow: inset 0 2px 0 #fff, 0 5px 0 #4b555e, 0 10px 18px rgba(0,0,0,.4);
+  transition: transform .08s ease, box-shadow .08s ease;
+}
+.gkey small { font-family: var(--font-note); font-size: 15px; letter-spacing: 0; font-weight: 400; color: #4d5861; }
+.gkey:hover { background: linear-gradient(#ffffff, #d6dce1); }
+.gkey:active { transform: translateY(4px); box-shadow: inset 0 2px 0 #fff, 0 1px 0 #4b555e, 0 4px 8px rgba(0,0,0,.35); }
+.gkey:focus-visible { outline: 3px solid #ffd27a; outline-offset: 4px; }
+
+@media (max-width: 640px) {
+  .board { border-width: 8px; padding: 22px 12px 28px; }
+  .wide { grid-column: auto; }
+  .notes { grid-template-columns: minmax(0, 1fr); }
+  .note { transform: rotate(calc(var(--r, 0deg) / 2)); }
+  .gkey { min-width: 0; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .note, .gkey { transition: none; } .note:hover { transform: rotate(var(--r, 0deg)); } }
+</style>
+</head>
+<body>
+
+<div class="board">
+  <header class="title">
+    <h1>Plate 60×40 · Haas 5-axis</h1>
+    <p>Milling · 2 sides · CNMEC, small CNC workshop</p>
+  </header>
+
+  <div class="notes">
+    <article class="note white wide tape" style="--r:-.6deg">
+      <h2>The part</h2>
+      <svg class="sketch" viewBox="0 0 560 230" role="img" aria-label="Top-view sketch: 60 by 40 plate with two M8x1 tapped holes and two 6.5 reamed holes, work zero in the centre">
+        <rect x="130" y="35" width="300" height="160" fill="#c9cfd4" stroke="#4d4a44" stroke-width="2"/>
+        <rect x="134" y="39" width="292" height="152" fill="none" stroke="#8a8f94" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="110" y1="115" x2="450" y2="115" stroke="#4d4a44" stroke-dasharray="10 4 2 4"/>
+        <line x1="280" y1="20" x2="280" y2="210" stroke="#4d4a44" stroke-dasharray="10 4 2 4"/>
+        <circle cx="380" cy="65" r="17" fill="#fbfaf5" stroke="#1f4f8f" stroke-width="2"/>
+        <circle cx="180" cy="165" r="17" fill="#fbfaf5" stroke="#1f4f8f" stroke-width="2"/>
+        <circle cx="180" cy="65" r="16" fill="#fbfaf5" stroke="#c4232b" stroke-width="2"/>
+        <circle cx="380" cy="165" r="16" fill="#fbfaf5" stroke="#c4232b" stroke-width="2"/>
+        <circle cx="280" cy="115" r="5" fill="#c4232b"/>
+        <text x="288" y="108" font-size="15" fill="#c4232b">G54</text>
+        <text x="404" y="60" font-size="16" fill="#1f4f8f">M8×1</text>
+        <text x="200" y="190" font-size="16" fill="#1f4f8f">M8×1</text>
+        <text x="30" y="60" font-size="16" fill="#c4232b">Ø6.5 reamed</text>
+        <text x="400" y="190" font-size="16" fill="#c4232b">Ø6.5</text>
+        <text x="250" y="226" font-size="17" fill="#23201b">60</text>
+        <text x="440" y="120" font-size="17" fill="#23201b">40</text>
+      </svg>
+      <dl class="kv">
+        <dt>Machine</dt><dd>Haas UMC 5-axis, but it works <b>in 3 axes</b> (<code>B0. C0.</code>)</dd>
+        <dt>Programs</dt><dd><code>O00012</code> = side 1 · <code>O00004</code> = side 1 + side 2</dd>
+        <dt>Work zero</dt><dd><code>G54</code> in the centre, on the top face</dd>
+      </dl>
+    </article>
+
+    <article class="note blue" style="--r:1.2deg">
+      <h2>Work cycle</h2>
+      <ol>
+        <li><b>Facing</b> 1 mm · T1</li>
+        <li><b>Tap drills</b> Ø7 (for M8×1) · T2</li>
+        <li><b>Pre-drills</b> Ø6.2 (for reaming) · T3</li>
+        <li><b>Contour</b> 60×40 at Z-15.5 · T4</li>
+        <li><b>Chamfers</b> holes + edge · T6</li>
+        <li><b>Tapping</b> M8×1 · T5</li>
+        <li><b>Reaming</b> Ø6.5 · T7</li>
+      </ol>
+      <p class="why">O00004 only: <b>side 2</b>, 10 mm facing + chamfer.</p>
+    </article>
+
+    <article class="note yellow" style="--r:-1.3deg">
+      <h2>Every tool, same sequence</h2>
+      <p class="mono" style="white-space:normal">M1 → T M6 → S M3 → G54 → G0 XY → G43 Z15 H → M8 → T(next) → Z5</p>
+      <p class="why">XY first up high, then down in Z. At the end: Z15, <code>M5</code>, <code>M9</code>, <code>G49</code>, <code>G53 Z0</code>.</p>
+    </article>
+
+    <article class="note pink" style="--r:.9deg">
+      <h2 class="red">40,000 rpm?!</h2>
+      <p>T1 and T6: <span class="circle">S40000</span></p>
+      <p>Haas UMC: <b>8,100 / 12,000 / 15,000</b> rpm max.</p>
+      <p class="why">If the machine caps them, F6100 stays the same at 5 times fewer rpm → a chip 5 times thicker.</p>
+    </article>
+
+    <article class="note pink" style="--r:-1.6deg">
+      <h2 class="red">H1 on the drill!</h2>
+      <p>Drill1 (T2): <span class="under">G43 Z15. H1</span><br>Drill2 (T3): <span class="under">G43 Z15. H1</span></p>
+      <p>The machine uses the <b>end mill</b>'s length for the <b>drill</b>.</p>
+      <p class="why">→ in Fusion “Length offset” = tool number.</p>
+    </article>
+
+    <article class="note orange" style="--r:1.5deg">
+      <h2>Other errors</h2>
+      <ul>
+        <li><code>F0.08</code> and <code>F0.07</code> in <code>G94</code> = <b>mm per minute</b>: hours per hole. <span class="why">→ 145.6 and 127 mm/min</span></li>
+        <li>Reaming <code>G95</code> … <code>F0.</code> <span class="why">→ zero feed</span></li>
+        <li>O00004: side 2 after an <code>M1</code>, not an <code>M0</code>, and still on <code>G54</code>.</li>
+      </ul>
+    </article>
+
+    <article class="note white" style="--r:-.5deg">
+      <h2>The four holes</h2>
+      <div class="tbl-wrap">
+        <table>
+          <tr><th>position</th><th>pre-drill</th><th>finished</th></tr>
+          <tr><td>X20 Y10</td><td>Ø7</td><td>M8×1</td></tr>
+          <tr><td>X-20 Y-10</td><td>Ø7</td><td>M8×1</td></tr>
+          <tr><td>X-20 Y10</td><td>Ø6.2</td><td>Ø6.5</td></tr>
+          <tr><td>X20 Y-10</td><td>Ø6.2</td><td>Ø6.5</td></tr>
+        </table>
+      </div>
+      <p class="why">Tap drill = Ø − pitch = 8 − 1 = <b>7</b>.<br>Reaming: 0.15 mm per side.</p>
+    </article>
+
+    <article class="note green" style="--r:1deg">
+      <h2>Tap pitch</h2>
+      <p class="big">F = S × pitch</p>
+      <p><code>S2000</code> · <code>F2000.</code> → pitch <b>1.0 mm</b></p>
+      <p class="why">Standard M8 = 1.25 pitch! Check what's marked on the tap.</p>
+    </article>
+
+    <article class="note yellow" style="--r:-1deg">
+      <h2>Before Cycle Start</h2>
+      <ul class="check">
+        <li>T1–T7 measured, H = T number</li>
+        <li>No parallels under the holes or the edge</li>
+        <li>Table clear at B0 C0</li>
+        <li>Setting 335 (for O00004)</li>
+        <li>M8×1 tap in T5</li>
+        <li>Spindle max rpm</li>
+        <li>Optional Stop on, single block, rapids 25 %</li>
+      </ul>
+    </article>
+
+    <article class="note pink" style="--r:1.7deg">
+      <h2>Watch out!</h2>
+      <p>In <code>O00012</code> the rapids are <code>G1 F228600.</code></p>
+      <p class="why">Rapid override <b>doesn't slow them</b>: on the first run turn down the <u>feed</u> override.</p>
+    </article>
+
+    <article class="note blue" style="--r:-.7deg">
+      <h2>G0 or G1 F228600?</h2>
+      <dl class="kv">
+        <dt>O00012</dt><dd>very fast <code>G1</code>: straight line guaranteed by the program</dd>
+        <dt>O00004</dt><dd><code>G0</code>: straight only with <b>Setting 335</b></dd>
+      </dl>
+      <p class="why">On 5 axes a G0 with B/C can take a “dog-leg” path.</p>
+    </article>
+
+    <article class="note white" style="--r:1.2deg">
+      <h2>To confirm</h2>
+      <small>at the machine and in Fusion</small>
+      <ul>
+        <li>Max rpm of your UMC</li>
+        <li>Stock: size and thickness (the contour goes to Z-15.5, the drills to Z-17.3)</li>
+        <li>Material: drills at 40 m/min (steel) but facing at 1,500 m/min (aluminium)</li>
+      </ul>
+    </article>
+  </div>
+
+  <div class="cta">
+    <a class="gkey" href="analysis-plate-haas.html">G-CODE<small>block-by-block explanation</small></a>
+    <p>Open the program on the control screen, with the reason for every line.</p>
+  </div>
+</div>
+
+</body>
+</html>

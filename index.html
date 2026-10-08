@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://jzvezovdglfzjyslahoz.supabase.co">  <!-- avatar + drawings -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Kalam:wght@700&family=Patrick+Hand&display=swap">
     <link rel="stylesheet" href="auth.css">
     <style>
         :root {
@@ -410,6 +410,63 @@
             background: rgba(18,22,32,0.95);
         }
 
+        /* ── G-CODE exercises: one cork board per language, each sticky note opens that
+              exercise's board page in G-CODE/<lang>/ ── */
+        .gcode-section { max-width: 1200px; margin: 0 auto 56px; }
+        .gcode-section-title {
+            font-family: 'Share Tech Mono', monospace; font-size: 1.6em;
+            letter-spacing: 0.08em; color: #f2f6fa; text-align: center; margin-bottom: 24px;
+            text-shadow: 0 0 2px rgba(255,255,255,0.5), 0 0 8px rgba(0,212,255,0.35), 0 0 18px rgba(0,180,255,0.15);
+        }
+        .gcode-lang + .gcode-lang { margin-top: 32px; }
+        .gcode-lang-title {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.9em; font-weight: 400;
+            letter-spacing: 0.16em; color: var(--text-main); text-transform: uppercase;
+        }
+        .gcode-flag { font-size: 1.6em; line-height: 1; }
+        .gcode-lang-name { color: var(--text-dim); }
+        .gcode-board {
+            display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px 18px;
+            padding: 26px 20px 22px;
+            border: 10px solid rgba(91,61,34,0.5); border-radius: 6px;
+            background-color: rgba(185,138,85,0.35);
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,.10) 0 1.5px, transparent 2px),
+                radial-gradient(circle at 70% 60%, rgba(0,0,0,.12) 0 1.5px, transparent 2px),
+                radial-gradient(circle at 40% 80%, rgba(0,0,0,.08) 0 1px, transparent 1.5px);
+            background-size: 13px 13px, 17px 17px, 11px 11px;
+            box-shadow: inset 0 0 0 2px #3f2a17, 0 10px 30px rgba(0,0,0,.45);
+        }
+        .gcode-note {
+            position: relative; display: flex; flex-direction: column; gap: 4px; min-width: 0;
+            padding: 24px 14px 14px; color: #23201b; text-decoration: none;
+            font-family: 'Patrick Hand', 'Comic Sans MS', cursive; font-size: 1.05em; line-height: 1.25;
+            transform: rotate(var(--r, 0deg)); transition: transform .2s ease;
+            box-shadow: 0 8px 14px rgba(0,0,0,.28), 0 1px 0 rgba(0,0,0,.08);
+        }
+        .gcode-note::before {
+            content: ""; position: absolute; top: 7px; left: 50%;
+            width: 14px; height: 14px; margin-left: -7px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ff8a80, #d8322f 55%, #8f1414);
+            box-shadow: 2px 3px 4px rgba(0,0,0,.4);
+        }
+        .gcode-note b { font-family: 'Kalam', 'Comic Sans MS', cursive; font-size: 1.3em; line-height: 1.1; }
+        .gcode-note span { color: #4d4a44; }
+        .gcode-note:hover, .gcode-note:focus-visible { transform: rotate(0deg) scale(1.04); z-index: 1; }
+        .gcode-note:focus-visible { outline: 3px solid #ffd27a; outline-offset: 3px; }
+        .gcode-note.yellow { background: #fff1a0; }
+        .gcode-note.blue   { background: #cfe8f7; }
+        .gcode-note.pink   { background: #ffd0d6; }
+        .gcode-note.green  { background: #d5f0c4; }
+        .gcode-note.orange { background: #ffd9a8; }
+        .gcode-note.white  { background: #fbfaf5; }
+        @media (max-width: 768px) {
+            .gcode-board { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; padding: 20px 12px 16px; border-width: 7px; }
+            .gcode-note { padding: 22px 10px 12px; font-size: 0.95em; }
+        }
+        @media (prefers-reduced-motion: reduce) { .gcode-note { transition: none; } }
+
     </style>
 </head>
 <body>
@@ -559,6 +616,50 @@
         update();
     })();
     </script>
+
+    <!-- G-CODE exercises: three cork boards (ES / IT / EN); each note opens G-CODE/<lang>/<exercise>/ -->
+    <section class="gcode-section notranslate" id="g-code">
+        <h2 class="gcode-section-title">G-CODE</h2>
+            <div class="gcode-lang" lang="en">
+                <h3 class="gcode-lang-title"><span class="gcode-flag" aria-hidden="true">🇺🇸</span>G-CODE <span class="gcode-lang-name">English</span></h3>
+                <div class="gcode-board">
+                    <a class="gcode-note yellow" style="--r:-1.2deg" href="G-CODE/EN/Pin%20%C3%9830%20lathe%20Fanuc%20and%20Siemens/board-pin-lathe.html"><b>Pin Ø30</b><span>Fanuc and Siemens lathe</span></a>
+                    <a class="gcode-note blue" style="--r:1deg" href="G-CODE/EN/Flange%20%C3%98140%20Fanuc%20lathe/board-flange-lathe.html"><b>Flange Ø140</b><span>Fanuc lathe · turning + milling</span></a>
+                    <a class="gcode-note pink" style="--r:-0.6deg" href="G-CODE/EN/Threaded%20pin%20Doosan/board-threaded-pin.html"><b>Threaded pin</b><span>Doosan lathe · P2 thread</span></a>
+                    <a class="gcode-note green" style="--r:1.4deg" href="G-CODE/EN/External%20thread%20M20/board-thread-M20.html"><b>M20×2.5 thread</b><span>Okuma lathe · G71 cycle</span></a>
+                    <a class="gcode-note orange" style="--r:-1.5deg" href="G-CODE/EN/Plate%2060x40%20Haas%205-axis/board-plate-haas.html"><b>Plate 60×40</b><span>Haas 5-axis · 2 sides</span></a>
+                    <a class="gcode-note white" style="--r:0.8deg" href="G-CODE/EN/Complex%20part%203-axis%20milling/board-complex-part.html"><b>Complex part</b><span>3-axis milling · Fanuc</span></a>
+                    <a class="gcode-note yellow" style="--r:-0.9deg" href="G-CODE/EN/Bottle%20opener%20Haas%202%20stations/board-bottle-opener.html"><b>Bottle opener</b><span>Haas · 2 stations</span></a>
+                    <a class="gcode-note blue" style="--r:1.3deg" href="G-CODE/EN/Unistack%202D%20Haas/board-unistack.html"><b>Unistack 2D</b><span>Haas NGC · probing</span></a>
+                </div>
+            </div>
+            <div class="gcode-lang" lang="it">
+                <h3 class="gcode-lang-title"><span class="gcode-flag" aria-hidden="true">🇮🇹</span>G-CODE <span class="gcode-lang-name">Italiano</span></h3>
+                <div class="gcode-board">
+                    <a class="gcode-note yellow" style="--r:-1.2deg" href="G-CODE/IT/Perno%20%C3%9830%20tornio%20Fanuc%20e%20Siemens/bacheca-perno-tornio.html"><b>Perno Ø30</b><span>tornio Fanuc e Siemens</span></a>
+                    <a class="gcode-note blue" style="--r:1deg" href="G-CODE/IT/Flangia%20%C3%98140%20tornio%20Fanuc/bacheca-flangia-tornio.html"><b>Flangia Ø140</b><span>tornio Fanuc · tornitura + fresatura</span></a>
+                    <a class="gcode-note pink" style="--r:-0.6deg" href="G-CODE/IT/Perno%20filettato%20Doosan/bacheca-perno-filettato.html"><b>Perno filettato</b><span>tornio Doosan · filetto P2</span></a>
+                    <a class="gcode-note green" style="--r:1.4deg" href="G-CODE/IT/Filetto%20esterno%20M20/bacheca-filetto-M20.html"><b>Filetto M20×2,5</b><span>tornio Okuma · ciclo G71</span></a>
+                    <a class="gcode-note orange" style="--r:-1.5deg" href="G-CODE/IT/Piastra%2060x40%20Haas%205%20assi/bacheca-piastra-haas.html"><b>Piastra 60×40</b><span>Haas 5 assi · 2 lati</span></a>
+                    <a class="gcode-note white" style="--r:0.8deg" href="G-CODE/IT/Pezzo%20complesso%20fresatura%203%20assi/bacheca-pezzo-complesso.html"><b>Pezzo complesso</b><span>fresatura 3 assi · Fanuc</span></a>
+                    <a class="gcode-note yellow" style="--r:-0.9deg" href="G-CODE/IT/Apribottiglie%20Haas%202%20stazioni/bacheca-apribottiglie.html"><b>Apribottiglie</b><span>Haas · 2 stazioni</span></a>
+                    <a class="gcode-note blue" style="--r:1.3deg" href="G-CODE/IT/Unistack%202D%20Haas/bacheca-unistack.html"><b>Unistack 2D</b><span>Haas NGC · sonda</span></a>
+                </div>
+            </div>
+            <div class="gcode-lang" lang="es">
+                <h3 class="gcode-lang-title"><span class="gcode-flag" aria-hidden="true">🇪🇸</span>G-CODE <span class="gcode-lang-name">Español</span></h3>
+                <div class="gcode-board">
+                    <a class="gcode-note yellow" style="--r:-1.2deg" href="G-CODE/ES/Perno%20%C3%9830%20torno%20Fanuc%20y%20Siemens/tablero-perno-torno.html"><b>Perno Ø30</b><span>torno Fanuc y Siemens</span></a>
+                    <a class="gcode-note blue" style="--r:1deg" href="G-CODE/ES/Brida%20%C3%98140%20torno%20Fanuc/tablero-brida-torno.html"><b>Brida Ø140</b><span>torno Fanuc · torneado + fresado</span></a>
+                    <a class="gcode-note pink" style="--r:-0.6deg" href="G-CODE/ES/Perno%20roscado%20Doosan/tablero-perno-roscado.html"><b>Perno roscado</b><span>torno Doosan · rosca P2</span></a>
+                    <a class="gcode-note green" style="--r:1.4deg" href="G-CODE/ES/Rosca%20exterior%20M20/tablero-rosca-M20.html"><b>Rosca M20×2,5</b><span>torno Okuma · ciclo G71</span></a>
+                    <a class="gcode-note orange" style="--r:-1.5deg" href="G-CODE/ES/Placa%2060x40%20Haas%205%20ejes/tablero-placa-haas.html"><b>Placa 60×40</b><span>Haas 5 ejes · 2 lados</span></a>
+                    <a class="gcode-note white" style="--r:0.8deg" href="G-CODE/ES/Pieza%20compleja%20fresado%203%20ejes/tablero-pieza-compleja.html"><b>Pieza compleja</b><span>fresado 3 ejes · Fanuc</span></a>
+                    <a class="gcode-note yellow" style="--r:-0.9deg" href="G-CODE/ES/Abrebotellas%20Haas%202%20estaciones/tablero-abrebotellas.html"><b>Abrebotellas</b><span>Haas · 2 estaciones</span></a>
+                    <a class="gcode-note blue" style="--r:1.3deg" href="G-CODE/ES/Unistack%202D%20Haas/tablero-unistack.html"><b>Unistack 2D</b><span>Haas NGC · palpador</span></a>
+                </div>
+            </div>
+    </section>
 
     <script src="drawings.js"></script>
     <script>

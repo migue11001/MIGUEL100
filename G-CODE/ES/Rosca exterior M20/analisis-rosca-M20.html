@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Análisis rosca M20×2,5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: panel de control CNC — barra de estado, línea de mensajes, ventanas (editor / explicación / posición), softkeys verticales a la derecha y horizontales abajo. Un único aspecto claro industrial, a propósito. */
+:root {
+  --frame: #b9c1c8;
+  --win: #eef1f3;
+  --paper: #ffffff;
+  --ink: #1b232a;
+  --muted: #5a6670;
+  --rule: #98a3ad;
+  --head: #34495a;
+  --head-ink: #f4f7f9;
+  --accent: #0a6a8c;
+  --cursor: #f3a712;
+  --cursor-ink: #1b1400;
+  --key-top: #fbfcfc;
+  --key-bot: #c8cfd5;
+  --key-on: #ffd27a;
+  --ok: #2c7a3a;
+  --warn: #b76a00;
+  --warn-bg: #fff1d6;
+  --err: #c0262d;
+  --err-bg: #fde3e3;
+  --steel: #c4ccd3;
+  --steel-dark: #7d8a95;
+  --code-g: #0a5d9e;
+  --code-m: #7a3a9a;
+  --code-c: #2f7d4a;
+  --font-ui: "Barlow Semi Condensed", "Arial Narrow", Arial, sans-serif;
+  --font-code: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--frame);
+  color: var(--ink);
+  font: 15px/1.45 var(--font-ui);
+  padding-inline: 16px;
+  padding-block: 16px;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.hmi {
+  max-width: 1480px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 128px;
+  grid-template-areas: "bar bar" "msg msg" "work vkeys" "hkeys hkeys";
+  gap: 4px;
+  background: #8d979f;
+  padding: 4px;
+  border: 1px solid #6f7a83;
+}
+
+/* barra superior */
+.bar {
+  grid-area: bar;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 4px;
+}
+.bar > div {
+  background: var(--head);
+  color: var(--head-ink);
+  padding: 6px 12px;
+  display: flex; align-items: center; gap: 10px;
+  min-width: 0;
+}
+.area { font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.path { font-family: var(--font-code); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chan { font-weight: 600; letter-spacing: .04em; }
+.chan .led { width: 10px; height: 10px; border-radius: 50%; background: #58c26a; box-shadow: 0 0 0 2px #2a3a47; }
+
+/* línea de mensajes */
+.msg {
+  grid-area: msg;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 5px 10px;
+  display: flex; gap: 10px; align-items: baseline;
+  min-height: 34px;
+  font-weight: 500;
+}
+.msg .tag { font-weight: 700; letter-spacing: .05em; text-transform: uppercase; font-size: 12px; padding: 1px 6px; border-radius: 2px; flex: none; }
+.msg.ok .tag { background: #dcefdf; color: var(--ok); }
+.msg.warn { background: var(--warn-bg); }
+.msg.warn .tag { background: var(--warn); color: #fff; }
+.msg.err { background: var(--err-bg); }
+.msg.err .tag { background: var(--err); color: #fff; }
+
+/* zona de ventanas */
+.work {
+  grid-area: work;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  grid-template-areas: "editor info" "pos info";
+  gap: 4px;
+  min-width: 0;
+}
+.win { background: var(--win); border: 1px solid var(--rule); display: flex; flex-direction: column; min-width: 0; }
+.win-h {
+  background: linear-gradient(#4a6274, var(--head));
+  color: var(--head-ink);
+  padding: 4px 10px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  display: flex; justify-content: space-between; gap: 8px;
+  min-width: 0;
+}
+.win-h small { font-weight: 400; opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.editor { grid-area: editor; }
+.info { grid-area: info; }
+.pos { grid-area: pos; }
+
+/* editor */
+.code {
+  font-family: var(--font-code);
+  font-size: 13.5px;
+  background: var(--paper);
+  margin: 6px;
+  border: 1px solid var(--rule);
+  overflow: auto;
+  max-height: 340px;
+  flex: 1;
+}
+.ln {
+  display: grid;
+  grid-template-columns: 3.2em 1.2em minmax(0, 1fr);
+  align-items: baseline;
+  padding: 1px 6px 1px 0;
+  cursor: pointer;
+  white-space: pre;
+  border-left: 4px solid transparent;
+}
+.ln:hover { background: #eaf3f7; }
+.ln .no { color: var(--muted); text-align: right; padding-right: 8px; font-size: 11.5px; user-select: none; }
+.ln .flag { font-size: 11px; font-weight: 700; }
+.ln.warn .flag { color: var(--warn); }
+.ln.err .flag { color: var(--err); }
+.ln.mark { background: #e3f0f6; border-left-color: var(--accent); }
+.ln.cur { background: var(--cursor); color: var(--cursor-ink); border-left-color: #a46c00; }
+.ln.cur .no, .ln.cur .t-n, .ln.cur .t-g, .ln.cur .t-m, .ln.cur .t-c { color: var(--cursor-ink); }
+.ln.blank { cursor: default; }
+.t-n { color: var(--muted); }
+.t-g { color: var(--code-g); font-weight: 600; }
+.t-m { color: var(--code-m); font-weight: 600; }
+.t-c { color: var(--code-c); font-style: italic; }
+
+/* posición */
+.pos-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin: 6px 6px 0; }
+.axis { background: var(--paper); border: 1px solid var(--rule); padding: 3px 8px; display: flex; justify-content: space-between; align-items: baseline; gap: 6px; min-width: 0; }
+.axis b { font-size: 12px; color: var(--muted); letter-spacing: .05em; }
+.axis span { font-family: var(--font-code); font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 500; white-space: nowrap; }
+.modal { margin: 4px 6px 0; background: var(--paper); border: 1px solid var(--rule); padding: 4px 8px; font-family: var(--font-code); font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.modal i { font-style: normal; color: var(--muted); font-family: var(--font-ui); font-size: 12px; }
+.scene { margin: 6px; background: var(--paper); border: 1px solid var(--rule); position: relative; }
+.scene canvas { display: block; width: 100%; }
+.scene .cap { position: absolute; left: 8px; top: 4px; font-size: 12px; color: var(--muted); }
+
+/* explicación */
+.info-body { padding: 10px 14px 14px; overflow: auto; max-height: 720px; display: grid; gap: 12px; align-content: start; }
+.chip { display: inline-flex; gap: 6px; align-items: center; font-weight: 700; font-size: 12.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--head-ink); background: var(--accent); padding: 2px 8px; border-radius: 2px; justify-self: start; }
+.blk { font-family: var(--font-code); font-size: 15px; background: var(--paper); border: 1px solid var(--rule); border-left: 4px solid var(--cursor); padding: 6px 10px; overflow-x: auto; white-space: pre; }
+.sec { display: grid; gap: 4px; }
+.sec h3 { margin: 0; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.sec h3::after { content: ""; flex: 1; border-top: 1px solid var(--rule); }
+.sec p { margin: 0; max-width: 68ch; }
+.sec ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; max-width: 70ch; }
+.sec.why h3 { color: var(--accent); }
+.sec.why { background: var(--paper); border: 1px solid #bcd6e1; padding: 8px 12px 10px; }
+.sec.risk { border-left: 4px solid var(--warn); background: var(--warn-bg); padding: 6px 10px; }
+.sec.risk.err { border-left-color: var(--err); background: var(--err-bg); }
+.sec.risk h3 { color: var(--warn); }
+.sec.risk.err h3 { color: var(--err); }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--paper); }
+th, td { border: 1px solid #c3cbd2; padding: 4px 8px; text-align: left; vertical-align: top; }
+th { background: #dfe5ea; font-weight: 600; font-size: 13px; }
+td.num, th.num { text-align: right; font-family: var(--font-code); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td code, p code, li code { font-family: var(--font-code); font-size: .92em; background: #e8edf1; padding: 0 3px; border-radius: 2px; }
+tr.hit td { background: #fff3d1; }
+tr.click { cursor: pointer; }
+tr.click:hover td { background: #eaf3f7; }
+
+.card { background: var(--paper); border: 1px solid var(--rule); border-left: 5px solid var(--warn); padding: 8px 12px; display: grid; gap: 6px; cursor: pointer; text-align: left; }
+.card.err { border-left-color: var(--err); }
+.card.on { box-shadow: 0 0 0 2px var(--cursor); }
+.card h4 { margin: 0; font-size: 16px; display: flex; gap: 8px; align-items: baseline; }
+.card h4 .n { font-family: var(--font-code); font-size: 12px; color: var(--muted); }
+.card .lbl { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.card p { margin: 0; max-width: 70ch; }
+.check { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; align-items: start; background: var(--paper); border: 1px solid var(--rule); padding: 8px 12px; }
+.check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--ok); }
+.check label { font-weight: 600; cursor: pointer; }
+.check p { grid-column: 2; margin: 0; color: var(--muted); }
+.check.done label { text-decoration: line-through; color: var(--ok); }
+.note { font-size: 13.5px; color: var(--muted); max-width: 72ch; margin: 0; }
+
+/* softkeys */
+.vkeys { grid-area: vkeys; display: grid; grid-auto-rows: minmax(54px, auto); gap: 4px; align-content: start; }
+.hkeys { grid-area: hkeys; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; }
+.sk {
+  background: linear-gradient(var(--key-top), var(--key-bot));
+  border: 1px solid #77838d;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 0 #fff, 0 1px 0 #6d7881;
+  padding: 6px 8px;
+  min-height: 48px;
+  font-weight: 600;
+  line-height: 1.15;
+  text-align: center;
+  cursor: pointer;
+}
+.sk:hover:not(:disabled) { background: linear-gradient(#ffffff, #d7dde2); }
+.sk:active:not(:disabled) { box-shadow: inset 0 2px 3px rgba(0,0,0,.25); }
+.sk.on { background: linear-gradient(#fff3d6, var(--key-on)); border-color: #a46c00; }
+.sk:disabled { cursor: default; color: transparent; background: linear-gradient(#e3e7ea, #cdd3d8); box-shadow: none; }
+a.sk { text-decoration: none; color: inherit; display: flex; flex-direction: column; justify-content: center; }
+.sk small { display: block; font-weight: 400; font-size: 11.5px; color: var(--muted); }
+
+@media (max-width: 1100px) {
+  .work { grid-template-columns: minmax(0, 1fr); grid-template-areas: "editor" "info" "pos"; }
+  .code { max-height: 260px; }
+  .info-body { max-height: none; }
+}
+@media (max-width: 760px) {
+  body { padding-inline: 8px; }
+  .hmi { grid-template-columns: minmax(0, 1fr); grid-template-areas: "bar" "msg" "vkeys" "work" "hkeys"; }
+  .bar { grid-template-columns: minmax(0, 1fr) auto; }
+  .bar .path-box { grid-column: 1 / -1; order: 3; }
+  .vkeys { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: auto; }
+  .hkeys { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sk:disabled { display: none; }
+  .sk { min-height: 42px; font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="hmi" id="hmi">
+  <header class="bar">
+    <div class="area">Programa</div>
+    <div class="path-box"><span class="path" id="path">/okuma_rosca-M20x2.5_ciclo-G71.MIN</span></div>
+    <div class="chan"><span class="led" aria-hidden="true"></span>CANAL 1 · RESET</div>
+  </header>
+
+  <div class="msg ok" id="msg" role="status"><span class="tag">Info</span><span id="msgText"></span></div>
+
+  <main class="work">
+    <section class="win editor" aria-label="Editor de programa">
+      <div class="win-h"><span>Editor</span><small id="edName">torno Okuma · post okuma turning.cps</small></div>
+      <div class="code" id="code" tabindex="0" aria-label="Líneas del programa. Usa las flechas para moverte."></div>
+    </section>
+
+    <section class="win info" aria-live="polite">
+      <div class="win-h"><span id="infoTitle">Explicación</span><small id="infoSub"></small></div>
+      <div class="info-body" id="info"></div>
+    </section>
+
+    <section class="win pos" aria-label="Posición y estado">
+      <div class="win-h"><span>Posición pieza</span><small>X en diámetro</small></div>
+      <div class="pos-grid">
+        <div class="axis"><b>X</b><span id="pX">—</span></div>
+        <div class="axis"><b>Z</b><span id="pZ">—</span></div>
+        <div class="axis"><b>S</b><span id="pS">—</span></div>
+        <div class="axis"><b>F</b><span id="pF">—</span></div>
+        <div class="axis"><b>T</b><span id="pT">—</span></div>
+        <div class="axis"><b>HUSILLO</b><span id="pSp">parado</span></div>
+        <div class="axis"><b>REFRIG.</b><span id="pCo">no</span></div>
+        <div class="axis"><b>GAMA</b><span id="pGe">—</span></div>
+      </div>
+      <div class="modal" id="pMod"><i>Modales G:</i> —</div>
+      <div class="scene"><span class="cap">Vista XZ (media pieza, escala real)</span><canvas id="cv" height="200" aria-label="Dibujo de la pieza y la posición de la herramienta"></canvas></div>
+    </section>
+  </main>
+
+  <nav class="vkeys" id="vkeys" aria-label="Softkeys verticales"></nav>
+  <nav class="hkeys" id="hkeys" aria-label="Softkeys horizontales"></nav>
+</div>
+
+<script>
+(function () {
+"use strict";
+
+/* ---------- programas ---------- */
+const G71 = [
+  "%", "(1001.MIN)", "N10 G50 S6000", "N11 G0 X400.", "N12 G0 Z400.", "",
+  "(FILETTATURA1)", "N13 T010101", "N14 G90 G95 G18", "N15 M8", "N16 G97 S500 M3 M41",
+  "N17 G0 X39.79 Z12.5", "N18 G71 X17.791 Z-32. D1. H2. F2.5 M32 M73", "N19 G0 X39.79 Z5.", "",
+  "N20 M9", "N21 G0 X400.", "N22 G0 Z400.", "N23 M2", "%"
+];
+const PASS_D = [19.187, 18.938, 18.746, 18.584, 18.442, 18.313, 18.195, 18.085, 17.981, 17.884, 17.791];
+const PASS_Z = [-31.698, -31.574, -31.478, -31.397, -31.326, -31.261, -31.202, -31.147, -31.095, -31.047, -31];
+const G32 = (function () {
+  const L = ["%", "(1001.MIN)", "N10 G50 S6000", "N11 G0 X400.", "N12 G0 Z400.", "",
+    "(FILETTATURA1)", "N13 T010101", "N14 G90 G95 G18", "N15 M8", "N16 G97 S300 M3 M41",
+    "N17 G0 X40. Z5.", "N18 G0 Z12.5"];
+  let n = 19;
+  PASS_D.forEach((d, i) => {
+    if (i > 0) { L.push("N" + n++ + " G0 X40."); L.push("N" + n++ + " Z12.5"); }
+    L.push("N" + n++ + " X" + d.toFixed(3));
+    L.push("N" + n++ + " G32 Z" + fmtZ(PASS_Z[i]) + " F2.5");
+    L.push("N" + n++ + " X19.791 Z-32. F2.5");
+  });
+  L.push("N" + n++ + " G0 X40."); L.push("N" + n++ + " Z5."); L.push("");
+  L.push("N" + n++ + " M9"); L.push("N" + n++ + " G0 X400."); L.push("N" + n++ + " G0 Z400."); L.push("N" + n++ + " M2"); L.push("%");
+  return L;
+})();
+function fmtZ(z) { return Number.isInteger(z) ? z + "." : String(z); }
+
+/* ---------- fases ---------- */
+const PHASES = ["Cabecera", "Preparación y posición segura", "Herramienta, modos y husillo", "Aproximación", "Roscado (ciclo G71)", "Retirada y fin"];
+
+/* ---------- explicación por bloque (clave = línea sin número N) ---------- */
+const INFO = {
+  "%": { ph: 0,
+    que: "Marca de inicio o de fin del archivo.",
+    pq: ["Cuando el programa entra por cable o desde una memoria, el control empieza a leer en el primer % y termina en el siguiente. Lo que hay fuera se ignora."],
+    sino: "Algunos controles no reconocen dónde empieza el programa y la carga falla." },
+  "(1001.MIN)": { ph: 0, lvl: "err",
+    que: "Comentario con el nombre del programa. La máquina no lo ejecuta.",
+    pq: ["El post de Fusion escribe aquí el nombre que pusiste al postprocesar (función onOpen). Sirve para identificar el programa en la memoria de la máquina."],
+    riesgo: "La versión G32 de esta rosca tiene el mismo nombre interno, 1001. Si cargas los dos programas, uno puede sobrescribir al otro." },
+  "G50 S6000": { ph: 1, lvl: "warn",
+    que: "Fija el máximo de revoluciones del husillo en 6.000 rpm.",
+    pq: [
+      "Para proteger el plato. Las garras aprietan la pieza hacia el centro, pero al girar la fuerza centrífuga las empuja hacia fuera: a más rpm, menos agarre. Cada plato tiene unas rpm máximas.",
+      "Por la velocidad de corte constante. Con G96 la máquina calcula rpm = 1000·Vc / (π·D). Si la herramienta va hacia el centro, D tiende a 0 y las rpm se dispararían. G50 es el tope.",
+      "En este programa se usa G97 (rpm fijas), así que el límite no actúa. El post lo escribe siempre como hábito de seguridad: si mañana alguien añade una operación con G96, el tope ya está puesto."],
+    sino: "Una operación con G96 que llegue cerca del centro podría acelerar el husillo por encima del límite del plato y aflojar la pieza.",
+    riesgo: "Comprueba que 6.000 rpm no supera el máximo del plato y de las garras que tienes montadas." },
+  "G0 X400.": { ph: 1, lvl: "warn",
+    que: "Rápido hasta Ø400: la herramienta se aleja radialmente de la pieza.",
+    pq: [
+      "Al empezar, la máquina no sabe dónde quedó la herramienta. Puede estar junto a un hombro o dentro de una garganta.",
+      "Para una herramienta exterior, subir en X siempre es salir de la pieza. Por eso X va primero y en una línea propia: en la misma línea que Z, el movimiento sería en diagonal.",
+      "X400 es un diámetro: la herramienta queda a 200 mm del eje. En el torno X va en diámetro porque el plano se acota en diámetros y el operario mide diámetros."],
+    sino: "Si Z fuera primero, la herramienta podría arrastrarse contra un hombro de la pieza.",
+    riesgo: "La regla real es «sal por donde entraste». Con una herramienta interior (barra de mandrinar) el orden correcto es Z primero. Además, X400 tiene que caber en el recorrido de la máquina." },
+  "G0 Z400.": { ph: 1,
+    que: "Rápido hasta Z400, lejos de la cara de la pieza.",
+    pq: ["Con la herramienta ya fuera radialmente, el retroceso en Z no puede tocar la pieza.", "Deja sitio para que la torreta gire en el bloque siguiente."],
+    sino: "La torreta giraría cerca de la pieza y otra herramienta montada podría chocar.",
+    riesgo: "Z400 tiene que estar dentro del recorrido; si no, salta una alarma de fin de carrera." },
+  "(FILETTATURA1)": { ph: 2,
+    que: "Comentario: empieza la operación «Filettatura1» (roscado) de Fusion.",
+    pq: ["Marca dónde empieza cada operación (función onSection del post). El operario puede buscarla y arrancar el programa desde aquí si tiene que repetir solo la rosca."] },
+  "T010101": { ph: 2, lvl: "warn",
+    que: "La torreta gira hasta la herramienta de roscar y activa sus correctores.",
+    pq: [
+      "El cambio se hace en X400 Z400 porque, al girar la torreta, todas las herramientas montadas describen un círculo, no solo T01.",
+      "En Okuma la T lleva 6 cifras: número de corrector, número de herramienta y compensación del radio de punta. El orden exacto hay que confirmarlo en el manual OSP."],
+    sino: "Sin el corrector correcto, la máquina no sabe dónde está la punta de la plaquita y todas las cotas salen desplazadas.",
+    riesgo: "Una barra o una broca larga montada en otra estación puede tocar la pieza o el plato al girar la torreta." },
+  "G90 G95 G18": { ph: 2,
+    que: "Cotas absolutas, avance en mm por vuelta, plano XZ.",
+    pq: [
+      "G95 es el corazón del roscado. Una rosca es una hélice: por cada vuelta de la pieza, la herramienta tiene que avanzar exactamente un paso (2,5 mm).",
+      "Con G95 la máquina lee el encoder del husillo y mueve el carro según el giro real. Si el husillo se frena por la carga, el carro se frena con él y el paso sigue siendo 2,5.",
+      "G90: las cotas se miden desde el cero de la pieza y se comparan directamente con el plano. G18: el plano del torno es XZ; se escribe para no heredar el plano de un programa anterior."],
+    sino: "Con avance en mm/min (G94), cualquier caída de rpm bajo carga cambiaría el paso y la rosca no serviría." },
+  "M8": { ph: 2,
+    que: "Abre el refrigerante.",
+    pq: [
+      "La punta de una plaquita de roscar es un triángulo de 60°: tiene muy poca masa para disipar el calor. Caliente, el material se pega al filo y deja los flancos rugosos.",
+      "El refrigerante también saca la viruta del surco. Si se queda dentro, la pasada siguiente la aplasta contra la rosca."],
+    sino: "Desgaste rápido de la plaquita, filo de aportación y flancos con mal acabado." },
+  "G97 S500 M3 M41": { ph: 2,
+    que: "Arranca el husillo a 500 rpm fijas, sentido horario, en gama baja.",
+    pq: [
+      "G97 (rpm fijas): el carro tarda un poco en reaccionar (retardo del servo) y ese retardo depende de la velocidad. Con las mismas rpm en todas las pasadas, el retardo es igual y cada pasada cae en el mismo surco.",
+      "500 rpm porque con paso 2,5 el carro va a 500 × 2,5 = 1.250 mm/min, unas 12 veces más rápido que en torneado normal. A más rpm, más espacio necesita para frenar al final de la rosca. Vc = π·20·500/1000 ≈ 31 m/min: prudente para un ejercicio.",
+      "M41 (gama baja): la caja de cambios multiplica el par del motor. Si el husillo perdiera rpm bajo carga, cambiaría el retardo y las pasadas dejarían de coincidir.",
+      "M3 con la herramienta en posición normal y avance hacia el plato da una rosca a derechas, la estándar."],
+    sino: "Con G96 las rpm cambiarían con el diámetro de cada pasada: cada una empezaría desplazada y la rosca saldría con varios surcos." },
+  "G97 S300 M3 M41": { ph: 2,
+    que: "Arranca el husillo a 300 rpm fijas, sentido horario, en gama baja.",
+    pq: [
+      "Lo mismo que en la versión G71, pero más lento: el carro va a 300 × 2,5 = 750 mm/min y Vc ≈ 19 m/min.",
+      "Menos velocidad de carro significa menos espacio para frenar al final de la rosca y menos riesgo con una salida corta. A cambio, el ciclo tarda más."] },
+  "G0 X39.79 Z12.5": { ph: 3, lvl: "warn",
+    que: "Rápido en diagonal hasta el punto de inicio del ciclo: 12,5 mm delante de la cara y unos 10 mm por encima del material.",
+    pq: [
+      "Z12.5 y no Z2: el carro tiene que pasar de 0 a 1.250 mm/min. Mientras acelera, el paso todavía no es 2,5. Si esa aceleración ocurre dentro del material, los primeros filetes salen deformados. 12,5 mm son 5 pasos de margen; cuanto mayor sea rpm × paso, más distancia hace falta.",
+      "X39.79: distancia de seguridad configurada en Fusion. Es la altura a la que la herramienta vuelve en rápido entre pasadas sin rozar nada."],
+    sino: "Empezando en Z2, los primeros filetes saldrían con el paso deformado.",
+    riesgo: "El rápido es en diagonal: solo es seguro si no hay nada delante de la pieza (contrapunto, luneta o material de más de Ø40)." },
+  "G71 X17.791 Z-32. D1. H2. F2.5 M32 M73": { ph: 4, lvl: "err", params: true,
+    que: "Ciclo de roscado de Okuma: el control calcula y ejecuta todas las pasadas hasta Ø17,791. En cada pasada entra en X, rosca en Z hasta Z-32, sale en X, vuelve en rápido a Z12.5 y profundiza un poco más.",
+    pq: [
+      "Una línea en lugar de 55 (las de la versión G32). En la máquina, el operario corrige la profundidad cambiando un solo número.",
+      "Hacen falta varias pasadas porque el surco es una V: al profundizar, la sección de viruta crece con el cuadrado de la profundidad. Con el doble de profundidad sale 4 veces más material. De una vez, la plaquita se rompería.",
+      "Antes de cada pasada, la máquina espera la señal de una vuelta del encoder y arranca siempre en el mismo ángulo de la pieza. Por eso todas las pasadas caen en el mismo surco.",
+      "Durante el roscado no funcionan el Feed Hold ni el override de avance: parar el carro con el husillo girando destrozaría la rosca. Solo actúan Reset y la parada de emergencia."],
+    sino: "Programarlo a mano exige escribir cada pasada (versión G32): más líneas, más fácil equivocarse al editar.",
+    riesgo: "Rosca poco profunda: H2 son 1 mm por lado y una M20×2,5 necesita 1,534 mm. Con M73 y D1 salen probablemente solo 2 pasadas (por confirmar en el manual OSP), y la segunda arranca 3 veces más sección que la primera. Entrada radial con paso 2,5. Mira la pestaña Errores." },
+  "G0 X39.79 Z5.": { ph: 5,
+    que: "Rápido a Z5 manteniendo Ø39,79, por encima del material.",
+    pq: ["Al acabar el ciclo, la herramienta vuelve a su punto de inicio. Desde ahí se acerca a la cota de retirada de Fusion sin bajar en X, así no cruza el material."] },
+  "M9": { ph: 5,
+    que: "Cierra el refrigerante.",
+    pq: ["Se cierra con la herramienta todavía cerca de la pieza, para no rociar toda la cabina durante el recorrido largo de retirada."] },
+  "G0 X400._end": { ph: 5,
+    que: "Sale radialmente hasta Ø400.",
+    pq: ["X antes que Z: la herramienta sale por donde entró, lejos de la rosca recién hecha, y el retroceso en Z ya no puede rozarla."] },
+  "G0 Z400._end": { ph: 5,
+    que: "Retrocede en Z hasta la posición segura.",
+    pq: ["Deja la máquina en la misma posición segura del inicio: el siguiente programa o el operario encuentran la torreta lejos de la pieza."] },
+  "M2": { ph: 5,
+    que: "Fin de programa: para el husillo y el refrigerante.",
+    pq: ["M2 y M30 terminan el programa. M30 además vuelve al principio, listo para la pieza siguiente: en producción en serie se usa M30. Para una pieza única da igual."] },
+  "G0 X40. Z5.": { ph: 3,
+    que: "Rápido en diagonal hasta Ø40, Z5.",
+    pq: ["Primera aproximación a la zona de trabajo a una cota segura: Ø40 está 10 mm por encima del material y Z5 delante de la cara."] },
+  "G0 Z12.5": { ph: 3,
+    que: "Retrocede a Z12.5, el punto de arranque de las pasadas.",
+    pq: ["Como en el ciclo: el carro necesita unos 5 pasos de distancia para acelerar antes de tocar el material."] }
+};
+
+/* ---------- errores ---------- */
+const ERRORS = [
+  { lvl: "err", t: "La rosca no entra en la tuerca", lines: ["G71 X17.791"],
+    pq: "La rosca métrica es un triángulo de 60° con las puntas recortadas. Para una rosca exterior, la profundidad es 0,6134 × P = 1,534 mm. La tuerca M20×2,5 tiene un diámetro interior mínimo de 20 − 1,0825 × 2,5 = Ø17,294. El fondo programado está en Ø17,791, más grande que 17,294: las crestas de la tuerca chocan contra el fondo de tu rosca, con unos 0,25 mm de interferencia por lado.",
+    sol: "En Fusion, profundidad de rosca = 1,534 mm (fondo ≈ Ø16,93). En el dibujo de la derecha, la línea roja discontinua marca el fondo correcto." },
+  { lvl: "err", t: "Pasadas mal repartidas", lines: ["G71 X17.791"],
+    pq: "La sección de viruta crece con el cuadrado de la profundidad. Con M73 (profundidad constante), D1 y H2 salen unas 2 pasadas de 0,5 mm: la primera arranca 1 unidad de sección y la segunda 2² − 1² = 3 unidades. La plaquita trabaja el triple en la última pasada.",
+    sol: "Usar entrada decreciente (en Fusion «reduced», en Okuma M75) con 6–10 pasadas, como la versión G32. Confirma el reparto exacto de M73 en el manual OSP." },
+  { lvl: "warn", t: "Falta la pasada en vacío", lines: ["G71 X17.791"],
+    pq: "Al cortar, la herramienta se flexa y se aparta un poco de la pieza, así que en la última pasada queda material. Repetir esa pasada sin profundizar lo quita, ya casi sin fuerza de corte.",
+    sol: "Activar las «spring passes» en la operación de roscado de Fusion." },
+  { lvl: "warn", t: "Entrada radial con paso 2,5", lines: ["G71 X17.791"],
+    pq: "Sin ángulo B, la herramienta entra recta en X: los dos filos de la V cortan a la vez, la viruta sale doblada en V, cuesta evacuarla y la plaquita vibra. La entrada por el flanco (29–30°) hace cortar sobre todo un filo y se recomienda a partir de pasos de unos 1,5 mm.",
+    sol: "Poner el ángulo de entrada en Fusion; el post lo escribe como B en el G71." },
+  { lvl: "warn", t: "Nombre interno duplicado (1001.MIN)", lines: ["(1001.MIN)"],
+    pq: "El control identifica los programas por su nombre interno, no por el nombre del archivo en el ordenador. Las dos versiones de esta rosca se llaman 1001.",
+    sol: "Dar un nombre de programa distinto a cada una en Fusion antes de postprocesar." }
+];
+
+/* ---------- colisiones ---------- */
+const CHECKS = [
+  { t: "X400 y Z400 dentro del recorrido de la máquina", pq: "Si no caben, salta una alarma de fin de carrera a mitad del programa.", lines: ["G0 X400.", "G0 Z400."] },
+  { t: "La torreta gira libre en X400 Z400", pq: "Todas las herramientas montadas barren un círculo al girar, no solo T01.", lines: ["T010101"] },
+  { t: "Nada delante de la pieza", pq: "La aproximación a X39.79 Z12.5 es un rápido en diagonal: contrapunto, luneta o material de más de Ø40 estarían en su camino.", lines: ["G0 X39.79 Z12.5"] },
+  { t: "Garganta o espacio libre en Z-32", pq: "El carro va a 1.250 mm/min y sale con una rampa de unos 45°. Un hombro pegado a Z-32 lo golpearía.", lines: ["G71 X17.791"] },
+  { t: "Pieza fuera de las garras al menos 40 mm", pq: "32 de rosca, más la salida, más margen respecto a las mordazas.", lines: ["G71 X17.791"] },
+  { t: "Primera ejecución bloque a bloque, rápidos al 25 %", pq: "Durante la rosca el Feed Hold no funciona: el único momento para parar es antes de llegar a ella.", lines: ["G0 X39.79 Z12.5", "G71 X17.791"] }
+];
+
+/* ---------- códigos ---------- */
+const CODES = [
+  ["G50 S6000", "Límite de rpm", "Seguridad: ningún bloque posterior puede pasar de 6.000 rpm, el límite que protege el plato.", "G50"],
+  ["G0", "Movimiento rápido", "Aproximar y retirar sin cortar, lo más rápido posible.", "G0 "],
+  ["G90", "Cotas absolutas", "Todas las cotas desde el cero de la pieza, comparables con el plano.", "G90"],
+  ["G95", "Avance mm/vuelta", "Imprescindible en roscado: el avance tiene que ser exactamente un paso por vuelta.", "G95"],
+  ["G18", "Plano XZ", "Es el plano de trabajo del torno; se escribe para no heredar otro.", "G18"],
+  ["G97", "Rpm fijas", "Imprescindible en roscado: con las mismas rpm, todas las pasadas caen en el mismo surco.", "G97"],
+  ["T010101", "Herramienta y correctores", "Pone la plaquita de roscar en posición con sus correctores de longitud y radio.", "T0101"],
+  ["M8 / M9", "Refrigerante sí / no", "La punta de 60° se calienta mucho y la viruta tiene que salir del surco.", "M8|M9"],
+  ["M3", "Husillo horario", "Con la herramienta en posición normal y avance hacia el plato da rosca a derechas.", "M3"],
+  ["M41", "Gama baja", "Más par: el husillo no pierde rpm bajo la carga del roscado.", "M41"],
+  ["G71", "Ciclo de roscado (Okuma)", "Todas las pasadas en una línea. Ojo: en Fanuc G71 es desbaste y en Siemens es «unidades métricas».", "G71"],
+  ["M32", "Modo de entrada", "Cómo entra la herramienta en cada pasada (según el post: M32 para constant/reduced, M33 para alternate).", "M32"],
+  ["M73", "Reparto de pasadas", "Profundidad constante. Es la causa del error 2; M75 sería decreciente.", "M73"],
+  ["G32", "Roscado bloque a bloque", "Solo en la versión G32: una pasada sincronizada por línea. Sirve para ver qué hace el ciclo por dentro.", "G32"],
+  ["M2", "Fin de programa", "Para husillo y refrigerante y cierra el programa. M30 además vuelve al principio.", "M2"]
+];
+
+/* ---------- utilidades ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const strip = l => l.replace(/^N\d+\s*/, "");
+const nf = (v, d) => v == null ? "—" : v.toLocaleString("es-ES", { minimumFractionDigits: d, maximumFractionDigits: d });
+
+function hl(line) {
+  if (/^\(.*\)$/.test(line)) return '<span class="t-c">' + esc(line) + "</span>";
+  return esc(line)
+    .replace(/^(N\d+)/, '<span class="t-n">$1</span>')
+    .replace(/\b(G\d+(?:\.\d)?)/g, '<span class="t-g">$1</span>')
+    .replace(/\b(M\d+)/g, '<span class="t-m">$1</span>');
+}
+
+/* intérprete mínimo: estado de la máquina después de cada línea */
+function simulate(lines) {
+  const st = { x: null, z: null, s: null, f: null, t: null, sp: "parado", co: false, ge: null, mot: null, g: {} };
+  const out = [];
+  lines.forEach(raw => {
+    const l = raw.replace(/\(.*?\)/g, "").trim();
+    const prev = { x: st.x, z: st.z };
+    let cycle = false;
+    const re = /([A-Z])(-?\d*\.?\d+)/g; let m;
+    const words = [];
+    while ((m = re.exec(l))) words.push([m[1], parseFloat(m[2]), m[2]]);
+    const gs = words.filter(w => w[0] === "G").map(w => w[1]);
+    gs.forEach(g => {
+      if (g === 0 || g === 1 || g === 32) st.mot = "G" + g;
+      if (g === 71) cycle = true;
+      if (g === 90 || g === 91) st.g.dist = "G" + g;
+      if (g === 94 || g === 95) st.g.feed = "G" + g;
+      if (g === 17 || g === 18 || g === 19) st.g.plane = "G" + g;
+      if (g === 96 || g === 97) st.g.css = "G" + g;
+      if (g === 50) st.g.lim = "G50";
+    });
+    words.forEach(([a, v, s]) => {
+      if (a === "X" && !cycle) st.x = v;
+      if (a === "Z" && !cycle) st.z = v;
+      if (a === "S" && gs.includes(50)) st.lim = v;
+      else if (a === "S") st.s = v;
+      if (a === "F") st.f = v;
+      if (a === "T") st.t = s;
+      if (a === "M") {
+        if (v === 3) st.sp = "M3 ↻"; if (v === 4) st.sp = "M4 ↺"; if (v === 5 || v === 2 || v === 30) st.sp = "parado";
+        if (v === 8) st.co = true; if (v === 9 || v === 2 || v === 30) st.co = false;
+        if (v === 41) st.ge = "M41 baja"; if (v === 42) st.ge = "M42 alta";
+      }
+    });
+    if (cycle) { st.f = words.find(w => w[0] === "F")?.[1] ?? st.f; }
+    const moved = l && (prev.x !== st.x || prev.z !== st.z);
+    out.push(Object.assign({}, st, { g: Object.assign({}, st.g), prev, cycle, moved, motion: moved ? st.mot : null }));
+  });
+  return out;
+}
+
+/* ---------- estado de la página ---------- */
+const S = {
+  mode: "ciclo", prog: G71, sim: simulate(G71), cur: 12,
+  marks: new Set(), errSel: 0, codeSel: -1, checks: loadChecks()
+};
+function loadChecks() { try { return JSON.parse(localStorage.getItem("rosca-checks") || "[]"); } catch (e) { return []; } }
+function saveChecks() { try { localStorage.setItem("rosca-checks", JSON.stringify(S.checks)); } catch (e) {} }
+
+function keyFor(i) {
+  const k = strip(S.prog[i]);
+  if ((k === "G0 X400." || k === "G0 Z400.") && i > 8) return k + "_end";
+  return k;
+}
+function linesMatching(pats) {
+  const out = [];
+  S.prog.forEach((l, i) => { if (pats.some(p => l.includes(p))) out.push(i); });
+  return out;
+}
+function levelOf(i) { const d = INFO[keyFor(i)]; return d && d.lvl; }
+
+/* ---------- editor ---------- */
+function renderCode() {
+  const box = $("code");
+  box.innerHTML = S.prog.map((l, i) => {
+    const lv = S.mode === "g32" ? (/G32/.test(l) && i === lastPassLine() ? "warn" : "") : (levelOf(i) || "");
+    const cls = ["ln", l ? "" : "blank", lv, S.marks.has(i) ? "mark" : "", i === S.cur ? "cur" : ""].join(" ");
+    const flag = lv === "err" ? "✖" : lv === "warn" ? "!" : "";
+    return '<div class="' + cls + '" data-i="' + i + '"><span class="no">' + (i + 1) + '</span><span class="flag">' + flag + "</span><span>" + (l ? hl(l) : " ") + "</span></div>";
+  }).join("");
+  const c = box.querySelector(".cur") || box.querySelector(".mark");
+  if (c) {
+    const top = c.offsetTop - box.offsetTop, h = box.clientHeight;
+    if (top < box.scrollTop || top > box.scrollTop + h - 24) box.scrollTop = Math.max(0, top - h / 3);
+  }
+}
+$("code").addEventListener("click", e => {
+  const ln = e.target.closest(".ln"); if (!ln) return;
+  const i = +ln.dataset.i; if (!S.prog[i]) return;
+  if (S.mode !== "ciclo" && S.mode !== "g32") setMode("ciclo");
+  go(i);
+});
+$("code").addEventListener("keydown", e => {
+  if (e.key === "ArrowDown") { e.preventDefault(); step(1); }
+  if (e.key === "ArrowUp") { e.preventDefault(); step(-1); }
+});
+
+function go(i) { S.cur = i; S.marks = new Set(); render(); }
+function step(d) {
+  let i = S.cur;
+  do { i += d; } while (i >= 0 && i < S.prog.length && !S.prog[i]);
+  if (i >= 0 && i < S.prog.length) go(i);
+}
+function lastPassLine() { let k = -1; S.prog.forEach((l, i) => { if (/G32/.test(l)) k = i; }); return k; }
+
+/* ---------- posición ---------- */
+function renderPos() {
+  const s = S.sim[S.cur] || {};
+  $("pX").textContent = s.x == null ? "—" : nf(s.x, 3);
+  $("pZ").textContent = s.z == null ? "—" : nf(s.z, 3);
+  $("pS").textContent = s.s == null ? "—" : s.s + " rpm";
+  $("pF").textContent = s.f == null ? "—" : nf(s.f, 1) + (s.g.feed === "G95" ? " mm/v" : "");
+  $("pT").textContent = s.t || "—";
+  $("pSp").textContent = s.sp || "parado";
+  $("pCo").textContent = s.co ? "M8 sí" : "no";
+  $("pGe").textContent = s.ge || "—";
+  const g = s.g || {};
+  const list = [s.mot, g.dist, g.feed, g.plane, g.css, g.lim ? "G50 S" + (s.lim || "") : null].filter(Boolean);
+  $("pMod").innerHTML = "<i>Modales G:</i> " + (list.length ? list.join("  ") : "—");
+}
+
+/* ---------- mensajes ---------- */
+function setMsg(lvl, text) {
+  const m = $("msg"); m.className = "msg " + lvl;
+  m.querySelector(".tag").textContent = lvl === "err" ? "Error" : lvl === "warn" ? "Aviso" : "Info";
+  $("msgText").textContent = text;
+}
+
+/* ---------- panel de explicación ---------- */
+function sec(cls, title, body) {
+  if (!body || (Array.isArray(body) && !body.length)) return "";
+  const inner = Array.isArray(body) ? (body.length === 1 ? "<p>" + body[0] + "</p>" : "<ul>" + body.map(b => "<li>" + b + "</li>").join("") + "</ul>") : "<p>" + body + "</p>";
+  return '<div class="sec ' + cls + '"><h3>' + title + "</h3>" + inner + "</div>";
+}
+function paramsTable() {
+  const rows = [
+    ["X17.791", "Diámetro final: el fondo de la rosca."],
+    ["Z-32.", "Final de la rosca."],
+    ["D1.", "Primera profundidad de pasada, en diámetro (0,5 mm por lado)."],
+    ["H2.", "Altura total de la rosca, en diámetro (1 mm por lado)."],
+    ["F2.5", "Paso de la rosca. Con G95: avance = paso por vuelta."],
+    ["M32", "Modo de entrada (según el post: constant o reduced; M33 sería alternate)."],
+    ["M73", "Reparto de profundidad constante (M75 sería decreciente)."]
+  ];
+  return '<div class="sec"><h3>Parámetros del ciclo</h3><div class="tbl-wrap"><table><tr><th>Palabra</th><th>Significado</th></tr>' +
+    rows.map(r => "<tr><td><code>" + r[0] + "</code></td><td>" + r[1] + "</td></tr>").join("") + "</table></div></div>";
+}
+
+function passInfo(i) {
+  const l = strip(S.prog[i]);
+  const passIdx = (() => { let n = -1; for (let k = 0; k <= i; k++) if (/^N\d+ X1\d\.\d+$/.test(S.prog[k])) n++; return n; })();
+  const first = (19.791 - PASS_D[0]) / 2;
+  const d = PASS_D[passIdx], depth = (19.791 - d) / 2;
+  const prevDepth = passIdx > 0 ? (19.791 - PASS_D[passIdx - 1]) / 2 : 0;
+  if (/^X1\d\.\d+$/.test(l)) {
+    return { ph: 4, que: "Pasada " + (passIdx + 1) + " de 11: la herramienta baja en rápido hasta Ø" + nf(d, 3) + ".",
+      pq: ["Profundidad acumulada: (19,791 − " + nf(d, 3) + ") / 2 = " + nf(depth, 3) + " mm por lado. Esta pasada profundiza " + nf(depth - prevDepth, 3) + " mm.",
+        "Relación con la primera: " + nf(depth / first, 2) + ", casi igual a √" + (passIdx + 1) + " = " + nf(Math.sqrt(passIdx + 1), 2) + ". La profundidad crece como √n para que cada pasada arranque la misma sección de viruta: al principio el surco es estrecho y se profundiza mucho; al final es ancho y se profundiza poco."],
+      table: true, pass: passIdx };
+  }
+  if (/^G32/.test(l)) {
+    const last = passIdx === PASS_D.length - 1;
+    return { ph: 4, lvl: last ? "warn" : null,
+      que: "Rosca la pasada " + (passIdx + 1) + " desde Z12.5 hasta Z" + nf(PASS_Z[passIdx], 3) + ", sincronizada con el husillo (2,5 mm por vuelta).",
+      pq: ["G32 es roscado bloque a bloque: el control espera la señal de una vuelta del encoder y solo entonces arranca el carro. Así esta pasada cae en el mismo surco que las anteriores.",
+        "No llega a Z-32: termina antes porque la línea siguiente sale en diagonal. Cuanto más profunda la pasada, antes empieza la salida."],
+      riesgo: last ? "Es la última pasada y no se repite: falta la pasada en vacío para quitar el material que deja la flexión de la herramienta." : null,
+      table: true, pass: passIdx };
+  }
+  if (l === "X19.791 Z-32. F2.5") {
+    return { ph: 4, que: "Salida de rosca: sube en diagonal hasta Ø19,791 en Z-32, todavía sincronizada.",
+      pq: ["El carro va a 750 mm/min y no se puede parar en seco: si parara dentro del material, la plaquita quedaría marcando un anillo. Sale en rampa (unos 45°) mientras sigue avanzando un paso por vuelta."],
+      riesgo: "Necesita espacio libre después de Z-31: si hay un hombro, hace falta una garganta de salida.", pass: passIdx, table: true };
+  }
+  if (l === "G0 X40.") return { ph: 4, que: "Retirada radial a Ø40, por encima del material.", pq: ["Primero se sale en X para que el regreso en Z no roce la rosca."], pass: passIdx };
+  if (l === "Z12.5") return { ph: 4, que: "Vuelve en rápido a Z12.5, el punto de arranque.", pq: ["Cada pasada empieza 5 pasos antes del material para que el carro llegue a su velocidad antes de cortar."], pass: passIdx };
+  return null;
+}
+function passTable(cur) {
+  const first = (19.791 - PASS_D[0]) / 2;
+  return '<div class="sec"><h3>Las 11 pasadas: profundidad ∝ √n</h3><div class="tbl-wrap"><table><tr><th class="num">n</th><th class="num">Ø</th><th class="num">Prof. acumulada</th><th class="num">Relación</th><th class="num">√n</th></tr>' +
+    PASS_D.map((d, i) => { const p = (19.791 - d) / 2; return '<tr class="' + (i === cur ? "hit" : "") + '"><td class="num">' + (i + 1) + '</td><td class="num">' + nf(d, 3) + '</td><td class="num">' + nf(p, 3) + ' mm</td><td class="num">' + nf(p / first, 2) + '</td><td class="num">' + nf(Math.sqrt(i + 1), 2) + "</td></tr>"; }).join("") +
+    "</table></div></div>";
+}
+
+function renderInfo() {
+  const box = $("info");
+  if (S.mode === "ciclo" || S.mode === "g32") {
+    const i = S.cur, line = S.prog[i];
+    let d = (S.mode === "g32" && passInfo(i)) || INFO[keyFor(i)];
+    if (!d) d = { ph: 0, que: "Línea vacía o sin función.", pq: [] };
+    const nTxt = (line.match(/^N\d+/) || [""])[0];
+    $("infoTitle").textContent = (nTxt ? nTxt + " · " : "") + "Fase " + d.ph + " · " + PHASES[d.ph];
+    $("infoSub").textContent = S.mode === "g32" ? "versión G32" : "versión ciclo G71";
+    box.innerHTML =
+      '<span class="chip">Fase ' + d.ph + " · " + PHASES[d.ph] + "</span>" +
+      '<div class="blk">' + hl(line) + "</div>" +
+      sec("", "Qué hace la máquina", d.que) +
+      sec("why", "Por qué", d.pq) +
+      (d.params ? paramsTable() : "") +
+      sec("", "Si no se hiciera así", d.sino) +
+      (d.riesgo ? sec("risk " + (d.lvl === "err" ? "err" : ""), d.lvl === "err" ? "Error / riesgo" : "Riesgo", d.riesgo) : "") +
+      (d.table ? passTable(d.pass) : "");
+    const lv = d.lvl;
+    setMsg(lv || "ok", lv ? d.riesgo.split(". ")[0] + "." : "Bloque " + (nTxt || (i + 1)) + " · " + PHASES[d.ph] + ". Usa ↑ ↓ o las softkeys para avanzar.");
+    return;
+  }
+  if (S.mode === "errores") {
+    $("infoTitle").textContent = "Errores detectados"; $("infoSub").textContent = ERRORS.length + " encontrados";
+    box.innerHTML = '<p class="note">Pulsa un error para ver en el editor las líneas que lo causan.</p>' + ERRORS.map((e, k) =>
+      '<button class="card ' + e.lvl + (k === S.errSel ? " on" : "") + '" data-err="' + k + '"><h4><span class="n">' + (k + 1) + "</span>" + e.t + "</h4>" +
+      '<span class="lbl">Por qué</span><p>' + e.pq + '</p><span class="lbl">Solución</span><p>' + e.sol + "</p></button>").join("");
+    const e = ERRORS[S.errSel];
+    setMsg(e.lvl, "Error " + (S.errSel + 1) + ": " + e.t + ".");
+    return;
+  }
+  if (S.mode === "colisiones") {
+    $("infoTitle").textContent = "Comprobaciones antes de ejecutar";
+    const done = S.checks.filter(Boolean).length;
+    $("infoSub").textContent = done + " de " + CHECKS.length + " hechas";
+    box.innerHTML = '<p class="note">Marca cada punto cuando lo hayas comprobado en la máquina. Las marcas se guardan solo en este navegador.</p>' + CHECKS.map((c, k) =>
+      '<div class="check' + (S.checks[k] ? " done" : "") + '"><input type="checkbox" id="chk' + k + '" data-chk="' + k + '"' + (S.checks[k] ? " checked" : "") + '><label for="chk' + k + '">' + c.t + "</label><p>" + c.pq + "</p></div>").join("");
+    setMsg(done === CHECKS.length ? "ok" : "warn", done === CHECKS.length ? "Todas las comprobaciones hechas. Primera ejecución: bloque a bloque." : "Quedan " + (CHECKS.length - done) + " comprobaciones antes de ejecutar.");
+    return;
+  }
+  if (S.mode === "codigos") {
+    $("infoTitle").textContent = "Códigos del ejercicio"; $("infoSub").textContent = "pulsa una fila para verla en el editor";
+    box.innerHTML = '<div class="tbl-wrap"><table><tr><th>Código</th><th>Función</th><th>Por qué en este ejercicio</th></tr>' +
+      CODES.map((c, k) => '<tr class="click' + (k === S.codeSel ? " hit" : "") + '" data-code="' + k + '"><td><code>' + c[0] + "</code></td><td>" + c[1] + "</td><td>" + c[2] + "</td></tr>").join("") + "</table></div>";
+    setMsg("ok", "15 códigos distintos en las dos versiones del programa.");
+  }
+}
+$("info").addEventListener("click", e => {
+  const card = e.target.closest("[data-err]");
+  if (card) { selectError(+card.dataset.err); return; }
+  const row = e.target.closest("[data-code]");
+  if (row) { selectCode(+row.dataset.code); }
+});
+$("info").addEventListener("change", e => {
+  const k = e.target.dataset.chk; if (k == null) return;
+  S.checks[+k] = e.target.checked; saveChecks();
+  S.marks = new Set(linesMatching(CHECKS[+k].lines)); renderCode(); renderInfo();
+});
+function selectError(k) {
+  S.errSel = k; S.marks = new Set(linesMatching(ERRORS[k].lines));
+  const first = [...S.marks][0]; if (first != null) S.cur = first;
+  render();
+}
+function selectCode(k) {
+  S.codeSel = k;
+  const pats = CODES[k][3].split("|");
+  const g32 = CODES[k][0] === "G32";
+  if (g32 && S.prog !== G32) loadProg(G32);
+  if (!g32 && S.prog !== G71) loadProg(G71);
+  S.marks = new Set(S.prog.map((l, i) => pats.some(p => new RegExp("\\b" + p.trim().replace(".", "\\.") + "(?![\\d.])").test(l)) ? i : -1).filter(i => i >= 0));
+  S.cur = -1;
+  render();
+}
+
+/* ---------- softkeys ---------- */
+const HKEYS = [
+  ["ciclo", "Ciclo de trabajo", "bloque a bloque"],
+  ["errores", "Errores", "5 detectados"],
+  ["colisiones", "Colisiones", "antes de ejecutar"],
+  ["codigos", "Códigos", "y su porqué"],
+  ["g32", "G71 vs G32", "pasada a pasada"]
+];
+function vkeysFor(mode) {
+  if (mode === "ciclo") return [
+    ["◀ Bloque", () => step(-1)], ["Bloque ▶", () => step(1)],
+    ...[1, 2, 3, 4, 5].map(p => ["Fase " + p, () => go(S.prog.findIndex((l, i) => l && (INFO[keyFor(i)] || {}).ph === p)), PHASES[p]]),
+    ["Inicio", () => go(0)]
+  ];
+  if (mode === "g32") return [
+    ["◀ Bloque", () => step(-1)], ["Bloque ▶", () => step(1)],
+    ["◀ Pasada", () => jumpPass(-1)], ["Pasada ▶", () => jumpPass(1)],
+    ["Pasada 1", () => go(S.prog.findIndex(l => /G32/.test(l)))], ["Última", () => go(lastPassLine())],
+    ["Inicio", () => go(0)]
+  ];
+  if (mode === "errores") return ERRORS.map((e, k) => ["Error " + (k + 1), () => selectError(k), e.lvl === "err" ? "grave" : "aviso"]);
+  if (mode === "colisiones") return [["Borrar marcas", () => { S.checks = []; saveChecks(); S.marks = new Set(); render(); }]];
+  if (mode === "codigos") return [["Ver G71", () => { loadProg(G71); S.marks = new Set(); S.codeSel = -1; S.cur = 12; render(); }], ["Ver G32", () => { loadProg(G32); S.marks = new Set(); S.codeSel = -1; S.cur = G32.findIndex(l => /G32/.test(l)); render(); }]];
+  return [];
+}
+function jumpPass(d) {
+  const passes = S.prog.map((l, i) => /G32/.test(l) ? i : -1).filter(i => i >= 0);
+  const cur = passes.findIndex(i => i >= S.cur);
+  let k = cur < 0 ? passes.length - 1 : (passes[cur] === S.cur ? cur + d : (d > 0 ? cur : cur - 1));
+  k = Math.max(0, Math.min(passes.length - 1, k));
+  go(passes[k]);
+}
+function renderKeys() {
+  const v = vkeysFor(S.mode);
+  const vk = $("vkeys"); vk.innerHTML = "";
+  for (let k = 0; k < 8; k++) {
+    const b = document.createElement("button"); b.className = "sk";
+    if (v[k]) {
+      b.innerHTML = v[k][0] + (v[k][2] ? "<small>" + v[k][2] + "</small>" : "");
+      b.onclick = v[k][1];
+      if (S.mode === "errores" && k === S.errSel) b.classList.add("on");
+    } else { b.disabled = true; b.textContent = "·"; b.setAttribute("aria-hidden", "true"); }
+    vk.appendChild(b);
+  }
+  const hk = $("hkeys"); hk.innerHTML = "";
+  for (let k = 0; k < 8; k++) {
+    if (k === 7) {
+      const a = document.createElement("a"); a.className = "sk link";
+      a.href = "tablero-rosca-M20.html"; 
+      a.innerHTML = "◀ Tablero<small>notas del ejercicio</small>";
+      hk.appendChild(a); continue;
+    }
+    const b = document.createElement("button"); b.className = "sk";
+    const h = HKEYS[k];
+    if (h) {
+      b.innerHTML = h[1] + "<small>" + h[2] + "</small>";
+      if (h[0] === S.mode) { b.classList.add("on"); b.setAttribute("aria-pressed", "true"); }
+      b.onclick = () => setMode(h[0]);
+    } else { b.disabled = true; b.textContent = "·"; b.setAttribute("aria-hidden", "true"); }
+    hk.appendChild(b);
+  }
+}
+function loadProg(p) {
+  S.prog = p; S.sim = simulate(p);
+  $("path").textContent = p === G32 ? "/okuma_rosca-M20x2.5_G32.MIN" : "/okuma_rosca-M20x2.5_ciclo-G71.MIN";
+}
+function setMode(m) {
+  S.mode = m; S.marks = new Set();
+  if (m === "g32") { loadProg(G32); S.cur = G32.findIndex(l => /G32/.test(l)); }
+  else if (m === "ciclo") { if (S.prog !== G71) { loadProg(G71); S.cur = 12; } if (S.cur < 0) S.cur = 12; }
+  else if (m === "errores") { loadProg(G71); selectError(S.errSel); return; }
+  else if (m === "colisiones") { loadProg(G71); S.cur = -1; }
+  else if (m === "codigos") { if (S.prog !== G71) loadProg(G71); S.cur = -1; S.codeSel = -1; }
+  try { localStorage.setItem("rosca-mode", m); } catch (e) {}
+  render();
+}
+
+/* ---------- dibujo XZ ---------- */
+const cv = $("cv"), ctx = cv.getContext("2d");
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let anim = null;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const V = { z0: -50, z1: 18, r0: -2, r1: 23 };
+let W = 300, H = 120, k = 1, pad = 14;
+function sx(z) { return pad + (z - V.z0) * k; }
+function sy(r) { return H - pad - (r - V.r0) * k; }
+function size() {
+  const w = cv.clientWidth || 300;
+  k = (w - 2 * pad) / (V.z1 - V.z0);
+  W = w; H = Math.round((V.r1 - V.r0) * k + 2 * pad);
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + "px";
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function cyclePaths() {
+  if (S.prog === G71) return [18.791, 17.791].map(d => ({ d, zEnd: -31 }));
+  return PASS_D.map((d, i) => ({ d, zEnd: PASS_Z[i] }));
+}
+function passPath(p) {
+  const r = p.d / 2, top = (S.prog === G71 ? 39.79 : 40) / 2;
+  return [[12.5, top, 0], [12.5, r, 0], [p.zEnd, r, 1], [-32, 19.791 / 2, 1], [-32, top, 0], [12.5, top, 0]];
+}
+function drawBase() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = css("--paper"); ctx.fillRect(0, 0, W, H);
+  ctx.font = "11px " + css("--font-ui");
+  // garras
+  ctx.fillStyle = css("--steel-dark");
+  ctx.fillRect(sx(V.z0), sy(17), sx(-42) - sx(V.z0), sy(10) - sy(17));
+  ctx.fillStyle = css("--muted"); ctx.fillText("garras (supuesto)", sx(V.z0) + 2, sy(17) - 4);
+  // barra Ø20
+  ctx.fillStyle = css("--steel");
+  ctx.fillRect(sx(V.z0), sy(10), sx(0) - sx(V.z0), sy(V.r0) - sy(10));
+  // valles de rosca programada (1 mm)
+  const rootP = 17.791 / 2;
+  ctx.fillStyle = css("--paper");
+  for (let z = -1.25; z > -32; z -= 2.5) {
+    const hw = (10 - rootP) * Math.tan(Math.PI / 6);
+    ctx.beginPath(); ctx.moveTo(sx(z - hw), sy(10)); ctx.lineTo(sx(z), sy(rootP)); ctx.lineTo(sx(z + hw), sy(10)); ctx.closePath(); ctx.fill();
+  }
+  // eje
+  ctx.strokeStyle = css("--muted"); ctx.setLineDash([6, 3, 2, 3]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(sx(V.z0), sy(0)); ctx.lineTo(sx(V.z1), sy(0)); ctx.stroke();
+  // fondo correcto
+  ctx.strokeStyle = css("--err"); ctx.setLineDash([4, 3]); ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(sx(0), sy(16.933 / 2)); ctx.lineTo(sx(-32), sy(16.933 / 2)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = css("--err"); ctx.fillText("fondo correcto Ø16,93", sx(-31), sy(16.933 / 2) + 12);
+  // cotas
+  ctx.fillStyle = css("--muted");
+  ctx.fillText("Z0", sx(0) - 6, sy(V.r0) + 11 > H ? H - 2 : sy(V.r0) + 11);
+  ctx.fillText("Z-32", sx(-32) - 12, H - 2);
+  ctx.fillText("Ø20", sx(2), sy(10) + 4);
+  ctx.strokeStyle = css("--rule"); ctx.lineWidth = 1;
+  [0, -32].forEach(z => { ctx.beginPath(); ctx.moveTo(sx(z), sy(V.r0)); ctx.lineTo(sx(z), sy(V.r0) - 4); ctx.stroke(); });
+}
+function drawPasses(cur) {
+  cyclePaths().forEach((p, i) => {
+    const on = i === cur;
+    ctx.strokeStyle = on ? css("--accent") : "rgba(10,106,140,.22)";
+    ctx.lineWidth = on ? 2 : 1;
+    ctx.beginPath(); ctx.moveTo(sx(12.5), sy(p.d / 2)); ctx.lineTo(sx(p.zEnd), sy(p.d / 2)); ctx.lineTo(sx(-32), sy(19.791 / 2)); ctx.stroke();
+  });
+}
+function drawTool(z, r, label) {
+  let cz = z, cr = r, off = false;
+  if (z > V.z1 - 1) { cz = V.z1 - 3; off = true; }
+  if (r > V.r1 - 5) { cr = V.r1 - 5; off = true; }
+  const x = sx(cz), y = sy(cr);
+  ctx.fillStyle = css("--cursor"); ctx.strokeStyle = "#5c4100"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 1.6 * k, y - 3 * k); ctx.lineTo(x + 1.6 * k, y - 3 * k); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#6b757d"; ctx.fillRect(x - 1.2 * k, y - 5 * k, 2.4 * k, 2 * k);
+  if (off || label) {
+    ctx.fillStyle = css("--ink"); ctx.font = "600 11px " + css("--font-ui");
+    const t = label || "fuera de vista ↗";
+    ctx.fillText(t, Math.min(x - 8, W - ctx.measureText(t).width - 4), y - 5 * k - 4);
+  }
+}
+function drawMove(s) {
+  if (!s || !s.moved || s.prev.x == null || s.prev.z == null) return;
+  const clampR = r => Math.min(r, V.r1 - 5), clampZ = z => Math.min(z, V.z1 - 3);
+  ctx.strokeStyle = css("--accent"); ctx.lineWidth = 1.5;
+  ctx.setLineDash(s.motion === "G0" ? [5, 4] : []);
+  ctx.beginPath(); ctx.moveTo(sx(clampZ(s.prev.z)), sy(clampR(s.prev.x / 2))); ctx.lineTo(sx(clampZ(s.z)), sy(clampR(s.x / 2))); ctx.stroke();
+  ctx.setLineDash([]);
+}
+function currentPass() {
+  if (S.prog !== G32 || S.cur < 0) return -1;
+  let n = -1; for (let i = 0; i <= S.cur; i++) if (/^N\d+ X1\d\.\d+$/.test(S.prog[i])) n++;
+  return n;
+}
+function drawScene() {
+  if (anim) { cancelAnimationFrame(anim); anim = null; }
+  size(); drawBase();
+  const s = S.sim[S.cur];
+  const line = S.prog[S.cur] || "";
+  const isCycle = S.prog === G71 && /G71/.test(line);
+  const passN = currentPass();
+  if (isCycle || (S.mode === "g32" && passN >= 0)) {
+    const paths = cyclePaths();
+    const list = isCycle ? paths.map((p, i) => i) : [passN];
+    drawPasses(isCycle ? -1 : passN);
+    const pts = []; list.forEach(i => passPath(paths[i]).forEach(p => pts.push(p)));
+    if (reduce) { const p = pts[2]; drawTool(p[0], p[1], isCycle ? "ciclo: " + paths.length + " pasadas (supuesto)" : null); return; }
+    let t0 = null; const speed = 26; // mm por segundo en pantalla
+    const segs = []; let L = 0;
+    for (let i = 1; i < pts.length; i++) { const a = pts[i - 1], b = pts[i]; const l = Math.hypot(b[0] - a[0], b[1] - a[1]); segs.push([a, b, L, l]); L += l; }
+    const frame = ts => {
+      if (t0 == null) t0 = ts;
+      const d = ((ts - t0) / 1000 * speed) % L;
+      const seg = segs.find(sg => d >= sg[2] && d <= sg[2] + sg[3]) || segs[segs.length - 1];
+      const f = seg[3] ? (d - seg[2]) / seg[3] : 0;
+      const z = seg[0][0] + (seg[1][0] - seg[0][0]) * f, r = seg[0][1] + (seg[1][1] - seg[0][1]) * f;
+      drawBase(); drawPasses(isCycle ? Math.floor(d / (L / list.length)) : passN);
+      drawTool(z, r, isCycle ? "ciclo: " + paths.length + " pasadas (supuesto)" : null);
+      anim = requestAnimationFrame(frame);
+    };
+    anim = requestAnimationFrame(frame);
+    return;
+  }
+  if (S.mode === "g32") drawPasses(-1);
+  drawMove(s);
+  if (s && s.x != null && s.z != null) drawTool(s.z, s.x / 2, (s.x > 2 * (V.r1 - 5) || s.z > V.z1 - 1) ? "X" + s.x + " Z" + s.z + " ↗" : null);
+  else if (s && s.x != null) drawTool(V.z1, s.x / 2, "X" + s.x + " · Z sin definir");
+  else { ctx.fillStyle = css("--muted"); ctx.font = "12px " + css("--font-ui"); ctx.fillText("Posición de la herramienta todavía desconocida", sx(-20), sy(20)); }
+}
+
+/* ---------- render ---------- */
+function render() { renderKeys(); renderCode(); renderPos(); renderInfo(); drawScene(); }
+if (window.ResizeObserver) new ResizeObserver(() => drawScene()).observe(cv);
+else window.addEventListener("resize", drawScene);
+document.addEventListener("keydown", e => {
+  if (e.target.closest && e.target.closest("input, textarea")) return;
+  if (S.mode !== "ciclo" && S.mode !== "g32") return;
+  if (e.key === "PageDown") { e.preventDefault(); step(1); }
+  if (e.key === "PageUp") { e.preventDefault(); step(-1); }
+});
+
+let start = "ciclo";
+try { const m = localStorage.getItem("rosca-mode"); if (m && HKEYS.some(h => h[0] === m)) start = m; } catch (e) {}
+if (start === "ciclo") render(); else setMode(start);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawScene);
+})();
+</script>
+
+</body>
+</html>

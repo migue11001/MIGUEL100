@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Análisis perno roscado Doosan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: pannello di controllo CNC — barra di stato, riga messaggi, finestre (editor / spiegazione / posizione), softkey verticali a destra e orizzontali in basso. Un unico aspetto chiaro industriale, di proposito. */
+:root {
+  --frame: #b9c1c8;
+  --win: #eef1f3;
+  --paper: #ffffff;
+  --ink: #1b232a;
+  --muted: #5a6670;
+  --rule: #98a3ad;
+  --head: #34495a;
+  --head-ink: #f4f7f9;
+  --accent: #0a6a8c;
+  --cursor: #f3a712;
+  --cursor-ink: #1b1400;
+  --key-top: #fbfcfc;
+  --key-bot: #c8cfd5;
+  --key-on: #ffd27a;
+  --ok: #2c7a3a;
+  --warn: #b76a00;
+  --warn-bg: #fff1d6;
+  --err: #c0262d;
+  --err-bg: #fde3e3;
+  --steel: #c4ccd3;
+  --steel-dark: #7d8a95;
+  --code-g: #0a5d9e;
+  --code-m: #7a3a9a;
+  --code-c: #2f7d4a;
+  --font-ui: "Barlow Semi Condensed", "Arial Narrow", Arial, sans-serif;
+  --font-code: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--frame);
+  color: var(--ink);
+  font: 15px/1.45 var(--font-ui);
+  padding-inline: 16px;
+  padding-block: 16px;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.hmi {
+  max-width: 1480px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 128px;
+  grid-template-areas: "bar bar" "msg msg" "work vkeys" "hkeys hkeys";
+  gap: 4px;
+  background: #8d979f;
+  padding: 4px;
+  border: 1px solid #6f7a83;
+}
+
+/* barra superiore */
+.bar { grid-area: bar; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px; }
+.bar > div { background: var(--head); color: var(--head-ink); padding: 6px 12px; display: flex; align-items: center; gap: 10px; min-width: 0; }
+.area { font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.path { font-family: var(--font-code); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chan { font-weight: 600; letter-spacing: .04em; }
+.chan .led { width: 10px; height: 10px; border-radius: 50%; background: #58c26a; box-shadow: 0 0 0 2px #2a3a47; }
+
+/* riga messaggi */
+.msg { grid-area: msg; background: var(--paper); border: 1px solid var(--rule); padding: 5px 10px; display: flex; gap: 10px; align-items: baseline; min-height: 34px; font-weight: 500; }
+.msg .tag { font-weight: 700; letter-spacing: .05em; text-transform: uppercase; font-size: 12px; padding: 1px 6px; border-radius: 2px; flex: none; }
+.msg.ok .tag { background: #dcefdf; color: var(--ok); }
+.msg.warn { background: var(--warn-bg); }
+.msg.warn .tag { background: var(--warn); color: #fff; }
+.msg.err { background: var(--err-bg); }
+.msg.err .tag { background: var(--err); color: #fff; }
+
+/* zona finestre */
+.work { grid-area: work; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); grid-template-areas: "editor info" "pos info"; gap: 4px; min-width: 0; }
+.win { background: var(--win); border: 1px solid var(--rule); display: flex; flex-direction: column; min-width: 0; }
+.win-h { background: linear-gradient(#4a6274, var(--head)); color: var(--head-ink); padding: 4px 10px; font-weight: 600; letter-spacing: .03em; display: flex; justify-content: space-between; gap: 8px; min-width: 0; }
+.win-h small { font-weight: 400; opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.editor { grid-area: editor; }
+.info { grid-area: info; }
+.pos { grid-area: pos; }
+
+/* editor */
+.code { font-family: var(--font-code); font-size: 13.5px; background: var(--paper); margin: 6px; border: 1px solid var(--rule); overflow: auto; max-height: 340px; flex: 1; }
+.ln { display: grid; grid-template-columns: 4.2em 1.2em minmax(0, 1fr); align-items: baseline; padding: 1px 6px 1px 0; cursor: pointer; white-space: pre; border-left: 4px solid transparent; }
+.ln:hover { background: #eaf3f7; }
+.ln .no { color: var(--muted); text-align: right; padding-right: 8px; font-size: 11.5px; user-select: none; }
+.ln .flag { font-size: 11px; font-weight: 700; }
+.ln.warn .flag { color: var(--warn); }
+.ln.err .flag { color: var(--err); }
+.ln.mark { background: #e3f0f6; border-left-color: var(--accent); }
+.ln.cur { background: var(--cursor); color: var(--cursor-ink); border-left-color: #a46c00; }
+.ln.cur .no, .ln.cur .t-n, .ln.cur .t-g, .ln.cur .t-m, .ln.cur .t-c { color: var(--cursor-ink); }
+.ln.blank { cursor: default; }
+.ln.gap { color: var(--muted); font-style: italic; background: repeating-linear-gradient(135deg, #f4f6f7 0 6px, #eceff1 6px 12px); }
+.ln.gap.cur { background: var(--cursor); }
+.t-n { color: var(--muted); }
+.t-g { color: var(--code-g); font-weight: 600; }
+.t-m { color: var(--code-m); font-weight: 600; }
+.t-c { color: var(--code-c); font-style: italic; }
+
+/* posizione */
+.pos-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin: 6px 6px 0; }
+.axis { background: var(--paper); border: 1px solid var(--rule); padding: 3px 8px; display: flex; justify-content: space-between; align-items: baseline; gap: 6px; min-width: 0; }
+.axis b { font-size: 12px; color: var(--muted); letter-spacing: .05em; }
+.axis span { font-family: var(--font-code); font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.modal { margin: 4px 6px 0; background: var(--paper); border: 1px solid var(--rule); padding: 4px 8px; font-family: var(--font-code); font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.modal i { font-style: normal; color: var(--muted); font-family: var(--font-ui); font-size: 12px; }
+.scene { margin: 6px; background: var(--paper); border: 1px solid var(--rule); position: relative; }
+.scene canvas { display: block; width: 100%; }
+.scene .cap { position: absolute; left: 8px; top: 4px; font-size: 12px; color: var(--muted); pointer-events: none; }
+
+/* spiegazione */
+.info-body { padding: 10px 14px 14px; overflow: auto; max-height: 720px; display: grid; gap: 12px; align-content: start; }
+.chip { display: inline-flex; gap: 6px; align-items: center; font-weight: 700; font-size: 12.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--head-ink); background: var(--accent); padding: 2px 8px; border-radius: 2px; justify-self: start; }
+.blk { font-family: var(--font-code); font-size: 15px; background: var(--paper); border: 1px solid var(--rule); border-left: 4px solid var(--cursor); padding: 6px 10px; overflow-x: auto; white-space: pre; }
+.sec { display: grid; gap: 4px; }
+.sec h3 { margin: 0; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.sec h3::after { content: ""; flex: 1; border-top: 1px solid var(--rule); }
+.sec p { margin: 0; max-width: 68ch; }
+.sec ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; max-width: 70ch; }
+.sec.why h3 { color: var(--accent); }
+.sec.why { background: var(--paper); border: 1px solid #bcd6e1; padding: 8px 12px 10px; }
+.sec.risk { border-left: 4px solid var(--warn); background: var(--warn-bg); padding: 6px 10px; }
+.sec.risk.err { border-left-color: var(--err); background: var(--err-bg); }
+.sec.risk h3 { color: var(--warn); }
+.sec.risk.err h3 { color: var(--err); }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--paper); }
+th, td { border: 1px solid #c3cbd2; padding: 4px 8px; text-align: left; vertical-align: top; }
+th { background: #dfe5ea; font-weight: 600; font-size: 13px; }
+td.num, th.num { text-align: right; font-family: var(--font-code); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td code, p code, li code { font-family: var(--font-code); font-size: .92em; background: #e8edf1; padding: 0 3px; border-radius: 2px; }
+tr.hit td { background: #fff3d1; }
+tr.click { cursor: pointer; }
+tr.click:hover td { background: #eaf3f7; }
+td.bad { color: var(--err); font-weight: 600; }
+td.meh { color: var(--warn); font-weight: 600; }
+
+.card { background: var(--paper); border: 1px solid var(--rule); border-left: 5px solid var(--warn); padding: 8px 12px; display: grid; gap: 6px; cursor: pointer; text-align: left; }
+.card.err { border-left-color: var(--err); }
+.card.on { box-shadow: 0 0 0 2px var(--cursor); }
+.card h4 { margin: 0; font-size: 16px; display: flex; gap: 8px; align-items: baseline; }
+.card h4 .n { font-family: var(--font-code); font-size: 12px; color: var(--muted); }
+.card .lbl { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.card p { margin: 0; max-width: 70ch; }
+.check { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; align-items: start; background: var(--paper); border: 1px solid var(--rule); padding: 8px 12px; }
+.check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--ok); }
+.check label { font-weight: 600; cursor: pointer; }
+.check p { grid-column: 2; margin: 0; color: var(--muted); }
+.check.done label { text-decoration: line-through; color: var(--ok); }
+.note { font-size: 13.5px; color: var(--muted); max-width: 72ch; margin: 0; }
+
+/* softkey */
+.vkeys { grid-area: vkeys; display: grid; grid-auto-rows: minmax(54px, auto); gap: 4px; align-content: start; }
+.hkeys { grid-area: hkeys; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; }
+.sk { background: linear-gradient(var(--key-top), var(--key-bot)); border: 1px solid #77838d; border-radius: 3px; box-shadow: inset 0 1px 0 #fff, 0 1px 0 #6d7881; padding: 6px 8px; min-height: 48px; font-weight: 600; line-height: 1.15; text-align: center; cursor: pointer; }
+.sk:hover:not(:disabled) { background: linear-gradient(#ffffff, #d7dde2); }
+.sk:active:not(:disabled) { box-shadow: inset 0 2px 3px rgba(0,0,0,.25); }
+.sk.on { background: linear-gradient(#fff3d6, var(--key-on)); border-color: #a46c00; }
+.sk:disabled { cursor: default; color: transparent; background: linear-gradient(#e3e7ea, #cdd3d8); box-shadow: none; }
+a.sk { text-decoration: none; color: inherit; display: flex; flex-direction: column; justify-content: center; }
+.sk small { display: block; font-weight: 400; font-size: 11.5px; color: var(--muted); }
+
+@media (max-width: 1100px) {
+  .work { grid-template-columns: minmax(0, 1fr); grid-template-areas: "editor" "info" "pos"; }
+  .code { max-height: 260px; }
+  .info-body { max-height: none; }
+}
+@media (max-width: 760px) {
+  body { padding-inline: 8px; }
+  .hmi { grid-template-columns: minmax(0, 1fr); grid-template-areas: "bar" "msg" "vkeys" "work" "hkeys"; }
+  .bar { grid-template-columns: minmax(0, 1fr) auto; }
+  .bar .path-box { grid-column: 1 / -1; order: 3; }
+  .vkeys { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: auto; }
+  .hkeys { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sk:disabled { display: none; }
+  .sk { min-height: 42px; font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="hmi" id="hmi">
+  <header class="bar">
+    <div class="area">Programa</div>
+    <div class="path-box"><span class="path" id="path"></span></div>
+    <div class="chan"><span class="led" aria-hidden="true"></span>CANAL 1 · RESET</div>
+  </header>
+
+  <div class="msg ok" id="msg" role="status"><span class="tag">Info</span><span id="msgText"></span></div>
+
+  <main class="work">
+    <section class="win editor" aria-label="Editor del programa">
+      <div class="win-h"><span>Editor</span><small id="edName"></small></div>
+      <div class="code" id="code" tabindex="0" aria-label="Líneas del programa. Usa las flechas para moverte."></div>
+    </section>
+
+    <section class="win info" aria-live="polite">
+      <div class="win-h"><span id="infoTitle">Explicación</span><small id="infoSub"></small></div>
+      <div class="info-body" id="info"></div>
+    </section>
+
+    <section class="win pos" aria-label="Posición y estado">
+      <div class="win-h"><span>Posición pieza</span><small id="posSub"></small></div>
+      <div class="pos-grid" id="axes"></div>
+      <div class="modal" id="pMod"><i>Modales G:</i> —</div>
+      <div class="scene"><span class="cap" id="cap"></span><canvas id="cv" height="220" aria-label="Dibujo de la trayectoria de la operación y posición de la herramienta"></canvas></div>
+    </section>
+  </main>
+
+  <nav class="vkeys" id="vkeys" aria-label="Softkeys verticales"></nav>
+  <nav class="hkeys" id="hkeys" aria-label="Softkeys horizontales"></nav>
+</div>
+
+<script>
+(function () {
+"use strict";
+const D = {"key":"perno-filettato","board":"tablero-perno-roscado.html","axes":["X","Z","C","S HUSILLO","HERR. MOTORIZ.","F","T","HUSILLO","REFRIG."],"posSub":"X en diámetro · mm","zLabel":"Z","info":{"pct":{"que":"Marca de inicio o de fin del archivo.","pq":["El control solo lee lo que está entre los dos %."]},"l3":{"params":[["G0","Rápido."],["G18","Plano XZ, el del torno."],["G21","Milímetros."],["G40","Sin compensación del radio de punta."],["G54","Cero pieza."],["G80","Ningún ciclo fijo."],["G99","Avance en mm/vuelta."],["M110","Función de la máquina (ver abajo)."]],"que":"Línea de seguridad: pone la máquina en un estado conocido antes de mover cualquier eje.","pq":["G99 es el modo normal del torno: el avance es en milímetros por cada vuelta de la pieza, así la viruta tiene siempre el mismo espesor aunque cambien las revoluciones.","Código específico de la máquina: el significado aquí se deduce de cómo lo usa el programa. Confírmalo en el manual del torno. M110 aparece al inicio y al final de cada torneado: probablemente desactiva un modo (eje C o husillo en posicionamiento)."]},"m24":{"que":"Código M de la máquina al arrancar el programa (M24; al final está M25).","pq":["Código específico de la máquina: el significado aquí se deduce de cómo lo usa el programa. Confírmalo en el manual del torno."]},"sub":{"que":"Rápido en coordenadas de máquina (G53): el contrahusillo (eje B) vuelve a su posición de reposo.","pq":["En un torno con contrahusillo, B es el eje que lo mueve. Hay que alejarlo antes de mover la torreta, para no chocar.","El post lo hace al inicio de cada operación."]},"g28uv":{"que":"Vuelta a la referencia de máquina en X e Y (U y V = movimientos incrementales, cero = directamente).","pq":["En el torno U, V y W son las versiones incrementales de X, Y y Z. G28 U0. V0. quiere decir «ve a la referencia en X e Y sin puntos intermedios».","Primero X (la torreta se aleja del eje de la pieza), luego Z en la línea siguiente: siempre se sale primero en X."]},"g28w":{"que":"Vuelta a la referencia de máquina en Z.","pq":["La torreta retrocede en Z, lejos de la pieza, después de haber salido ya en X."]},"m90":{"que":"M90: desbloquea el freno del eje C (deducido: se usa antes de mover C o de hacer girar el husillo).","pq":["Código específico de la máquina: el significado aquí se deduce de cómo lo usa el programa. Confírmalo en el manual del torno."]},"g54":{"que":"Activa el cero pieza G54: Z0 en la cara de la pieza, X0 en el eje.","pq":["En el torno X0 es siempre el eje de rotación: las cotas X son diámetros."]},"turnmode":{"que":"Avance mm/vuelta, plano XZ y M34: modo torneado (deducido: el husillo gira como husillo, no como eje C).","pq":["Código específico de la máquina: el significado aquí se deduce de cómo lo usa el programa. Confírmalo en el manual del torno.","En el fresado con herramienta motorizada el post escribe en cambio G98 G18 M35: mm/min y husillo como eje C."]},"m8":{"que":"Abre el refrigerante.","pq":["Enfría la plaquita y aleja la viruta de la zona de corte."]},"m1":{"que":"Parada opcional.","pq":["Con Optional Stop activado la máquina se para: momento para medir los diámetros antes del fresado."]},"g97back":{"que":"Vuelve a revoluciones fijas antes de cambiar de operación.","pq":["Así, durante los rápidos o si el programa se para aquí, las revoluciones no cambian con cada movimiento en X."]},"m111":{"que":"Código M de la máquina antes del final (en pareja con M110).","pq":["Código específico de la máquina: el significado aquí se deduce de cómo lo usa el programa. Confírmalo en el manual del torno."]},"m25":{"que":"Código M de la máquina al final del programa (al inicio estaba M24).","pq":["Código específico de la máquina: el significado aquí se deduce de cómo lo usa el programa. Confírmalo en el manual del torno."]},"m30":{"que":"Fin de programa y vuelta al inicio.","pq":["Para husillo, herramienta motorizada y refrigerante."]},"oname":{"lvl":"warn","que":"Número de programa: O1001.","pq":["Es el tercer programa con este número: la brida (mismo post Doosan) y la rosca M20 Okuma también se llaman 1001."],"riesgo":"La brida es para la misma máquina: al cargar uno de los dos programas se sobrescribe el otro."},"g50":{"que":"Limita el husillo a 5.000 rpm.","pq":["Con G96 las revoluciones suben cuando el diámetro baja: en el centro de la cara y en el tronzado llegan al límite.","En una barra Ø50,8 el límite es razonable, pero hay que compararlo con el del plato."]},"t0100":{"lvl":"err","que":"Torreta en la estación 1 con el corrector 00.","pq":["En el torno Fanuc: las dos primeras cifras son la estación, las dos últimas el corrector. «00» quiere decir ningún corrector.","En la brida y en el perno el mismo post escribe T0202, T0101: aquí en Fusion el número de corrector se quedó en 0."],"riesgo":"Con el parámetro Fanuc estándar (LGN = 0) el corrector de geometría se toma de las dos últimas cifras: con 00 la máquina no sabe dónde está la punta de la plaquita y todas las cotas quedan desplazadas. Ver Errores."},"t0200":{"lvl":"err","que":"Torreta en la estación 2 (herramienta de ranurar y tronzar) con corrector 00.","riesgo":"El mismo problema que T0100."},"t0300":{"lvl":"err","que":"Torreta en la estación 3 (herramienta de roscar) con corrector 00.","riesgo":"Sin corrector el diámetro de la rosca es incorrecto: cada décima de error en X cambia el fondo de la rosca."},"s409":{"que":"Husillo principal a 409 rpm fijas para la aproximación.","pq":["409 rpm son las que da G96 S91 a Ø71, el diámetro de partida."]},"x71":{"que":"Rápido a Ø71,12, 10 mm por encima del bruto Ø50,8 (2\").","pq":["Las cotas vienen de un modelo en pulgadas: 50,8 = 2\", 71,12 = 2,8\"."]},"g96":{"que":"Velocidad de corte constante: 91 m/min (unos 300 pies/min).","pq":["Valor prudente para acero con plaquita de metal duro."]},"rough1":{"que":"Primera pasada de desbaste: Ø48,594 (1,1 mm por lado) a 0,127 mm/vuelta.","pq":["Las pasadas bajan 2,54 mm en diámetro (0,1\"): 1,27 mm por lado.","El desbaste y el acabado los hace la misma herramienta T01."]},"roughlong":{"lvl":"warn","que":"Torneado hasta Z-54,14.","pq":["El Ø44 se desbasta y se acaba hasta Z-54,14."],"riesgo":"Pero el tronzado está en Z-44,64: unos 9,5 mm de Ø44 se tornean y luego se tiran con el resto de barra. Revisa la longitud del modelo en Fusion."},"facecenter":{"lvl":"warn","que":"Pasada longitudinal a Ø0,02: la herramienta tornea justo en el centro.","pq":["Fusion quita los 2,54 mm de la cara con pasadas en Z cada vez más pequeñas, hasta el centro, en lugar de un refrentado."],"riesgo":"En el centro las revoluciones suben a 5.000 y la plaquita trabaja de punta sobre un diámetro casi nulo. Un refrentado separado antes del perfil es más seguro."},"finface":{"que":"Acabado: la herramienta llega a la cara acabada (Z-2,54) pasado el centro.","pq":["Pasa X0 en 0,8 mm (en radio) para no dejar el «botón» en el centro."]},"finface2":{"que":"Cara acabada de dentro hacia fuera hasta Ø21,26.","pq":["Luego radio R0,8 y chaflán a 45° hacia el diámetro de la rosca."]},"finchamf":{"que":"Chaflán a 45° de entrada de la rosca (de Ø22,4 a Ø24,8).","pq":["La rosca empieza sobre un chaflán: el primer hilo no queda cortante y el tornillo entra más fácil."]},"findia":{"que":"Diámetro exterior de la rosca: Ø25,255 hasta Z-27,94.","pq":["El diámetro exterior se hace un poco por debajo del nominal: la cresta de la rosca no debe tocar el fondo de la tuerca."]},"finshoulder":{"que":"Resalte en Z-27,94 hasta Ø42,394, luego radio R0,8 hacia el Ø44.","pq":["El resalte es donde el tornillo hace tope."]},"grvz":{"que":"Rápido a la cota de la garganta: Z-27,94, a ras del resalte.","pq":["La garganta de salida va justo antes del resalte: ahí termina la rosca."]},"grv":{"lvl":"warn","que":"Garganta: bajada en G1 de Ø71,12 hasta Ø23,674.","pq":["La herramienta de ranurar baja recta y sube: el ancho de la garganta es el ancho de la plaquita.","La garganta sirve para que la herramienta de roscar salga sin chocar con el resalte."],"riesgo":"El fondo de la garganta (Ø23,674) está más alto que el fondo de la rosca (Ø23,223, y debería estar en unos Ø22,8): la garganta no descarga realmente la rosca. Además de Ø71 a Ø44 la herramienta avanza a 0,127 mm/vuelta en vacío."},"grvout":{"lvl":"warn","que":"Subida a Ø71,12 en G1 — a velocidad de trabajo.","pq":["De Ø44 a Ø71 la herramienta está en vacío: se podría salir en G0. Entrada y salida en vacío son unos dos tercios del tiempo de la garganta."]},"s500":{"que":"Revoluciones fijas 500 (G97) para roscar.","pq":["Como en la rosca M20: con revoluciones fijas todas las pasadas caen en el mismo surco.","Carro: 500 × 2 = 1.000 mm/min. Vc = π·25,255·500/1000 ≈ 40 m/min."]},"thstart":{"lvl":"warn","que":"Punto de partida de las pasadas: Z1,342.","pq":["La cara acabada está en Z-2,54: el carro tiene 3,9 mm (menos de 2 pasos) para acelerar a 1.000 mm/min."],"riesgo":"En la rosca M20 la distancia era de 5 pasos. Con poco espacio los primeros hilos pueden salir con el paso deformado."},"pass1":{"que":"Pasada 1 de 5: bajada en rápido a Ø24,849.","pq":["Cada pasada baja 0,203 mm por lado (0,406 en diámetro): profundidad constante."]},"g32":{"params":[["G32","Roscado bloque a bloque, sincronizado con el husillo."],["Z-26.031","Fin de la parte recta."],["F2.","Paso 2 mm (G99: mm por vuelta)."],["1 · X24.849","profundidad 0,203 mm por lado · sección quitada: 1 unidad"],["2 · X24.442","profundidad 0,406 mm por lado · sección quitada: 3 unidades"],["3 · X24.036","profundidad 0,609 mm por lado · sección quitada: 5 unidades"],["4 · X23.63","profundidad 0,812 mm por lado · sección quitada: 7 unidades"],["5 · X23.223","profundidad 1,016 mm por lado · sección quitada: 9 unidades"]],"que":"Rosca la pasada de Z1,342 a Z-26,031, 2 mm por vuelta.","pq":["El control espera la señal de una vuelta del encoder antes de arrancar: cada pasada cae en el mismo surco.","Profundidad constante: la sección de viruta crece en cada pasada (1, 3, 5, 7, 9 unidades)."]},"thexit":{"que":"Salida de la rosca: sube en diagonal hasta Ø25,255 todavía sincronizada.","pq":["El carro no puede pararse de golpe a 1.000 mm/min: sale en rampa."]},"thret":{"que":"Retorno radial a Ø30,335 y luego en rápido a Z1,342.","pq":["Primero fuera en X, luego atrás en Z: el retorno no toca la rosca."]},"lastpass":{"lvl":"err","que":"Última pasada: Ø23,223.","pq":["Profundidad total: (25,255 − 23,223) / 2 = 1,016 mm por lado (0,04\")."],"riesgo":"Para un paso 2 la profundidad de una rosca exterior métrica es 0,6134 × 2 = 1,227 mm. El fondo debería estar en unos Ø22,8: la tuerca no entra. Es el mismo error de la rosca M20."},"partz":{"que":"Rápido a la cota de tronzado: Z-44,64.","pq":["La pieza terminada medirá unos 42 mm (desde Z-2,54), menos el ancho de la cuchilla."]},"partoff":{"lvl":"warn","que":"Tronzado: de Ø71 hasta X-1,6, a 0,127 mm/vuelta constantes.","pq":["La cuchilla pasa el centro: la pieza cae.","Con G96 las revoluciones suben hasta 5.000 hacia el centro."],"riesgo":"Avance constante hasta el centro: cerca del centro la pieza se parte en lugar de cortarse y deja un pezón. Normalmente se reduce el avance en los últimos milímetros. Ningún recogepiezas en el programa (o es uno de los códigos M por confirmar)."},"g350":{"que":"G350 «CONFIRM CUTOFF»: comprobación de que el tronzado se ha realizado.","pq":["Código específico de Doosan: el significado aquí se deduce de cómo lo usa el programa. Confírmalo en el manual de la máquina."]},"g4":{"que":"Pausa de 0,5 segundos (G4 U0.5).","pq":["En el torno Fanuc U en un G4 es el tiempo en segundos: se espera a que caiga la pieza antes de parar el husillo."]},"m5p11":{"que":"Para el husillo principal.","pq":["La pieza ya está separada."]},"m34end":{"que":"M34 al final: vuelve a poner el husillo en modo torneado (deducido).","pq":["Código específico de Doosan: el significado aquí se deduce de cómo lo usa el programa. Confírmalo en el manual de la máquina."]}},"errors":[{"lvl":"err","t":"Correctores 00: T0100, T0200, T0300","pq":"En el torno Fanuc las dos últimas cifras del T son el corrector. Con 00 no hay ningún corrector activo: con el parámetro estándar (LGN = 0) la máquina no aplica ni la geometría ni el desgaste y la punta de la plaquita no está donde el programa cree. En la brida y en el perno el mismo post escribe T0202 y T0101.","sol":"En Fusion, en cada herramienta, pon «Compensation offset» = número de estación (1, 2, 3) y vuelve a postprocesar: T0101, T0202, T0303.","prog":"p","lines":[14,122,146,191]},{"lvl":"err","t":"Rosca poco profunda: la tuerca no entra","pq":"El fondo programado es Ø23,223: profundidad 1,016 mm por lado. Una rosca exterior métrica de paso 2 tiene 0,6134 × 2 = 1,227 mm de profundidad, así que el fondo debería estar en unos Ø22,8. La tuerca (diámetro interior mínimo aprox. 25 − 1,0825 × 2 ≈ Ø22,8) choca con el fondo de tu rosca.","sol":"En Fusion, en la operación de roscado, profundidad = 1,227 mm (o elige la rosca de la tabla). Es el mismo error de la rosca M20.","prog":"p","lines":[153,172]},{"lvl":"warn","t":"Pasadas a profundidad constante, sin pasada en vacío","pq":"5 pasadas de 0,203 mm por lado: la sección de viruta crece como 1, 3, 5, 7, 9. La última pasada trabaja 9 veces la primera. Y no hay pasada en vacío para quitar lo que deja la flexión de la herramienta.","sol":"Profundidad decreciente (sección constante), 8–10 pasadas y una «spring pass».","prog":"p","lines":[152,172]},{"lvl":"warn","t":"Poco espacio para acelerar antes de la rosca","pq":"Las pasadas parten de Z1,342, 3,9 mm antes de la cara (Z-2,54): menos de 2 pasos. El carro debe llegar a 1.000 mm/min antes de tocar el material.","sol":"Empezar al menos 3–5 pasos antes: unos Z8.","prog":"p","lines":[151]},{"lvl":"warn","t":"Garganta menos profunda que la rosca","pq":"La garganta baja a Ø23,674; la rosca (ya demasiado poco profunda) llega a Ø23,223, y bien hecha llegaría a Ø22,8. La herramienta de roscar, a la salida, corta por debajo del fondo de la garganta.","sol":"Fondo de garganta al menos 0,2 mm por debajo del fondo de la rosca: unos Ø22,4.","prog":"p","lines":[129]},{"lvl":"warn","t":"Perfil torneado más allá del tronzado","pq":"Desbaste y acabado llegan a Z-54,14, pero la pieza se tronza en Z-44,64: unos 9,5 mm de Ø44 mecanizados inútilmente en cada pieza.","sol":"Revisa en Fusion el bruto y el límite del perfil: páralo poco después del tronzado (ancho de cuchilla + 1 mm).","prog":"p","lines":[24,198]},{"lvl":"warn","t":"Mismo número O1001 que la brida","pq":"La brida y el perno roscado son para la misma máquina (mismo post Doosan) y los dos se llaman O1001. En la memoria del control uno sobrescribe al otro.","sol":"Da a cada programa un número distinto en Fusion antes de postprocesar.","prog":"p","lines":[2]}],"checks":[{"t":"Correctores correctos para T01, T02, T03","pq":"El programa llama al 00: corrige el programa o los parámetros antes de ejecutar.","prog":"p","lines":[14,122,146,191]},{"t":"Barra Ø50,8 con al menos 50 mm fuera de las garras","pq":"El torneado llega a Z-54,14.","prog":"p","lines":[24]},{"t":"Ancho de la cuchilla T02 y referencia (arista izquierda o derecha)","pq":"Decide dónde caen de verdad la garganta y el tronzado.","prog":"p","lines":[128,197]},{"t":"Plaquita de roscar: paso 2, perfil 60°","pq":"El paso lo hace la máquina, pero el perfil tiene que ser el correcto.","prog":"p","lines":[146]},{"t":"Recogepiezas o bandeja para la pieza tronzada","pq":"La pieza cae a 5.000 rpm.","prog":"p","lines":[198]},{"t":"Primera ejecución: bloque a bloque antes de la rosca","pq":"Durante G32 el Feed Hold no para el carro.","prog":"p","lines":[151]}],"codes":[["G99","Avance mm/vuelta","Para tornear y para roscar: en G32 F2. es el paso.","\\bG99\\b"],["G96 / G97","Vc constante / rpm fijas","G96 para tornear, G97 obligatorio para roscar.","\\bG9[67]\\b"],["G50 S","Límite de revoluciones","En el centro y en el tronzado las revoluciones llegan a 5.000.","G50 S"],["G32","Roscado bloque a bloque","Una pasada por línea, sincronizada con el husillo.","\\bG32\\b"],["G0 / G1","Rápido / trabajo","La garganta entra y sale en G1 incluso en vacío.","^G[01]\\b"],["G3","Arco antihorario","Radios R0,8 y R0,9 del perfil.","^G3\\b"],["T0100 / T0200 / T0300","Herramienta + corrector","Corrector 00: error 1.","^T0[123]00$"],["G28 U0. V0. / W0.","Vuelta a la referencia","Primero X e Y, luego Z.","G28"],["G350","Confirmación de tronzado (Doosan)","Por confirmar en el manual.","G350"],["G4 U0.5","Pausa 0,5 s","Espera a que caiga la pieza.","G4 U"],["M3 P11 / M5 P11","Husillo principal","P11 = husillo principal.","P11"],["M8 / M9","Refrigerante","Encendido en todas las operaciones.","^M[89]$"],["M24 / M25, M110 / M111","Funciones Doosan","Por confirmar en el manual.","^M2[45]$|M11[01]"],["M1 / M30","Parada opcional / fin","M1 entre una herramienta y otra.","^M1$|^M30$"]],"tools":{"head":["T","Herramienta","Operación","Velocidad","Avance","Tiempo","Nota"],"rows":[{"prog":"p","op":0,"cells":["T0100","Exterior (desbaste + acabado)","Perfil","G96 91 m/min","0,127 mm/vuelta","3,3 min","corrector 00"],"cls":[null,null,null,null,null,null,"bad"]},{"prog":"p","op":1,"cells":["T0200","Ranurado / tronzado","Garganta","G96 91 m/min","0,127 mm/vuelta","37 s","corrector 00"],"cls":[null,null,null,null,null,null,"bad"]},{"prog":"p","op":2,"cells":["T0300","Herramienta de roscar exterior","Rosca P2","G97 500 rpm","2 mm/vuelta","9 s","corrector 00 · poco profunda"],"cls":[null,null,null,null,null,null,"bad"]},{"prog":"p","op":3,"cells":["T0200","Ranurado / tronzado","Tronzado","G96 91 m/min","0,127 mm/vuelta","42 s",""],"cls":[null,null,null,null,null,null,null]}],"lvl":"err","msg":"Tiempo de corte estimado: 4,7 min por pieza. Las tres herramientas tienen el corrector 00.","note":"Con G96 las revoluciones cambian a lo largo del movimiento: el tiempo se integra tramo a tramo, con el límite del G50."},"compare":null,"views":{"p:xz":{"b":[-75,-2,10,38],"ax":["Z","X/2"],"cap":"sección XZ (media pieza) · gris: pieza acabada","shapes":[{"rect":[-60,0,0,25.4],"fill":"#eef0f2","stroke":"#c4ccd3"},{"poly":[[-2.54,0],[-2.54,10.63],[-2.77,11.2],[-3.97,12.39],[-4.54,12.63],[-27.94,12.63],[-27.94,21.2],[-28.74,22],[-44.64,22],[-44.64,0]],"fill":"#c4ccd3","stroke":"#7d8a95"},{"dash":[-2.54,11.4,-26.2,11.4],"color":"#0a6a8c"},{"dash":[-44.64,0,-44.64,26],"color":"#c0262d"},{"rect":[-72,25.4,-60,31],"fill":"#7d8a95"},{"text":"garras (hipótesis)","at":[-72,33]},{"text":"bruto Ø50,8","at":[-14,26.4]},{"text":"rosca P2","at":[-20,13.5]},{"text":"Ø44","at":[-40,18]},{"text":"tronzado","at":[-44,27.5]}],"ghost":null,"cross":false}},"progs":[{"id":"p","file":"doosan.nc","label":"O1001 · perno roscado","short":"O1001","shortSub":"","ctrl":"Doosan Puma · Fanuc · post doosan","lines":[[1,"%",""],[2,"O1001",""],[3,"G0 G18 G21 G40 G54 G80 G99 M110",""],[4,"M24",""],[5,"",""],[6,"N1(PROFILE1)","op"],[7,"G0 G28 G53 B0. (SUB SPINDLE RETURN)",""],[8,"G28 U0. V0.",""],[9,"G28 W0.",""],[10,"M90",""],[11,"G54",""],[12,"G99 G18 M34",""],[13,"G50 S5000",""],[14,"T0100",""],[15,"M8",""],[16,"G97 S409 M3 P11",""],[17,"G0 Z5.",""],[18,"X71.12 Y0.",""],[19,"G96 S91 M3 P11",""],[20,"Z1.437",""],[21,"X52.641",""],[22,"G1 X48.594 F0.127",""],[23,"X45.72 Z0.",""],[24,"Z-54.14",""],[25,"X50.8",""],[26,"X54.864",""],[27,"G0 Z1.437",""],[28,"X43.514",""],[29,"G1 X40.64 Z0.",""],[30,"Z-27.813",""],[31,"X42.394",""],[32,"G3 X44.248 Z-28.74 I0. K-0.927",""],[33,"G1 Z-54.14",""],[34,"X45.72",""],[35,"X48.594 Z-52.703",""],[36,"G0 Z1.437",""],[37,"X38.434",""],[38,"G1 X35.56 Z0.",""],[39,"Z-27.813",""],[40,"X42.394",""],[41,"G3 X43.18 Z-27.9 I0. K-0.927",""],[42,"G1 X46.054 Z-26.464",""],[43,"G0 Z1.437",""],[44,"X33.354",""],[45,"G1 X30.48 Z0.",""],[46,"Z-27.813",""],[47,"X38.1",""],[48,"X40.974 Z-26.376",""],[49,"G0 Z1.437",""],[50,"X28.274",""],[51,"G1 X25.4 Z0.",""],[52,"Z-4.224",""],[53,"G3 X25.509 Z-4.538 I-0.872 K-0.313",""],[54,"G1 Z-27.813",""],[55,"X33.02",""],[56,"X35.894 Z-26.376",""],[57,"G0 Z1.437",""],[58,"X23.194",""],[59,"G1 X20.32 Z0.",""],[60,"Z-2.413",""],[61,"X21.26",""],[62,"G3 X22.571 Z-2.685 I0. K-0.927",""],[63,"G1 X24.966 Z-3.882",""],[64,"G3 X25.509 Z-4.538 I-0.655 K-0.655",""],[65,"G1 X28.383 Z-3.101",""],[66,"G0 Z1.437",""],[67,"X18.114",""],[68,"G1 X15.24 Z0.",""],[69,"Z-2.413",""],[70,"X21.26",""],[71,"G3 X22.571 Z-2.685 I0. K-0.927",""],[72,"G1 X22.86 Z-2.829",""],[73,"X25.734 Z-1.392",""],[74,"G0 Z1.437",""],[75,"X13.034",""],[76,"G1 X10.16 Z0.",""],[77,"Z-2.413",""],[78,"X17.78",""],[79,"X20.654 Z-0.976",""],[80,"G0 Z1.437",""],[81,"X7.964",""],[82,"G1 X5.09 Z0.",""],[83,"Z-2.413",""],[84,"X12.7",""],[85,"X15.574 Z-0.976",""],[86,"G0 Z1.437",""],[87,"X2.894",""],[88,"G1 X0.02 Z0.",""],[89,"Z-2.413",""],[90,"X7.63",""],[91,"X10.504 Z-0.976",""],[92,"Z-1.103",""],[93,"X1.274",""],[94,"X-1.6 Z-2.54",""],[95,"X21.26",""],[96,"G3 X22.391 Z-2.774 I0. K-0.8",""],[97,"G1 X24.787 Z-3.972",""],[98,"G3 X25.255 Z-4.538 I-0.566 K-0.566",""],[99,"G1 Z-27.94",""],[100,"X42.394",""],[101,"G3 X43.994 Z-28.74 I0. K-0.8",""],[102,"G1 Z-54.14",""],[103,"X46.868 Z-52.703",""],[104,"X48.058",""],[105,"G0 X71.12",""],[106,"Z5.",""],[107,"G97 S409 M3 P11",""],[108,"M9",""],[109,"G28 U0. V0.",""],[110,"G28 W0.",""],[111,"M110",""],[112,"M1",""],[113,"",""],[114,"N2(SINGLE GROOVE1)","op"],[115,"G0 G28 G53 B0. (SUB SPINDLE RETURN)",""],[116,"G28 U0. V0.",""],[117,"G28 W0.",""],[118,"M90",""],[119,"G54",""],[120,"G99 G18 M34",""],[121,"G50 S5000",""],[122,"T0200",""],[123,"M8",""],[124,"G97 S409 M3 P11",""],[125,"G0 Z5.",""],[126,"X71.12 Y0.",""],[127,"G96 S91 M3 P11",""],[128,"Z-27.94",""],[129,"G1 X23.674 F0.127",""],[130,"X71.12",""],[131,"G0 Z5.",""],[132,"G97 S409 M3 P11",""],[133,"M9",""],[134,"G28 U0. V0.",""],[135,"G28 W0.",""],[136,"M110",""],[137,"M1",""],[138,"",""],[139,"N3(THREAD1)","op"],[140,"G0 G28 G53 B0. (SUB SPINDLE RETURN)",""],[141,"G28 U0. V0.",""],[142,"G28 W0.",""],[143,"M90",""],[144,"G54",""],[145,"G99 G18 M34",""],[146,"T0300",""],[147,"M8",""],[148,"G97 S500 M3 P11",""],[149,"G0 Z5.",""],[150,"X30.335 Y0.",""],[151,"Z1.342",""],[152,"X24.849",""],[153,"G32 Z-26.031 F2.",""],[154,"X25.255 Z-26.234 F2.",""],[155,"G0 X30.335",""],[156,"Z1.342",""],[157,"X24.442",""],[158,"G32 Z-25.828 F2.",""],[159,"X25.255 Z-26.234 F2.",""],[160,"G0 X30.335",""],[161,"Z1.342",""],[162,"X24.036",""],[163,"G32 Z-25.625 F2.",""],[164,"X25.255 Z-26.234 F2.",""],[165,"G0 X30.335",""],[166,"Z1.342",""],[167,"X23.63",""],[168,"G32 Z-25.422 F2.",""],[169,"X25.255 Z-26.234 F2.",""],[170,"G0 X30.335",""],[171,"Z1.342",""],[172,"X23.223",""],[173,"G32 Z-25.218 F2.",""],[174,"X25.255 Z-26.234 F2.",""],[175,"G0 X30.335",""],[176,"Z5.",""],[177,"M9",""],[178,"G28 U0. V0.",""],[179,"G28 W0.",""],[180,"M110",""],[181,"M1",""],[182,"",""],[183,"N4(PART1)","op"],[184,"G0 G28 G53 B0. (SUB SPINDLE RETURN)",""],[185,"G28 U0. V0.",""],[186,"G28 W0.",""],[187,"M90",""],[188,"G54",""],[189,"G99 G18 M34",""],[190,"G50 S5000",""],[191,"T0200",""],[192,"M8",""],[193,"G97 S409 M3 P11",""],[194,"G0 Z5.",""],[195,"X71.12 Y0.",""],[196,"G96 S91 M3 P11",""],[197,"Z-44.64",""],[198,"G1 X-1.6 F0.127",""],[199,"X71.12",""],[200,"G0 Z5.",""],[201,"G97 S409 M3 P11",""],[202,"G350 (CONFIRM CUTOFF)",""],[203,"G4 U0.5",""],[204,"M5 P11",""],[205,"M9",""],[206,"",""],[207,"M25",""],[208,"G28 U0. V0.",""],[209,"G28 W0.",""],[210,"G0 G28 G53 B0. (SUB SPINDLE RETURN)",""],[211,"M34",""],[212,"G54",""],[213,"",""],[214,"M111",""],[215,"M30",""],[216,"%",""]],"lineOp":[-1,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],"lineInfo":["pct","oname","l3","m24",null,null,"sub","g28uv","g28w","m90","g54","turnmode","g50","t0100","m8","s409",null,"x71","g96",null,null,"rough1",null,"roughlong",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"facecenter",null,null,null,null,null,"finface","finface2",null,"finchamf",null,"findia","finshoulder",null,null,null,null,null,null,"g97back",null,"g28uv","g28w",null,"m1",null,null,"sub","g28uv","g28w","m90","g54","turnmode","g50","t0200","m8","s409",null,"x71","g96","grvz","grv","grvout",null,"g97back",null,"g28uv","g28w",null,"m1",null,null,"sub","g28uv","g28w","m90","g54","turnmode","t0300","m8","s500",null,null,"thstart","pass1","g32","thexit","thret",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"lastpass","g32",null,null,null,null,"g28uv","g28w",null,"m1",null,null,"sub","g28uv","g28w","m90","g54","turnmode","g50","t0200","m8","s409",null,"x71","g96","partz","partoff",null,null,"g97back","g350","g4","m5p11",null,null,"m25","g28uv","g28w","sub","m34end","g54",null,"m111","m30","pct"],"st":[["—","—","—","—","parado","—","—","parado","no","G97"],["—","—","—","—","parado","—","—","parado","no","G97"],["—","—","—","—","parado","—","—","parado","no","G80  G18  G99  G97  G54"],["—","—","—","—","parado","—","—","parado","no","G80  G18  G99  G97  G54"],["—","—","—","—","parado","—","—","parado","no","G80  G18  G99  G97  G54"],["—","—","—","—","parado","—","—","parado","no","G80  G18  G99  G97  G54"],["—","—","—","—","parado","—","—","parado","no","G0  G18  G99  G97  G54"],["—","—","—","—","parado","—","—","parado","no","G0  G18  G99  G97  G54"],["—","—","—","—","parado","—","—","parado","no","G0  G18  G99  G97  G54"],["—","—","—","—","parado","—","—","parado","no","G0  G18  G99  G97  G54"],["—","—","—","—","parado","—","—","parado","no","G0  G18  G99  G97  G54"],["—","—","—","—","parado","—","—","parado","no","G0  G18  G99  G97  G54"],["—","—","—","—","parado","—","—","parado","no","G0  G18  G99  G97  G54  G50 S5.000"],["—","—","—","—","parado","—","0100","parado","no","G0  G18  G99  G97  G54  G50 S5.000"],["—","—","—","—","parado","—","0100","parado","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["—","—","—","409 rpm","parado","—","0100","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["—","5,000","—","409 rpm","parado","—","0100","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","—","0100","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","G96 91 m/min","parado","—","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø71,120","1,437","—","G96 91 m/min","parado","—","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø52,641","1,437","—","G96 91 m/min","parado","—","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø48,594","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø45,720","0,000","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø45,720","-54,140","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø50,800","-54,140","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø54,864","-54,140","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø54,864","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø43,514","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø40,640","0,000","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø40,640","-27,813","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø42,394","-27,813","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø44,248","-28,740","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G3  G18  G99  G96  G54  G50 S5.000"],["Ø44,248","-54,140","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø45,720","-54,140","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø48,594","-52,703","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø48,594","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø38,434","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø35,560","0,000","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø35,560","-27,813","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø42,394","-27,813","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø43,180","-27,900","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G3  G18  G99  G96  G54  G50 S5.000"],["Ø46,054","-26,464","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø46,054","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø33,354","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø30,480","0,000","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø30,480","-27,813","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø38,100","-27,813","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø40,974","-26,376","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø40,974","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø28,274","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø25,400","0,000","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø25,400","-4,224","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø25,509","-4,538","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G3  G18  G99  G96  G54  G50 S5.000"],["Ø25,509","-27,813","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø33,020","-27,813","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø35,894","-26,376","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø35,894","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø23,194","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø20,320","0,000","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø20,320","-2,413","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø21,260","-2,413","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø22,571","-2,685","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G3  G18  G99  G96  G54  G50 S5.000"],["Ø24,966","-3,882","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø25,509","-4,538","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G3  G18  G99  G96  G54  G50 S5.000"],["Ø28,383","-3,101","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø28,383","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø18,114","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø15,240","0,000","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø15,240","-2,413","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø21,260","-2,413","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø22,571","-2,685","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G3  G18  G99  G96  G54  G50 S5.000"],["Ø22,860","-2,829","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø25,734","-1,392","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø25,734","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø13,034","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø10,160","0,000","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø10,160","-2,413","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø17,780","-2,413","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø20,654","-0,976","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø20,654","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø7,964","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø5,090","0,000","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø5,090","-2,413","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø12,700","-2,413","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø15,574","-0,976","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø15,574","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø2,894","1,437","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø0,020","0,000","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø0,020","-2,413","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø7,630","-2,413","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø10,504","-0,976","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø10,504","-1,103","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø1,274","-1,103","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø-1,600","-2,540","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø21,260","-2,540","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø22,391","-2,774","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G3  G18  G99  G96  G54  G50 S5.000"],["Ø24,787","-3,972","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø25,255","-4,538","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G3  G18  G99  G96  G54  G50 S5.000"],["Ø25,255","-27,940","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø42,394","-27,940","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø43,994","-28,740","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G3  G18  G99  G96  G54  G50 S5.000"],["Ø43,994","-54,140","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø46,868","-52,703","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø48,058","-52,703","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø71,120","-52,703","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø71,120","5,000","—","G96 91 m/min","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0100","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0100","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0100","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0100","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0100","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0100","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0100","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0100","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0100","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0100","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0100","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0100","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0100","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0100","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0100","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","G96 91 m/min","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø71,120","-27,940","—","G96 91 m/min","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø23,674","-27,940","—","G96 91 m/min","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø71,120","-27,940","—","G96 91 m/min","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø71,120","5,000","—","G96 91 m/min","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0300","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","500 rpm","parado","0,127 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","500 rpm","parado","0,127 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","0,127 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","1,342","—","500 rpm","parado","0,127 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø24,849","1,342","—","500 rpm","parado","0,127 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø24,849","-26,031","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G32  G18  G99  G97  G54  G50 S5.000"],["Ø25,255","-26,234","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G32  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","-26,234","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","1,342","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø24,442","1,342","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø24,442","-25,828","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G32  G18  G99  G97  G54  G50 S5.000"],["Ø25,255","-26,234","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G32  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","-26,234","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","1,342","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø24,036","1,342","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø24,036","-25,625","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G32  G18  G99  G97  G54  G50 S5.000"],["Ø25,255","-26,234","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G32  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","-26,234","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","1,342","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø23,630","1,342","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø23,630","-25,422","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G32  G18  G99  G97  G54  G50 S5.000"],["Ø25,255","-26,234","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G32  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","-26,234","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","1,342","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø23,223","1,342","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø23,223","-25,218","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G32  G18  G99  G97  G54  G50 S5.000"],["Ø25,255","-26,234","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G32  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","-26,234","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0300","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0200","M3 ↻","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","500 rpm","parado","2,000 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","409 rpm","parado","2,000 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30,335","5,000","—","409 rpm","parado","2,000 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","2,000 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","G96 91 m/min","parado","2,000 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø71,120","-44,640","—","G96 91 m/min","parado","2,000 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø-1,600","-44,640","—","G96 91 m/min","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø71,120","-44,640","—","G96 91 m/min","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G1  G18  G99  G96  G54  G50 S5.000"],["Ø71,120","5,000","—","G96 91 m/min","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G96  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","M3 ↻","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","parado","M8 sí","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","parado","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","parado","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","parado","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","parado","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","parado","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","parado","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","parado","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","parado","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","parado","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","parado","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","parado","no","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71,120","5,000","—","409 rpm","parado","0,127 mm/vuelta","0200","parado","no","G0  G18  G99  G97  G54  G50 S5.000"]],"mot":[null,null,"G80","G80","G80","G80","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G1","G1","G1","G1","G1","G0","G0","G1","G1","G1","G3","G1","G1","G1","G0","G0","G1","G1","G1","G3","G1","G0","G0","G1","G1","G1","G1","G0","G0","G1","G1","G3","G1","G1","G1","G0","G0","G1","G1","G1","G3","G1","G3","G1","G0","G0","G1","G1","G1","G3","G1","G1","G0","G0","G1","G1","G1","G1","G0","G0","G1","G1","G1","G1","G0","G0","G1","G1","G1","G1","G1","G1","G1","G1","G3","G1","G3","G1","G1","G3","G1","G1","G1","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G1","G1","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G32","G32","G0","G0","G0","G32","G32","G0","G0","G0","G32","G32","G0","G0","G0","G32","G32","G0","G0","G0","G32","G32","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G1","G1","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0"],"tp":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[1.44,35.56,null,5,35.56,1],[1.44,26.32,null,1.44,35.56,1],[1.44,24.3,null,1.44,26.32,0],[0,22.86,null,1.44,24.3,0],[-54.14,22.86,null,0,22.86,0],[-54.14,25.4,null,-54.14,22.86,0],[-54.14,27.43,null,-54.14,25.4,0],[1.44,27.43,null,-54.14,27.43,1],[1.44,21.76,null,1.44,27.43,1],[0,20.32,null,1.44,21.76,0],[-27.81,20.32,null,0,20.32,0],[-27.81,21.2,null,-27.81,20.32,0],[-28.74,22.12,null,-27.81,21.2,0],[-54.14,22.12,null,-28.74,22.12,0],[-54.14,22.86,null,-54.14,22.12,0],[-52.7,24.3,null,-54.14,22.86,0],[1.44,24.3,null,-52.7,24.3,1],[1.44,19.22,null,1.44,24.3,1],[0,17.78,null,1.44,19.22,0],[-27.81,17.78,null,0,17.78,0],[-27.81,21.2,null,-27.81,17.78,0],[-27.9,21.59,null,-27.81,21.2,0],[-26.46,23.03,null,-27.9,21.59,0],[1.44,23.03,null,-26.46,23.03,1],[1.44,16.68,null,1.44,23.03,1],[0,15.24,null,1.44,16.68,0],[-27.81,15.24,null,0,15.24,0],[-27.81,19.05,null,-27.81,15.24,0],[-26.38,20.49,null,-27.81,19.05,0],[1.44,20.49,null,-26.38,20.49,1],[1.44,14.14,null,1.44,20.49,1],[0,12.7,null,1.44,14.14,0],[-4.22,12.7,null,0,12.7,0],[-4.54,12.75,null,-4.22,12.7,0],[-27.81,12.75,null,-4.54,12.75,0],[-27.81,16.51,null,-27.81,12.75,0],[-26.38,17.95,null,-27.81,16.51,0],[1.44,17.95,null,-26.38,17.95,1],[1.44,11.6,null,1.44,17.95,1],[0,10.16,null,1.44,11.6,0],[-2.41,10.16,null,0,10.16,0],[-2.41,10.63,null,-2.41,10.16,0],[-2.69,11.29,null,-2.41,10.63,0],[-3.88,12.48,null,-2.69,11.29,0],[-4.54,12.75,null,-3.88,12.48,0],[-3.1,14.19,null,-4.54,12.75,0],[1.44,14.19,null,-3.1,14.19,1],[1.44,9.06,null,1.44,14.19,1],[0,7.62,null,1.44,9.06,0],[-2.41,7.62,null,0,7.62,0],[-2.41,10.63,null,-2.41,7.62,0],[-2.69,11.29,null,-2.41,10.63,0],[-2.83,11.43,null,-2.69,11.29,0],[-1.39,12.87,null,-2.83,11.43,0],[1.44,12.87,null,-1.39,12.87,1],[1.44,6.52,null,1.44,12.87,1],[0,5.08,null,1.44,6.52,0],[-2.41,5.08,null,0,5.08,0],[-2.41,8.89,null,-2.41,5.08,0],[-0.98,10.33,null,-2.41,8.89,0],[1.44,10.33,null,-0.98,10.33,1],[1.44,3.98,null,1.44,10.33,1],[0,2.54,null,1.44,3.98,0],[-2.41,2.54,null,0,2.54,0],[-2.41,6.35,null,-2.41,2.54,0],[-0.98,7.79,null,-2.41,6.35,0],[1.44,7.79,null,-0.98,7.79,1],[1.44,1.45,null,1.44,7.79,1],[0,0.01,null,1.44,1.45,0],[-2.41,0.01,null,0,0.01,0],[-2.41,3.81,null,-2.41,0.01,0],[-0.98,5.25,null,-2.41,3.81,0],[-1.1,5.25,null,-0.98,5.25,0],[-1.1,0.64,null,-1.1,5.25,0],[-2.54,-0.8,null,-1.1,0.64,0],[-2.54,10.63,null,-2.54,-0.8,0],[-2.77,11.2,null,-2.54,10.63,0],[-3.97,12.39,null,-2.77,11.2,0],[-4.54,12.63,null,-3.97,12.39,0],[-27.94,12.63,null,-4.54,12.63,0],[-27.94,21.2,null,-27.94,12.63,0],[-28.74,22,null,-27.94,21.2,0],[-54.14,22,null,-28.74,22,0],[-52.7,23.43,null,-54.14,22,0],[-52.7,24.03,null,-52.7,23.43,0],[-52.7,35.56,null,-52.7,24.03,1],[5,35.56,null,-52.7,35.56,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[-27.94,35.56,null,5,35.56,1],[-27.94,11.84,null,-27.94,35.56,0],[-27.94,35.56,null,-27.94,11.84,0],[5,35.56,null,-27.94,35.56,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,15.17,null,5,35.56,1],[1.34,15.17,null,5,15.17,1],[1.34,12.42,null,1.34,15.17,1],[-26.03,12.42,null,1.34,12.42,0],[-26.23,12.63,null,-26.03,12.42,0],[-26.23,15.17,null,-26.23,12.63,1],[1.34,15.17,null,-26.23,15.17,1],[1.34,12.22,null,1.34,15.17,1],[-25.83,12.22,null,1.34,12.22,0],[-26.23,12.63,null,-25.83,12.22,0],[-26.23,15.17,null,-26.23,12.63,1],[1.34,15.17,null,-26.23,15.17,1],[1.34,12.02,null,1.34,15.17,1],[-25.62,12.02,null,1.34,12.02,0],[-26.23,12.63,null,-25.62,12.02,0],[-26.23,15.17,null,-26.23,12.63,1],[1.34,15.17,null,-26.23,15.17,1],[1.34,11.81,null,1.34,15.17,1],[-25.42,11.81,null,1.34,11.81,0],[-26.23,12.63,null,-25.42,11.81,0],[-26.23,15.17,null,-26.23,12.63,1],[1.34,15.17,null,-26.23,15.17,1],[1.34,11.61,null,1.34,15.17,1],[-25.22,11.61,null,1.34,11.61,0],[-26.23,12.63,null,-25.22,11.61,0],[-26.23,15.17,null,-26.23,12.63,1],[5,15.17,null,-26.23,15.17,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,35.56,null,5,15.17,1],[5,35.56,null,null,null,1],[-44.64,35.56,null,5,35.56,1],[-44.64,-0.8,null,-44.64,35.56,0],[-44.64,35.56,null,-44.64,-0.8,0],[5,35.56,null,-44.64,35.56,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1]],"ops":[{"name":"Perfil · desbaste y acabado","start":5,"view":"p:xz","pts":[1.44,35.56,1,1.44,26.32,1,1.44,24.3,0,0,22.86,0,-54.14,22.86,0,-54.14,25.4,0,-54.14,27.43,0,1.44,27.43,1,1.44,21.76,1,0,20.32,0,-27.81,20.32,0,-27.81,21.2,0,-27.94,21.66,0,-28.28,22,0,-28.74,22.12,0,-54.14,22.12,0,-54.14,22.86,0,-52.7,24.3,0,1.44,24.3,1,1.44,19.22,1,0,17.78,0,-27.81,17.78,0,-27.81,21.2,0,-27.84,21.4,0,-27.9,21.59,0,-26.46,23.03,0,1.44,23.03,1,1.44,16.68,1,0,15.24,0,-27.81,15.24,0,-27.81,19.05,0,-26.38,20.49,0,1.44,20.49,1,1.44,14.14,1,0,12.7,0,-4.22,12.7,0,-4.38,12.74,0,-4.54,12.75,0,-27.81,12.75,0,-27.81,16.51,0,-26.38,17.95,0,1.44,17.95,1,1.44,11.6,1,0,10.16,0,-2.41,10.16,0,-2.41,10.63,0,-2.48,10.98,0,-2.68,11.29,0,-3.88,12.48,0,-4.18,12.68,0,-4.54,12.75,0,-3.1,14.19,0,1.44,14.19,1,1.44,9.06,1,0,7.62,0,-2.41,7.62,0,-2.41,10.63,0,-2.48,10.98,0,-2.68,11.29,0,-2.83,11.43,0,-1.39,12.87,0,1.44,12.87,1,1.44,6.52,1,0,5.08,0,-2.41,5.08,0,-2.41,8.89,0,-0.98,10.33,0,1.44,10.33,1,1.44,3.98,1,0,2.54,0,-2.41,2.54,0,-2.41,6.35,0,-0.98,7.79,0,1.44,7.79,1,1.44,1.45,1,0,0.01,0,-2.41,0.01,0,-2.41,3.81,0,-0.98,5.25,0,-1.1,5.25,0,-1.1,0.64,0,-2.54,-0.8,0,-2.54,10.63,0,-2.6,10.94,0,-2.77,11.2,0,-3.97,12.39,0,-4.23,12.57,0,-4.54,12.63,0,-27.94,12.63,0,-27.94,21.2,0,-28.05,21.6,0,-28.34,21.89,0,-28.74,22,0,-54.14,22,0,-52.7,23.43,0,-52.7,24.03,0,-52.7,35.56,1,5,35.56,1],"z":null,"que":"Desbaste y acabado del perfil desde barra Ø50,8 con T01: cara en Z-2,54, chaflán, Ø25,255 para la rosca, resalte, Ø44.","pq":["Pasadas longitudinales de 1,27 mm por lado, luego una pasada de acabado por todo el perfil.","También la cara se desbasta con pasadas en Z hasta el centro."],"sino":null,"riesgo":"T0100: ningún corrector.","lvl":"err","data":[["Líneas en el archivo","108 (de 6 a 113)"],["Herramienta","T0100"],["Revoluciones / Vc programadas","91, 409"],["Avances","0,127"],["Tiempo estimado (corte)","3,3 min"]],"time":3.2743242573423887},{"name":"Garganta de salida","start":113,"view":"p:xz","pts":[-27.94,35.56,1,-27.94,11.84,0,-27.94,35.56,0,5,35.56,1],"z":null,"que":"Una garganta en Z-27,94, contra el resalte, hasta Ø23,674 con T02.","pq":["Da espacio a la salida de la herramienta de roscar."],"sino":null,"riesgo":"Garganta menos profunda que la rosca, y bajada en G1 desde Ø71.","lvl":"warn","data":[["Líneas en el archivo","25 (de 114 a 138)"],["Herramienta","T0200"],["Revoluciones / Vc programadas","91, 409"],["Avances","0,127"],["Tiempo estimado (corte)","37 s"]],"time":0.6145951569599518},{"name":"Roscado P2 (G32)","start":138,"view":"p:xz","pts":[5,15.17,1,1.34,15.17,1,1.34,12.42,1,-26.03,12.42,0,-26.23,12.63,0,-26.23,15.17,1,1.34,15.17,1,1.34,12.22,1,-25.83,12.22,0,-26.23,12.63,0,-26.23,15.17,1,1.34,15.17,1,1.34,12.02,1,-25.62,12.02,0,-26.23,12.63,0,-26.23,15.17,1,1.34,15.17,1,1.34,11.81,1,-25.42,11.81,0,-26.23,12.63,0,-26.23,15.17,1,1.34,15.17,1,1.34,11.61,1,-25.22,11.61,0,-26.23,12.63,0,-26.23,15.17,1,5,15.17,1],"z":null,"que":"Rosca exterior paso 2 sobre Ø25,255 en 5 pasadas G32, profundidad constante 0,203 mm por lado.","pq":["G97 S500, G99 F2: un paso por vuelta.","Como la versión G32 de la rosca M20, pero con menos pasadas y profundidad constante."],"sino":null,"riesgo":"Rosca poco profunda: 1,016 mm en lugar de 1,227.","lvl":"err","data":[["Líneas en el archivo","44 (de 139 a 182)"],["Herramienta","T0300"],["Revoluciones / Vc programadas","500"],["Avances","0,127, 2,000"],["Tiempo estimado (corte)","9 s"]],"time":0.14884455540689412},{"name":"Tronzado","start":182,"view":"p:xz","pts":[5,35.56,1,-44.64,35.56,1,-44.64,-0.8,0,-44.64,35.56,0,5,35.56,1],"z":null,"que":"Tronzado en Z-44,64 con T02, pasado el centro.","pq":["La pieza cae; G350 comprueba el tronzado, G4 espera medio segundo."],"sino":null,"riesgo":"Avance constante hasta el centro.","lvl":"warn","data":[["Líneas en el archivo","34 (de 183 a 216)"],["Herramienta","T0200"],["Revoluciones / Vc programadas","91, 409"],["Avances","0,127, 2,000"],["Tiempo estimado (corte)","42 s"]],"time":0.700540055412251}]}]};
+
+/* ---------- utilità ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const nf = (v, d) => v == null ? "—" : Number(v).toLocaleString("es-ES", { minimumFractionDigits: d, maximumFractionDigits: d });
+const store = {
+  get(k, def) { try { const v = localStorage.getItem(D.key + "-" + k); return v == null ? def : JSON.parse(v); } catch (e) { return def; } },
+  set(k, v) { try { localStorage.setItem(D.key + "-" + k, JSON.stringify(v)); } catch (e) {} }
+};
+function hl(line) {
+  if (/^\s*(N\d+\s*)?\(.*\)\s*$/.test(line) || /^\s*;/.test(line)) return '<span class="t-c">' + esc(line) + "</span>";
+  let s = esc(line);
+  s = s.replace(/(\(.*?\)|;.*$)/g, '<span class="t-c">$1</span>');
+  return s
+    .replace(/^(N\d+)/, '<span class="t-n">$1</span>')
+    .replace(/\b(G\d+(?:\.\d)?)(?![^<]*<\/span>)/g, '<span class="t-g">$1</span>')
+    .replace(/\b(M\d*=?\d+)(?![^<]*<\/span>)/g, '<span class="t-m">$1</span>');
+}
+
+/* ---------- stato ---------- */
+const P = {}; D.progs.forEach(p => { P[p.id] = p; });
+const S = {
+  mode: "ciclo", prog: D.progs[0], cur: 0, marks: new Set(),
+  errSel: 0, codeSel: -1, toolSel: -1, checks: store.get("checks", [])
+};
+function firstLine(p) { const i = p.lines.findIndex(l => l[2] === "op"); return i < 0 ? 0 : i; }
+S.cur = firstLine(S.prog);
+
+function opOf(i, p) { p = p || S.prog; return p.lineOp[i]; }
+function infoOf(i, p) { p = p || S.prog; const k = p.lineInfo[i]; return k ? D.info[k] : null; }
+function levelOf(i, p) { const d = infoOf(i, p); return d && d.lvl; }
+function idxOfFileLine(p, n) { return p.lines.findIndex(l => l[0] === n); }
+
+/* ---------- editor ---------- */
+function renderCode() {
+  const box = $("code"), p = S.prog;
+  box.innerHTML = p.lines.map((l, i) => {
+    const kind = l[2], txt = l[1];
+    const lv = levelOf(i) || "";
+    const cls = ["ln", kind === "gap" ? "gap" : (txt.trim() ? "" : "blank"), lv, S.marks.has(i) ? "mark" : "", i === S.cur ? "cur" : ""].join(" ");
+    const flag = lv === "err" ? "✖" : lv === "warn" ? "!" : "";
+    const no = kind === "gap" ? "⋮" : l[0];
+    return '<div class="' + cls + '" data-i="' + i + '"><span class="no">' + no + '</span><span class="flag">' + flag + "</span><span>" + (kind === "gap" ? esc(txt) : (txt ? hl(txt) : " ")) + "</span></div>";
+  }).join("");
+  const c = box.querySelector(".cur") || box.querySelector(".mark");
+  if (c) {
+    const top = c.offsetTop - box.offsetTop, h = box.clientHeight;
+    if (top < box.scrollTop || top > box.scrollTop + h - 24) box.scrollTop = Math.max(0, top - h / 3);
+  }
+}
+$("code").addEventListener("click", e => {
+  const ln = e.target.closest(".ln"); if (!ln) return;
+  const i = +ln.dataset.i; const l = S.prog.lines[i]; if (!l || (!l[1].trim() && l[2] !== "gap")) return;
+  if (S.mode !== "ciclo") setMode("ciclo", true);
+  go(i);
+});
+$("code").addEventListener("keydown", e => {
+  if (e.key === "ArrowDown") { e.preventDefault(); step(1); }
+  if (e.key === "ArrowUp") { e.preventDefault(); step(-1); }
+});
+function go(i) { stopAnim(); S.cur = i; S.marks = new Set(); render(); }
+function step(d) {
+  let i = S.cur; const L = S.prog.lines;
+  do { i += d; } while (i >= 0 && i < L.length && !L[i][1].trim() && L[i][2] !== "gap");
+  if (i >= 0 && i < L.length) go(i);
+}
+function jumpOp(d) {
+  const p = S.prog, cur = S.cur < 0 ? -1 : opOf(S.cur);
+  const k = Math.max(0, Math.min(p.ops.length - 1, (cur == null || cur < 0 ? (d > 0 ? 0 : 0) : cur + d)));
+  go(p.ops[k].start);
+}
+
+/* ---------- posizione ---------- */
+function renderAxes() {
+  $("axes").innerHTML = D.axes.map((a, k) => '<div class="axis"><b>' + a + '</b><span id="ax' + k + '">—</span></div>').join("");
+  $("posSub").textContent = D.posSub;
+}
+function renderPos() {
+  const s = S.prog.st[S.cur] || null;
+  D.axes.forEach((a, k) => { $("ax" + k).textContent = s ? (s[k] || "—") : "—"; });
+  $("pMod").innerHTML = "<i>Modales G:</i> " + (s && s[D.axes.length] ? esc(s[D.axes.length]) : "—");
+}
+
+/* ---------- messaggi ---------- */
+function setMsg(lvl, text) {
+  const m = $("msg"); m.className = "msg " + lvl;
+  m.querySelector(".tag").textContent = lvl === "err" ? "Error" : lvl === "warn" ? "Aviso" : "Info";
+  $("msgText").textContent = text;
+}
+
+/* ---------- pannello spiegazione ---------- */
+function sec(cls, title, body) {
+  if (!body || (Array.isArray(body) && !body.length)) return "";
+  const inner = Array.isArray(body) ? (body.length === 1 ? "<p>" + body[0] + "</p>" : "<ul>" + body.map(b => "<li>" + b + "</li>").join("") + "</ul>") : "<p>" + body + "</p>";
+  return '<div class="sec ' + cls + '"><h3>' + title + "</h3>" + inner + "</div>";
+}
+function kvTable(title, rows, h1, h2) {
+  return '<div class="sec"><h3>' + title + '</h3><div class="tbl-wrap"><table><tr><th>' + (h1 || "Palabra") + "</th><th>" + (h2 || "Significado") + "</th></tr>" +
+    rows.map(r => "<tr><td><code>" + r[0] + "</code></td><td>" + r[1] + "</td></tr>").join("") + "</table></div></div>";
+}
+/* descrizione automatica di un blocco senza spiegazione dedicata */
+function autoInfo(line, st, op) {
+  const t = line.replace(/^N\d+\s*/, "").replace(/\(.*?\)/g, "").trim();
+  const w = {}; (t.match(/[A-Z]+\d*=?-?\d*\.?\d+/g) || []).forEach(x => { const m = x.match(/^([A-Z]+\d*)=?(-?\d*\.?\d+)$/); if (m) w[m[1]] = m[2]; });
+  const axes = ["X", "Y", "Z", "C"].filter(a => w[a] != null).map(a => a + " " + nf(+w[a], 3)).join(", ");
+  const mot = st && st.mot;
+  let que;
+  if (/G0\b|G00\b/.test(t) || (mot === "G0" && axes)) que = "Movimiento rápido (G0) hacia " + axes + ": la herramienta no corta, se desplaza lo más rápido posible.";
+  else if (/G[23]\b|G0[23]\b/.test(t) || ((mot === "G2" || mot === "G3") && axes)) que = "Arco " + (/(G3|G03)\b/.test(t) || mot === "G3" ? "antihorario (G3)" : "horario (G2)") + " hasta " + axes + (w.F ? ", avance F" + w.F : "") + ". I, J, K (o CR) indican el centro (o el radio) del arco.";
+  else if (axes) que = "Movimiento de trabajo (G1) hasta " + axes + (w.F ? " con avance F" + w.F : " al avance activo") + ".";
+  else que = "Bloque de servicio.";
+  const pq = op ? (op.pq || []).slice(0, 2) : [];
+  return { que, pq, auto: true };
+}
+function opCard(op) {
+  if (!op) return "";
+  const rows = (op.data || []).map(r => "<tr><td>" + r[0] + '</td><td class="num">' + r[1] + "</td></tr>").join("");
+  return rows ? '<div class="sec"><h3>Datos de la operación</h3><div class="tbl-wrap"><table>' + rows + "</table></div></div>" : "";
+}
+function renderInfo() {
+  const box = $("info"), p = S.prog;
+  if (S.mode === "ciclo") {
+    const i = S.cur, l = p.lines[i] || [0, "", ""];
+    const oi = opOf(i), op = oi != null && oi >= 0 ? p.ops[oi] : null;
+    const phase = op ? "Op " + (oi + 1) + " · " + op.name : (i < firstLine(p) ? "Cabecera" : "Fin de programa");
+    let d = infoOf(i);
+    if (!d && l[2] === "gap") d = { que: l[1].replace(/^\(\s*…\s*|\s*…\s*\)$/g, ""), pq: op ? op.pq : [], gap: true };
+    if (!d && l[2] === "op" && op) d = { que: op.que, pq: op.pq, sino: op.sino, riesgo: op.riesgo, lvl: op.lvl, opHead: true };
+    if (!d) d = autoInfo(l[1], { mot: p.mot[i] }, op);
+    const nTxt = l[2] === "gap" ? "" : "línea " + l[0];
+    $("infoTitle").textContent = (nTxt ? nTxt + " · " : "") + phase;
+    $("infoSub").textContent = p.label;
+    box.innerHTML =
+      '<span class="chip">' + esc(phase) + "</span>" +
+      '<div class="blk">' + (l[2] === "gap" ? esc(l[1]) : hl(l[1])) + "</div>" +
+      sec("", "Qué hace la máquina", d.que) +
+      sec("why", d.auto ? "Por qué (operación)" : "Por qué", d.pq) +
+      (d.params ? kvTable("Parámetros", d.params) : "") +
+      sec("", "Si no se hiciera así", d.sino) +
+      (d.riesgo ? sec("risk " + (d.lvl === "err" ? "err" : ""), d.lvl === "err" ? "Error / riesgo" : "Riesgo", d.riesgo) : "") +
+      ((d.opHead || d.gap) ? opCard(op) : "");
+    const lv = d.lvl;
+    setMsg(lv || "ok", lv && d.riesgo ? d.riesgo.replace(/<[^>]+>/g, "").split(". ")[0].replace(/\.+$/, "") + "." : (nTxt ? "Bloque en la " + nTxt : "Bloques omitidos") + " · " + phase + ". Usa ↑ ↓ o las softkeys para avanzar.");
+    return;
+  }
+  if (S.mode === "errori") {
+    $("infoTitle").textContent = "Errores detectados"; $("infoSub").textContent = D.errors.length + " encontrados";
+    box.innerHTML = '<p class="note">Pulsa un error para ver en el editor las líneas que lo causan.</p>' + D.errors.map((e, k) =>
+      '<button class="card ' + e.lvl + (k === S.errSel ? " on" : "") + '" data-err="' + k + '"><h4><span class="n">' + (k + 1) + "</span>" + e.t + "</h4>" +
+      '<span class="lbl">Por qué</span><p>' + e.pq + '</p><span class="lbl">Solución</span><p>' + e.sol + "</p></button>").join("");
+    const e = D.errors[S.errSel];
+    setMsg(e.lvl, "Error " + (S.errSel + 1) + ": " + e.t.replace(/<[^>]+>/g, "") + ".");
+    return;
+  }
+  if (S.mode === "collisioni") {
+    $("infoTitle").textContent = "Comprobaciones antes de ejecutar";
+    const done = D.checks.filter((c, k) => S.checks[k]).length;
+    $("infoSub").textContent = done + " de " + D.checks.length + " hechas";
+    box.innerHTML = '<p class="note">Marca cada punto cuando lo hayas comprobado en máquina. Las marcas solo se guardan en este navegador.</p>' + D.checks.map((c, k) =>
+      '<div class="check' + (S.checks[k] ? " done" : "") + '"><input type="checkbox" id="chk' + k + '" data-chk="' + k + '"' + (S.checks[k] ? " checked" : "") + '><label for="chk' + k + '">' + c.t + "</label><p>" + c.pq + "</p></div>").join("");
+    setMsg(done === D.checks.length ? "ok" : "warn", done === D.checks.length ? "Todas las comprobaciones hechas. Primera ejecución: bloque a bloque." : "Faltan " + (D.checks.length - done) + " comprobaciones antes de ejecutar.");
+    return;
+  }
+  if (S.mode === "codici") {
+    $("infoTitle").textContent = "Códigos del ejercicio"; $("infoSub").textContent = "pulsa una fila para verla en el editor";
+    box.innerHTML = '<div class="tbl-wrap"><table><tr><th>Código</th><th>Función</th><th>Por qué en este ejercicio</th></tr>' +
+      D.codes.map((c, k) => '<tr class="click' + (k === S.codeSel ? " hit" : "") + '" data-code="' + k + '"><td><code>' + c[0] + "</code></td><td>" + c[1] + "</td><td>" + c[2] + "</td></tr>").join("") + "</table></div>";
+    setMsg("ok", D.codes.length + " códigos explicados. Las líneas resaltadas en el editor los contienen.");
+    return;
+  }
+  if (S.mode === "utensili") {
+    $("infoTitle").textContent = "Herramientas y tiempos"; $("infoSub").textContent = "pulsa una fila para ir a la operación";
+    box.innerHTML = '<div class="tbl-wrap"><table><tr>' + D.tools.head.map(h => "<th>" + h + "</th>").join("") + "</tr>" +
+      D.tools.rows.map((r, k) => '<tr class="click' + (k === S.toolSel ? " hit" : "") + '" data-tool="' + k + '">' + r.cells.map((c, j) => "<td" + (r.cls && r.cls[j] ? ' class="' + r.cls[j] + '"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") +
+      "</table></div>" + (D.tools.note ? '<p class="note">' + D.tools.note + "</p>" : "");
+    setMsg(D.tools.lvl || "ok", D.tools.msg || "Tiempos estimados a partir de la longitud de las trayectorias y los avances programados.");
+    return;
+  }
+  if (S.mode === "confronto") {
+    const c = D.compare;
+    $("infoTitle").textContent = c.title; $("infoSub").textContent = c.sub;
+    box.innerHTML = c.html;
+    setMsg(c.lvl || "ok", c.msg);
+  }
+}
+$("info").addEventListener("click", e => {
+  const card = e.target.closest("[data-err]"); if (card) { selectError(+card.dataset.err); return; }
+  const row = e.target.closest("[data-code]"); if (row) { selectCode(+row.dataset.code); return; }
+  const tr = e.target.closest("[data-tool]"); if (tr) { selectTool(+tr.dataset.tool); return; }
+  const j = e.target.closest("[data-jump]");
+  if (j) { const [pid, n] = j.dataset.jump.split(":"); loadProg(P[pid]); setMode("ciclo", true); const k = idxOfFileLine(S.prog, +n); go(k < 0 ? 0 : k); }
+});
+$("info").addEventListener("change", e => {
+  const k = e.target.dataset.chk; if (k == null) return;
+  S.checks[+k] = e.target.checked; store.set("checks", S.checks);
+  markRefs(D.checks[+k]); renderCode(); renderInfo();
+});
+function markRefs(ref) {
+  if (ref.prog && P[ref.prog] && S.prog !== P[ref.prog]) loadProg(P[ref.prog]);
+  S.marks = new Set((ref.lines || []).map(n => idxOfFileLine(S.prog, n)).filter(i => i >= 0));
+}
+function selectError(k) {
+  S.errSel = k; markRefs(D.errors[k]);
+  const first = [...S.marks][0]; S.cur = first != null ? first : -1;
+  render();
+}
+function selectCode(k) {
+  S.codeSel = k;
+  const re = new RegExp(D.codes[k][3]);
+  let p = S.prog;
+  if (!p.lines.some(l => l[2] !== "gap" && re.test(l[1]))) { const o = D.progs.find(q => q.lines.some(l => l[2] !== "gap" && re.test(l[1]))); if (o) loadProg(o); }
+  S.marks = new Set(S.prog.lines.map((l, i) => l[2] !== "gap" && re.test(l[1]) ? i : -1).filter(i => i >= 0));
+  S.cur = -1; render();
+}
+function selectTool(k) {
+  S.toolSel = k; const r = D.tools.rows[k];
+  if (r.prog && P[r.prog]) loadProg(P[r.prog]);
+  const op = S.prog.ops[r.op]; if (!op) { render(); return; }
+  S.marks = new Set(); for (let i = 0; i < S.prog.lines.length; i++) if (S.prog.lineOp[i] === r.op) S.marks.add(i);
+  S.cur = op.start; render();
+}
+
+/* ---------- softkey ---------- */
+function hkeys() {
+  const k = [["ciclo", "Ciclo de trabajo", "bloque a bloque"], ["errori", "Errores", D.errors.length + " detectados"], ["collisioni", "Colisiones", "antes de ejecutar"], ["codici", "Códigos", "y su porqué"], ["utensili", "Herramientas", "y tiempos"]];
+  if (D.compare) k.push(["confronto", D.compare.key, D.compare.keySub]);
+  return k;
+}
+function vkeysFor(mode) {
+  if (mode === "ciclo") {
+    const v = [["◀ Bloque", () => step(-1)], ["Bloque ▶", () => step(1)], ["◀ Operac.", () => jumpOp(-1)], ["Operac. ▶", () => jumpOp(1)]];
+    v.push([anim ? "■ Parar" : "▶ Simular", () => (anim ? stopAnim() : startAnim()), "trayectoria op."]);
+    if (D.progs.length > 1) D.progs.forEach(p => { if (p !== S.prog) v.push(["Abrir " + p.short, () => { loadProg(p); S.cur = firstLine(p); render(); }, p.shortSub]); });
+    v.push(["Inicio", () => go(0)]);
+    return v;
+  }
+  if (mode === "errori") return D.errors.slice(0, 8).map((e, k) => ["Error " + (k + 1), () => selectError(k), e.lvl === "err" ? "grave" : "aviso"]);
+  if (mode === "collisioni") return [["Borrar marcas", () => { S.checks = []; store.set("checks", []); S.marks = new Set(); render(); }]];
+  if (mode === "codici" || mode === "confronto" || mode === "utensili") return D.progs.map(p => ["Ver " + p.short, () => { loadProg(p); S.marks = new Set(); S.codeSel = -1; S.cur = firstLine(p); render(); }, p.shortSub]);
+  return [];
+}
+function renderKeys() {
+  const v = vkeysFor(S.mode);
+  const vk = $("vkeys"); vk.innerHTML = "";
+  for (let k = 0; k < 8; k++) {
+    const b = document.createElement("button"); b.className = "sk";
+    if (v[k]) {
+      b.innerHTML = v[k][0] + (v[k][2] ? "<small>" + v[k][2] + "</small>" : "");
+      b.onclick = v[k][1];
+      if (S.mode === "errori" && k === S.errSel) b.classList.add("on");
+      if (S.mode !== "ciclo" && S.mode !== "errori" && S.mode !== "collisioni" && D.progs[k] === S.prog && D.progs.length > 1) b.classList.add("on");
+    } else { b.disabled = true; b.textContent = "·"; b.setAttribute("aria-hidden", "true"); }
+    vk.appendChild(b);
+  }
+  const H = hkeys();
+  const hk = $("hkeys"); hk.innerHTML = "";
+  for (let k = 0; k < 8; k++) {
+    if (k === 7) {
+      const a = document.createElement("a"); a.className = "sk link";
+      a.href = D.board;
+      a.innerHTML = "◀ Tablero<small>notas del ejercicio</small>";
+      hk.appendChild(a); continue;
+    }
+    const b = document.createElement("button"); b.className = "sk";
+    const h = H[k];
+    if (h) {
+      b.innerHTML = h[1] + "<small>" + h[2] + "</small>";
+      if (h[0] === S.mode) { b.classList.add("on"); b.setAttribute("aria-pressed", "true"); }
+      b.onclick = () => setMode(h[0]);
+    } else { b.disabled = true; b.textContent = "·"; b.setAttribute("aria-hidden", "true"); }
+    hk.appendChild(b);
+  }
+}
+function loadProg(p) {
+  S.prog = p;
+  $("path").textContent = "/" + p.file;
+  $("edName").textContent = p.ctrl;
+}
+function setMode(m, quiet) {
+  stopAnim();
+  S.mode = m; S.marks = new Set();
+  if (m === "ciclo") { if (S.cur < 0) S.cur = firstLine(S.prog); }
+  else if (m === "errori") { selectError(S.errSel); store.set("mode", m); return; }
+  else { S.cur = -1; S.codeSel = -1; S.toolSel = -1; }
+  store.set("mode", m);
+  if (!quiet) render();
+}
+
+/* ---------- disegno ---------- */
+const cv = $("cv"), ctx = cv.getContext("2d");
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let anim = null, W = 300, H = 200;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function viewOf(op) { return op ? D.views[op.view] : null; }
+function frame(v) {
+  const w = cv.clientWidth || 300;
+  const bw = v.b[2] - v.b[0], bh = v.b[3] - v.b[1];
+  const padL = 34, padR = 40, padT = 22, padB = 22;
+  const k = Math.min((w - padL - padR) / bw, 1.0 * (w * 0.62) / bh);
+  W = w; H = Math.round(bh * k + padT + padB);
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + "px";
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const ox = padL + ((w - padL - padR) - bw * k) / 2;
+  return { k, sx: a => ox + (a - v.b[0]) * k, sy: b => H - padB - (b - v.b[1]) * k };
+}
+function drawPath(F, pts, style) {
+  ctx.lineWidth = style.w || 1;
+  let last = null;
+  for (let j = 0; j < pts.length; j += 3) {
+    const a = pts[j], b = pts[j + 1], r = pts[j + 2];
+    if (last && (!style.rapids && r)) { last = [a, b]; continue; }
+    if (last) {
+      ctx.strokeStyle = r ? style.rc : style.c;
+      ctx.setLineDash(r ? [4, 3] : []);
+      ctx.beginPath(); ctx.moveTo(F.sx(last[0]), F.sy(last[1])); ctx.lineTo(F.sx(a), F.sy(b)); ctx.stroke();
+    }
+    last = [a, b];
+  }
+  ctx.setLineDash([]);
+}
+function drawBase(F, v, op) {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = css("--paper"); ctx.fillRect(0, 0, W, H);
+  ctx.font = "11px " + css("--font-ui");
+  (v.shapes || []).forEach(s => {
+    ctx.fillStyle = s.fill || "transparent"; ctx.strokeStyle = s.stroke || "transparent"; ctx.lineWidth = 1;
+    if (s.rect) { const [a, b, c, d] = s.rect; const x = F.sx(a), y = F.sy(d), w = F.sx(c) - x, h = F.sy(b) - y; if (s.fill) ctx.fillRect(x, y, w, h); if (s.stroke) ctx.strokeRect(x, y, w, h); }
+    if (s.poly) { ctx.beginPath(); s.poly.forEach((p, k) => k ? ctx.lineTo(F.sx(p[0]), F.sy(p[1])) : ctx.moveTo(F.sx(p[0]), F.sy(p[1]))); ctx.closePath(); if (s.fill) ctx.fill(); if (s.stroke) ctx.stroke(); }
+    if (s.circle) { const [a, b, r] = s.circle; ctx.beginPath(); ctx.arc(F.sx(a), F.sy(b), r * F.k, 0, 7); if (s.fill) ctx.fill(); if (s.stroke) ctx.stroke(); }
+    if (s.text) { ctx.fillStyle = s.color || css("--muted"); ctx.fillText(s.text, F.sx(s.at[0]), F.sy(s.at[1])); }
+    if (s.dash) { ctx.strokeStyle = s.color || css("--err"); ctx.setLineDash([4, 3]); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(F.sx(s.dash[0]), F.sy(s.dash[1])); ctx.lineTo(F.sx(s.dash[2]), F.sy(s.dash[3])); ctx.stroke(); ctx.setLineDash([]); }
+  });
+  if (v.ghost) drawPath(F, v.ghost, { c: "rgba(90,102,112,.16)", rc: "rgba(0,0,0,0)", w: 1 });
+  // assi
+  ctx.strokeStyle = css("--muted"); ctx.lineWidth = 1; ctx.setLineDash([6, 3, 2, 3]);
+  if (v.b[1] < 0 && v.b[3] > 0) { ctx.beginPath(); ctx.moveTo(F.sx(v.b[0]), F.sy(0)); ctx.lineTo(F.sx(v.b[2]), F.sy(0)); ctx.stroke(); }
+  if (v.b[0] < 0 && v.b[2] > 0 && v.cross) { ctx.beginPath(); ctx.moveTo(F.sx(0), F.sy(v.b[1])); ctx.lineTo(F.sx(0), F.sy(v.b[3])); ctx.stroke(); }
+  ctx.setLineDash([]);
+  ctx.fillStyle = css("--muted");
+  ctx.fillText(v.ax[0] + " →", W - 40, H - 6);
+  ctx.save(); ctx.translate(12, 40); ctx.rotate(-Math.PI / 2); ctx.fillText("← " + v.ax[1], -10, 0); ctx.restore();
+  if (op) drawPath(F, op.pts, { c: "rgba(10,106,140,.55)", rc: "rgba(10,106,140,.25)", w: 1.2, rapids: true });
+}
+function zGauge(z, op) {
+  if (!op || z == null || !op.z) return;
+  const [z0, z1] = op.z; if (z1 - z0 < 0.01) return;
+  const x = W - 22, y0 = 26, y1 = H - 26;
+  const y = zz => y1 - (Math.max(z0, Math.min(z1, zz)) - z0) / (z1 - z0) * (y1 - y0);
+  ctx.strokeStyle = css("--rule"); ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y1); ctx.stroke();
+  ctx.fillStyle = css("--muted"); ctx.font = "10px " + css("--font-ui");
+  ctx.fillText(D.zLabel || "Z", x - 3, y0 - 12); ctx.fillText(nf(z1, 1), x - 18, y0 - 3); ctx.fillText(nf(z0, 1), x - 18, y1 + 12);
+  ctx.fillStyle = css("--cursor"); ctx.strokeStyle = "#5c4100"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.rect(x - 7, y(z) - 3, 14, 6); ctx.fill(); ctx.stroke();
+}
+function drawTool(F, a, b, label) {
+  if (a == null || b == null) return;
+  const x = F.sx(a), y = F.sy(b);
+  const inside = x > 0 && x < W && y > 0 && y < H;
+  const cx = Math.max(10, Math.min(W - 30, x)), cy = Math.max(14, Math.min(H - 8, y));
+  ctx.fillStyle = css("--cursor"); ctx.strokeStyle = "#5c4100"; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.arc(cx, cy, 5.5, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - 9, cy); ctx.lineTo(cx + 9, cy); ctx.moveTo(cx, cy - 9); ctx.lineTo(cx, cy + 9); ctx.stroke();
+  if (!inside || label) {
+    ctx.fillStyle = css("--ink"); ctx.font = "600 11px " + css("--font-ui");
+    const t = label || "fuera de vista ↗";
+    ctx.fillText(t, Math.min(cx + 10, W - ctx.measureText(t).width - 4), Math.max(cy - 8, 12));
+  }
+}
+function stopAnim() { if (anim) { cancelAnimationFrame(anim); anim = null; } }
+function curOp() {
+  let i = S.cur; if (i < 0) { const m = [...S.marks][0]; i = m == null ? -1 : m; }
+  const oi = i >= 0 ? opOf(i) : null;
+  return oi != null && oi >= 0 ? S.prog.ops[oi] : null;
+}
+function drawScene() {
+  if (anim) return;
+  const op = curOp();
+  const v = viewOf(op) || D.views[D.progs[0].ops[0].view];
+  const F = frame(v);
+  drawBase(F, v, op);
+  $("cap").textContent = (op ? op.name + " · " : "") + v.cap;
+  const t = S.cur >= 0 ? S.prog.tp[S.cur] : null;
+  if (t && t[0] != null) {
+    if (t[3] != null) {
+      ctx.strokeStyle = css("--cursor"); ctx.lineWidth = 2.5; ctx.setLineDash(t[5] ? [5, 4] : []);
+      ctx.beginPath(); ctx.moveTo(F.sx(t[3]), F.sy(t[4])); ctx.lineTo(F.sx(t[0]), F.sy(t[1])); ctx.stroke(); ctx.setLineDash([]);
+    }
+    drawTool(F, t[0], t[1], null);
+    zGauge(t[2], op);
+  } else if (S.cur >= 0) {
+    ctx.fillStyle = css("--muted"); ctx.font = "12px " + css("--font-ui");
+    ctx.fillText("Posición de la herramienta aún no definida", 40, 40);
+  }
+}
+function startAnim() {
+  const op = curOp(); if (!op || op.pts.length < 6) return;
+  const v = viewOf(op);
+  const pts = op.pts, n = pts.length / 3;
+  const dur = Math.min(14000, Math.max(4000, n * 6));
+  if (reduce) { stopAnim(); return; }
+  let t0 = null;
+  const F = frame(v);
+  const tick = ts => {
+    if (t0 == null) t0 = ts;
+    const f = ((ts - t0) % dur) / dur, j = Math.floor(f * (n - 1)) * 3;
+    drawBase(F, v, op);
+    ctx.strokeStyle = css("--cursor"); ctx.lineWidth = 2;
+    ctx.beginPath(); for (let q = Math.max(0, j - 90); q <= j; q += 3) { if (q === Math.max(0, j - 90)) ctx.moveTo(F.sx(pts[q]), F.sy(pts[q + 1])); else ctx.lineTo(F.sx(pts[q]), F.sy(pts[q + 1])); } ctx.stroke();
+    drawTool(F, pts[j], pts[j + 1], "simulación " + Math.round(f * 100) + " %");
+    anim = requestAnimationFrame(tick);
+  };
+  anim = requestAnimationFrame(tick);
+  renderKeys();
+}
+
+/* ---------- render ---------- */
+function render() { renderKeys(); renderCode(); renderPos(); renderInfo(); drawScene(); }
+if (window.ResizeObserver) new ResizeObserver(() => { if (!anim) drawScene(); }).observe(cv);
+else window.addEventListener("resize", drawScene);
+document.addEventListener("keydown", e => {
+  if (e.target.closest && e.target.closest("input, textarea")) return;
+  if (S.mode !== "ciclo") return;
+  if (e.key === "PageDown") { e.preventDefault(); step(1); }
+  if (e.key === "PageUp") { e.preventDefault(); step(-1); }
+});
+
+renderAxes();
+loadProg(S.prog);
+const start = store.get("mode", "ciclo");
+if (hkeys().some(h => h[0] === start) && start !== "ciclo") setMode(start); else render();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (!anim) drawScene(); });
+})();
+</script>
+
+</body>
+</html>

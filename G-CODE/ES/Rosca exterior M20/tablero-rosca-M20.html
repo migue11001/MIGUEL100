@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tablero rosca M20×2,5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Patrick+Hand&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: tablero de corcho del taller — notas adhesivas clavadas en una rejilla que se adapta, una nota grande con el esquema de la pieza y una tecla G-CODE abajo. Aspecto único a propósito (corcho), con todos los colores explícitos. */
+:root {
+  --cork: #b98a55;
+  --cork-dark: #8d6438;
+  --cork-light: #d3a873;
+  --frame: #5b3d22;
+  --ink: #23201b;
+  --pencil: #4d4a44;
+  --yellow: #fff1a0;
+  --blue: #cfe8f7;
+  --pink: #ffd0d6;
+  --green: #d5f0c4;
+  --white: #fbfaf5;
+  --orange: #ffd9a8;
+  --red: #c4232b;
+  --blue-ink: #1f4f8f;
+  --pin: #d8322f;
+  --key-top: #fbfcfc;
+  --key-bot: #c8cfd5;
+  --key-ink: #1b232a;
+  --font-hand: "Kalam", "Comic Sans MS", cursive;
+  --font-note: "Patrick Hand", "Comic Sans MS", cursive;
+  --font-code: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background-color: var(--frame);
+  font: 18px/1.35 var(--font-note);
+  padding-inline: 16px;
+  padding-block: 20px 40px;
+}
+.board {
+  max-width: 1240px;
+  margin: 0 auto;
+  border: 14px solid var(--frame);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 2px #3f2a17, 0 10px 30px rgba(0,0,0,.35);
+  background-color: var(--cork);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.10) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 70% 60%, rgba(0,0,0,.12) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(0,0,0,.08) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 85% 15%, rgba(255,255,255,.08) 0 1px, transparent 1.5px);
+  background-size: 13px 13px, 17px 17px, 11px 11px, 19px 19px;
+  padding: 28px 24px 36px;
+}
+.title {
+  text-align: center;
+  margin: 0 auto 26px;
+  max-width: 640px;
+  background: var(--white);
+  padding: 14px 20px 12px;
+  transform: rotate(-1deg);
+  box-shadow: 0 6px 12px rgba(0,0,0,.28);
+  position: relative;
+}
+.title h1 { font-family: var(--font-hand); font-size: clamp(30px, 5vw, 44px); line-height: 1.05; margin: 0; text-wrap: balance; }
+.title p { margin: 6px 0 0; color: var(--pencil); }
+.notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 28px 24px;
+  align-items: start;
+}
+.note {
+  position: relative;
+  padding: 26px 18px 18px;
+  box-shadow: 0 8px 14px rgba(0,0,0,.28), 0 1px 0 rgba(0,0,0,.08);
+  transform: rotate(var(--r, 0deg));
+  transition: transform .2s ease;
+  min-width: 0;
+}
+.note:hover { transform: rotate(0deg) scale(1.02); z-index: 2; }
+.note::before {
+  content: "";
+  position: absolute; top: 8px; left: 50%;
+  width: 16px; height: 16px; margin-left: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff8a80, var(--pin) 55%, #8f1414);
+  box-shadow: 2px 3px 4px rgba(0,0,0,.4);
+}
+.note.tape::before {
+  width: 90px; height: 24px; top: -10px; margin-left: -45px; border-radius: 2px;
+  background: rgba(255,255,255,.55); box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+.note h2 { font-family: var(--font-hand); font-weight: 700; font-size: 25px; line-height: 1.1; margin: 0 0 8px; }
+.note p { margin: 0 0 8px; }
+.note p:last-child { margin-bottom: 0; }
+.note ul, .note ol { margin: 0; padding-left: 1.15em; display: grid; gap: 5px; }
+.note .why { color: var(--blue-ink); }
+.note .red { color: var(--red); }
+.note code, .note .mono { font-family: var(--font-code); font-size: 14.5px; background: rgba(0,0,0,.06); padding: 0 3px; border-radius: 2px; white-space: nowrap; }
+.note .big { font-family: var(--font-code); font-size: 19px; font-weight: 600; }
+.note small { color: var(--pencil); font-size: 15px; }
+.yellow { background: var(--yellow); }
+.blue { background: var(--blue); }
+.pink { background: var(--pink); }
+.green { background: var(--green); }
+.white { background: var(--white); background-image: repeating-linear-gradient(transparent 0 25px, #c9d8e6 25px 26px); background-position: 0 50px; }
+.orange { background: var(--orange); }
+.wide { grid-column: span 2; }
+.kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; }
+.kv dt { color: var(--pencil); }
+.kv dd { margin: 0; }
+.circle { border: 2px solid var(--red); border-radius: 50% 45% 50% 48%; padding: 0 6px; }
+.under { text-decoration: underline wavy var(--red); text-underline-offset: 3px; }
+.sketch { width: 100%; height: auto; display: block; margin: 4px 0 6px; }
+.sketch text { font-family: var(--font-note); }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; font-size: 16px; width: 100%; }
+td, th { padding: 2px 6px; border-bottom: 1px dashed rgba(0,0,0,.25); text-align: right; font-variant-numeric: tabular-nums; }
+th { font-weight: 400; color: var(--pencil); }
+td:first-child, th:first-child { text-align: left; }
+.check { list-style: none; padding-left: 0 !important; }
+.check li::before { content: "☐ "; font-family: var(--font-code); }
+
+.cta { display: grid; justify-items: center; gap: 10px; margin-top: 36px; }
+.cta p { margin: 0; color: #f6e7d2; font-size: 17px; text-align: center; }
+.gkey {
+  display: inline-grid;
+  place-items: center;
+  min-width: 260px;
+  padding: 16px 38px 14px;
+  font-family: var(--font-code);
+  font-weight: 600;
+  font-size: 28px;
+  letter-spacing: .12em;
+  color: var(--key-ink);
+  text-decoration: none;
+  background: linear-gradient(var(--key-top), var(--key-bot));
+  border: 2px solid #5f6b75;
+  border-radius: 6px;
+  box-shadow: inset 0 2px 0 #fff, 0 5px 0 #4b555e, 0 10px 18px rgba(0,0,0,.4);
+  transition: transform .08s ease, box-shadow .08s ease;
+}
+.gkey small { font-family: var(--font-note); font-size: 15px; letter-spacing: 0; font-weight: 400; color: #4d5861; }
+.gkey:hover { background: linear-gradient(#ffffff, #d6dce1); }
+.gkey:active { transform: translateY(4px); box-shadow: inset 0 2px 0 #fff, 0 1px 0 #4b555e, 0 4px 8px rgba(0,0,0,.35); }
+.gkey:focus-visible { outline: 3px solid #ffd27a; outline-offset: 4px; }
+
+@media (max-width: 640px) {
+  .board { border-width: 8px; padding: 22px 12px 28px; }
+  .wide { grid-column: auto; }
+  .notes { grid-template-columns: minmax(0, 1fr); }
+  .note { transform: rotate(calc(var(--r, 0deg) / 2)); }
+  .gkey { min-width: 0; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .note, .gkey { transition: none; } .note:hover { transform: rotate(var(--r, 0deg)); } }
+</style>
+</head>
+<body>
+
+<div class="board">
+  <header class="title">
+    <h1>Rosca exterior M20×2,5</h1>
+    <p>Torno Okuma · ciclo G71 · CNMEC, taller artesanal cnc</p>
+  </header>
+
+  <div class="notes">
+
+    <article class="note white wide tape" style="--r:-.6deg">
+      <h2>La pieza</h2>
+      <svg class="sketch" viewBox="0 0 560 170" role="img" aria-label="Esquema: barra Ø20 en las garras, rosca desde Z0 hasta Z-32, herramienta de roscar empezando en Z12,5">
+        <rect x="20" y="40" width="70" height="38" fill="#8a8f94"/>
+        <text x="22" y="32" font-size="15" fill="#4d4a44">garras</text>
+        <rect x="20" y="78" width="370" height="60" fill="#c9cfd4" stroke="#4d4a44" stroke-width="1.5"/>
+        <g fill="#fbfaf5" stroke="#4d4a44" stroke-width="1">
+          <path d="M150 78 l6 11 l6 -11 M180 78 l6 11 l6 -11 M210 78 l6 11 l6 -11 M240 78 l6 11 l6 -11 M270 78 l6 11 l6 -11 M300 78 l6 11 l6 -11 M330 78 l6 11 l6 -11 M360 78 l6 11 l6 -11"/>
+        </g>
+        <line x1="10" y1="138" x2="550" y2="138" stroke="#4d4a44" stroke-dasharray="10 4 2 4"/>
+        <line x1="390" y1="20" x2="390" y2="150" stroke="#c4232b" stroke-width="1.5"/>
+        <text x="380" y="164" font-size="16" fill="#c4232b">Z0</text>
+        <line x1="146" y1="60" x2="146" y2="150" stroke="#1f4f8f" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="122" y="164" font-size="16" fill="#1f4f8f">Z-32</text>
+        <path d="M146 64 H390" stroke="#1f4f8f" stroke-width="1.5"/>
+        <text x="215" y="58" font-size="17" fill="#1f4f8f">rosca 32 mm</text>
+        <polygon points="470,72 460,48 480,48" fill="#f3a712" stroke="#5c4100"/>
+        <rect x="463" y="20" width="14" height="28" fill="#6b757d"/>
+        <text x="490" y="44" font-size="16" fill="#23201b">T01</text>
+        <path d="M466 76 C440 90 420 80 395 72" fill="none" stroke="#23201b" stroke-width="1.5" marker-end="url(#ar)"/>
+        <text x="420" y="110" font-size="15" fill="#23201b">arranca en Z12,5</text>
+        <text x="400" y="128" font-size="15" fill="#23201b">(5 pasos antes)</text>
+        <text x="30" y="122" font-size="16" fill="#23201b">Ø20</text>
+        <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#23201b"/></marker></defs>
+      </svg>
+      <dl class="kv">
+        <dt>Máquina</dt><dd>torno Okuma · post <code>okuma turning.cps</code></dd>
+        <dt>Programas</dt><dd><code>…ciclo-G71.MIN</code> y <code>…G32.MIN</code></dd>
+        <dt>Herramienta</dt><dd>plaquita de roscar exterior 60°, T01</dd>
+      </dl>
+    </article>
+
+    <article class="note yellow" style="--r:1.2deg">
+      <h2>Datos de corte</h2>
+      <dl class="kv">
+        <dt>rpm</dt><dd><span class="big">500</span> <code>G97</code> fijas</dd>
+        <dt>Paso</dt><dd><span class="big">2,5</span> mm <code>G95</code></dd>
+        <dt>Carro</dt><dd>500 × 2,5 = <b>1.250 mm/min</b></dd>
+        <dt>Vc</dt><dd>π·20·500/1000 ≈ <b>31 m/min</b></dd>
+        <dt>Gama</dt><dd><code>M41</code> baja</dd>
+      </dl>
+      <p class="why">¿Por qué tan pocas rpm? El carro va 12 veces más rápido que torneando y tiene que frenar en Z-32.</p>
+    </article>
+
+    <article class="note blue" style="--r:-1.4deg">
+      <h2>Ciclo de trabajo</h2>
+      <ol>
+        <li><b>Seguridad:</b> <code>G50 S6000</code>, salir X400 → Z400</li>
+        <li><b>Herramienta:</b> <code>T010101</code>, <code>G95</code>, <code>M8</code>, 500 rpm</li>
+        <li><b>Aproximación:</b> X39,79 Z12,5</li>
+        <li><b>Roscado:</b> <code>G71</code>, todas las pasadas</li>
+        <li><b>Retirada:</b> <code>M9</code>, X400 → Z400, <code>M2</code></li>
+      </ol>
+      <p class="why">Siempre X antes que Z: sal por donde entraste.</p>
+    </article>
+
+    <article class="note green" style="--r:.8deg">
+      <h2>Las 3 reglas del roscado</h2>
+      <ol>
+        <li><code>G95</code>: avanzar <b>un paso por vuelta</b>. La rosca es una hélice.</li>
+        <li><code>G97</code>: <b>rpm fijas</b>. Si cambian, el retardo del servo cambia y las pasadas no caen en el mismo surco.</li>
+        <li><b>Distancia para acelerar</b> antes de la pieza (aquí 12,5 mm = 5 pasos).</li>
+      </ol>
+    </article>
+
+    <article class="note pink" style="--r:-.9deg">
+      <h2 class="red">¡La rosca no entra!</h2>
+      <p>Profundidad M20×2,5 exterior:<br><span class="mono">0,6134 × 2,5 = 1,534 mm</span></p>
+      <p>Programada: <span class="circle">1 mm</span> (H2.)</p>
+      <p>Tuerca: Ø interior = 20 − 1,0825 × 2,5 = <b>Ø17,294</b><br>Mi fondo: <b class="under">Ø17,791</b>, más grande, así que choca.</p>
+      <p><b>Arreglo:</b> profundidad 1,534 → fondo ≈ Ø16,93</p>
+    </article>
+
+    <article class="note orange" style="--r:1.6deg">
+      <h2>Otros errores</h2>
+      <ul>
+        <li><code>M73</code> = profundidad constante: solo ~2 pasadas y la segunda arranca 3× más. <span class="why">→ usar <code>M75</code>, 6–10 pasadas</span></li>
+        <li>Sin pasada en vacío. <span class="why">→ la herramienta se flexa y deja material</span></li>
+        <li>Entrada radial con paso 2,5. <span class="why">→ entrar por el flanco 29–30°</span></li>
+        <li>Los dos programas se llaman <code>1001</code> por dentro.</li>
+      </ul>
+    </article>
+
+    <article class="note white" style="--r:-.4deg">
+      <h2>G32: pasadas cada vez más finas</h2>
+      <div class="tbl-wrap">
+        <table>
+          <tr><th>n</th><th>Ø</th><th>prof.</th><th>√n</th></tr>
+          <tr><td>1</td><td>19,187</td><td>0,302</td><td>1,00</td></tr>
+          <tr><td>2</td><td>18,938</td><td>0,427</td><td>1,41</td></tr>
+          <tr><td>3</td><td>18,746</td><td>0,523</td><td>1,73</td></tr>
+          <tr><td>4</td><td>18,584</td><td>0,604</td><td>2,00</td></tr>
+          <tr><td>…</td><td>…</td><td>…</td><td>…</td></tr>
+          <tr><td>11</td><td>17,791</td><td>1,000</td><td>3,32</td></tr>
+        </table>
+      </div>
+      <p class="why">Profundidad ∝ √n, así cada pasada arranca <b>la misma sección</b> de viruta.</p>
+    </article>
+
+    <article class="note yellow" style="--r:1deg">
+      <h2>Antes de pulsar Marcha</h2>
+      <ul class="check">
+        <li>X400 / Z400 dentro del recorrido</li>
+        <li>La torreta gira libre</li>
+        <li>Nada delante de la pieza (rápido en diagonal)</li>
+        <li>Garganta o hueco en Z-32</li>
+        <li>Pieza fuera de las garras ≥ 40 mm</li>
+        <li>Bloque a bloque + rápidos al 25 %</li>
+      </ul>
+    </article>
+
+    <article class="note pink" style="--r:-1.8deg">
+      <h2>¡Ojo!</h2>
+      <p>Durante la rosca el <b>Feed Hold no funciona</b>. Solo Reset o parada de emergencia.</p>
+      <p class="why">Parar el carro con el husillo girando destrozaría la rosca. Por eso hay que comprobar todo <u>antes</u>.</p>
+    </article>
+
+    <article class="note blue" style="--r:.6deg">
+      <h2>G71 no es siempre G71</h2>
+      <dl class="kv">
+        <dt>Okuma</dt><dd>ciclo de <b>roscado</b> (este ejercicio)</dd>
+        <dt>Fanuc</dt><dd>ciclo de <b>desbaste</b></dd>
+        <dt>Siemens</dt><dd><b>unidades mm</b></dd>
+      </dl>
+      <p class="why">Mira siempre para qué control es el programa.</p>
+    </article>
+
+    <article class="note green" style="--r:-1deg">
+      <h2>G71 vs G32</h2>
+      <p><code>G71</code>: <b>1 línea</b>, el control calcula las pasadas.</p>
+      <p><code>G32</code>: <b>55 líneas</b>, cada pasada a mano.</p>
+      <p class="why">El G32 sirve para aprender qué hace el ciclo por dentro. En producción se usa el ciclo.</p>
+    </article>
+
+    <article class="note white" style="--r:1.3deg">
+      <h2>Por confirmar</h2>
+      <small>en el manual Okuma OSP</small>
+      <ul>
+        <li>Reparto exacto de <code>M73</code> / <code>M75</code></li>
+        <li>Qué significa cada par de cifras de <code>T010101</code></li>
+        <li>Posición real de las garras</li>
+      </ul>
+    </article>
+
+  </div>
+
+  <div class="cta">
+    <a class="gkey" href="analisis-rosca-M20.html">G-CODE<small>explicación bloque a bloque</small></a>
+    <p>Abre el programa en la pantalla de control, con el porqué de cada línea.</p>
+  </div>
+</div>
+
+</body>
+</html>

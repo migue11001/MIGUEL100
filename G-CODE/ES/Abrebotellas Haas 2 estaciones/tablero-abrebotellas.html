@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tablero abrebotellas Haas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Patrick+Hand&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: bacheca di sughero dell'officina — foglietti adesivi appuntati su una griglia che si adatta, un foglio grande con lo schizzo del pezzo e un tasto G-CODE in basso. Aspetto unico di proposito (sughero), con tutti i colori espliciti. */
+:root {
+  --cork: #b98a55;
+  --cork-dark: #8d6438;
+  --cork-light: #d3a873;
+  --frame: #5b3d22;
+  --ink: #23201b;
+  --pencil: #4d4a44;
+  --yellow: #fff1a0;
+  --blue: #cfe8f7;
+  --pink: #ffd0d6;
+  --green: #d5f0c4;
+  --white: #fbfaf5;
+  --orange: #ffd9a8;
+  --red: #c4232b;
+  --blue-ink: #1f4f8f;
+  --pin: #d8322f;
+  --key-top: #fbfcfc;
+  --key-bot: #c8cfd5;
+  --key-ink: #1b232a;
+  --font-hand: "Kalam", "Comic Sans MS", cursive;
+  --font-note: "Patrick Hand", "Comic Sans MS", cursive;
+  --font-code: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background-color: var(--frame);
+  font: 18px/1.35 var(--font-note);
+  padding-inline: 16px;
+  padding-block: 20px 40px;
+}
+.board {
+  max-width: 1240px;
+  margin: 0 auto;
+  border: 14px solid var(--frame);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 2px #3f2a17, 0 10px 30px rgba(0,0,0,.35);
+  background-color: var(--cork);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.10) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 70% 60%, rgba(0,0,0,.12) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(0,0,0,.08) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 85% 15%, rgba(255,255,255,.08) 0 1px, transparent 1.5px);
+  background-size: 13px 13px, 17px 17px, 11px 11px, 19px 19px;
+  padding: 28px 24px 36px;
+}
+.title {
+  text-align: center;
+  margin: 0 auto 26px;
+  max-width: 640px;
+  background: var(--white);
+  padding: 14px 20px 12px;
+  transform: rotate(-1deg);
+  box-shadow: 0 6px 12px rgba(0,0,0,.28);
+  position: relative;
+}
+.title h1 { font-family: var(--font-hand); font-size: clamp(30px, 5vw, 44px); line-height: 1.05; margin: 0; text-wrap: balance; }
+.title p { margin: 6px 0 0; color: var(--pencil); }
+.notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 28px 24px;
+  align-items: start;
+}
+.note {
+  position: relative;
+  padding: 26px 18px 18px;
+  box-shadow: 0 8px 14px rgba(0,0,0,.28), 0 1px 0 rgba(0,0,0,.08);
+  transform: rotate(var(--r, 0deg));
+  transition: transform .2s ease;
+  min-width: 0;
+}
+.note:hover { transform: rotate(0deg) scale(1.02); z-index: 2; }
+.note::before {
+  content: "";
+  position: absolute; top: 8px; left: 50%;
+  width: 16px; height: 16px; margin-left: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff8a80, var(--pin) 55%, #8f1414);
+  box-shadow: 2px 3px 4px rgba(0,0,0,.4);
+}
+.note.tape::before {
+  width: 90px; height: 24px; top: -10px; margin-left: -45px; border-radius: 2px;
+  background: rgba(255,255,255,.55); box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+.note h2 { font-family: var(--font-hand); font-weight: 700; font-size: 25px; line-height: 1.1; margin: 0 0 8px; }
+.note p { margin: 0 0 8px; }
+.note p:last-child { margin-bottom: 0; }
+.note ul, .note ol { margin: 0; padding-left: 1.15em; display: grid; gap: 5px; }
+.note .why { color: var(--blue-ink); }
+.note .red { color: var(--red); }
+.note code, .note .mono { font-family: var(--font-code); font-size: 14.5px; background: rgba(0,0,0,.06); padding: 0 3px; border-radius: 2px; white-space: nowrap; }
+.note .big { font-family: var(--font-code); font-size: 19px; font-weight: 600; }
+.note small { color: var(--pencil); font-size: 15px; }
+.yellow { background: var(--yellow); }
+.blue { background: var(--blue); }
+.pink { background: var(--pink); }
+.green { background: var(--green); }
+.white { background: var(--white); background-image: repeating-linear-gradient(transparent 0 25px, #c9d8e6 25px 26px); background-position: 0 50px; }
+.orange { background: var(--orange); }
+.wide { grid-column: span 2; }
+.kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; }
+.kv dt { color: var(--pencil); }
+.kv dd { margin: 0; }
+.circle { border: 2px solid var(--red); border-radius: 50% 45% 50% 48%; padding: 0 6px; }
+.under { text-decoration: underline wavy var(--red); text-underline-offset: 3px; }
+.sketch { width: 100%; height: auto; display: block; margin: 4px 0 6px; }
+.sketch text { font-family: var(--font-note); }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; font-size: 16px; width: 100%; }
+td, th { padding: 2px 6px; border-bottom: 1px dashed rgba(0,0,0,.25); text-align: right; font-variant-numeric: tabular-nums; }
+th { font-weight: 400; color: var(--pencil); }
+td:first-child, th:first-child { text-align: left; }
+.check { list-style: none; padding-left: 0 !important; }
+.check li::before { content: "☐ "; font-family: var(--font-code); }
+.tag { display: inline-block; font-family: var(--font-code); font-size: 13px; background: rgba(0,0,0,.08); padding: 0 4px; border-radius: 2px; }
+
+.cta { display: grid; justify-items: center; gap: 10px; margin-top: 36px; }
+.cta p { margin: 0; color: #f6e7d2; font-size: 17px; text-align: center; }
+.gkey {
+  display: inline-grid;
+  place-items: center;
+  min-width: 260px;
+  padding: 16px 38px 14px;
+  font-family: var(--font-code);
+  font-weight: 600;
+  font-size: 28px;
+  letter-spacing: .12em;
+  color: var(--key-ink);
+  text-decoration: none;
+  background: linear-gradient(var(--key-top), var(--key-bot));
+  border: 2px solid #5f6b75;
+  border-radius: 6px;
+  box-shadow: inset 0 2px 0 #fff, 0 5px 0 #4b555e, 0 10px 18px rgba(0,0,0,.4);
+  transition: transform .08s ease, box-shadow .08s ease;
+}
+.gkey small { font-family: var(--font-note); font-size: 15px; letter-spacing: 0; font-weight: 400; color: #4d5861; }
+.gkey:hover { background: linear-gradient(#ffffff, #d6dce1); }
+.gkey:active { transform: translateY(4px); box-shadow: inset 0 2px 0 #fff, 0 1px 0 #4b555e, 0 4px 8px rgba(0,0,0,.35); }
+.gkey:focus-visible { outline: 3px solid #ffd27a; outline-offset: 4px; }
+
+@media (max-width: 640px) {
+  .board { border-width: 8px; padding: 22px 12px 28px; }
+  .wide { grid-column: auto; }
+  .notes { grid-template-columns: minmax(0, 1fr); }
+  .note { transform: rotate(calc(var(--r, 0deg) / 2)); }
+  .gkey { min-width: 0; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .note, .gkey { transition: none; } .note:hover { transform: rotate(var(--r, 0deg)); } }
+</style>
+</head>
+<body>
+
+<div class="board">
+  <header class="title">
+    <h1>Abrebotellas · Haas 2 estaciones</h1>
+    <p>Fresado · 1.ª y 2.ª operación en el mismo ciclo · CNMEC, taller artesanal cnc</p>
+  </header>
+
+  <div class="notes">
+    <article class="note white wide tape" style="--r:-.6deg">
+      <h2>La pieza</h2>
+      <svg class="sketch" viewBox="0 0 560 200" role="img" aria-label="Croquis desde arriba: dos mordazas sobre la mesa, arriba la estación 1 con el bruto, abajo la estación 2 con la pieza volteada; silueta del abrebotellas con agujero llavero, ranura y diente">
+        <rect x="40" y="14" width="400" height="80" fill="#e3e0d8" stroke="#8a8f94" stroke-dasharray="4 3"/>
+        <rect x="40" y="108" width="400" height="80" fill="#e3e0d8" stroke="#8a8f94" stroke-dasharray="4 3"/>
+        <path d="M120 30 H330 L370 22 Q400 18 405 40 V70 Q400 90 370 86 L330 78 H120 Q92 54 120 30 Z" fill="#c9cfd4" stroke="#4d4a44" stroke-width="2"/>
+        <circle cx="128" cy="54" r="12" fill="#fbfaf5" stroke="#4d4a44" stroke-width="1.5"/>
+        <rect x="235" y="48" width="70" height="12" rx="6" fill="#fbfaf5" stroke="#4d4a44" stroke-width="1.5"/>
+        <path d="M372 36 Q360 54 372 72" fill="none" stroke="#c4232b" stroke-width="3"/>
+        <path d="M120 124 H330 L370 116 Q400 112 405 134 V164 Q400 184 370 180 L330 172 H120 Q92 148 120 124 Z" fill="#c9cfd4" stroke="#4d4a44" stroke-width="2" opacity=".75"/>
+        <text x="200" y="152" font-size="15" fill="#1f4f8f">grabado</text>
+        <line x1="20" y1="101" x2="540" y2="101" stroke="#4d4a44" stroke-dasharray="10 4 2 4"/>
+        <text x="448" y="40" font-size="16" fill="#23201b">estación 1</text>
+        <text x="448" y="58" font-size="14" fill="#4d4a44">Y+70,8 · bruto</text>
+        <text x="448" y="134" font-size="16" fill="#23201b">estación 2</text>
+        <text x="448" y="152" font-size="14" fill="#4d4a44">Y-70,8 · volteada</text>
+        <text x="376" y="98" font-size="14" fill="#c4232b">diente</text>
+      </svg>
+      <dl class="kv">
+        <dt>Máquina</dt><dd>fresadora Haas 3 ejes</dd>
+        <dt>Programa</dt><dd><code>O99999</code> · «bottle opener 1st and 2nd op» · 11.593 líneas</dd>
+        <dt>Cero</dt><dd><code>G54</code> único · Z0 <b>debajo</b> de la pieza (Z positivas)</dd>
+      </dl>
+    </article>
+
+    <article class="note blue" style="--r:1.2deg">
+      <h2>Un ciclo, dos piezas</h2>
+      <ol>
+        <li>Saca la pieza terminada de la estación 2</li>
+        <li>Pasa la pieza de la estación 1 a la 2, <b>volteada</b></li>
+        <li>Pon un bruto en la estación 1</li>
+        <li>Cycle Start</li>
+      </ol>
+      <p class="why">En cada ciclo sale un abrebotellas terminado.</p>
+    </article>
+
+    <article class="note yellow" style="--r:-1.2deg">
+      <h2>Herramientas</h2>
+      <dl class="kv">
+        <dt>T4</dt><dd>planear Ø50,8</dd>
+        <dt>T1</dt><dd>cilíndrica Ø6,35 · 10 op.</dd>
+        <dt>T5</dt><dd>esférica Ø6,35</dd>
+        <dt>T2</dt><dd>avellanador 45°</dd>
+        <dt>T6</dt><dd>fresa de disco Ø12,7 · <b>1.500 rpm</b></dd>
+        <dt>T7</dt><dd>fresa de forma Ø4,762</dd>
+      </dl>
+      <p class="why">Todas a 6.000 rpm excepto el disco.</p>
+    </article>
+
+    <article class="note green" style="--r:.9deg">
+      <h2>¿Cómo se separa la pieza?</h2>
+      <p>Estación 1: contorno, agujero y ranura bajan <b>por debajo de Z10</b>.</p>
+      <p>Estación 2: la trasera se planea hasta <b>Z8,974</b>.</p>
+      <p class="why">Al quitar el fondo, esos cortes quedan pasantes y la pieza queda libre.</p>
+    </article>
+
+    <article class="note pink" style="--r:-1.5deg">
+      <h2 class="red">G41 D1: ¡ojo con el registro!</h2>
+      <p>La trayectoria está <b>ya</b> en el centro de la fresa.</p>
+      <p>En D1 / D2 / D6: <span class="circle">solo desgaste ≈ 0</span></p>
+      <p class="why">Con el radio dentro: perfil +6,35 mm, agujero y ranura −6,35 mm. Haas: Setting 40.</p>
+    </article>
+
+    <article class="note orange" style="--r:1.4deg">
+      <h2>Otros avisos</h2>
+      <ul>
+        <li>Trasera: Fusion parte de Z16,3, ¿pero la pieza mide 19,05? <span class="why">→ primera pasada de 4,5 mm</span></li>
+        <li>T7 sin <code>M8</code></li>
+        <li>Un solo cero para dos mordazas</li>
+        <li>«Rápidos» <code>G1 F5000</code>: 40 s en lugar de 8</li>
+      </ul>
+    </article>
+
+    <article class="note white" style="--r:-.5deg">
+      <h2>La fresa de disco</h2>
+      <p>Corta <b>de lado</b>, bajo un borde: crea el diente que hace palanca en la chapa.</p>
+      <p>Baja en la ranura ya abierta y luego entra de lado con <code>G41 D6</code>.</p>
+      <p class="why">Mucho filo en contacto → 1.500 rpm y 152–305 mm/min.</p>
+    </article>
+
+    <article class="note blue" style="--r:1deg">
+      <h2>¿Z positivas?</h2>
+      <p>Cara superior en <b>Z19,05</b>, trasera acabada en <b>Z8,974</b>.</p>
+      <p class="why">El cero Z está debajo de la pieza (probablemente en el plano de las paralelas): así vale para las dos mordazas.</p>
+    </article>
+
+    <article class="note yellow" style="--r:-1deg">
+      <h2>Antes de Cycle Start</h2>
+      <ul class="check">
+        <li>D1, D2, D6 = desgaste</li>
+        <li>Altura de la pieza en la estación 2</li>
+        <li>Segunda mordaza a Y-141,6</li>
+        <li>6 herramientas medidas</li>
+        <li>Disco y ranura</li>
+        <li>Primer ciclo: estación 2 vacía</li>
+        <li>Optional Stop, override bajo</li>
+      </ul>
+    </article>
+
+    <article class="note white" style="--r:1.3deg">
+      <h2>Por confirmar</h2>
+      <small>en máquina y en Fusion</small>
+      <ul>
+        <li>Dónde está el cero Z (¿paralelas? ¿fondo de la mordaza?)</li>
+        <li>Bruto de la 2.ª operación en Fusion</li>
+        <li>Setting 40 (D en radio o diámetro)</li>
+      </ul>
+    </article>
+  </div>
+
+  <div class="cta">
+    <a class="gkey" href="analisis-abrebotellas.html">G-CODE<small>explicación bloque a bloque</small></a>
+    <p>Abre el programa en la pantalla del control, con el porqué de cada línea.</p>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bacheca pezzo complesso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Patrick+Hand&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: bacheca di sughero dell'officina — foglietti adesivi appuntati su una griglia che si adatta, un foglio grande con lo schizzo del pezzo e un tasto G-CODE in basso. Aspetto unico di proposito (sughero), con tutti i colori espliciti. */
+:root {
+  --cork: #b98a55;
+  --cork-dark: #8d6438;
+  --cork-light: #d3a873;
+  --frame: #5b3d22;
+  --ink: #23201b;
+  --pencil: #4d4a44;
+  --yellow: #fff1a0;
+  --blue: #cfe8f7;
+  --pink: #ffd0d6;
+  --green: #d5f0c4;
+  --white: #fbfaf5;
+  --orange: #ffd9a8;
+  --red: #c4232b;
+  --blue-ink: #1f4f8f;
+  --pin: #d8322f;
+  --key-top: #fbfcfc;
+  --key-bot: #c8cfd5;
+  --key-ink: #1b232a;
+  --font-hand: "Kalam", "Comic Sans MS", cursive;
+  --font-note: "Patrick Hand", "Comic Sans MS", cursive;
+  --font-code: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background-color: var(--frame);
+  font: 18px/1.35 var(--font-note);
+  padding-inline: 16px;
+  padding-block: 20px 40px;
+}
+.board {
+  max-width: 1240px;
+  margin: 0 auto;
+  border: 14px solid var(--frame);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 2px #3f2a17, 0 10px 30px rgba(0,0,0,.35);
+  background-color: var(--cork);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.10) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 70% 60%, rgba(0,0,0,.12) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(0,0,0,.08) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 85% 15%, rgba(255,255,255,.08) 0 1px, transparent 1.5px);
+  background-size: 13px 13px, 17px 17px, 11px 11px, 19px 19px;
+  padding: 28px 24px 36px;
+}
+.title {
+  text-align: center;
+  margin: 0 auto 26px;
+  max-width: 640px;
+  background: var(--white);
+  padding: 14px 20px 12px;
+  transform: rotate(-1deg);
+  box-shadow: 0 6px 12px rgba(0,0,0,.28);
+  position: relative;
+}
+.title h1 { font-family: var(--font-hand); font-size: clamp(30px, 5vw, 44px); line-height: 1.05; margin: 0; text-wrap: balance; }
+.title p { margin: 6px 0 0; color: var(--pencil); }
+.notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 28px 24px;
+  align-items: start;
+}
+.note {
+  position: relative;
+  padding: 26px 18px 18px;
+  box-shadow: 0 8px 14px rgba(0,0,0,.28), 0 1px 0 rgba(0,0,0,.08);
+  transform: rotate(var(--r, 0deg));
+  transition: transform .2s ease;
+  min-width: 0;
+}
+.note:hover { transform: rotate(0deg) scale(1.02); z-index: 2; }
+.note::before {
+  content: "";
+  position: absolute; top: 8px; left: 50%;
+  width: 16px; height: 16px; margin-left: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff8a80, var(--pin) 55%, #8f1414);
+  box-shadow: 2px 3px 4px rgba(0,0,0,.4);
+}
+.note.tape::before {
+  width: 90px; height: 24px; top: -10px; margin-left: -45px; border-radius: 2px;
+  background: rgba(255,255,255,.55); box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+.note h2 { font-family: var(--font-hand); font-weight: 700; font-size: 25px; line-height: 1.1; margin: 0 0 8px; }
+.note p { margin: 0 0 8px; }
+.note p:last-child { margin-bottom: 0; }
+.note ul, .note ol { margin: 0; padding-left: 1.15em; display: grid; gap: 5px; }
+.note .why { color: var(--blue-ink); }
+.note .red { color: var(--red); }
+.note code, .note .mono { font-family: var(--font-code); font-size: 14.5px; background: rgba(0,0,0,.06); padding: 0 3px; border-radius: 2px; white-space: nowrap; }
+.note .big { font-family: var(--font-code); font-size: 19px; font-weight: 600; }
+.note small { color: var(--pencil); font-size: 15px; }
+.yellow { background: var(--yellow); }
+.blue { background: var(--blue); }
+.pink { background: var(--pink); }
+.green { background: var(--green); }
+.white { background: var(--white); background-image: repeating-linear-gradient(transparent 0 25px, #c9d8e6 25px 26px); background-position: 0 50px; }
+.orange { background: var(--orange); }
+.wide { grid-column: span 2; }
+.kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; }
+.kv dt { color: var(--pencil); }
+.kv dd { margin: 0; }
+.circle { border: 2px solid var(--red); border-radius: 50% 45% 50% 48%; padding: 0 6px; }
+.under { text-decoration: underline wavy var(--red); text-underline-offset: 3px; }
+.sketch { width: 100%; height: auto; display: block; margin: 4px 0 6px; }
+.sketch text { font-family: var(--font-note); }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; font-size: 16px; width: 100%; }
+td, th { padding: 2px 6px; border-bottom: 1px dashed rgba(0,0,0,.25); text-align: right; font-variant-numeric: tabular-nums; }
+th { font-weight: 400; color: var(--pencil); }
+td:first-child, th:first-child { text-align: left; }
+.check { list-style: none; padding-left: 0 !important; }
+.check li::before { content: "☐ "; font-family: var(--font-code); }
+.tag { display: inline-block; font-family: var(--font-code); font-size: 13px; background: rgba(0,0,0,.08); padding: 0 4px; border-radius: 2px; }
+
+.cta { display: grid; justify-items: center; gap: 10px; margin-top: 36px; }
+.cta p { margin: 0; color: #f6e7d2; font-size: 17px; text-align: center; }
+.gkey {
+  display: inline-grid;
+  place-items: center;
+  min-width: 260px;
+  padding: 16px 38px 14px;
+  font-family: var(--font-code);
+  font-weight: 600;
+  font-size: 28px;
+  letter-spacing: .12em;
+  color: var(--key-ink);
+  text-decoration: none;
+  background: linear-gradient(var(--key-top), var(--key-bot));
+  border: 2px solid #5f6b75;
+  border-radius: 6px;
+  box-shadow: inset 0 2px 0 #fff, 0 5px 0 #4b555e, 0 10px 18px rgba(0,0,0,.4);
+  transition: transform .08s ease, box-shadow .08s ease;
+}
+.gkey small { font-family: var(--font-note); font-size: 15px; letter-spacing: 0; font-weight: 400; color: #4d5861; }
+.gkey:hover { background: linear-gradient(#ffffff, #d6dce1); }
+.gkey:active { transform: translateY(4px); box-shadow: inset 0 2px 0 #fff, 0 1px 0 #4b555e, 0 4px 8px rgba(0,0,0,.35); }
+.gkey:focus-visible { outline: 3px solid #ffd27a; outline-offset: 4px; }
+
+@media (max-width: 640px) {
+  .board { border-width: 8px; padding: 22px 12px 28px; }
+  .wide { grid-column: auto; }
+  .notes { grid-template-columns: minmax(0, 1fr); }
+  .note { transform: rotate(calc(var(--r, 0deg) / 2)); }
+  .gkey { min-width: 0; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .note, .gkey { transition: none; } .note:hover { transform: rotate(var(--r, 0deg)); } }
+</style>
+</head>
+<body>
+
+<div class="board">
+  <header class="title">
+    <h1>Pezzo complesso · fresatura 3 assi</h1>
+    <p>Fanuc · O0111 · CNMEC, azienda artigianale cnc</p>
+  </header>
+
+  <div class="notes">
+    <article class="note white wide tape" style="--r:-.6deg">
+      <h2>Il pezzo</h2>
+      <svg class="sketch" viewBox="0 0 560 220" role="img" aria-label="Schizzo dall'alto: pezzo di forma libera con un foro a gradini Ø63/Ø42, tre fori passanti Ø10, Ø8, Ø6 e una zona di superficie 3D">
+        <path d="M150 40 C190 30 230 34 270 44 C310 52 350 40 390 46 C420 50 430 70 432 100 C434 130 400 150 360 160 L300 196 C260 206 210 206 180 196 C150 186 140 160 140 130 L140 70 C140 52 144 44 150 40 Z" fill="#c9cfd4" stroke="#4d4a44" stroke-width="2"/>
+        <path d="M250 60 C300 50 360 56 400 80 C410 110 380 130 340 140 C300 140 260 120 250 100 Z" fill="#d5f0c4" stroke="#2f7d4a" stroke-width="1.5" stroke-dasharray="5 3"/>
+        <text x="290" y="100" font-size="16" fill="#2f7d4a">forma 3D</text>
+        <circle cx="200" cy="160" r="30" fill="#fbfaf5" stroke="#4d4a44" stroke-width="2"/>
+        <circle cx="200" cy="160" r="20" fill="#e8e3d6" stroke="#4d4a44" stroke-width="1.5"/>
+        <text x="236" y="190" font-size="16" fill="#23201b">Ø63 / Ø42</text>
+        <circle cx="175" cy="68" r="7" fill="#fbfaf5" stroke="#c4232b" stroke-width="2"/>
+        <circle cx="392" cy="96" r="6" fill="#fbfaf5" stroke="#c4232b" stroke-width="2"/>
+        <circle cx="372" cy="66" r="5" fill="#fbfaf5" stroke="#c4232b" stroke-width="2"/>
+        <text x="110" y="64" font-size="16" fill="#c4232b">Ø10</text>
+        <text x="440" y="100" font-size="16" fill="#c4232b">Ø8</text>
+        <text x="380" y="36" font-size="16" fill="#c4232b">Ø6</text>
+        <text x="20" y="214" font-size="14" fill="#4d4a44">schizzo indicativo, ricavato dai percorsi</text>
+      </svg>
+      <dl class="kv">
+        <dt>Macchina</dt><dd>fresatrice Fanuc 3 assi + tavola B (sempre a 0°)</dd>
+        <dt>Programma</dt><dd><code>O0111</code> · 50.817 righe</dd>
+        <dt>Utensili</dt><dd>9 · libreria in pollici (Ø12,7 = ½")</dd>
+      </dl>
+    </article>
+
+    <article class="note blue" style="--r:1.2deg">
+      <h2>Ciclo di lavoro</h2>
+      <ol>
+        <li><b>Spianatura</b> · T171 Ø50,8</li>
+        <li><b>Sgrossatura adattiva</b> · T133</li>
+        <li><b>Finiture 2D</b>: parete, Ø42, Ø63 · T135/T134</li>
+        <li><b>Smusso</b> Ø63 · T131</li>
+        <li><b>Fori</b> Ø10, Ø8, Ø6 · T2/T3/T4</li>
+        <li><b>Finiture 3D</b> ×4 · T137 sferica</li>
+      </ol>
+      <p class="why">Prima togli tanto e veloce, poi porta a misura, poi rifinisci.</p>
+    </article>
+
+    <article class="note yellow" style="--r:-1.2deg">
+      <h2>Dove va il tempo</h2>
+      <div class="tbl-wrap">
+        <table>
+          <tr><th>operazione</th><th>min</th></tr>
+          <tr><td>Adattiva</td><td>21,7</td></tr>
+          <tr><td>4 finiture 3D</td><td>32,8</td></tr>
+          <tr><td>tutto il resto</td><td>2,9</td></tr>
+          <tr><td><b>totale</b></td><td><b>≈ 57</b></td></tr>
+        </table>
+      </div>
+      <p class="why">Il 95 % del tempo è sgrossatura e 3D. Cambi utensile esclusi.</p>
+    </article>
+
+    <article class="note pink" style="--r:.9deg">
+      <h2 class="red">Spianatura troppo profonda!</h2>
+      <p>Libreria: max <span class="mono">0,100"</span> = <b>2,54 mm</b></p>
+      <p>Programma: Z-1,439 → Z-6,519 = <span class="circle">5,08 mm</span></p>
+      <p class="why">→ «Multiple depths» con passo 2,5 mm.</p>
+    </article>
+
+    <article class="note pink" style="--r:-1.5deg">
+      <h2 class="red">Punte a secco!</h2>
+      <p>Ø10, Ø8, Ø6: <b>nessun</b> <code>M08</code>.</p>
+      <p>Fori passanti da 3,5 a 6 diametri in alluminio.</p>
+      <p class="why">Il truciolo si incolla, la punta si rompe nel foro.</p>
+    </article>
+
+    <article class="note orange" style="--r:1.4deg">
+      <h2>Altri avvisi</h2>
+      <ul>
+        <li>Fori Ø8 e Ø6 <b>prima</b> della finitura 3D e senza centrino.</li>
+        <li>Finitura esterna: discesa diritta di 42 mm in <code>G01</code>.</li>
+        <li><code>MAX DEPTH OF CUT = 0.125</code> è in <b>pollici</b> (3,18 mm).</li>
+      </ul>
+    </article>
+
+    <article class="note green" style="--r:-.8deg">
+      <h2>Pollici ↔ mm</h2>
+      <dl class="kv">
+        <dt>12,7 mm</dt><dd>½"</dd>
+        <dt>50,8 mm</dt><dd>2"</dd>
+        <dt>F1524</dt><dd>60"/min</dd>
+        <dt>F304,8</dt><dd>12"/min</dd>
+        <dt>0,100"</dt><dd>2,54 mm</dd>
+      </dl>
+      <p class="why">1" = 25,4 mm. Il programma è in mm (<code>G21</code>), i commenti no.</p>
+    </article>
+
+    <article class="note white" style="--r:.6deg">
+      <h2>Foratura passo per passo</h2>
+      <p><code>G01 Z-12.969</code> fora<br><code>G00 Z-12.769</code> indietro 0,2 → rompe il truciolo<br><code>G01 Z-15.469</code> fora altri 2,5</p>
+      <p class="why">A metà: <code>G00 Z5.08</code>, esce del tutto e scarica.</p>
+    </article>
+
+    <article class="note blue" style="--r:-1.1deg">
+      <h2>Ogni operazione inizia così</h2>
+      <p class="mono" style="white-space:normal">M01 → T M06 → T(prossimo) → G90 G94 G17 G49 G40 G80 → S M03 → G54 → M11 → B0 → M10 → M08</p>
+      <p class="why">E finisce: Z15, <code>M09</code>, <code>M05</code>, <code>G30 G91 Z0</code>, <code>G90</code>, <code>G49</code>.</p>
+    </article>
+
+    <article class="note yellow" style="--r:1deg">
+      <h2>Prima di Cycle Start</h2>
+      <ul class="check">
+        <li>9 utensili misurati</li>
+        <li>Sporgenza frese ≥ 45 mm</li>
+        <li>Spazio sotto i fori (Z-49,3)</li>
+        <li>Asse B a 0° e freno ok</li>
+        <li>Punto G30 = cambio utensile</li>
+        <li>M08 nelle forature</li>
+        <li>Optional Stop acceso</li>
+      </ul>
+    </article>
+
+    <article class="note green" style="--r:-.4deg">
+      <h2>Adattiva: perché?</h2>
+      <p>La fresa lavora sempre con <b>lo stesso impegno</b>: traiettorie a ricciolo invece di passate diritte.</p>
+      <p class="why">Carico costante → si può andare profondi (42 mm) con una fresa Ø12,7 senza romperla.</p>
+    </article>
+
+    <article class="note white" style="--r:1.3deg">
+      <h2>Da confermare</h2>
+      <small>in macchina</small>
+      <ul>
+        <li>Fondo del pezzo e grezzo (non scritti nel programma)</li>
+        <li>Sovrametallo lasciato dall'adattiva sopra i fori Ø8 e Ø6</li>
+        <li>Posizione G30 = cambio utensile</li>
+      </ul>
+    </article>
+  </div>
+
+  <div class="cta">
+    <a class="gkey" href="analisi-pezzo-complesso.html">G-CODE<small>spiegazione blocco per blocco</small></a>
+    <p>Apri il programma nella schermata del controllo, con il perché di ogni riga.</p>
+  </div>
+</div>
+
+</body>
+</html>

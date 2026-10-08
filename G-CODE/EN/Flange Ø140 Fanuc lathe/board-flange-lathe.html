@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flange lathe board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Patrick+Hand&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: bacheca di sughero dell'officina — foglietti adesivi appuntati su una griglia che si adatta, un foglio grande con lo schizzo del pezzo e un tasto G-CODE in basso. Aspetto unico di proposito (sughero), con tutti i colori espliciti. */
+:root {
+  --cork: #b98a55;
+  --cork-dark: #8d6438;
+  --cork-light: #d3a873;
+  --frame: #5b3d22;
+  --ink: #23201b;
+  --pencil: #4d4a44;
+  --yellow: #fff1a0;
+  --blue: #cfe8f7;
+  --pink: #ffd0d6;
+  --green: #d5f0c4;
+  --white: #fbfaf5;
+  --orange: #ffd9a8;
+  --red: #c4232b;
+  --blue-ink: #1f4f8f;
+  --pin: #d8322f;
+  --key-top: #fbfcfc;
+  --key-bot: #c8cfd5;
+  --key-ink: #1b232a;
+  --font-hand: "Kalam", "Comic Sans MS", cursive;
+  --font-note: "Patrick Hand", "Comic Sans MS", cursive;
+  --font-code: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background-color: var(--frame);
+  font: 18px/1.35 var(--font-note);
+  padding-inline: 16px;
+  padding-block: 20px 40px;
+}
+.board {
+  max-width: 1240px;
+  margin: 0 auto;
+  border: 14px solid var(--frame);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 2px #3f2a17, 0 10px 30px rgba(0,0,0,.35);
+  background-color: var(--cork);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.10) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 70% 60%, rgba(0,0,0,.12) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(0,0,0,.08) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 85% 15%, rgba(255,255,255,.08) 0 1px, transparent 1.5px);
+  background-size: 13px 13px, 17px 17px, 11px 11px, 19px 19px;
+  padding: 28px 24px 36px;
+}
+.title {
+  text-align: center;
+  margin: 0 auto 26px;
+  max-width: 640px;
+  background: var(--white);
+  padding: 14px 20px 12px;
+  transform: rotate(-1deg);
+  box-shadow: 0 6px 12px rgba(0,0,0,.28);
+  position: relative;
+}
+.title h1 { font-family: var(--font-hand); font-size: clamp(30px, 5vw, 44px); line-height: 1.05; margin: 0; text-wrap: balance; }
+.title p { margin: 6px 0 0; color: var(--pencil); }
+.notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 28px 24px;
+  align-items: start;
+}
+.note {
+  position: relative;
+  padding: 26px 18px 18px;
+  box-shadow: 0 8px 14px rgba(0,0,0,.28), 0 1px 0 rgba(0,0,0,.08);
+  transform: rotate(var(--r, 0deg));
+  transition: transform .2s ease;
+  min-width: 0;
+}
+.note:hover { transform: rotate(0deg) scale(1.02); z-index: 2; }
+.note::before {
+  content: "";
+  position: absolute; top: 8px; left: 50%;
+  width: 16px; height: 16px; margin-left: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff8a80, var(--pin) 55%, #8f1414);
+  box-shadow: 2px 3px 4px rgba(0,0,0,.4);
+}
+.note.tape::before {
+  width: 90px; height: 24px; top: -10px; margin-left: -45px; border-radius: 2px;
+  background: rgba(255,255,255,.55); box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+.note h2 { font-family: var(--font-hand); font-weight: 700; font-size: 25px; line-height: 1.1; margin: 0 0 8px; }
+.note p { margin: 0 0 8px; }
+.note p:last-child { margin-bottom: 0; }
+.note ul, .note ol { margin: 0; padding-left: 1.15em; display: grid; gap: 5px; }
+.note .why { color: var(--blue-ink); }
+.note .red { color: var(--red); }
+.note code, .note .mono { font-family: var(--font-code); font-size: 14.5px; background: rgba(0,0,0,.06); padding: 0 3px; border-radius: 2px; white-space: nowrap; }
+.note .big { font-family: var(--font-code); font-size: 19px; font-weight: 600; }
+.note small { color: var(--pencil); font-size: 15px; }
+.yellow { background: var(--yellow); }
+.blue { background: var(--blue); }
+.pink { background: var(--pink); }
+.green { background: var(--green); }
+.white { background: var(--white); background-image: repeating-linear-gradient(transparent 0 25px, #c9d8e6 25px 26px); background-position: 0 50px; }
+.orange { background: var(--orange); }
+.wide { grid-column: span 2; }
+.kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; }
+.kv dt { color: var(--pencil); }
+.kv dd { margin: 0; }
+.circle { border: 2px solid var(--red); border-radius: 50% 45% 50% 48%; padding: 0 6px; }
+.under { text-decoration: underline wavy var(--red); text-underline-offset: 3px; }
+.sketch { width: 100%; height: auto; display: block; margin: 4px 0 6px; }
+.sketch text { font-family: var(--font-note); }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; font-size: 16px; width: 100%; }
+td, th { padding: 2px 6px; border-bottom: 1px dashed rgba(0,0,0,.25); text-align: right; font-variant-numeric: tabular-nums; }
+th { font-weight: 400; color: var(--pencil); }
+td:first-child, th:first-child { text-align: left; }
+.check { list-style: none; padding-left: 0 !important; }
+.check li::before { content: "☐ "; font-family: var(--font-code); }
+.tag { display: inline-block; font-family: var(--font-code); font-size: 13px; background: rgba(0,0,0,.08); padding: 0 4px; border-radius: 2px; }
+
+.cta { display: grid; justify-items: center; gap: 10px; margin-top: 36px; }
+.cta p { margin: 0; color: #f6e7d2; font-size: 17px; text-align: center; }
+.gkey {
+  display: inline-grid;
+  place-items: center;
+  min-width: 260px;
+  padding: 16px 38px 14px;
+  font-family: var(--font-code);
+  font-weight: 600;
+  font-size: 28px;
+  letter-spacing: .12em;
+  color: var(--key-ink);
+  text-decoration: none;
+  background: linear-gradient(var(--key-top), var(--key-bot));
+  border: 2px solid #5f6b75;
+  border-radius: 6px;
+  box-shadow: inset 0 2px 0 #fff, 0 5px 0 #4b555e, 0 10px 18px rgba(0,0,0,.4);
+  transition: transform .08s ease, box-shadow .08s ease;
+}
+.gkey small { font-family: var(--font-note); font-size: 15px; letter-spacing: 0; font-weight: 400; color: #4d5861; }
+.gkey:hover { background: linear-gradient(#ffffff, #d6dce1); }
+.gkey:active { transform: translateY(4px); box-shadow: inset 0 2px 0 #fff, 0 1px 0 #4b555e, 0 4px 8px rgba(0,0,0,.35); }
+.gkey:focus-visible { outline: 3px solid #ffd27a; outline-offset: 4px; }
+
+@media (max-width: 640px) {
+  .board { border-width: 8px; padding: 22px 12px 28px; }
+  .wide { grid-column: auto; }
+  .notes { grid-template-columns: minmax(0, 1fr); }
+  .note { transform: rotate(calc(var(--r, 0deg) / 2)); }
+  .gkey { min-width: 0; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .note, .gkey { transition: none; } .note:hover { transform: rotate(var(--r, 0deg)); } }
+</style>
+</head>
+<body>
+
+<div class="board">
+  <header class="title">
+    <h1>Flange Ø140 · Fanuc lathe</h1>
+    <p>Turning + face milling · O1001 · CNMEC, small CNC workshop</p>
+  </header>
+
+  <div class="notes">
+    <article class="note white wide tape" style="--r:-.6deg">
+      <h2>The part</h2>
+      <svg class="sketch" viewBox="0 0 560 190" role="img" aria-label="Section sketch: Ø160 bar in the jaws, Ø140 flange 20 mm long, Ø80 spigot 50 mm long with a 37 mm deep face pocket">
+        <rect x="20" y="20" width="60" height="30" fill="#8a8f94"/>
+        <text x="22" y="14" font-size="15" fill="#4d4a44">jaws</text>
+        <rect x="20" y="50" width="160" height="120" fill="#e3e0d8" stroke="#8a8f94" stroke-dasharray="4 3"/>
+        <path d="M120 58 H210 V168 H120 Z" fill="#c9cfd4" stroke="#4d4a44" stroke-width="2"/>
+        <path d="M210 82 H390 L400 92 V134 L390 144 H210 Z" fill="#c9cfd4" stroke="#4d4a44" stroke-width="2"/>
+        <rect x="262" y="96" width="138" height="34" fill="#fbfaf5" stroke="#1f4f8f" stroke-width="1.5" stroke-dasharray="5 3"/>
+        <line x1="10" y1="113" x2="550" y2="113" stroke="#4d4a44" stroke-dasharray="10 4 2 4"/>
+        <line x1="400" y1="20" x2="400" y2="180" stroke="#c4232b" stroke-width="1.5"/>
+        <text x="406" y="34" font-size="16" fill="#c4232b">Z0</text>
+        <text x="130" y="186" font-size="16" fill="#23201b">Ø140</text>
+        <text x="280" y="160" font-size="16" fill="#23201b">Ø80 × 50</text>
+        <text x="410" y="100" font-size="15" fill="#1f4f8f">pocket 37 mm</text>
+        <text x="410" y="134" font-size="15" fill="#1f4f8f">(live tool)</text>
+        <polygon points="470,66 460,44 480,44" fill="#f3a712" stroke="#5c4100"/>
+        <text x="486" y="60" font-size="16" fill="#23201b">T0202</text>
+      </svg>
+      <dl class="kv">
+        <dt>Machine</dt><dd>Fanuc lathe with C axis, Y axis and live tools</dd>
+        <dt>Program</dt><dd><code>O1001</code> · 947 lines</dd>
+        <dt>Stock</dt><dd>Ø160 bar · Z zero on the face</dd>
+      </dl>
+    </article>
+
+    <article class="note blue" style="--r:1.2deg">
+      <h2>Work cycle</h2>
+      <ol>
+        <li><b>Facing</b> Ø160 → centre</li>
+        <li><b>Roughing</b> Ø140 and Ø82, 3 mm per side</li>
+        <li><b>Finishing</b> the whole profile</li>
+        <li><b>Face pocket</b> with live tool T0101, in <code>G12.1</code></li>
+      </ol>
+      <p class="why">All the turning with <b>a single tool</b> (T0202).</p>
+    </article>
+
+    <article class="note yellow" style="--r:-1.2deg">
+      <h2>Cutting data</h2>
+      <dl class="kv">
+        <dt>Vc</dt><dd><span class="big">107</span> m/min <code>G96</code></dd>
+        <dt>Limit</dt><dd><code>G50 S5000</code></dd>
+        <dt>f</dt><dd>0.127 mm/rev <code>G99</code></dd>
+        <dt>Live tool</dt><dd><span class="circle">20 rpm</span> · 1,000–3,000 mm/min</dd>
+      </dl>
+      <p class="why">n = 1000·Vc / (π·D): at Ø160 → 213 rpm, at Ø7 → 5,000.</p>
+    </article>
+
+    <article class="note pink" style="--r:.9deg">
+      <h2 class="red">End mill at 20 rpm!</h2>
+      <p><code>G97 S20 M3 P12</code></p>
+      <p>At 1,000 mm/min with 2 flutes: <b>25 mm per tooth</b>.</p>
+      <p class="why">The cutter breaks on first contact. Check T1's rpm in Fusion.</p>
+    </article>
+
+    <article class="note orange" style="--r:-1.5deg">
+      <h2>Other warnings</h2>
+      <ul>
+        <li><code>G50 S5000</code> with a Ø160 bar <span class="why">→ chuck limit?</span></li>
+        <li>Roughing at 0.127 like the finish <span class="why">→ 23 of 29 min</span></li>
+        <li><code>G1 … F60.075</code> = “disguised” rapid</li>
+        <li>Machine M codes to confirm</li>
+      </ul>
+    </article>
+
+    <article class="note green" style="--r:1deg">
+      <h2>G96 or G97?</h2>
+      <p><code>G96</code>: <b>constant Vc</b>, rpm follows the diameter. For turning.</p>
+      <p><code>G97</code>: <b>fixed rpm</b>. For approaches, live tools and before rapids.</p>
+      <p class="why">With G96 you always need the <code>G50</code> cap.</p>
+    </article>
+
+    <article class="note white" style="--r:-.5deg">
+      <h2>Polar interpolation</h2>
+      <p><code>G12.1</code>: X (diameter) and C behave like a mill's X and Y.</p>
+      <p>The spindle is stopped and acts as a C axis: <code>M5 P11</code>, <code>M35</code>, <code>G28 H0.</code></p>
+      <p class="why">End: <code>G13.1</code>.</p>
+    </article>
+
+    <article class="note blue" style="--r:1.4deg">
+      <h2>U V W H</h2>
+      <dl class="kv">
+        <dt>U</dt><dd>incremental X</dd>
+        <dt>V</dt><dd>incremental Y</dd>
+        <dt>W</dt><dd>incremental Z</dd>
+        <dt>H</dt><dd>incremental C</dd>
+      </dl>
+      <p class="why"><code>G28 U0. V0.</code> then <code>G28 W0.</code>: out in X first, then back in Z.</p>
+    </article>
+
+    <article class="note yellow" style="--r:-1deg">
+      <h2>Before Cycle Start</h2>
+      <ul class="check">
+        <li>Chuck max rpm ≥ G50</li>
+        <li>≥ 75 mm out of the jaws</li>
+        <li>Sub-spindle at home</li>
+        <li>T0202 and T0101 measured</li>
+        <li>Live tool stick-out ≥ 40 mm</li>
+        <li>Live tool rpm corrected</li>
+        <li>Single block, low override</li>
+      </ul>
+    </article>
+
+    <article class="note pink" style="--r:1.6deg">
+      <h2>Watch out!</h2>
+      <p>During facing the rpm <b>climbs by itself</b> up to 5,000 as the tool reaches the centre.</p>
+      <p class="why">It's not a machine fault: it's <code>G96</code>.</p>
+    </article>
+
+    <article class="note white" style="--r:-.8deg">
+      <h2>To confirm</h2>
+      <small>in the lathe manual</small>
+      <ul>
+        <li><code>M24/M25</code>, <code>M34/M35</code>, <code>M89/M90</code>, <code>M110/M111</code></li>
+        <li><code>P11</code> = spindle, <code>P12</code> = live tools</li>
+        <li>Diameter of the T0101 cutter (the pocket depends on it)</li>
+      </ul>
+    </article>
+  </div>
+
+  <div class="cta">
+    <a class="gkey" href="analysis-flange-lathe.html">G-CODE<small>block-by-block explanation</small></a>
+    <p>Open the program on the control screen, with the reason for every line.</p>
+  </div>
+</div>
+
+</body>
+</html>

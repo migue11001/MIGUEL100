@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Doosan threaded pin analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: pannello di controllo CNC — barra di stato, riga messaggi, finestre (editor / spiegazione / posizione), softkey verticali a destra e orizzontali in basso. Un unico aspetto chiaro industriale, di proposito. */
+:root {
+  --frame: #b9c1c8;
+  --win: #eef1f3;
+  --paper: #ffffff;
+  --ink: #1b232a;
+  --muted: #5a6670;
+  --rule: #98a3ad;
+  --head: #34495a;
+  --head-ink: #f4f7f9;
+  --accent: #0a6a8c;
+  --cursor: #f3a712;
+  --cursor-ink: #1b1400;
+  --key-top: #fbfcfc;
+  --key-bot: #c8cfd5;
+  --key-on: #ffd27a;
+  --ok: #2c7a3a;
+  --warn: #b76a00;
+  --warn-bg: #fff1d6;
+  --err: #c0262d;
+  --err-bg: #fde3e3;
+  --steel: #c4ccd3;
+  --steel-dark: #7d8a95;
+  --code-g: #0a5d9e;
+  --code-m: #7a3a9a;
+  --code-c: #2f7d4a;
+  --font-ui: "Barlow Semi Condensed", "Arial Narrow", Arial, sans-serif;
+  --font-code: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--frame);
+  color: var(--ink);
+  font: 15px/1.45 var(--font-ui);
+  padding-inline: 16px;
+  padding-block: 16px;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.hmi {
+  max-width: 1480px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 128px;
+  grid-template-areas: "bar bar" "msg msg" "work vkeys" "hkeys hkeys";
+  gap: 4px;
+  background: #8d979f;
+  padding: 4px;
+  border: 1px solid #6f7a83;
+}
+
+/* barra superiore */
+.bar { grid-area: bar; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px; }
+.bar > div { background: var(--head); color: var(--head-ink); padding: 6px 12px; display: flex; align-items: center; gap: 10px; min-width: 0; }
+.area { font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.path { font-family: var(--font-code); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chan { font-weight: 600; letter-spacing: .04em; }
+.chan .led { width: 10px; height: 10px; border-radius: 50%; background: #58c26a; box-shadow: 0 0 0 2px #2a3a47; }
+
+/* riga messaggi */
+.msg { grid-area: msg; background: var(--paper); border: 1px solid var(--rule); padding: 5px 10px; display: flex; gap: 10px; align-items: baseline; min-height: 34px; font-weight: 500; }
+.msg .tag { font-weight: 700; letter-spacing: .05em; text-transform: uppercase; font-size: 12px; padding: 1px 6px; border-radius: 2px; flex: none; }
+.msg.ok .tag { background: #dcefdf; color: var(--ok); }
+.msg.warn { background: var(--warn-bg); }
+.msg.warn .tag { background: var(--warn); color: #fff; }
+.msg.err { background: var(--err-bg); }
+.msg.err .tag { background: var(--err); color: #fff; }
+
+/* zona finestre */
+.work { grid-area: work; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); grid-template-areas: "editor info" "pos info"; gap: 4px; min-width: 0; }
+.win { background: var(--win); border: 1px solid var(--rule); display: flex; flex-direction: column; min-width: 0; }
+.win-h { background: linear-gradient(#4a6274, var(--head)); color: var(--head-ink); padding: 4px 10px; font-weight: 600; letter-spacing: .03em; display: flex; justify-content: space-between; gap: 8px; min-width: 0; }
+.win-h small { font-weight: 400; opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.editor { grid-area: editor; }
+.info { grid-area: info; }
+.pos { grid-area: pos; }
+
+/* editor */
+.code { font-family: var(--font-code); font-size: 13.5px; background: var(--paper); margin: 6px; border: 1px solid var(--rule); overflow: auto; max-height: 340px; flex: 1; }
+.ln { display: grid; grid-template-columns: 4.2em 1.2em minmax(0, 1fr); align-items: baseline; padding: 1px 6px 1px 0; cursor: pointer; white-space: pre; border-left: 4px solid transparent; }
+.ln:hover { background: #eaf3f7; }
+.ln .no { color: var(--muted); text-align: right; padding-right: 8px; font-size: 11.5px; user-select: none; }
+.ln .flag { font-size: 11px; font-weight: 700; }
+.ln.warn .flag { color: var(--warn); }
+.ln.err .flag { color: var(--err); }
+.ln.mark { background: #e3f0f6; border-left-color: var(--accent); }
+.ln.cur { background: var(--cursor); color: var(--cursor-ink); border-left-color: #a46c00; }
+.ln.cur .no, .ln.cur .t-n, .ln.cur .t-g, .ln.cur .t-m, .ln.cur .t-c { color: var(--cursor-ink); }
+.ln.blank { cursor: default; }
+.ln.gap { color: var(--muted); font-style: italic; background: repeating-linear-gradient(135deg, #f4f6f7 0 6px, #eceff1 6px 12px); }
+.ln.gap.cur { background: var(--cursor); }
+.t-n { color: var(--muted); }
+.t-g { color: var(--code-g); font-weight: 600; }
+.t-m { color: var(--code-m); font-weight: 600; }
+.t-c { color: var(--code-c); font-style: italic; }
+
+/* posizione */
+.pos-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin: 6px 6px 0; }
+.axis { background: var(--paper); border: 1px solid var(--rule); padding: 3px 8px; display: flex; justify-content: space-between; align-items: baseline; gap: 6px; min-width: 0; }
+.axis b { font-size: 12px; color: var(--muted); letter-spacing: .05em; }
+.axis span { font-family: var(--font-code); font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.modal { margin: 4px 6px 0; background: var(--paper); border: 1px solid var(--rule); padding: 4px 8px; font-family: var(--font-code); font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.modal i { font-style: normal; color: var(--muted); font-family: var(--font-ui); font-size: 12px; }
+.scene { margin: 6px; background: var(--paper); border: 1px solid var(--rule); position: relative; }
+.scene canvas { display: block; width: 100%; }
+.scene .cap { position: absolute; left: 8px; top: 4px; font-size: 12px; color: var(--muted); pointer-events: none; }
+
+/* spiegazione */
+.info-body { padding: 10px 14px 14px; overflow: auto; max-height: 720px; display: grid; gap: 12px; align-content: start; }
+.chip { display: inline-flex; gap: 6px; align-items: center; font-weight: 700; font-size: 12.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--head-ink); background: var(--accent); padding: 2px 8px; border-radius: 2px; justify-self: start; }
+.blk { font-family: var(--font-code); font-size: 15px; background: var(--paper); border: 1px solid var(--rule); border-left: 4px solid var(--cursor); padding: 6px 10px; overflow-x: auto; white-space: pre; }
+.sec { display: grid; gap: 4px; }
+.sec h3 { margin: 0; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.sec h3::after { content: ""; flex: 1; border-top: 1px solid var(--rule); }
+.sec p { margin: 0; max-width: 68ch; }
+.sec ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; max-width: 70ch; }
+.sec.why h3 { color: var(--accent); }
+.sec.why { background: var(--paper); border: 1px solid #bcd6e1; padding: 8px 12px 10px; }
+.sec.risk { border-left: 4px solid var(--warn); background: var(--warn-bg); padding: 6px 10px; }
+.sec.risk.err { border-left-color: var(--err); background: var(--err-bg); }
+.sec.risk h3 { color: var(--warn); }
+.sec.risk.err h3 { color: var(--err); }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--paper); }
+th, td { border: 1px solid #c3cbd2; padding: 4px 8px; text-align: left; vertical-align: top; }
+th { background: #dfe5ea; font-weight: 600; font-size: 13px; }
+td.num, th.num { text-align: right; font-family: var(--font-code); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td code, p code, li code { font-family: var(--font-code); font-size: .92em; background: #e8edf1; padding: 0 3px; border-radius: 2px; }
+tr.hit td { background: #fff3d1; }
+tr.click { cursor: pointer; }
+tr.click:hover td { background: #eaf3f7; }
+td.bad { color: var(--err); font-weight: 600; }
+td.meh { color: var(--warn); font-weight: 600; }
+
+.card { background: var(--paper); border: 1px solid var(--rule); border-left: 5px solid var(--warn); padding: 8px 12px; display: grid; gap: 6px; cursor: pointer; text-align: left; }
+.card.err { border-left-color: var(--err); }
+.card.on { box-shadow: 0 0 0 2px var(--cursor); }
+.card h4 { margin: 0; font-size: 16px; display: flex; gap: 8px; align-items: baseline; }
+.card h4 .n { font-family: var(--font-code); font-size: 12px; color: var(--muted); }
+.card .lbl { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.card p { margin: 0; max-width: 70ch; }
+.check { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; align-items: start; background: var(--paper); border: 1px solid var(--rule); padding: 8px 12px; }
+.check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--ok); }
+.check label { font-weight: 600; cursor: pointer; }
+.check p { grid-column: 2; margin: 0; color: var(--muted); }
+.check.done label { text-decoration: line-through; color: var(--ok); }
+.note { font-size: 13.5px; color: var(--muted); max-width: 72ch; margin: 0; }
+
+/* softkey */
+.vkeys { grid-area: vkeys; display: grid; grid-auto-rows: minmax(54px, auto); gap: 4px; align-content: start; }
+.hkeys { grid-area: hkeys; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; }
+.sk { background: linear-gradient(var(--key-top), var(--key-bot)); border: 1px solid #77838d; border-radius: 3px; box-shadow: inset 0 1px 0 #fff, 0 1px 0 #6d7881; padding: 6px 8px; min-height: 48px; font-weight: 600; line-height: 1.15; text-align: center; cursor: pointer; }
+.sk:hover:not(:disabled) { background: linear-gradient(#ffffff, #d7dde2); }
+.sk:active:not(:disabled) { box-shadow: inset 0 2px 3px rgba(0,0,0,.25); }
+.sk.on { background: linear-gradient(#fff3d6, var(--key-on)); border-color: #a46c00; }
+.sk:disabled { cursor: default; color: transparent; background: linear-gradient(#e3e7ea, #cdd3d8); box-shadow: none; }
+a.sk { text-decoration: none; color: inherit; display: flex; flex-direction: column; justify-content: center; }
+.sk small { display: block; font-weight: 400; font-size: 11.5px; color: var(--muted); }
+
+@media (max-width: 1100px) {
+  .work { grid-template-columns: minmax(0, 1fr); grid-template-areas: "editor" "info" "pos"; }
+  .code { max-height: 260px; }
+  .info-body { max-height: none; }
+}
+@media (max-width: 760px) {
+  body { padding-inline: 8px; }
+  .hmi { grid-template-columns: minmax(0, 1fr); grid-template-areas: "bar" "msg" "vkeys" "work" "hkeys"; }
+  .bar { grid-template-columns: minmax(0, 1fr) auto; }
+  .bar .path-box { grid-column: 1 / -1; order: 3; }
+  .vkeys { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: auto; }
+  .hkeys { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sk:disabled { display: none; }
+  .sk { min-height: 42px; font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="hmi" id="hmi">
+  <header class="bar">
+    <div class="area">Program</div>
+    <div class="path-box"><span class="path" id="path"></span></div>
+    <div class="chan"><span class="led" aria-hidden="true"></span>CHANNEL 1 · RESET</div>
+  </header>
+
+  <div class="msg ok" id="msg" role="status"><span class="tag">Info</span><span id="msgText"></span></div>
+
+  <main class="work">
+    <section class="win editor" aria-label="Program editor">
+      <div class="win-h"><span>Editor</span><small id="edName"></small></div>
+      <div class="code" id="code" tabindex="0" aria-label="Program lines. Use the arrow keys to move."></div>
+    </section>
+
+    <section class="win info" aria-live="polite">
+      <div class="win-h"><span id="infoTitle">Explanation</span><small id="infoSub"></small></div>
+      <div class="info-body" id="info"></div>
+    </section>
+
+    <section class="win pos" aria-label="Position and status">
+      <div class="win-h"><span>Work position</span><small id="posSub"></small></div>
+      <div class="pos-grid" id="axes"></div>
+      <div class="modal" id="pMod"><i>G modals:</i> —</div>
+      <div class="scene"><span class="cap" id="cap"></span><canvas id="cv" height="220" aria-label="Drawing of the operation toolpath and tool position"></canvas></div>
+    </section>
+  </main>
+
+  <nav class="vkeys" id="vkeys" aria-label="Vertical softkeys"></nav>
+  <nav class="hkeys" id="hkeys" aria-label="Horizontal softkeys"></nav>
+</div>
+
+<script>
+(function () {
+"use strict";
+const D = {"key":"perno-filettato","board":"board-threaded-pin.html","axes":["X","Z","C","S SPINDLE","LIVE TOOL","F","T","SPINDLE","COOLANT"],"posSub":"X in diameter · mm","zLabel":"Z","info":{"pct":{"que":"Start or end-of-file marker.","pq":["The control only reads what is between the two % signs."]},"l3":{"params":[["G0","Rapid."],["G18","XZ plane, the lathe plane."],["G21","Millimetres."],["G40","No tool nose radius compensation."],["G54","Work zero."],["G80","No canned cycle."],["G99","Feed in mm/rev."],["M110","Machine function (see below)."]],"que":"Safety line: puts the machine in a known state before moving any axis.","pq":["G99 is the normal lathe mode: feed is in millimetres per spindle revolution, so the chip thickness stays the same even when the speed changes.","Machine-specific code: the meaning here is inferred from how the program uses it. Confirm it in the lathe manual. M110 appears at the start and end of every turning op: it probably disables a mode (C axis or spindle positioning)."]},"m24":{"que":"Machine M code at program start (M24; M25 at the end).","pq":["Machine-specific code: the meaning here is inferred from how the program uses it. Confirm it in the lathe manual."]},"sub":{"que":"Rapid in machine coordinates (G53): the sub-spindle (B axis) returns to its home position.","pq":["On a lathe with a sub-spindle, B is the axis that moves it. It must be moved away before the turret moves, to avoid hitting it.","The post does this at the start of every operation."]},"g28uv":{"que":"Return to machine reference in X and Y (U and V = incremental moves, zero = directly).","pq":["On a lathe U, V and W are the incremental versions of X, Y and Z. G28 U0. V0. means “go to reference in X and Y with no intermediate point”.","X first (the turret moves away from the part axis), then Z on the next line: always retract in X first."]},"g28w":{"que":"Return to machine reference in Z.","pq":["The turret backs off in Z, away from the part, after already retracting in X."]},"m90":{"que":"M90: releases the C-axis brake (inferred: used before moving C or spinning the spindle).","pq":["Machine-specific code: the meaning here is inferred from how the program uses it. Confirm it in the lathe manual."]},"g54":{"que":"Activates G54 work zero: Z0 on the part face, X0 on the axis.","pq":["On a lathe X0 is always the rotation axis: X values are diameters."]},"turnmode":{"que":"Feed mm/rev, XZ plane and M34: turning mode (inferred: the spindle runs as a spindle, not as a C axis).","pq":["Machine-specific code: the meaning here is inferred from how the program uses it. Confirm it in the lathe manual.","For live-tool milling the post writes G98 G18 M35 instead: mm/min and spindle as C axis."]},"m8":{"que":"Turns coolant on.","pq":["Cools the insert and flushes chips out of the cutting zone."]},"m1":{"que":"Optional stop.","pq":["With Optional Stop on the machine stops: time to measure the diameters before milling."]},"g97back":{"que":"Back to fixed rpm before changing operation.","pq":["That way, during rapids or if the program stops here, rpm doesn't change with every X move."]},"m111":{"que":"Machine M code before the end (paired with M110).","pq":["Machine-specific code: the meaning here is inferred from how the program uses it. Confirm it in the lathe manual."]},"m25":{"que":"Machine M code at the end of the program (M24 was at the start).","pq":["Machine-specific code: the meaning here is inferred from how the program uses it. Confirm it in the lathe manual."]},"m30":{"que":"End of program and rewind.","pq":["Stops spindle, live tool and coolant."]},"oname":{"lvl":"warn","que":"Program number: O1001.","pq":["It's the third program with this number: the flange (same Doosan post) and the Okuma M20 thread are also called 1001."],"riesgo":"The flange is for the same machine: loading one program overwrites the other."},"g50":{"que":"Limits the spindle to 5,000 rpm.","pq":["With G96 rpm rises as diameter drops: at the face centre and during parting it hits the limit.","On a Ø50.8 bar the limit is reasonable, but compare it with the chuck's."]},"t0100":{"lvl":"err","que":"Turret to station 1 with offset 00.","pq":["On a Fanuc lathe: the first two digits are the station, the last two the offset. “00” means no offset.","In the flange and the pin the same post writes T0202, T0101: here the offset number in Fusion was left at 0."],"riesgo":"With the standard Fanuc parameter (LGN = 0) the geometry offset is taken from the last two digits: with 00 the machine doesn't know where the insert tip is and every dimension is shifted. See Errors."},"t0200":{"lvl":"err","que":"Turret to station 2 (grooving and parting tool) with offset 00.","riesgo":"Same problem as T0100."},"t0300":{"lvl":"err","que":"Turret to station 3 (threading tool) with offset 00.","riesgo":"Without an offset the thread diameter is wrong: every tenth of error in X changes the thread root."},"s409":{"que":"Main spindle at a fixed 409 rpm for the approach.","pq":["409 rpm is what G96 S91 gives at Ø71, the starting diameter."]},"x71":{"que":"Rapid to Ø71.12, 10 mm above the Ø50.8 (2\") stock.","pq":["The dimensions come from an inch model: 50.8 = 2\", 71.12 = 2.8\"."]},"g96":{"que":"Constant surface speed: 91 m/min (about 300 ft/min).","pq":["A cautious value for steel with a carbide insert."]},"rough1":{"que":"First roughing pass: Ø48.594 (1.1 mm per side) at 0.127 mm/rev.","pq":["Passes step down 2.54 mm on diameter (0.1\"): 1.27 mm per side.","Roughing and finishing are both done by tool T01."]},"roughlong":{"lvl":"warn","que":"Turning to Z-54.14.","pq":["The Ø44 is roughed and finished to Z-54.14."],"riesgo":"But parting is at Z-44.64: about 9.5 mm of Ø44 is turned and then thrown away with the offcut. Check the model length in Fusion."},"facecenter":{"lvl":"warn","que":"Longitudinal pass at Ø0.02: the tool turns right at the centre.","pq":["Fusion removes the 2.54 mm off the face with ever-smaller Z passes down to the centre, instead of a facing op."],"riesgo":"At the centre rpm rises to 5,000 and the insert cuts with its tip on a near-zero diameter. A separate facing op before the profile is safer."},"finface":{"que":"Finishing: the tool reaches the finished face (Z-2.54) past centre.","pq":["It goes 0.8 mm (radius) past X0 so no “pip” is left at the centre."]},"finface2":{"que":"Face finished from the inside out to Ø21.26.","pq":["Then R0.8 fillet and 45° chamfer towards the thread diameter."]},"finchamf":{"que":"45° thread lead-in chamfer (from Ø22.4 to Ø24.8).","pq":["The thread starts on a chamfer: the first thread isn't left sharp and the screw starts more easily."]},"findia":{"que":"Thread major diameter: Ø25.255 to Z-27.94.","pq":["The major diameter is made slightly under nominal: the thread crest must not touch the nut root."]},"finshoulder":{"que":"Shoulder at Z-27.94 up to Ø42.394, then R0.8 fillet towards Ø44.","pq":["The shoulder is where the screw seats."]},"grvz":{"que":"Rapid to the groove position: Z-27.94, flush with the shoulder.","pq":["The thread relief groove goes right before the shoulder: that's where the thread ends."]},"grv":{"lvl":"warn","que":"Groove: G1 plunge from Ø71.12 to Ø23.674.","pq":["The grooving tool plunges straight and comes back: the groove width is the insert width.","The groove lets the threading tool exit without hitting the shoulder."],"riesgo":"The groove floor (Ø23.674) is higher than the thread root (Ø23.223, and it should be about Ø22.8): the groove doesn't really relieve the thread. Also, from Ø71 to Ø44 the tool feeds at 0.127 mm/rev through air."},"grvout":{"lvl":"warn","que":"Retract to Ø71.12 in G1 — at cutting feed.","pq":["From Ø44 to Ø71 the tool is in air: it could exit in G0. Entry and exit in air are about two thirds of the groove time."]},"s500":{"que":"Fixed 500 rpm (G97) for threading.","pq":["As with the M20 thread: with fixed rpm every pass lands in the same groove.","Carriage: 500 × 2 = 1,000 mm/min. Vc = π·25.255·500/1000 ≈ 40 m/min."]},"thstart":{"lvl":"warn","que":"Pass start point: Z1.342.","pq":["The finished face is at Z-2.54: the carriage has 3.9 mm (less than 2 pitches) to accelerate to 1,000 mm/min."],"riesgo":"On the M20 thread the distance was 5 pitches. With little room the first threads may come out with a distorted pitch."},"pass1":{"que":"Pass 1 of 5: rapid down to Ø24.849.","pq":["Each pass goes 0.203 mm deeper per side (0.406 on diameter): constant depth."]},"g32":{"params":[["G32","Block-by-block threading, synchronised with the spindle."],["Z-26.031","End of the straight section."],["F2.","Pitch 2 mm (G99: mm per rev)."],["1 · X24.849","depth 0.203 mm per side · section removed: 1 unit"],["2 · X24.442","depth 0.406 mm per side · section removed: 3 units"],["3 · X24.036","depth 0.609 mm per side · section removed: 5 units"],["4 · X23.63","depth 0.812 mm per side · section removed: 7 units"],["5 · X23.223","depth 1.016 mm per side · section removed: 9 units"]],"que":"Threads the pass from Z1.342 to Z-26.031, 2 mm per rev.","pq":["The control waits for the encoder's once-per-rev signal before starting: every pass lands in the same groove.","Constant depth: the chip section grows with every pass (1, 3, 5, 7, 9 units)."]},"thexit":{"que":"Thread run-out: rises diagonally to Ø25.255 still synchronised.","pq":["The carriage can't stop dead at 1,000 mm/min: it ramps out."]},"thret":{"que":"Radial retract to Ø30.335 and then rapid to Z1.342.","pq":["Out in X first, then back in Z: the return doesn't touch the thread."]},"lastpass":{"lvl":"err","que":"Last pass: Ø23.223.","pq":["Total depth: (25.255 − 23.223) / 2 = 1.016 mm per side (0.04\")."],"riesgo":"For a 2 mm pitch the depth of a metric external thread is 0.6134 × 2 = 1.227 mm. The root should be at about Ø22.8: the nut won't go on. It's the same mistake as the M20 thread."},"partz":{"que":"Rapid to the parting position: Z-44.64.","pq":["The finished part will be about 42 mm long (from Z-2.54), minus the blade width."]},"partoff":{"lvl":"warn","que":"Parting off: from Ø71 to X-1.6, at a constant 0.127 mm/rev.","pq":["The blade goes past centre: the part drops.","With G96 rpm rises up to 5,000 towards the centre."],"riesgo":"Constant feed all the way to centre: near the centre the part snaps off instead of being cut and leaves a pip. Usually the feed is reduced in the last few millimetres. No parts catcher in the program (or it's one of the M codes to confirm)."},"g350":{"que":"G350 “CONFIRM CUTOFF”: checks that the part-off actually happened.","pq":["Doosan-specific code: the meaning here is inferred from how the program uses it. Confirm it in the machine manual."]},"g4":{"que":"0.5 second dwell (G4 U0.5).","pq":["On a Fanuc lathe U in a G4 is the time in seconds: it waits for the part to drop before stopping the spindle."]},"m5p11":{"que":"Stops the main spindle.","pq":["The part is already off."]},"m34end":{"que":"M34 at the end: puts the spindle back into turning mode (inferred).","pq":["Doosan-specific code: the meaning here is inferred from how the program uses it. Confirm it in the machine manual."]}},"errors":[{"lvl":"err","t":"Offsets 00: T0100, T0200, T0300","pq":"On a Fanuc lathe the last two digits of T are the offset. With 00 no offset is active: with the standard parameter (LGN = 0) the machine applies neither geometry nor wear and the insert tip isn't where the program thinks. In the flange and the pin the same post writes T0202 and T0101.","sol":"In Fusion, on each tool, set “Compensation offset” = station number (1, 2, 3) and re-post: T0101, T0202, T0303.","prog":"p","lines":[14,122,146,191]},{"lvl":"err","t":"Thread too shallow: the nut won't go on","pq":"The programmed root is Ø23.223: 1.016 mm depth per side. A metric 2 mm pitch external thread is 0.6134 × 2 = 1.227 mm deep, so the root should be at about Ø22.8. The nut (minimum minor diameter about 25 − 1.0825 × 2 ≈ Ø22.8) hits the root of your thread.","sol":"In Fusion, in the threading operation, depth = 1.227 mm (or pick the thread from the table). Same mistake as the M20 thread.","prog":"p","lines":[153,172]},{"lvl":"warn","t":"Constant-depth passes, no spring pass","pq":"5 passes of 0.203 mm per side: chip section grows as 1, 3, 5, 7, 9. The last pass works 9 times as hard as the first. And there's no spring pass to clean up what tool deflection leaves.","sol":"Decreasing depth (constant section), 8–10 passes and a spring pass.","prog":"p","lines":[152,172]},{"lvl":"warn","t":"Too little run-up before the thread","pq":"Passes start at Z1.342, 3.9 mm before the face (Z-2.54): less than 2 pitches. The carriage must reach 1,000 mm/min before touching material.","sol":"Start at least 3–5 pitches earlier: about Z8.","prog":"p","lines":[151]},{"lvl":"warn","t":"Groove shallower than the thread","pq":"The groove goes down to Ø23.674; the thread (already too shallow) reaches Ø23.223, and done right it would reach Ø22.8. On exit the threading tool cuts below the groove floor.","sol":"Groove floor at least 0.2 mm below the thread root: about Ø22.4.","prog":"p","lines":[129]},{"lvl":"warn","t":"Profile turned beyond the part-off","pq":"Roughing and finishing reach Z-54.14, but the part is cut off at Z-44.64: about 9.5 mm of Ø44 machined for nothing on every part.","sol":"Check the stock and profile limit in Fusion: stop it just past the part-off (blade width + 1 mm).","prog":"p","lines":[24,198]},{"lvl":"warn","t":"Same O1001 number as the flange","pq":"The flange and the threaded pin are for the same machine (same Doosan post) and both are called O1001. In the control memory one overwrites the other.","sol":"Give each program a different number in Fusion before posting.","prog":"p","lines":[2]}],"checks":[{"t":"Correct offsets for T01, T02, T03","pq":"The program calls 00: fix the program or the parameters before running.","prog":"p","lines":[14,122,146,191]},{"t":"Ø50.8 bar with at least 50 mm out of the jaws","pq":"Turning goes to Z-54.14.","prog":"p","lines":[24]},{"t":"T02 blade width and reference (left or right edge)","pq":"Decides where the groove and part-off really land.","prog":"p","lines":[128,197]},{"t":"Threading insert: 2 mm pitch, 60° profile","pq":"The machine makes the pitch, but the profile has to be right.","prog":"p","lines":[146]},{"t":"Parts catcher or tray for the cut-off part","pq":"The part drops at 5,000 rpm.","prog":"p","lines":[198]},{"t":"First run: single block before the thread","pq":"During G32 Feed Hold doesn't stop the carriage.","prog":"p","lines":[151]}],"codes":[["G99","Feed mm/rev","For turning and threading: in G32 F2. is the pitch.","\\bG99\\b"],["G96 / G97","Constant Vc / fixed rpm","G96 for turning, G97 mandatory for threading.","\\bG9[67]\\b"],["G50 S","Speed limit","At the centre and during part-off rpm reaches 5,000.","G50 S"],["G32","Block-by-block threading","One pass per line, synchronised with the spindle.","\\bG32\\b"],["G0 / G1","Rapid / feed","The groove goes in and out in G1 even through air.","^G[01]\\b"],["G3","Counter-clockwise arc","R0.8 and R0.9 profile fillets.","^G3\\b"],["T0100 / T0200 / T0300","Tool + offset","Offset 00: error 1.","^T0[123]00$"],["G28 U0. V0. / W0.","Return to reference","X and Y first, then Z.","G28"],["G350","Part-off confirmation (Doosan)","To be confirmed in the manual.","G350"],["G4 U0.5","0.5 s dwell","Waits for the part to drop.","G4 U"],["M3 P11 / M5 P11","Main spindle","P11 = main spindle.","P11"],["M8 / M9","Coolant","On in every operation.","^M[89]$"],["M24 / M25, M110 / M111","Doosan functions","To be confirmed in the manual.","^M2[45]$|M11[01]"],["M1 / M30","Optional stop / end","M1 between tools.","^M1$|^M30$"]],"tools":{"head":["T","Tool","Operation","Speed","Feed","Time","Note"],"rows":[{"prog":"p","op":0,"cells":["T0100","External (rough + finish)","Profile","G96 91 m/min","0.127 mm/rev","3.3 min","offset 00"],"cls":[null,null,null,null,null,null,"bad"]},{"prog":"p","op":1,"cells":["T0200","Grooving / part-off","Groove","G96 91 m/min","0.127 mm/rev","37 s","offset 00"],"cls":[null,null,null,null,null,null,"bad"]},{"prog":"p","op":2,"cells":["T0300","External threading tool","P2 thread","G97 500 rpm","2 mm/rev","9 s","offset 00 · too shallow"],"cls":[null,null,null,null,null,null,"bad"]},{"prog":"p","op":3,"cells":["T0200","Grooving / part-off","Part-off","G96 91 m/min","0.127 mm/rev","42 s",""],"cls":[null,null,null,null,null,null,null]}],"lvl":"err","msg":"Estimated cutting time: 4.7 min per part. All three tools have offset 00.","note":"With G96 rpm changes along the move: time is integrated segment by segment, with the G50 limit."},"compare":null,"views":{"p:xz":{"b":[-75,-2,10,38],"ax":["Z","X/2"],"cap":"XZ section (half part) · grey: finished part","shapes":[{"rect":[-60,0,0,25.4],"fill":"#eef0f2","stroke":"#c4ccd3"},{"poly":[[-2.54,0],[-2.54,10.63],[-2.77,11.2],[-3.97,12.39],[-4.54,12.63],[-27.94,12.63],[-27.94,21.2],[-28.74,22],[-44.64,22],[-44.64,0]],"fill":"#c4ccd3","stroke":"#7d8a95"},{"dash":[-2.54,11.4,-26.2,11.4],"color":"#0a6a8c"},{"dash":[-44.64,0,-44.64,26],"color":"#c0262d"},{"rect":[-72,25.4,-60,31],"fill":"#7d8a95"},{"text":"jaws (assumed)","at":[-72,33]},{"text":"stock Ø50.8","at":[-14,26.4]},{"text":"P2 thread","at":[-20,13.5]},{"text":"Ø44","at":[-40,18]},{"text":"part-off","at":[-44,27.5]}],"ghost":null,"cross":false}},"progs":[{"id":"p","file":"doosan.nc","label":"O1001 · threaded pin","short":"O1001","shortSub":"","ctrl":"Doosan Puma · Fanuc · doosan post","lines":[[1,"%",""],[2,"O1001",""],[3,"G0 G18 G21 G40 G54 G80 G99 M110",""],[4,"M24",""],[5,"",""],[6,"N1(PROFILE1)","op"],[7,"G0 G28 G53 B0. (SUB SPINDLE RETURN)",""],[8,"G28 U0. V0.",""],[9,"G28 W0.",""],[10,"M90",""],[11,"G54",""],[12,"G99 G18 M34",""],[13,"G50 S5000",""],[14,"T0100",""],[15,"M8",""],[16,"G97 S409 M3 P11",""],[17,"G0 Z5.",""],[18,"X71.12 Y0.",""],[19,"G96 S91 M3 P11",""],[20,"Z1.437",""],[21,"X52.641",""],[22,"G1 X48.594 F0.127",""],[23,"X45.72 Z0.",""],[24,"Z-54.14",""],[25,"X50.8",""],[26,"X54.864",""],[27,"G0 Z1.437",""],[28,"X43.514",""],[29,"G1 X40.64 Z0.",""],[30,"Z-27.813",""],[31,"X42.394",""],[32,"G3 X44.248 Z-28.74 I0. K-0.927",""],[33,"G1 Z-54.14",""],[34,"X45.72",""],[35,"X48.594 Z-52.703",""],[36,"G0 Z1.437",""],[37,"X38.434",""],[38,"G1 X35.56 Z0.",""],[39,"Z-27.813",""],[40,"X42.394",""],[41,"G3 X43.18 Z-27.9 I0. K-0.927",""],[42,"G1 X46.054 Z-26.464",""],[43,"G0 Z1.437",""],[44,"X33.354",""],[45,"G1 X30.48 Z0.",""],[46,"Z-27.813",""],[47,"X38.1",""],[48,"X40.974 Z-26.376",""],[49,"G0 Z1.437",""],[50,"X28.274",""],[51,"G1 X25.4 Z0.",""],[52,"Z-4.224",""],[53,"G3 X25.509 Z-4.538 I-0.872 K-0.313",""],[54,"G1 Z-27.813",""],[55,"X33.02",""],[56,"X35.894 Z-26.376",""],[57,"G0 Z1.437",""],[58,"X23.194",""],[59,"G1 X20.32 Z0.",""],[60,"Z-2.413",""],[61,"X21.26",""],[62,"G3 X22.571 Z-2.685 I0. K-0.927",""],[63,"G1 X24.966 Z-3.882",""],[64,"G3 X25.509 Z-4.538 I-0.655 K-0.655",""],[65,"G1 X28.383 Z-3.101",""],[66,"G0 Z1.437",""],[67,"X18.114",""],[68,"G1 X15.24 Z0.",""],[69,"Z-2.413",""],[70,"X21.26",""],[71,"G3 X22.571 Z-2.685 I0. K-0.927",""],[72,"G1 X22.86 Z-2.829",""],[73,"X25.734 Z-1.392",""],[74,"G0 Z1.437",""],[75,"X13.034",""],[76,"G1 X10.16 Z0.",""],[77,"Z-2.413",""],[78,"X17.78",""],[79,"X20.654 Z-0.976",""],[80,"G0 Z1.437",""],[81,"X7.964",""],[82,"G1 X5.09 Z0.",""],[83,"Z-2.413",""],[84,"X12.7",""],[85,"X15.574 Z-0.976",""],[86,"G0 Z1.437",""],[87,"X2.894",""],[88,"G1 X0.02 Z0.",""],[89,"Z-2.413",""],[90,"X7.63",""],[91,"X10.504 Z-0.976",""],[92,"Z-1.103",""],[93,"X1.274",""],[94,"X-1.6 Z-2.54",""],[95,"X21.26",""],[96,"G3 X22.391 Z-2.774 I0. K-0.8",""],[97,"G1 X24.787 Z-3.972",""],[98,"G3 X25.255 Z-4.538 I-0.566 K-0.566",""],[99,"G1 Z-27.94",""],[100,"X42.394",""],[101,"G3 X43.994 Z-28.74 I0. K-0.8",""],[102,"G1 Z-54.14",""],[103,"X46.868 Z-52.703",""],[104,"X48.058",""],[105,"G0 X71.12",""],[106,"Z5.",""],[107,"G97 S409 M3 P11",""],[108,"M9",""],[109,"G28 U0. V0.",""],[110,"G28 W0.",""],[111,"M110",""],[112,"M1",""],[113,"",""],[114,"N2(SINGLE GROOVE1)","op"],[115,"G0 G28 G53 B0. (SUB SPINDLE RETURN)",""],[116,"G28 U0. V0.",""],[117,"G28 W0.",""],[118,"M90",""],[119,"G54",""],[120,"G99 G18 M34",""],[121,"G50 S5000",""],[122,"T0200",""],[123,"M8",""],[124,"G97 S409 M3 P11",""],[125,"G0 Z5.",""],[126,"X71.12 Y0.",""],[127,"G96 S91 M3 P11",""],[128,"Z-27.94",""],[129,"G1 X23.674 F0.127",""],[130,"X71.12",""],[131,"G0 Z5.",""],[132,"G97 S409 M3 P11",""],[133,"M9",""],[134,"G28 U0. V0.",""],[135,"G28 W0.",""],[136,"M110",""],[137,"M1",""],[138,"",""],[139,"N3(THREAD1)","op"],[140,"G0 G28 G53 B0. (SUB SPINDLE RETURN)",""],[141,"G28 U0. V0.",""],[142,"G28 W0.",""],[143,"M90",""],[144,"G54",""],[145,"G99 G18 M34",""],[146,"T0300",""],[147,"M8",""],[148,"G97 S500 M3 P11",""],[149,"G0 Z5.",""],[150,"X30.335 Y0.",""],[151,"Z1.342",""],[152,"X24.849",""],[153,"G32 Z-26.031 F2.",""],[154,"X25.255 Z-26.234 F2.",""],[155,"G0 X30.335",""],[156,"Z1.342",""],[157,"X24.442",""],[158,"G32 Z-25.828 F2.",""],[159,"X25.255 Z-26.234 F2.",""],[160,"G0 X30.335",""],[161,"Z1.342",""],[162,"X24.036",""],[163,"G32 Z-25.625 F2.",""],[164,"X25.255 Z-26.234 F2.",""],[165,"G0 X30.335",""],[166,"Z1.342",""],[167,"X23.63",""],[168,"G32 Z-25.422 F2.",""],[169,"X25.255 Z-26.234 F2.",""],[170,"G0 X30.335",""],[171,"Z1.342",""],[172,"X23.223",""],[173,"G32 Z-25.218 F2.",""],[174,"X25.255 Z-26.234 F2.",""],[175,"G0 X30.335",""],[176,"Z5.",""],[177,"M9",""],[178,"G28 U0. V0.",""],[179,"G28 W0.",""],[180,"M110",""],[181,"M1",""],[182,"",""],[183,"N4(PART1)","op"],[184,"G0 G28 G53 B0. (SUB SPINDLE RETURN)",""],[185,"G28 U0. V0.",""],[186,"G28 W0.",""],[187,"M90",""],[188,"G54",""],[189,"G99 G18 M34",""],[190,"G50 S5000",""],[191,"T0200",""],[192,"M8",""],[193,"G97 S409 M3 P11",""],[194,"G0 Z5.",""],[195,"X71.12 Y0.",""],[196,"G96 S91 M3 P11",""],[197,"Z-44.64",""],[198,"G1 X-1.6 F0.127",""],[199,"X71.12",""],[200,"G0 Z5.",""],[201,"G97 S409 M3 P11",""],[202,"G350 (CONFIRM CUTOFF)",""],[203,"G4 U0.5",""],[204,"M5 P11",""],[205,"M9",""],[206,"",""],[207,"M25",""],[208,"G28 U0. V0.",""],[209,"G28 W0.",""],[210,"G0 G28 G53 B0. (SUB SPINDLE RETURN)",""],[211,"M34",""],[212,"G54",""],[213,"",""],[214,"M111",""],[215,"M30",""],[216,"%",""]],"lineOp":[-1,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],"lineInfo":["pct","oname","l3","m24",null,null,"sub","g28uv","g28w","m90","g54","turnmode","g50","t0100","m8","s409",null,"x71","g96",null,null,"rough1",null,"roughlong",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"facecenter",null,null,null,null,null,"finface","finface2",null,"finchamf",null,"findia","finshoulder",null,null,null,null,null,null,"g97back",null,"g28uv","g28w",null,"m1",null,null,"sub","g28uv","g28w","m90","g54","turnmode","g50","t0200","m8","s409",null,"x71","g96","grvz","grv","grvout",null,"g97back",null,"g28uv","g28w",null,"m1",null,null,"sub","g28uv","g28w","m90","g54","turnmode","t0300","m8","s500",null,null,"thstart","pass1","g32","thexit","thret",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"lastpass","g32",null,null,null,null,"g28uv","g28w",null,"m1",null,null,"sub","g28uv","g28w","m90","g54","turnmode","g50","t0200","m8","s409",null,"x71","g96","partz","partoff",null,null,"g97back","g350","g4","m5p11",null,null,"m25","g28uv","g28w","sub","m34end","g54",null,"m111","m30","pct"],"st":[["—","—","—","—","stopped","—","—","stopped","off","G97"],["—","—","—","—","stopped","—","—","stopped","off","G97"],["—","—","—","—","stopped","—","—","stopped","off","G80  G18  G99  G97  G54"],["—","—","—","—","stopped","—","—","stopped","off","G80  G18  G99  G97  G54"],["—","—","—","—","stopped","—","—","stopped","off","G80  G18  G99  G97  G54"],["—","—","—","—","stopped","—","—","stopped","off","G80  G18  G99  G97  G54"],["—","—","—","—","stopped","—","—","stopped","off","G0  G18  G99  G97  G54"],["—","—","—","—","stopped","—","—","stopped","off","G0  G18  G99  G97  G54"],["—","—","—","—","stopped","—","—","stopped","off","G0  G18  G99  G97  G54"],["—","—","—","—","stopped","—","—","stopped","off","G0  G18  G99  G97  G54"],["—","—","—","—","stopped","—","—","stopped","off","G0  G18  G99  G97  G54"],["—","—","—","—","stopped","—","—","stopped","off","G0  G18  G99  G97  G54"],["—","—","—","—","stopped","—","—","stopped","off","G0  G18  G99  G97  G54  G50 S5.000"],["—","—","—","—","stopped","—","0100","stopped","off","G0  G18  G99  G97  G54  G50 S5.000"],["—","—","—","—","stopped","—","0100","stopped","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["—","—","—","409 rpm","stopped","—","0100","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["—","5.000","—","409 rpm","stopped","—","0100","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","—","0100","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","G96 91 m/min","stopped","—","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø71.120","1.437","—","G96 91 m/min","stopped","—","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø52.641","1.437","—","G96 91 m/min","stopped","—","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø48.594","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø45.720","0.000","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø45.720","-54.140","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø50.800","-54.140","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø54.864","-54.140","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø54.864","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø43.514","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø40.640","0.000","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø40.640","-27.813","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø42.394","-27.813","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø44.248","-28.740","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G3  G18  G99  G96  G54  G50 S5.000"],["Ø44.248","-54.140","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø45.720","-54.140","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø48.594","-52.703","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø48.594","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø38.434","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø35.560","0.000","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø35.560","-27.813","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø42.394","-27.813","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø43.180","-27.900","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G3  G18  G99  G96  G54  G50 S5.000"],["Ø46.054","-26.464","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø46.054","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø33.354","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø30.480","0.000","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø30.480","-27.813","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø38.100","-27.813","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø40.974","-26.376","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø40.974","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø28.274","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø25.400","0.000","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø25.400","-4.224","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø25.509","-4.538","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G3  G18  G99  G96  G54  G50 S5.000"],["Ø25.509","-27.813","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø33.020","-27.813","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø35.894","-26.376","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø35.894","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø23.194","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø20.320","0.000","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø20.320","-2.413","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø21.260","-2.413","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø22.571","-2.685","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G3  G18  G99  G96  G54  G50 S5.000"],["Ø24.966","-3.882","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø25.509","-4.538","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G3  G18  G99  G96  G54  G50 S5.000"],["Ø28.383","-3.101","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø28.383","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø18.114","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø15.240","0.000","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø15.240","-2.413","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø21.260","-2.413","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø22.571","-2.685","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G3  G18  G99  G96  G54  G50 S5.000"],["Ø22.860","-2.829","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø25.734","-1.392","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø25.734","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø13.034","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø10.160","0.000","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø10.160","-2.413","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø17.780","-2.413","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø20.654","-0.976","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø20.654","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø7.964","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø5.090","0.000","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø5.090","-2.413","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø12.700","-2.413","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø15.574","-0.976","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø15.574","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø2.894","1.437","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø0.020","0.000","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø0.020","-2.413","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø7.630","-2.413","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø10.504","-0.976","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø10.504","-1.103","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø1.274","-1.103","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø-1.600","-2.540","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø21.260","-2.540","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø22.391","-2.774","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G3  G18  G99  G96  G54  G50 S5.000"],["Ø24.787","-3.972","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø25.255","-4.538","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G3  G18  G99  G96  G54  G50 S5.000"],["Ø25.255","-27.940","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø42.394","-27.940","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø43.994","-28.740","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G3  G18  G99  G96  G54  G50 S5.000"],["Ø43.994","-54.140","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø46.868","-52.703","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø48.058","-52.703","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø71.120","-52.703","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø71.120","5.000","—","G96 91 m/min","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0100","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0100","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0100","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0100","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0100","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0100","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0100","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0100","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0100","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0100","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0100","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0100","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0100","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0100","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0100","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","G96 91 m/min","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø71.120","-27.940","—","G96 91 m/min","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø23.674","-27.940","—","G96 91 m/min","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø71.120","-27.940","—","G96 91 m/min","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø71.120","5.000","—","G96 91 m/min","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0300","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","500 rpm","stopped","0.127 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","500 rpm","stopped","0.127 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","0.127 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","1.342","—","500 rpm","stopped","0.127 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø24.849","1.342","—","500 rpm","stopped","0.127 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø24.849","-26.031","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G32  G18  G99  G97  G54  G50 S5.000"],["Ø25.255","-26.234","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G32  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","-26.234","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","1.342","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø24.442","1.342","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø24.442","-25.828","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G32  G18  G99  G97  G54  G50 S5.000"],["Ø25.255","-26.234","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G32  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","-26.234","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","1.342","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø24.036","1.342","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø24.036","-25.625","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G32  G18  G99  G97  G54  G50 S5.000"],["Ø25.255","-26.234","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G32  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","-26.234","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","1.342","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø23.630","1.342","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø23.630","-25.422","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G32  G18  G99  G97  G54  G50 S5.000"],["Ø25.255","-26.234","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G32  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","-26.234","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","1.342","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø23.223","1.342","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø23.223","-25.218","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G32  G18  G99  G97  G54  G50 S5.000"],["Ø25.255","-26.234","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G32  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","-26.234","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0300","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0200","M3 ↻","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","500 rpm","stopped","2.000 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","409 rpm","stopped","2.000 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø30.335","5.000","—","409 rpm","stopped","2.000 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","2.000 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","G96 91 m/min","stopped","2.000 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø71.120","-44.640","—","G96 91 m/min","stopped","2.000 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø-1.600","-44.640","—","G96 91 m/min","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø71.120","-44.640","—","G96 91 m/min","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G1  G18  G99  G96  G54  G50 S5.000"],["Ø71.120","5.000","—","G96 91 m/min","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G96  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","M3 ↻","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","stopped","M8 on","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","stopped","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","stopped","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","stopped","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","stopped","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","stopped","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","stopped","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","stopped","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","stopped","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","stopped","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","stopped","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","stopped","off","G0  G18  G99  G97  G54  G50 S5.000"],["Ø71.120","5.000","—","409 rpm","stopped","0.127 mm/rev","0200","stopped","off","G0  G18  G99  G97  G54  G50 S5.000"]],"mot":[null,null,"G80","G80","G80","G80","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G1","G1","G1","G1","G1","G0","G0","G1","G1","G1","G3","G1","G1","G1","G0","G0","G1","G1","G1","G3","G1","G0","G0","G1","G1","G1","G1","G0","G0","G1","G1","G3","G1","G1","G1","G0","G0","G1","G1","G1","G3","G1","G3","G1","G0","G0","G1","G1","G1","G3","G1","G1","G0","G0","G1","G1","G1","G1","G0","G0","G1","G1","G1","G1","G0","G0","G1","G1","G1","G1","G1","G1","G1","G1","G3","G1","G3","G1","G1","G3","G1","G1","G1","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G1","G1","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G32","G32","G0","G0","G0","G32","G32","G0","G0","G0","G32","G32","G0","G0","G0","G32","G32","G0","G0","G0","G32","G32","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G1","G1","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0","G0"],"tp":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[1.44,35.56,null,5,35.56,1],[1.44,26.32,null,1.44,35.56,1],[1.44,24.3,null,1.44,26.32,0],[0,22.86,null,1.44,24.3,0],[-54.14,22.86,null,0,22.86,0],[-54.14,25.4,null,-54.14,22.86,0],[-54.14,27.43,null,-54.14,25.4,0],[1.44,27.43,null,-54.14,27.43,1],[1.44,21.76,null,1.44,27.43,1],[0,20.32,null,1.44,21.76,0],[-27.81,20.32,null,0,20.32,0],[-27.81,21.2,null,-27.81,20.32,0],[-28.74,22.12,null,-27.81,21.2,0],[-54.14,22.12,null,-28.74,22.12,0],[-54.14,22.86,null,-54.14,22.12,0],[-52.7,24.3,null,-54.14,22.86,0],[1.44,24.3,null,-52.7,24.3,1],[1.44,19.22,null,1.44,24.3,1],[0,17.78,null,1.44,19.22,0],[-27.81,17.78,null,0,17.78,0],[-27.81,21.2,null,-27.81,17.78,0],[-27.9,21.59,null,-27.81,21.2,0],[-26.46,23.03,null,-27.9,21.59,0],[1.44,23.03,null,-26.46,23.03,1],[1.44,16.68,null,1.44,23.03,1],[0,15.24,null,1.44,16.68,0],[-27.81,15.24,null,0,15.24,0],[-27.81,19.05,null,-27.81,15.24,0],[-26.38,20.49,null,-27.81,19.05,0],[1.44,20.49,null,-26.38,20.49,1],[1.44,14.14,null,1.44,20.49,1],[0,12.7,null,1.44,14.14,0],[-4.22,12.7,null,0,12.7,0],[-4.54,12.75,null,-4.22,12.7,0],[-27.81,12.75,null,-4.54,12.75,0],[-27.81,16.51,null,-27.81,12.75,0],[-26.38,17.95,null,-27.81,16.51,0],[1.44,17.95,null,-26.38,17.95,1],[1.44,11.6,null,1.44,17.95,1],[0,10.16,null,1.44,11.6,0],[-2.41,10.16,null,0,10.16,0],[-2.41,10.63,null,-2.41,10.16,0],[-2.69,11.29,null,-2.41,10.63,0],[-3.88,12.48,null,-2.69,11.29,0],[-4.54,12.75,null,-3.88,12.48,0],[-3.1,14.19,null,-4.54,12.75,0],[1.44,14.19,null,-3.1,14.19,1],[1.44,9.06,null,1.44,14.19,1],[0,7.62,null,1.44,9.06,0],[-2.41,7.62,null,0,7.62,0],[-2.41,10.63,null,-2.41,7.62,0],[-2.69,11.29,null,-2.41,10.63,0],[-2.83,11.43,null,-2.69,11.29,0],[-1.39,12.87,null,-2.83,11.43,0],[1.44,12.87,null,-1.39,12.87,1],[1.44,6.52,null,1.44,12.87,1],[0,5.08,null,1.44,6.52,0],[-2.41,5.08,null,0,5.08,0],[-2.41,8.89,null,-2.41,5.08,0],[-0.98,10.33,null,-2.41,8.89,0],[1.44,10.33,null,-0.98,10.33,1],[1.44,3.98,null,1.44,10.33,1],[0,2.54,null,1.44,3.98,0],[-2.41,2.54,null,0,2.54,0],[-2.41,6.35,null,-2.41,2.54,0],[-0.98,7.79,null,-2.41,6.35,0],[1.44,7.79,null,-0.98,7.79,1],[1.44,1.45,null,1.44,7.79,1],[0,0.01,null,1.44,1.45,0],[-2.41,0.01,null,0,0.01,0],[-2.41,3.81,null,-2.41,0.01,0],[-0.98,5.25,null,-2.41,3.81,0],[-1.1,5.25,null,-0.98,5.25,0],[-1.1,0.64,null,-1.1,5.25,0],[-2.54,-0.8,null,-1.1,0.64,0],[-2.54,10.63,null,-2.54,-0.8,0],[-2.77,11.2,null,-2.54,10.63,0],[-3.97,12.39,null,-2.77,11.2,0],[-4.54,12.63,null,-3.97,12.39,0],[-27.94,12.63,null,-4.54,12.63,0],[-27.94,21.2,null,-27.94,12.63,0],[-28.74,22,null,-27.94,21.2,0],[-54.14,22,null,-28.74,22,0],[-52.7,23.43,null,-54.14,22,0],[-52.7,24.03,null,-52.7,23.43,0],[-52.7,35.56,null,-52.7,24.03,1],[5,35.56,null,-52.7,35.56,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[-27.94,35.56,null,5,35.56,1],[-27.94,11.84,null,-27.94,35.56,0],[-27.94,35.56,null,-27.94,11.84,0],[5,35.56,null,-27.94,35.56,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,15.17,null,5,35.56,1],[1.34,15.17,null,5,15.17,1],[1.34,12.42,null,1.34,15.17,1],[-26.03,12.42,null,1.34,12.42,0],[-26.23,12.63,null,-26.03,12.42,0],[-26.23,15.17,null,-26.23,12.63,1],[1.34,15.17,null,-26.23,15.17,1],[1.34,12.22,null,1.34,15.17,1],[-25.83,12.22,null,1.34,12.22,0],[-26.23,12.63,null,-25.83,12.22,0],[-26.23,15.17,null,-26.23,12.63,1],[1.34,15.17,null,-26.23,15.17,1],[1.34,12.02,null,1.34,15.17,1],[-25.62,12.02,null,1.34,12.02,0],[-26.23,12.63,null,-25.62,12.02,0],[-26.23,15.17,null,-26.23,12.63,1],[1.34,15.17,null,-26.23,15.17,1],[1.34,11.81,null,1.34,15.17,1],[-25.42,11.81,null,1.34,11.81,0],[-26.23,12.63,null,-25.42,11.81,0],[-26.23,15.17,null,-26.23,12.63,1],[1.34,15.17,null,-26.23,15.17,1],[1.34,11.61,null,1.34,15.17,1],[-25.22,11.61,null,1.34,11.61,0],[-26.23,12.63,null,-25.22,11.61,0],[-26.23,15.17,null,-26.23,12.63,1],[5,15.17,null,-26.23,15.17,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,15.17,null,null,null,1],[5,35.56,null,5,15.17,1],[5,35.56,null,null,null,1],[-44.64,35.56,null,5,35.56,1],[-44.64,-0.8,null,-44.64,35.56,0],[-44.64,35.56,null,-44.64,-0.8,0],[5,35.56,null,-44.64,35.56,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1],[5,35.56,null,null,null,1]],"ops":[{"name":"Profile · roughing and finishing","start":5,"view":"p:xz","pts":[1.44,35.56,1,1.44,26.32,1,1.44,24.3,0,0,22.86,0,-54.14,22.86,0,-54.14,25.4,0,-54.14,27.43,0,1.44,27.43,1,1.44,21.76,1,0,20.32,0,-27.81,20.32,0,-27.81,21.2,0,-27.94,21.66,0,-28.28,22,0,-28.74,22.12,0,-54.14,22.12,0,-54.14,22.86,0,-52.7,24.3,0,1.44,24.3,1,1.44,19.22,1,0,17.78,0,-27.81,17.78,0,-27.81,21.2,0,-27.84,21.4,0,-27.9,21.59,0,-26.46,23.03,0,1.44,23.03,1,1.44,16.68,1,0,15.24,0,-27.81,15.24,0,-27.81,19.05,0,-26.38,20.49,0,1.44,20.49,1,1.44,14.14,1,0,12.7,0,-4.22,12.7,0,-4.38,12.74,0,-4.54,12.75,0,-27.81,12.75,0,-27.81,16.51,0,-26.38,17.95,0,1.44,17.95,1,1.44,11.6,1,0,10.16,0,-2.41,10.16,0,-2.41,10.63,0,-2.48,10.98,0,-2.68,11.29,0,-3.88,12.48,0,-4.18,12.68,0,-4.54,12.75,0,-3.1,14.19,0,1.44,14.19,1,1.44,9.06,1,0,7.62,0,-2.41,7.62,0,-2.41,10.63,0,-2.48,10.98,0,-2.68,11.29,0,-2.83,11.43,0,-1.39,12.87,0,1.44,12.87,1,1.44,6.52,1,0,5.08,0,-2.41,5.08,0,-2.41,8.89,0,-0.98,10.33,0,1.44,10.33,1,1.44,3.98,1,0,2.54,0,-2.41,2.54,0,-2.41,6.35,0,-0.98,7.79,0,1.44,7.79,1,1.44,1.45,1,0,0.01,0,-2.41,0.01,0,-2.41,3.81,0,-0.98,5.25,0,-1.1,5.25,0,-1.1,0.64,0,-2.54,-0.8,0,-2.54,10.63,0,-2.6,10.94,0,-2.77,11.2,0,-3.97,12.39,0,-4.23,12.57,0,-4.54,12.63,0,-27.94,12.63,0,-27.94,21.2,0,-28.05,21.6,0,-28.34,21.89,0,-28.74,22,0,-54.14,22,0,-52.7,23.43,0,-52.7,24.03,0,-52.7,35.56,1,5,35.56,1],"z":null,"que":"Roughing and finishing the profile from Ø50.8 bar with T01: face at Z-2.54, chamfer, Ø25.255 for the thread, shoulder, Ø44.","pq":["Longitudinal passes of 1.27 mm per side, then one finishing pass over the whole profile.","The face is also roughed with Z passes down to the centre."],"sino":null,"riesgo":"T0100: no offset.","lvl":"err","data":[["Lines in file","108 (6 to 113)"],["Tool","T0100"],["Programmed speed / Vc","91, 409"],["Feeds","0.127"],["Estimated time (cutting)","3,3 min"]],"time":3.2743242573423887},{"name":"Thread relief groove","start":113,"view":"p:xz","pts":[-27.94,35.56,1,-27.94,11.84,0,-27.94,35.56,0,5,35.56,1],"z":null,"que":"A groove at Z-27.94, against the shoulder, down to Ø23.674 with T02.","pq":["Gives room for the threading tool to exit."],"sino":null,"riesgo":"Groove shallower than the thread, and G1 plunge from Ø71.","lvl":"warn","data":[["Lines in file","25 (114 to 138)"],["Tool","T0200"],["Programmed speed / Vc","91, 409"],["Feeds","0.127"],["Estimated time (cutting)","37 s"]],"time":0.6145951569599518},{"name":"P2 threading (G32)","start":138,"view":"p:xz","pts":[5,15.17,1,1.34,15.17,1,1.34,12.42,1,-26.03,12.42,0,-26.23,12.63,0,-26.23,15.17,1,1.34,15.17,1,1.34,12.22,1,-25.83,12.22,0,-26.23,12.63,0,-26.23,15.17,1,1.34,15.17,1,1.34,12.02,1,-25.62,12.02,0,-26.23,12.63,0,-26.23,15.17,1,1.34,15.17,1,1.34,11.81,1,-25.42,11.81,0,-26.23,12.63,0,-26.23,15.17,1,1.34,15.17,1,1.34,11.61,1,-25.22,11.61,0,-26.23,12.63,0,-26.23,15.17,1,5,15.17,1],"z":null,"que":"External 2 mm pitch thread on Ø25.255 in 5 G32 passes, constant depth 0.203 mm per side.","pq":["G97 S500, G99 F2: one pitch per rev.","Like the G32 version of the M20 thread, but with fewer passes and constant depth."],"sino":null,"riesgo":"Thread too shallow: 1.016 mm instead of 1.227.","lvl":"err","data":[["Lines in file","44 (139 to 182)"],["Tool","T0300"],["Programmed speed / Vc","500"],["Feeds","0.127, 2.000"],["Estimated time (cutting)","9 s"]],"time":0.14884455540689412},{"name":"Part-off","start":182,"view":"p:xz","pts":[5,35.56,1,-44.64,35.56,1,-44.64,-0.8,0,-44.64,35.56,0,5,35.56,1],"z":null,"que":"Part-off at Z-44.64 with T02, past centre.","pq":["The part drops; G350 checks the part-off, G4 waits half a second."],"sino":null,"riesgo":"Constant feed to the centre.","lvl":"warn","data":[["Lines in file","34 (183 to 216)"],["Tool","T0200"],["Programmed speed / Vc","91, 409"],["Feeds","0.127, 2.000"],["Estimated time (cutting)","42 s"]],"time":0.700540055412251}]}]};
+
+/* ---------- utilità ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const nf = (v, d) => v == null ? "—" : Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const store = {
+  get(k, def) { try { const v = localStorage.getItem(D.key + "-" + k); return v == null ? def : JSON.parse(v); } catch (e) { return def; } },
+  set(k, v) { try { localStorage.setItem(D.key + "-" + k, JSON.stringify(v)); } catch (e) {} }
+};
+function hl(line) {
+  if (/^\s*(N\d+\s*)?\(.*\)\s*$/.test(line) || /^\s*;/.test(line)) return '<span class="t-c">' + esc(line) + "</span>";
+  let s = esc(line);
+  s = s.replace(/(\(.*?\)|;.*$)/g, '<span class="t-c">$1</span>');
+  return s
+    .replace(/^(N\d+)/, '<span class="t-n">$1</span>')
+    .replace(/\b(G\d+(?:\.\d)?)(?![^<]*<\/span>)/g, '<span class="t-g">$1</span>')
+    .replace(/\b(M\d*=?\d+)(?![^<]*<\/span>)/g, '<span class="t-m">$1</span>');
+}
+
+/* ---------- stato ---------- */
+const P = {}; D.progs.forEach(p => { P[p.id] = p; });
+const S = {
+  mode: "ciclo", prog: D.progs[0], cur: 0, marks: new Set(),
+  errSel: 0, codeSel: -1, toolSel: -1, checks: store.get("checks", [])
+};
+function firstLine(p) { const i = p.lines.findIndex(l => l[2] === "op"); return i < 0 ? 0 : i; }
+S.cur = firstLine(S.prog);
+
+function opOf(i, p) { p = p || S.prog; return p.lineOp[i]; }
+function infoOf(i, p) { p = p || S.prog; const k = p.lineInfo[i]; return k ? D.info[k] : null; }
+function levelOf(i, p) { const d = infoOf(i, p); return d && d.lvl; }
+function idxOfFileLine(p, n) { return p.lines.findIndex(l => l[0] === n); }
+
+/* ---------- editor ---------- */
+function renderCode() {
+  const box = $("code"), p = S.prog;
+  box.innerHTML = p.lines.map((l, i) => {
+    const kind = l[2], txt = l[1];
+    const lv = levelOf(i) || "";
+    const cls = ["ln", kind === "gap" ? "gap" : (txt.trim() ? "" : "blank"), lv, S.marks.has(i) ? "mark" : "", i === S.cur ? "cur" : ""].join(" ");
+    const flag = lv === "err" ? "✖" : lv === "warn" ? "!" : "";
+    const no = kind === "gap" ? "⋮" : l[0];
+    return '<div class="' + cls + '" data-i="' + i + '"><span class="no">' + no + '</span><span class="flag">' + flag + "</span><span>" + (kind === "gap" ? esc(txt) : (txt ? hl(txt) : " ")) + "</span></div>";
+  }).join("");
+  const c = box.querySelector(".cur") || box.querySelector(".mark");
+  if (c) {
+    const top = c.offsetTop - box.offsetTop, h = box.clientHeight;
+    if (top < box.scrollTop || top > box.scrollTop + h - 24) box.scrollTop = Math.max(0, top - h / 3);
+  }
+}
+$("code").addEventListener("click", e => {
+  const ln = e.target.closest(".ln"); if (!ln) return;
+  const i = +ln.dataset.i; const l = S.prog.lines[i]; if (!l || (!l[1].trim() && l[2] !== "gap")) return;
+  if (S.mode !== "ciclo") setMode("ciclo", true);
+  go(i);
+});
+$("code").addEventListener("keydown", e => {
+  if (e.key === "ArrowDown") { e.preventDefault(); step(1); }
+  if (e.key === "ArrowUp") { e.preventDefault(); step(-1); }
+});
+function go(i) { stopAnim(); S.cur = i; S.marks = new Set(); render(); }
+function step(d) {
+  let i = S.cur; const L = S.prog.lines;
+  do { i += d; } while (i >= 0 && i < L.length && !L[i][1].trim() && L[i][2] !== "gap");
+  if (i >= 0 && i < L.length) go(i);
+}
+function jumpOp(d) {
+  const p = S.prog, cur = S.cur < 0 ? -1 : opOf(S.cur);
+  const k = Math.max(0, Math.min(p.ops.length - 1, (cur == null || cur < 0 ? (d > 0 ? 0 : 0) : cur + d)));
+  go(p.ops[k].start);
+}
+
+/* ---------- posizione ---------- */
+function renderAxes() {
+  $("axes").innerHTML = D.axes.map((a, k) => '<div class="axis"><b>' + a + '</b><span id="ax' + k + '">—</span></div>').join("");
+  $("posSub").textContent = D.posSub;
+}
+function renderPos() {
+  const s = S.prog.st[S.cur] || null;
+  D.axes.forEach((a, k) => { $("ax" + k).textContent = s ? (s[k] || "—") : "—"; });
+  $("pMod").innerHTML = "<i>G modals:</i> " + (s && s[D.axes.length] ? esc(s[D.axes.length]) : "—");
+}
+
+/* ---------- messaggi ---------- */
+function setMsg(lvl, text) {
+  const m = $("msg"); m.className = "msg " + lvl;
+  m.querySelector(".tag").textContent = lvl === "err" ? "Error" : lvl === "warn" ? "Warning" : "Info";
+  $("msgText").textContent = text;
+}
+
+/* ---------- pannello spiegazione ---------- */
+function sec(cls, title, body) {
+  if (!body || (Array.isArray(body) && !body.length)) return "";
+  const inner = Array.isArray(body) ? (body.length === 1 ? "<p>" + body[0] + "</p>" : "<ul>" + body.map(b => "<li>" + b + "</li>").join("") + "</ul>") : "<p>" + body + "</p>";
+  return '<div class="sec ' + cls + '"><h3>' + title + "</h3>" + inner + "</div>";
+}
+function kvTable(title, rows, h1, h2) {
+  return '<div class="sec"><h3>' + title + '</h3><div class="tbl-wrap"><table><tr><th>' + (h1 || "Word") + "</th><th>" + (h2 || "Meaning") + "</th></tr>" +
+    rows.map(r => "<tr><td><code>" + r[0] + "</code></td><td>" + r[1] + "</td></tr>").join("") + "</table></div></div>";
+}
+/* descrizione automatica di un blocco senza spiegazione dedicata */
+function autoInfo(line, st, op) {
+  const t = line.replace(/^N\d+\s*/, "").replace(/\(.*?\)/g, "").trim();
+  const w = {}; (t.match(/[A-Z]+\d*=?-?\d*\.?\d+/g) || []).forEach(x => { const m = x.match(/^([A-Z]+\d*)=?(-?\d*\.?\d+)$/); if (m) w[m[1]] = m[2]; });
+  const axes = ["X", "Y", "Z", "C"].filter(a => w[a] != null).map(a => a + " " + nf(+w[a], 3)).join(", ");
+  const mot = st && st.mot;
+  let que;
+  if (/G0\b|G00\b/.test(t) || (mot === "G0" && axes)) que = "Rapid move (G0) to " + axes + ": the tool doesn't cut, it moves as fast as possible.";
+  else if (/G[23]\b|G0[23]\b/.test(t) || ((mot === "G2" || mot === "G3") && axes)) que = (/(G3|G03)\b/.test(t) || mot === "G3" ? "Counter-clockwise arc (G3)" : "Clockwise arc (G2)") + " to " + axes + (w.F ? ", feed F" + w.F : "") + ". I, J, K (or CR) give the arc centre (or radius).";
+  else if (axes) que = "Cutting move (G1) to " + axes + (w.F ? " at feed F" + w.F : " at the active feed") + ".";
+  else que = "Housekeeping block.";
+  const pq = op ? (op.pq || []).slice(0, 2) : [];
+  return { que, pq, auto: true };
+}
+function opCard(op) {
+  if (!op) return "";
+  const rows = (op.data || []).map(r => "<tr><td>" + r[0] + '</td><td class="num">' + r[1] + "</td></tr>").join("");
+  return rows ? '<div class="sec"><h3>Operation data</h3><div class="tbl-wrap"><table>' + rows + "</table></div></div>" : "";
+}
+function renderInfo() {
+  const box = $("info"), p = S.prog;
+  if (S.mode === "ciclo") {
+    const i = S.cur, l = p.lines[i] || [0, "", ""];
+    const oi = opOf(i), op = oi != null && oi >= 0 ? p.ops[oi] : null;
+    const phase = op ? "Op " + (oi + 1) + " · " + op.name : (i < firstLine(p) ? "Header" : "End of program");
+    let d = infoOf(i);
+    if (!d && l[2] === "gap") d = { que: l[1].replace(/^\(\s*…\s*|\s*…\s*\)$/g, ""), pq: op ? op.pq : [], gap: true };
+    if (!d && l[2] === "op" && op) d = { que: op.que, pq: op.pq, sino: op.sino, riesgo: op.riesgo, lvl: op.lvl, opHead: true };
+    if (!d) d = autoInfo(l[1], { mot: p.mot[i] }, op);
+    const nTxt = l[2] === "gap" ? "" : "line " + l[0];
+    $("infoTitle").textContent = (nTxt ? nTxt + " · " : "") + phase;
+    $("infoSub").textContent = p.label;
+    box.innerHTML =
+      '<span class="chip">' + esc(phase) + "</span>" +
+      '<div class="blk">' + (l[2] === "gap" ? esc(l[1]) : hl(l[1])) + "</div>" +
+      sec("", "What the machine does", d.que) +
+      sec("why", d.auto ? "Why (operation)" : "Why", d.pq) +
+      (d.params ? kvTable("Parameters", d.params) : "") +
+      sec("", "If it weren't done this way", d.sino) +
+      (d.riesgo ? sec("risk " + (d.lvl === "err" ? "err" : ""), d.lvl === "err" ? "Error / risk" : "Risk", d.riesgo) : "") +
+      ((d.opHead || d.gap) ? opCard(op) : "");
+    const lv = d.lvl;
+    setMsg(lv || "ok", lv && d.riesgo ? d.riesgo.replace(/<[^>]+>/g, "").split(". ")[0].replace(/\.+$/, "") + "." : (nTxt ? "Block at " + nTxt : "Blocks omitted") + " · " + phase + ". Use ↑ ↓ or the softkeys to step.");
+    return;
+  }
+  if (S.mode === "errori") {
+    $("infoTitle").textContent = "Errors found"; $("infoSub").textContent = D.errors.length + " found";
+    box.innerHTML = '<p class="note">Tap an error to see the lines that cause it in the editor.</p>' + D.errors.map((e, k) =>
+      '<button class="card ' + e.lvl + (k === S.errSel ? " on" : "") + '" data-err="' + k + '"><h4><span class="n">' + (k + 1) + "</span>" + e.t + "</h4>" +
+      '<span class="lbl">Why</span><p>' + e.pq + '</p><span class="lbl">Fix</span><p>' + e.sol + "</p></button>").join("");
+    const e = D.errors[S.errSel];
+    setMsg(e.lvl, "Error " + (S.errSel + 1) + ": " + e.t.replace(/<[^>]+>/g, "") + ".");
+    return;
+  }
+  if (S.mode === "collisioni") {
+    $("infoTitle").textContent = "Checks before running";
+    const done = D.checks.filter((c, k) => S.checks[k]).length;
+    $("infoSub").textContent = done + " of " + D.checks.length + " done";
+    box.innerHTML = '<p class="note">Tick each item once you\'ve checked it at the machine. Ticks are only saved in this browser.</p>' + D.checks.map((c, k) =>
+      '<div class="check' + (S.checks[k] ? " done" : "") + '"><input type="checkbox" id="chk' + k + '" data-chk="' + k + '"' + (S.checks[k] ? " checked" : "") + '><label for="chk' + k + '">' + c.t + "</label><p>" + c.pq + "</p></div>").join("");
+    setMsg(done === D.checks.length ? "ok" : "warn", done === D.checks.length ? "All checks done. First run: single block." : (D.checks.length - done) + " checks left before running.");
+    return;
+  }
+  if (S.mode === "codici") {
+    $("infoTitle").textContent = "Codes in this exercise"; $("infoSub").textContent = "tap a row to see it in the editor";
+    box.innerHTML = '<div class="tbl-wrap"><table><tr><th>Code</th><th>Function</th><th>Why in this exercise</th></tr>' +
+      D.codes.map((c, k) => '<tr class="click' + (k === S.codeSel ? " hit" : "") + '" data-code="' + k + '"><td><code>' + c[0] + "</code></td><td>" + c[1] + "</td><td>" + c[2] + "</td></tr>").join("") + "</table></div>";
+    setMsg("ok", D.codes.length + " codes explained. The highlighted lines in the editor contain them.");
+    return;
+  }
+  if (S.mode === "utensili") {
+    $("infoTitle").textContent = "Tools and times"; $("infoSub").textContent = "tap a row to go to the operation";
+    box.innerHTML = '<div class="tbl-wrap"><table><tr>' + D.tools.head.map(h => "<th>" + h + "</th>").join("") + "</tr>" +
+      D.tools.rows.map((r, k) => '<tr class="click' + (k === S.toolSel ? " hit" : "") + '" data-tool="' + k + '">' + r.cells.map((c, j) => "<td" + (r.cls && r.cls[j] ? ' class="' + r.cls[j] + '"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") +
+      "</table></div>" + (D.tools.note ? '<p class="note">' + D.tools.note + "</p>" : "");
+    setMsg(D.tools.lvl || "ok", D.tools.msg || "Times estimated from toolpath length and programmed feeds.");
+    return;
+  }
+  if (S.mode === "confronto") {
+    const c = D.compare;
+    $("infoTitle").textContent = c.title; $("infoSub").textContent = c.sub;
+    box.innerHTML = c.html;
+    setMsg(c.lvl || "ok", c.msg);
+  }
+}
+$("info").addEventListener("click", e => {
+  const card = e.target.closest("[data-err]"); if (card) { selectError(+card.dataset.err); return; }
+  const row = e.target.closest("[data-code]"); if (row) { selectCode(+row.dataset.code); return; }
+  const tr = e.target.closest("[data-tool]"); if (tr) { selectTool(+tr.dataset.tool); return; }
+  const j = e.target.closest("[data-jump]");
+  if (j) { const [pid, n] = j.dataset.jump.split(":"); loadProg(P[pid]); setMode("ciclo", true); const k = idxOfFileLine(S.prog, +n); go(k < 0 ? 0 : k); }
+});
+$("info").addEventListener("change", e => {
+  const k = e.target.dataset.chk; if (k == null) return;
+  S.checks[+k] = e.target.checked; store.set("checks", S.checks);
+  markRefs(D.checks[+k]); renderCode(); renderInfo();
+});
+function markRefs(ref) {
+  if (ref.prog && P[ref.prog] && S.prog !== P[ref.prog]) loadProg(P[ref.prog]);
+  S.marks = new Set((ref.lines || []).map(n => idxOfFileLine(S.prog, n)).filter(i => i >= 0));
+}
+function selectError(k) {
+  S.errSel = k; markRefs(D.errors[k]);
+  const first = [...S.marks][0]; S.cur = first != null ? first : -1;
+  render();
+}
+function selectCode(k) {
+  S.codeSel = k;
+  const re = new RegExp(D.codes[k][3]);
+  let p = S.prog;
+  if (!p.lines.some(l => l[2] !== "gap" && re.test(l[1]))) { const o = D.progs.find(q => q.lines.some(l => l[2] !== "gap" && re.test(l[1]))); if (o) loadProg(o); }
+  S.marks = new Set(S.prog.lines.map((l, i) => l[2] !== "gap" && re.test(l[1]) ? i : -1).filter(i => i >= 0));
+  S.cur = -1; render();
+}
+function selectTool(k) {
+  S.toolSel = k; const r = D.tools.rows[k];
+  if (r.prog && P[r.prog]) loadProg(P[r.prog]);
+  const op = S.prog.ops[r.op]; if (!op) { render(); return; }
+  S.marks = new Set(); for (let i = 0; i < S.prog.lines.length; i++) if (S.prog.lineOp[i] === r.op) S.marks.add(i);
+  S.cur = op.start; render();
+}
+
+/* ---------- softkey ---------- */
+function hkeys() {
+  const k = [["ciclo", "Work cycle", "block by block"], ["errori", "Errors", D.errors.length + " found"], ["collisioni", "Collisions", "before running"], ["codici", "Codes", "and why"], ["utensili", "Tools", "and times"]];
+  if (D.compare) k.push(["confronto", D.compare.key, D.compare.keySub]);
+  return k;
+}
+function vkeysFor(mode) {
+  if (mode === "ciclo") {
+    const v = [["◀ Block", () => step(-1)], ["Block ▶", () => step(1)], ["◀ Op.", () => jumpOp(-1)], ["Op. ▶", () => jumpOp(1)]];
+    v.push([anim ? "■ Stop" : "▶ Simulate", () => (anim ? stopAnim() : startAnim()), "op. toolpath"]);
+    if (D.progs.length > 1) D.progs.forEach(p => { if (p !== S.prog) v.push(["Open " + p.short, () => { loadProg(p); S.cur = firstLine(p); render(); }, p.shortSub]); });
+    v.push(["Start", () => go(0)]);
+    return v;
+  }
+  if (mode === "errori") return D.errors.slice(0, 8).map((e, k) => ["Error " + (k + 1), () => selectError(k), e.lvl === "err" ? "severe" : "warning"]);
+  if (mode === "collisioni") return [["Clear ticks", () => { S.checks = []; store.set("checks", []); S.marks = new Set(); render(); }]];
+  if (mode === "codici" || mode === "confronto" || mode === "utensili") return D.progs.map(p => ["View " + p.short, () => { loadProg(p); S.marks = new Set(); S.codeSel = -1; S.cur = firstLine(p); render(); }, p.shortSub]);
+  return [];
+}
+function renderKeys() {
+  const v = vkeysFor(S.mode);
+  const vk = $("vkeys"); vk.innerHTML = "";
+  for (let k = 0; k < 8; k++) {
+    const b = document.createElement("button"); b.className = "sk";
+    if (v[k]) {
+      b.innerHTML = v[k][0] + (v[k][2] ? "<small>" + v[k][2] + "</small>" : "");
+      b.onclick = v[k][1];
+      if (S.mode === "errori" && k === S.errSel) b.classList.add("on");
+      if (S.mode !== "ciclo" && S.mode !== "errori" && S.mode !== "collisioni" && D.progs[k] === S.prog && D.progs.length > 1) b.classList.add("on");
+    } else { b.disabled = true; b.textContent = "·"; b.setAttribute("aria-hidden", "true"); }
+    vk.appendChild(b);
+  }
+  const H = hkeys();
+  const hk = $("hkeys"); hk.innerHTML = "";
+  for (let k = 0; k < 8; k++) {
+    if (k === 7) {
+      const a = document.createElement("a"); a.className = "sk link";
+      a.href = D.board;
+      a.innerHTML = "◀ Board<small>exercise notes</small>";
+      hk.appendChild(a); continue;
+    }
+    const b = document.createElement("button"); b.className = "sk";
+    const h = H[k];
+    if (h) {
+      b.innerHTML = h[1] + "<small>" + h[2] + "</small>";
+      if (h[0] === S.mode) { b.classList.add("on"); b.setAttribute("aria-pressed", "true"); }
+      b.onclick = () => setMode(h[0]);
+    } else { b.disabled = true; b.textContent = "·"; b.setAttribute("aria-hidden", "true"); }
+    hk.appendChild(b);
+  }
+}
+function loadProg(p) {
+  S.prog = p;
+  $("path").textContent = "/" + p.file;
+  $("edName").textContent = p.ctrl;
+}
+function setMode(m, quiet) {
+  stopAnim();
+  S.mode = m; S.marks = new Set();
+  if (m === "ciclo") { if (S.cur < 0) S.cur = firstLine(S.prog); }
+  else if (m === "errori") { selectError(S.errSel); store.set("mode", m); return; }
+  else { S.cur = -1; S.codeSel = -1; S.toolSel = -1; }
+  store.set("mode", m);
+  if (!quiet) render();
+}
+
+/* ---------- disegno ---------- */
+const cv = $("cv"), ctx = cv.getContext("2d");
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let anim = null, W = 300, H = 200;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function viewOf(op) { return op ? D.views[op.view] : null; }
+function frame(v) {
+  const w = cv.clientWidth || 300;
+  const bw = v.b[2] - v.b[0], bh = v.b[3] - v.b[1];
+  const padL = 34, padR = 40, padT = 22, padB = 22;
+  const k = Math.min((w - padL - padR) / bw, 1.0 * (w * 0.62) / bh);
+  W = w; H = Math.round(bh * k + padT + padB);
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + "px";
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const ox = padL + ((w - padL - padR) - bw * k) / 2;
+  return { k, sx: a => ox + (a - v.b[0]) * k, sy: b => H - padB - (b - v.b[1]) * k };
+}
+function drawPath(F, pts, style) {
+  ctx.lineWidth = style.w || 1;
+  let last = null;
+  for (let j = 0; j < pts.length; j += 3) {
+    const a = pts[j], b = pts[j + 1], r = pts[j + 2];
+    if (last && (!style.rapids && r)) { last = [a, b]; continue; }
+    if (last) {
+      ctx.strokeStyle = r ? style.rc : style.c;
+      ctx.setLineDash(r ? [4, 3] : []);
+      ctx.beginPath(); ctx.moveTo(F.sx(last[0]), F.sy(last[1])); ctx.lineTo(F.sx(a), F.sy(b)); ctx.stroke();
+    }
+    last = [a, b];
+  }
+  ctx.setLineDash([]);
+}
+function drawBase(F, v, op) {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = css("--paper"); ctx.fillRect(0, 0, W, H);
+  ctx.font = "11px " + css("--font-ui");
+  (v.shapes || []).forEach(s => {
+    ctx.fillStyle = s.fill || "transparent"; ctx.strokeStyle = s.stroke || "transparent"; ctx.lineWidth = 1;
+    if (s.rect) { const [a, b, c, d] = s.rect; const x = F.sx(a), y = F.sy(d), w = F.sx(c) - x, h = F.sy(b) - y; if (s.fill) ctx.fillRect(x, y, w, h); if (s.stroke) ctx.strokeRect(x, y, w, h); }
+    if (s.poly) { ctx.beginPath(); s.poly.forEach((p, k) => k ? ctx.lineTo(F.sx(p[0]), F.sy(p[1])) : ctx.moveTo(F.sx(p[0]), F.sy(p[1]))); ctx.closePath(); if (s.fill) ctx.fill(); if (s.stroke) ctx.stroke(); }
+    if (s.circle) { const [a, b, r] = s.circle; ctx.beginPath(); ctx.arc(F.sx(a), F.sy(b), r * F.k, 0, 7); if (s.fill) ctx.fill(); if (s.stroke) ctx.stroke(); }
+    if (s.text) { ctx.fillStyle = s.color || css("--muted"); ctx.fillText(s.text, F.sx(s.at[0]), F.sy(s.at[1])); }
+    if (s.dash) { ctx.strokeStyle = s.color || css("--err"); ctx.setLineDash([4, 3]); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(F.sx(s.dash[0]), F.sy(s.dash[1])); ctx.lineTo(F.sx(s.dash[2]), F.sy(s.dash[3])); ctx.stroke(); ctx.setLineDash([]); }
+  });
+  if (v.ghost) drawPath(F, v.ghost, { c: "rgba(90,102,112,.16)", rc: "rgba(0,0,0,0)", w: 1 });
+  // assi
+  ctx.strokeStyle = css("--muted"); ctx.lineWidth = 1; ctx.setLineDash([6, 3, 2, 3]);
+  if (v.b[1] < 0 && v.b[3] > 0) { ctx.beginPath(); ctx.moveTo(F.sx(v.b[0]), F.sy(0)); ctx.lineTo(F.sx(v.b[2]), F.sy(0)); ctx.stroke(); }
+  if (v.b[0] < 0 && v.b[2] > 0 && v.cross) { ctx.beginPath(); ctx.moveTo(F.sx(0), F.sy(v.b[1])); ctx.lineTo(F.sx(0), F.sy(v.b[3])); ctx.stroke(); }
+  ctx.setLineDash([]);
+  ctx.fillStyle = css("--muted");
+  ctx.fillText(v.ax[0] + " →", W - 40, H - 6);
+  ctx.save(); ctx.translate(12, 40); ctx.rotate(-Math.PI / 2); ctx.fillText("← " + v.ax[1], -10, 0); ctx.restore();
+  if (op) drawPath(F, op.pts, { c: "rgba(10,106,140,.55)", rc: "rgba(10,106,140,.25)", w: 1.2, rapids: true });
+}
+function zGauge(z, op) {
+  if (!op || z == null || !op.z) return;
+  const [z0, z1] = op.z; if (z1 - z0 < 0.01) return;
+  const x = W - 22, y0 = 26, y1 = H - 26;
+  const y = zz => y1 - (Math.max(z0, Math.min(z1, zz)) - z0) / (z1 - z0) * (y1 - y0);
+  ctx.strokeStyle = css("--rule"); ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y1); ctx.stroke();
+  ctx.fillStyle = css("--muted"); ctx.font = "10px " + css("--font-ui");
+  ctx.fillText(D.zLabel || "Z", x - 3, y0 - 12); ctx.fillText(nf(z1, 1), x - 18, y0 - 3); ctx.fillText(nf(z0, 1), x - 18, y1 + 12);
+  ctx.fillStyle = css("--cursor"); ctx.strokeStyle = "#5c4100"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.rect(x - 7, y(z) - 3, 14, 6); ctx.fill(); ctx.stroke();
+}
+function drawTool(F, a, b, label) {
+  if (a == null || b == null) return;
+  const x = F.sx(a), y = F.sy(b);
+  const inside = x > 0 && x < W && y > 0 && y < H;
+  const cx = Math.max(10, Math.min(W - 30, x)), cy = Math.max(14, Math.min(H - 8, y));
+  ctx.fillStyle = css("--cursor"); ctx.strokeStyle = "#5c4100"; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.arc(cx, cy, 5.5, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - 9, cy); ctx.lineTo(cx + 9, cy); ctx.moveTo(cx, cy - 9); ctx.lineTo(cx, cy + 9); ctx.stroke();
+  if (!inside || label) {
+    ctx.fillStyle = css("--ink"); ctx.font = "600 11px " + css("--font-ui");
+    const t = label || "out of view ↗";
+    ctx.fillText(t, Math.min(cx + 10, W - ctx.measureText(t).width - 4), Math.max(cy - 8, 12));
+  }
+}
+function stopAnim() { if (anim) { cancelAnimationFrame(anim); anim = null; } }
+function curOp() {
+  let i = S.cur; if (i < 0) { const m = [...S.marks][0]; i = m == null ? -1 : m; }
+  const oi = i >= 0 ? opOf(i) : null;
+  return oi != null && oi >= 0 ? S.prog.ops[oi] : null;
+}
+function drawScene() {
+  if (anim) return;
+  const op = curOp();
+  const v = viewOf(op) || D.views[D.progs[0].ops[0].view];
+  const F = frame(v);
+  drawBase(F, v, op);
+  $("cap").textContent = (op ? op.name + " · " : "") + v.cap;
+  const t = S.cur >= 0 ? S.prog.tp[S.cur] : null;
+  if (t && t[0] != null) {
+    if (t[3] != null) {
+      ctx.strokeStyle = css("--cursor"); ctx.lineWidth = 2.5; ctx.setLineDash(t[5] ? [5, 4] : []);
+      ctx.beginPath(); ctx.moveTo(F.sx(t[3]), F.sy(t[4])); ctx.lineTo(F.sx(t[0]), F.sy(t[1])); ctx.stroke(); ctx.setLineDash([]);
+    }
+    drawTool(F, t[0], t[1], null);
+    zGauge(t[2], op);
+  } else if (S.cur >= 0) {
+    ctx.fillStyle = css("--muted"); ctx.font = "12px " + css("--font-ui");
+    ctx.fillText("Tool position not defined yet", 40, 40);
+  }
+}
+function startAnim() {
+  const op = curOp(); if (!op || op.pts.length < 6) return;
+  const v = viewOf(op);
+  const pts = op.pts, n = pts.length / 3;
+  const dur = Math.min(14000, Math.max(4000, n * 6));
+  if (reduce) { stopAnim(); return; }
+  let t0 = null;
+  const F = frame(v);
+  const tick = ts => {
+    if (t0 == null) t0 = ts;
+    const f = ((ts - t0) % dur) / dur, j = Math.floor(f * (n - 1)) * 3;
+    drawBase(F, v, op);
+    ctx.strokeStyle = css("--cursor"); ctx.lineWidth = 2;
+    ctx.beginPath(); for (let q = Math.max(0, j - 90); q <= j; q += 3) { if (q === Math.max(0, j - 90)) ctx.moveTo(F.sx(pts[q]), F.sy(pts[q + 1])); else ctx.lineTo(F.sx(pts[q]), F.sy(pts[q + 1])); } ctx.stroke();
+    drawTool(F, pts[j], pts[j + 1], "simulation " + Math.round(f * 100) + " %");
+    anim = requestAnimationFrame(tick);
+  };
+  anim = requestAnimationFrame(tick);
+  renderKeys();
+}
+
+/* ---------- render ---------- */
+function render() { renderKeys(); renderCode(); renderPos(); renderInfo(); drawScene(); }
+if (window.ResizeObserver) new ResizeObserver(() => { if (!anim) drawScene(); }).observe(cv);
+else window.addEventListener("resize", drawScene);
+document.addEventListener("keydown", e => {
+  if (e.target.closest && e.target.closest("input, textarea")) return;
+  if (S.mode !== "ciclo") return;
+  if (e.key === "PageDown") { e.preventDefault(); step(1); }
+  if (e.key === "PageUp") { e.preventDefault(); step(-1); }
+});
+
+renderAxes();
+loadProg(S.prog);
+const start = store.get("mode", "ciclo");
+if (hkeys().some(h => h[0] === start) && start !== "ciclo") setMode(start); else render();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (!anim) drawScene(); });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>M20×2.5 thread analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: panel de control CNC — barra de estado, línea de mensajes, ventanas (editor / explicación / posición), softkeys verticales a la derecha y horizontales abajo. Un único aspecto claro industrial, a propósito. */
+:root {
+  --frame: #b9c1c8;
+  --win: #eef1f3;
+  --paper: #ffffff;
+  --ink: #1b232a;
+  --muted: #5a6670;
+  --rule: #98a3ad;
+  --head: #34495a;
+  --head-ink: #f4f7f9;
+  --accent: #0a6a8c;
+  --cursor: #f3a712;
+  --cursor-ink: #1b1400;
+  --key-top: #fbfcfc;
+  --key-bot: #c8cfd5;
+  --key-on: #ffd27a;
+  --ok: #2c7a3a;
+  --warn: #b76a00;
+  --warn-bg: #fff1d6;
+  --err: #c0262d;
+  --err-bg: #fde3e3;
+  --steel: #c4ccd3;
+  --steel-dark: #7d8a95;
+  --code-g: #0a5d9e;
+  --code-m: #7a3a9a;
+  --code-c: #2f7d4a;
+  --font-ui: "Barlow Semi Condensed", "Arial Narrow", Arial, sans-serif;
+  --font-code: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--frame);
+  color: var(--ink);
+  font: 15px/1.45 var(--font-ui);
+  padding-inline: 16px;
+  padding-block: 16px;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.hmi {
+  max-width: 1480px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 128px;
+  grid-template-areas: "bar bar" "msg msg" "work vkeys" "hkeys hkeys";
+  gap: 4px;
+  background: #8d979f;
+  padding: 4px;
+  border: 1px solid #6f7a83;
+}
+
+/* barra superior */
+.bar {
+  grid-area: bar;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 4px;
+}
+.bar > div {
+  background: var(--head);
+  color: var(--head-ink);
+  padding: 6px 12px;
+  display: flex; align-items: center; gap: 10px;
+  min-width: 0;
+}
+.area { font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.path { font-family: var(--font-code); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chan { font-weight: 600; letter-spacing: .04em; }
+.chan .led { width: 10px; height: 10px; border-radius: 50%; background: #58c26a; box-shadow: 0 0 0 2px #2a3a47; }
+
+/* línea de mensajes */
+.msg {
+  grid-area: msg;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 5px 10px;
+  display: flex; gap: 10px; align-items: baseline;
+  min-height: 34px;
+  font-weight: 500;
+}
+.msg .tag { font-weight: 700; letter-spacing: .05em; text-transform: uppercase; font-size: 12px; padding: 1px 6px; border-radius: 2px; flex: none; }
+.msg.ok .tag { background: #dcefdf; color: var(--ok); }
+.msg.warn { background: var(--warn-bg); }
+.msg.warn .tag { background: var(--warn); color: #fff; }
+.msg.err { background: var(--err-bg); }
+.msg.err .tag { background: var(--err); color: #fff; }
+
+/* zona de ventanas */
+.work {
+  grid-area: work;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  grid-template-areas: "editor info" "pos info";
+  gap: 4px;
+  min-width: 0;
+}
+.win { background: var(--win); border: 1px solid var(--rule); display: flex; flex-direction: column; min-width: 0; }
+.win-h {
+  background: linear-gradient(#4a6274, var(--head));
+  color: var(--head-ink);
+  padding: 4px 10px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  display: flex; justify-content: space-between; gap: 8px;
+  min-width: 0;
+}
+.win-h small { font-weight: 400; opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.editor { grid-area: editor; }
+.info { grid-area: info; }
+.pos { grid-area: pos; }
+
+/* editor */
+.code {
+  font-family: var(--font-code);
+  font-size: 13.5px;
+  background: var(--paper);
+  margin: 6px;
+  border: 1px solid var(--rule);
+  overflow: auto;
+  max-height: 340px;
+  flex: 1;
+}
+.ln {
+  display: grid;
+  grid-template-columns: 3.2em 1.2em minmax(0, 1fr);
+  align-items: baseline;
+  padding: 1px 6px 1px 0;
+  cursor: pointer;
+  white-space: pre;
+  border-left: 4px solid transparent;
+}
+.ln:hover { background: #eaf3f7; }
+.ln .no { color: var(--muted); text-align: right; padding-right: 8px; font-size: 11.5px; user-select: none; }
+.ln .flag { font-size: 11px; font-weight: 700; }
+.ln.warn .flag { color: var(--warn); }
+.ln.err .flag { color: var(--err); }
+.ln.mark { background: #e3f0f6; border-left-color: var(--accent); }
+.ln.cur { background: var(--cursor); color: var(--cursor-ink); border-left-color: #a46c00; }
+.ln.cur .no, .ln.cur .t-n, .ln.cur .t-g, .ln.cur .t-m, .ln.cur .t-c { color: var(--cursor-ink); }
+.ln.blank { cursor: default; }
+.t-n { color: var(--muted); }
+.t-g { color: var(--code-g); font-weight: 600; }
+.t-m { color: var(--code-m); font-weight: 600; }
+.t-c { color: var(--code-c); font-style: italic; }
+
+/* posición */
+.pos-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin: 6px 6px 0; }
+.axis { background: var(--paper); border: 1px solid var(--rule); padding: 3px 8px; display: flex; justify-content: space-between; align-items: baseline; gap: 6px; min-width: 0; }
+.axis b { font-size: 12px; color: var(--muted); letter-spacing: .05em; }
+.axis span { font-family: var(--font-code); font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 500; white-space: nowrap; }
+.modal { margin: 4px 6px 0; background: var(--paper); border: 1px solid var(--rule); padding: 4px 8px; font-family: var(--font-code); font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.modal i { font-style: normal; color: var(--muted); font-family: var(--font-ui); font-size: 12px; }
+.scene { margin: 6px; background: var(--paper); border: 1px solid var(--rule); position: relative; }
+.scene canvas { display: block; width: 100%; }
+.scene .cap { position: absolute; left: 8px; top: 4px; font-size: 12px; color: var(--muted); }
+
+/* explicación */
+.info-body { padding: 10px 14px 14px; overflow: auto; max-height: 720px; display: grid; gap: 12px; align-content: start; }
+.chip { display: inline-flex; gap: 6px; align-items: center; font-weight: 700; font-size: 12.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--head-ink); background: var(--accent); padding: 2px 8px; border-radius: 2px; justify-self: start; }
+.blk { font-family: var(--font-code); font-size: 15px; background: var(--paper); border: 1px solid var(--rule); border-left: 4px solid var(--cursor); padding: 6px 10px; overflow-x: auto; white-space: pre; }
+.sec { display: grid; gap: 4px; }
+.sec h3 { margin: 0; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.sec h3::after { content: ""; flex: 1; border-top: 1px solid var(--rule); }
+.sec p { margin: 0; max-width: 68ch; }
+.sec ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; max-width: 70ch; }
+.sec.why h3 { color: var(--accent); }
+.sec.why { background: var(--paper); border: 1px solid #bcd6e1; padding: 8px 12px 10px; }
+.sec.risk { border-left: 4px solid var(--warn); background: var(--warn-bg); padding: 6px 10px; }
+.sec.risk.err { border-left-color: var(--err); background: var(--err-bg); }
+.sec.risk h3 { color: var(--warn); }
+.sec.risk.err h3 { color: var(--err); }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--paper); }
+th, td { border: 1px solid #c3cbd2; padding: 4px 8px; text-align: left; vertical-align: top; }
+th { background: #dfe5ea; font-weight: 600; font-size: 13px; }
+td.num, th.num { text-align: right; font-family: var(--font-code); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td code, p code, li code { font-family: var(--font-code); font-size: .92em; background: #e8edf1; padding: 0 3px; border-radius: 2px; }
+tr.hit td { background: #fff3d1; }
+tr.click { cursor: pointer; }
+tr.click:hover td { background: #eaf3f7; }
+
+.card { background: var(--paper); border: 1px solid var(--rule); border-left: 5px solid var(--warn); padding: 8px 12px; display: grid; gap: 6px; cursor: pointer; text-align: left; }
+.card.err { border-left-color: var(--err); }
+.card.on { box-shadow: 0 0 0 2px var(--cursor); }
+.card h4 { margin: 0; font-size: 16px; display: flex; gap: 8px; align-items: baseline; }
+.card h4 .n { font-family: var(--font-code); font-size: 12px; color: var(--muted); }
+.card .lbl { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.card p { margin: 0; max-width: 70ch; }
+.check { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; align-items: start; background: var(--paper); border: 1px solid var(--rule); padding: 8px 12px; }
+.check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--ok); }
+.check label { font-weight: 600; cursor: pointer; }
+.check p { grid-column: 2; margin: 0; color: var(--muted); }
+.check.done label { text-decoration: line-through; color: var(--ok); }
+.note { font-size: 13.5px; color: var(--muted); max-width: 72ch; margin: 0; }
+
+/* softkeys */
+.vkeys { grid-area: vkeys; display: grid; grid-auto-rows: minmax(54px, auto); gap: 4px; align-content: start; }
+.hkeys { grid-area: hkeys; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; }
+.sk {
+  background: linear-gradient(var(--key-top), var(--key-bot));
+  border: 1px solid #77838d;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 0 #fff, 0 1px 0 #6d7881;
+  padding: 6px 8px;
+  min-height: 48px;
+  font-weight: 600;
+  line-height: 1.15;
+  text-align: center;
+  cursor: pointer;
+}
+.sk:hover:not(:disabled) { background: linear-gradient(#ffffff, #d7dde2); }
+.sk:active:not(:disabled) { box-shadow: inset 0 2px 3px rgba(0,0,0,.25); }
+.sk.on { background: linear-gradient(#fff3d6, var(--key-on)); border-color: #a46c00; }
+.sk:disabled { cursor: default; color: transparent; background: linear-gradient(#e3e7ea, #cdd3d8); box-shadow: none; }
+a.sk { text-decoration: none; color: inherit; display: flex; flex-direction: column; justify-content: center; }
+.sk small { display: block; font-weight: 400; font-size: 11.5px; color: var(--muted); }
+
+@media (max-width: 1100px) {
+  .work { grid-template-columns: minmax(0, 1fr); grid-template-areas: "editor" "info" "pos"; }
+  .code { max-height: 260px; }
+  .info-body { max-height: none; }
+}
+@media (max-width: 760px) {
+  body { padding-inline: 8px; }
+  .hmi { grid-template-columns: minmax(0, 1fr); grid-template-areas: "bar" "msg" "vkeys" "work" "hkeys"; }
+  .bar { grid-template-columns: minmax(0, 1fr) auto; }
+  .bar .path-box { grid-column: 1 / -1; order: 3; }
+  .vkeys { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: auto; }
+  .hkeys { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sk:disabled { display: none; }
+  .sk { min-height: 42px; font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="hmi" id="hmi">
+  <header class="bar">
+    <div class="area">Program</div>
+    <div class="path-box"><span class="path" id="path">/okuma_rosca-M20x2.5_ciclo-G71.MIN</span></div>
+    <div class="chan"><span class="led" aria-hidden="true"></span>CHANNEL 1 · RESET</div>
+  </header>
+
+  <div class="msg ok" id="msg" role="status"><span class="tag">Info</span><span id="msgText"></span></div>
+
+  <main class="work">
+    <section class="win editor" aria-label="Program editor">
+      <div class="win-h"><span>Editor</span><small id="edName">Okuma lathe · post okuma turning.cps</small></div>
+      <div class="code" id="code" tabindex="0" aria-label="Program lines. Use the arrow keys to move."></div>
+    </section>
+
+    <section class="win info" aria-live="polite">
+      <div class="win-h"><span id="infoTitle">Explanation</span><small id="infoSub"></small></div>
+      <div class="info-body" id="info"></div>
+    </section>
+
+    <section class="win pos" aria-label="Position and status">
+      <div class="win-h"><span>Work position</span><small>X in diameter</small></div>
+      <div class="pos-grid">
+        <div class="axis"><b>X</b><span id="pX">—</span></div>
+        <div class="axis"><b>Z</b><span id="pZ">—</span></div>
+        <div class="axis"><b>S</b><span id="pS">—</span></div>
+        <div class="axis"><b>F</b><span id="pF">—</span></div>
+        <div class="axis"><b>T</b><span id="pT">—</span></div>
+        <div class="axis"><b>SPINDLE</b><span id="pSp">stopped</span></div>
+        <div class="axis"><b>COOLANT</b><span id="pCo">off</span></div>
+        <div class="axis"><b>GEAR</b><span id="pGe">—</span></div>
+      </div>
+      <div class="modal" id="pMod"><i>G modals:</i> —</div>
+      <div class="scene"><span class="cap">XZ view (half part, true scale)</span><canvas id="cv" height="200" aria-label="Drawing of the part and tool position"></canvas></div>
+    </section>
+  </main>
+
+  <nav class="vkeys" id="vkeys" aria-label="Vertical softkeys"></nav>
+  <nav class="hkeys" id="hkeys" aria-label="Horizontal softkeys"></nav>
+</div>
+
+<script>
+(function () {
+"use strict";
+
+/* ---------- programas ---------- */
+const G71 = [
+  "%", "(1001.MIN)", "N10 G50 S6000", "N11 G0 X400.", "N12 G0 Z400.", "",
+  "(FILETTATURA1)", "N13 T010101", "N14 G90 G95 G18", "N15 M8", "N16 G97 S500 M3 M41",
+  "N17 G0 X39.79 Z12.5", "N18 G71 X17.791 Z-32. D1. H2. F2.5 M32 M73", "N19 G0 X39.79 Z5.", "",
+  "N20 M9", "N21 G0 X400.", "N22 G0 Z400.", "N23 M2", "%"
+];
+const PASS_D = [19.187, 18.938, 18.746, 18.584, 18.442, 18.313, 18.195, 18.085, 17.981, 17.884, 17.791];
+const PASS_Z = [-31.698, -31.574, -31.478, -31.397, -31.326, -31.261, -31.202, -31.147, -31.095, -31.047, -31];
+const G32 = (function () {
+  const L = ["%", "(1001.MIN)", "N10 G50 S6000", "N11 G0 X400.", "N12 G0 Z400.", "",
+    "(FILETTATURA1)", "N13 T010101", "N14 G90 G95 G18", "N15 M8", "N16 G97 S300 M3 M41",
+    "N17 G0 X40. Z5.", "N18 G0 Z12.5"];
+  let n = 19;
+  PASS_D.forEach((d, i) => {
+    if (i > 0) { L.push("N" + n++ + " G0 X40."); L.push("N" + n++ + " Z12.5"); }
+    L.push("N" + n++ + " X" + d.toFixed(3));
+    L.push("N" + n++ + " G32 Z" + fmtZ(PASS_Z[i]) + " F2.5");
+    L.push("N" + n++ + " X19.791 Z-32. F2.5");
+  });
+  L.push("N" + n++ + " G0 X40."); L.push("N" + n++ + " Z5."); L.push("");
+  L.push("N" + n++ + " M9"); L.push("N" + n++ + " G0 X400."); L.push("N" + n++ + " G0 Z400."); L.push("N" + n++ + " M2"); L.push("%");
+  return L;
+})();
+function fmtZ(z) { return Number.isInteger(z) ? z + "." : String(z); }
+
+/* ---------- phases ---------- */
+const PHASES = ["Header", "Setup and safe position", "Tool, modes and spindle", "Approach", "Threading (G71 cycle)", "Retract and end"];
+
+/* ---------- explanation per block (key = line without N number) ---------- */
+const INFO = {
+  "%": { ph: 0,
+    que: "Start or end-of-file marker.",
+    pq: ["When the program comes in over a cable or from a memory card, the control starts reading at the first % and stops at the next. Anything outside is ignored."],
+    sino: "Some controls don't recognise where the program starts and the load fails." },
+  "(1001.MIN)": { ph: 0, lvl: "err",
+    que: "Comment with the program name. The machine doesn't execute it.",
+    pq: ["The Fusion post writes the name you entered when posting here (onOpen function). It identifies the program in the machine memory."],
+    riesgo: "The G32 version of this thread has the same internal name, 1001. If you load both programs, one can overwrite the other." },
+  "G50 S6000": { ph: 1, lvl: "warn",
+    que: "Caps the spindle at 6,000 rpm.",
+    pq: [
+      "To protect the chuck. The jaws squeeze the part towards the centre, but when spinning, centrifugal force pushes them outward: more rpm, less grip. Every chuck has a maximum rpm.",
+      "Because of constant surface speed. With G96 the machine computes rpm = 1000·Vc / (π·D). As the tool moves towards the centre, D goes to 0 and rpm would shoot up. G50 is the ceiling.",
+      "This program uses G97 (fixed rpm), so the limit never kicks in. The post always writes it as a safety habit: if someone adds a G96 operation tomorrow, the cap is already there."],
+    sino: "A G96 operation approaching the centre could spin the spindle past the chuck's limit and loosen the part.",
+    riesgo: "Check that 6,000 rpm doesn't exceed the maximum of the chuck and jaws you have mounted." },
+  "G0 X400.": { ph: 1, lvl: "warn",
+    que: "Rapid to Ø400: the tool moves radially away from the part.",
+    pq: [
+      "At the start the machine doesn't know where the tool was left. It could be next to a shoulder or inside a groove.",
+      "For an external tool, moving up in X always means leaving the part. That's why X goes first and on its own line: on the same line as Z the move would be diagonal.",
+      "X400 is a diameter: the tool ends up 200 mm from the axis. On a lathe X is in diameter because drawings are dimensioned in diameters and the operator measures diameters."],
+    sino: "If Z went first, the tool could drag against a shoulder on the part.",
+    riesgo: "The real rule is “leave the way you came in”. With an internal tool (boring bar) the right order is Z first. Also, X400 has to fit within the machine travel." },
+  "G0 Z400.": { ph: 1,
+    que: "Rapid to Z400, away from the part face.",
+    pq: ["With the tool already clear radially, the Z retract can't touch the part.", "Leaves room for the turret to index in the next block."],
+    sino: "The turret would index close to the part and another mounted tool could crash.",
+    riesgo: "Z400 has to be within travel; otherwise an over-travel alarm goes off." },
+  "(FILETTATURA1)": { ph: 2,
+    que: "Comment: the Fusion operation “Filettatura1” (threading) starts.",
+    pq: ["Marks where each operation starts (the post's onSection function). The operator can search for it and start the program from here to repeat just the thread."] },
+  "T010101": { ph: 2, lvl: "warn",
+    que: "The turret indexes to the threading tool and activates its offsets.",
+    pq: [
+      "The change is done at X400 Z400 because when the turret indexes, every mounted tool sweeps a circle, not just T01.",
+      "On Okuma the T word has 6 digits: offset number, tool number and nose radius compensation. The exact order should be confirmed in the OSP manual."],
+    sino: "Without the right offset the machine doesn't know where the insert tip is and every dimension comes out shifted.",
+    riesgo: "A boring bar or long drill in another station can hit the part or the chuck when the turret indexes." },
+  "G90 G95 G18": { ph: 2,
+    que: "Absolute coordinates, feed in mm per rev, XZ plane.",
+    pq: [
+      "G95 is the heart of threading. A thread is a helix: for every turn of the part the tool must advance exactly one pitch (2.5 mm).",
+      "With G95 the machine reads the spindle encoder and moves the carriage according to the real rotation. If the spindle slows under load, the carriage slows with it and the pitch stays 2.5.",
+      "G90: coordinates are measured from the work zero and compare directly with the drawing. G18: the lathe plane is XZ; it's written so the plane isn't inherited from a previous program."],
+    sino: "With feed in mm/min (G94), any rpm drop under load would change the pitch and the thread would be useless." },
+  "M8": { ph: 2,
+    que: "Turns coolant on.",
+    pq: [
+      "The tip of a threading insert is a 60° triangle: it has very little mass to get rid of heat. When hot, material welds to the edge and leaves rough flanks.",
+      "Coolant also flushes chips out of the groove. If they stay inside, the next pass crushes them against the thread."],
+    sino: "Fast insert wear, built-up edge and poorly finished flanks." },
+  "G97 S500 M3 M41": { ph: 2,
+    que: "Starts the spindle at a fixed 500 rpm, clockwise, in low gear.",
+    pq: [
+      "G97 (fixed rpm): the carriage reacts with a small delay (servo lag) and that delay depends on speed. With the same rpm on every pass the lag is the same and every pass lands in the same groove.",
+      "500 rpm because with a 2.5 pitch the carriage runs at 500 × 2.5 = 1,250 mm/min, about 12 times faster than normal turning. More rpm means more room needed to stop at the end of the thread. Vc = π·20·500/1000 ≈ 31 m/min: cautious for an exercise.",
+      "M41 (low gear): the gearbox multiplies motor torque. If the spindle lost rpm under load, the lag would change and the passes would stop lining up.",
+      "M3 with the tool in its normal position and feeding towards the chuck gives a right-hand thread, the standard one."],
+    sino: "With G96 the rpm would change with each pass diameter: every pass would start shifted and the thread would come out with several grooves." },
+  "G97 S300 M3 M41": { ph: 2,
+    que: "Starts the spindle at a fixed 300 rpm, clockwise, in low gear.",
+    pq: [
+      "Same as the G71 version, but slower: the carriage moves at 300 × 2.5 = 750 mm/min and Vc ≈ 19 m/min.",
+      "Lower carriage speed means less room needed to stop at the end of the thread and less risk with a short run-out. In exchange the cycle takes longer."] },
+  "G0 X39.79 Z12.5": { ph: 3, lvl: "warn",
+    que: "Diagonal rapid to the cycle start point: 12.5 mm in front of the face and about 10 mm above the material.",
+    pq: [
+      "Z12.5 and not Z2: the carriage has to go from 0 to 1,250 mm/min. While it accelerates the pitch isn't 2.5 yet. If that acceleration happens inside the material, the first threads come out distorted. 12.5 mm gives 5 pitches of margin; the larger rpm × pitch, the more distance you need.",
+      "X39.79: clearance distance set in Fusion. It's the height the tool rapids back at between passes without touching anything."],
+    sino: "Starting at Z2, the first threads would come out with a distorted pitch.",
+    riesgo: "The rapid is diagonal: it's only safe if there's nothing in front of the part (tailstock, steady rest or material bigger than Ø40)." },
+  "G71 X17.791 Z-32. D1. H2. F2.5 M32 M73": { ph: 4, lvl: "err", params: true,
+    que: "Okuma threading cycle: the control computes and runs every pass down to Ø17.791. Each pass feeds in X, threads along Z to Z-32, retracts in X, rapids back to Z12.5 and goes a little deeper.",
+    pq: [
+      "One line instead of 55 (those of the G32 version). At the machine the operator adjusts depth by changing a single number.",
+      "Several passes are needed because the groove is a V: as you go deeper, the chip section grows with the square of the depth. Twice the depth means 4 times the material. In one go the insert would break.",
+      "Before each pass the machine waits for the encoder's once-per-rev signal and always starts at the same angle on the part. That's why every pass lands in the same groove.",
+      "During threading neither Feed Hold nor feed override works: stopping the carriage with the spindle running would wreck the thread. Only Reset and emergency stop work."],
+    sino: "Programming it by hand means writing every pass (G32 version): more lines, easier to make a mistake when editing.",
+    riesgo: "Thread too shallow: H2 is 1 mm per side and an M20×2.5 needs 1.534 mm. With M73 and D1 there are probably only 2 passes (to confirm in the OSP manual), and the second removes 3 times the section of the first. Radial infeed with a 2.5 pitch. See the Errors tab." },
+  "G0 X39.79 Z5.": { ph: 5,
+    que: "Rapid to Z5 holding Ø39.79, above the material.",
+    pq: ["When the cycle ends the tool returns to its start point. From there it moves to the Fusion retract height without dropping in X, so it doesn't cross the material."] },
+  "M9": { ph: 5,
+    que: "Turns coolant off.",
+    pq: ["It's turned off with the tool still near the part, so the long retract doesn't spray the whole enclosure."] },
+  "G0 X400._end": { ph: 5,
+    que: "Retracts radially to Ø400.",
+    pq: ["X before Z: the tool leaves the way it came in, away from the freshly cut thread, and the Z retract can no longer touch it."] },
+  "G0 Z400._end": { ph: 5,
+    que: "Backs off in Z to the safe position.",
+    pq: ["Leaves the machine in the same safe position as at the start: the next program or the operator finds the turret away from the part."] },
+  "M2": { ph: 5,
+    que: "End of program: stops spindle and coolant.",
+    pq: ["M2 and M30 both end the program. M30 also rewinds to the start, ready for the next part: in production M30 is used. For a one-off part it makes no difference."] },
+  "G0 X40. Z5.": { ph: 3,
+    que: "Diagonal rapid to Ø40, Z5.",
+    pq: ["First approach to the work area at a safe height: Ø40 is 10 mm above the material and Z5 is in front of the face."] },
+  "G0 Z12.5": { ph: 3,
+    que: "Backs off to Z12.5, the pass start point.",
+    pq: ["As in the cycle: the carriage needs about 5 pitches of distance to accelerate before touching the material."] }
+};
+
+/* ---------- errors ---------- */
+const ERRORS = [
+  { lvl: "err", t: "The thread won't take the nut", lines: ["G71 X17.791"],
+    pq: "A metric thread is a 60° triangle with truncated tips. For an external thread the depth is 0.6134 × P = 1.534 mm. An M20×2.5 nut has a minimum minor diameter of 20 − 1.0825 × 2.5 = Ø17.294. The programmed root is at Ø17.791, larger than 17.294: the nut crests hit the root of your thread, with about 0.25 mm of interference per side.",
+    sol: "In Fusion, thread depth = 1.534 mm (root ≈ Ø16.93). In the drawing on the right, the red dashed line marks the correct root." },
+  { lvl: "err", t: "Badly distributed passes", lines: ["G71 X17.791"],
+    pq: "Chip section grows with the square of the depth. With M73 (constant depth), D1 and H2 you get about 2 passes of 0.5 mm: the first removes 1 unit of section and the second 2² − 1² = 3 units. The insert works three times harder on the last pass.",
+    sol: "Use decreasing infeed (“reduced” in Fusion, M75 on Okuma) with 6–10 passes, like the G32 version. Confirm the exact M73 split in the OSP manual." },
+  { lvl: "warn", t: "No spring pass", lines: ["G71 X17.791"],
+    pq: "While cutting, the tool deflects and moves slightly away from the part, so material is left after the last pass. Repeating that pass without going deeper removes it, with almost no cutting force.",
+    sol: "Enable “spring passes” in the Fusion threading operation." },
+  { lvl: "warn", t: "Radial infeed with a 2.5 pitch", lines: ["G71 X17.791"],
+    pq: "Without a B angle the tool feeds straight in X: both edges of the V cut at once, the chip comes out folded into a V, it's hard to clear and the insert chatters. Flank infeed (29–30°) makes mainly one edge cut and is recommended from pitches of about 1.5 mm up.",
+    sol: "Set the infeed angle in Fusion; the post writes it as B in the G71." },
+  { lvl: "warn", t: "Duplicate internal name (1001.MIN)", lines: ["(1001.MIN)"],
+    pq: "The control identifies programs by their internal name, not by the file name on the computer. Both versions of this thread are called 1001.",
+    sol: "Give each one a different program name in Fusion before posting." }
+];
+
+/* ---------- collisions ---------- */
+const CHECKS = [
+  { t: "X400 and Z400 within machine travel", pq: "If they don't fit, an over-travel alarm goes off mid-program.", lines: ["G0 X400.", "G0 Z400."] },
+  { t: "The turret indexes freely at X400 Z400", pq: "Every mounted tool sweeps a circle when indexing, not just T01.", lines: ["T010101"] },
+  { t: "Nothing in front of the part", pq: "The approach to X39.79 Z12.5 is a diagonal rapid: a tailstock, steady rest or material bigger than Ø40 would be in its way.", lines: ["G0 X39.79 Z12.5"] },
+  { t: "Groove or clearance at Z-32", pq: "The carriage runs at 1,250 mm/min and exits on a ramp of about 45°. A shoulder right at Z-32 would get hit.", lines: ["G71 X17.791"] },
+  { t: "Part at least 40 mm out of the jaws", pq: "32 of thread, plus the run-out, plus margin from the jaws.", lines: ["G71 X17.791"] },
+  { t: "First run in single block, rapids at 25 %", pq: "Feed Hold doesn't work during threading: the only time to stop is before you get there.", lines: ["G0 X39.79 Z12.5", "G71 X17.791"] }
+];
+
+/* ---------- codes ---------- */
+const CODES = [
+  ["G50 S6000", "Speed limit", "Safety: no later block can exceed 6,000 rpm, the limit that protects the chuck.", "G50"],
+  ["G0", "Rapid move", "Approach and retract without cutting, as fast as possible.", "G0 "],
+  ["G90", "Absolute coordinates", "Every coordinate from the work zero, comparable with the drawing.", "G90"],
+  ["G95", "Feed mm/rev", "Essential for threading: feed must be exactly one pitch per rev.", "G95"],
+  ["G18", "XZ plane", "The lathe work plane; written so another one isn't inherited.", "G18"],
+  ["G97", "Fixed rpm", "Essential for threading: with the same rpm every pass lands in the same groove.", "G97"],
+  ["T010101", "Tool and offsets", "Brings the threading insert into position with its length and radius offsets.", "T0101"],
+  ["M8 / M9", "Coolant on / off", "The 60° tip gets very hot and chips have to get out of the groove.", "M8|M9"],
+  ["M3", "Spindle clockwise", "With the tool in its normal position and feeding towards the chuck it gives a right-hand thread.", "M3"],
+  ["M41", "Low gear", "More torque: the spindle doesn't lose rpm under the threading load.", "M41"],
+  ["G71", "Threading cycle (Okuma)", "All passes in one line. Careful: on Fanuc G71 is roughing and on Siemens it's “metric units”.", "G71"],
+  ["M32", "Infeed mode", "How the tool enters on each pass (per the post: M32 for constant/reduced, M33 for alternate).", "M32"],
+  ["M73", "Pass distribution", "Constant depth. It's the cause of error 2; M75 would be decreasing.", "M73"],
+  ["G32", "Block-by-block threading", "G32 version only: one synchronised pass per line. Shows what the cycle does inside.", "G32"],
+  ["M2", "End of program", "Stops spindle and coolant and ends the program. M30 also rewinds to the start.", "M2"]
+];
+
+/* ---------- utilidades ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const strip = l => l.replace(/^N\d+\s*/, "");
+const nf = (v, d) => v == null ? "—" : v.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+
+function hl(line) {
+  if (/^\(.*\)$/.test(line)) return '<span class="t-c">' + esc(line) + "</span>";
+  return esc(line)
+    .replace(/^(N\d+)/, '<span class="t-n">$1</span>')
+    .replace(/\b(G\d+(?:\.\d)?)/g, '<span class="t-g">$1</span>')
+    .replace(/\b(M\d+)/g, '<span class="t-m">$1</span>');
+}
+
+/* intérprete mínimo: estado de la máquina después de cada línea */
+function simulate(lines) {
+  const st = { x: null, z: null, s: null, f: null, t: null, sp: "stopped", co: false, ge: null, mot: null, g: {} };
+  const out = [];
+  lines.forEach(raw => {
+    const l = raw.replace(/\(.*?\)/g, "").trim();
+    const prev = { x: st.x, z: st.z };
+    let cycle = false;
+    const re = /([A-Z])(-?\d*\.?\d+)/g; let m;
+    const words = [];
+    while ((m = re.exec(l))) words.push([m[1], parseFloat(m[2]), m[2]]);
+    const gs = words.filter(w => w[0] === "G").map(w => w[1]);
+    gs.forEach(g => {
+      if (g === 0 || g === 1 || g === 32) st.mot = "G" + g;
+      if (g === 71) cycle = true;
+      if (g === 90 || g === 91) st.g.dist = "G" + g;
+      if (g === 94 || g === 95) st.g.feed = "G" + g;
+      if (g === 17 || g === 18 || g === 19) st.g.plane = "G" + g;
+      if (g === 96 || g === 97) st.g.css = "G" + g;
+      if (g === 50) st.g.lim = "G50";
+    });
+    words.forEach(([a, v, s]) => {
+      if (a === "X" && !cycle) st.x = v;
+      if (a === "Z" && !cycle) st.z = v;
+      if (a === "S" && gs.includes(50)) st.lim = v;
+      else if (a === "S") st.s = v;
+      if (a === "F") st.f = v;
+      if (a === "T") st.t = s;
+      if (a === "M") {
+        if (v === 3) st.sp = "M3 ↻"; if (v === 4) st.sp = "M4 ↺"; if (v === 5 || v === 2 || v === 30) st.sp = "stopped";
+        if (v === 8) st.co = true; if (v === 9 || v === 2 || v === 30) st.co = false;
+        if (v === 41) st.ge = "M41 low"; if (v === 42) st.ge = "M42 high";
+      }
+    });
+    if (cycle) { st.f = words.find(w => w[0] === "F")?.[1] ?? st.f; }
+    const moved = l && (prev.x !== st.x || prev.z !== st.z);
+    out.push(Object.assign({}, st, { g: Object.assign({}, st.g), prev, cycle, moved, motion: moved ? st.mot : null }));
+  });
+  return out;
+}
+
+/* ---------- estado de la página ---------- */
+const S = {
+  mode: "ciclo", prog: G71, sim: simulate(G71), cur: 12,
+  marks: new Set(), errSel: 0, codeSel: -1, checks: loadChecks()
+};
+function loadChecks() { try { return JSON.parse(localStorage.getItem("rosca-checks") || "[]"); } catch (e) { return []; } }
+function saveChecks() { try { localStorage.setItem("rosca-checks", JSON.stringify(S.checks)); } catch (e) {} }
+
+function keyFor(i) {
+  const k = strip(S.prog[i]);
+  if ((k === "G0 X400." || k === "G0 Z400.") && i > 8) return k + "_end";
+  return k;
+}
+function linesMatching(pats) {
+  const out = [];
+  S.prog.forEach((l, i) => { if (pats.some(p => l.includes(p))) out.push(i); });
+  return out;
+}
+function levelOf(i) { const d = INFO[keyFor(i)]; return d && d.lvl; }
+
+/* ---------- editor ---------- */
+function renderCode() {
+  const box = $("code");
+  box.innerHTML = S.prog.map((l, i) => {
+    const lv = S.mode === "g32" ? (/G32/.test(l) && i === lastPassLine() ? "warn" : "") : (levelOf(i) || "");
+    const cls = ["ln", l ? "" : "blank", lv, S.marks.has(i) ? "mark" : "", i === S.cur ? "cur" : ""].join(" ");
+    const flag = lv === "err" ? "✖" : lv === "warn" ? "!" : "";
+    return '<div class="' + cls + '" data-i="' + i + '"><span class="no">' + (i + 1) + '</span><span class="flag">' + flag + "</span><span>" + (l ? hl(l) : " ") + "</span></div>";
+  }).join("");
+  const c = box.querySelector(".cur") || box.querySelector(".mark");
+  if (c) {
+    const top = c.offsetTop - box.offsetTop, h = box.clientHeight;
+    if (top < box.scrollTop || top > box.scrollTop + h - 24) box.scrollTop = Math.max(0, top - h / 3);
+  }
+}
+$("code").addEventListener("click", e => {
+  const ln = e.target.closest(".ln"); if (!ln) return;
+  const i = +ln.dataset.i; if (!S.prog[i]) return;
+  if (S.mode !== "ciclo" && S.mode !== "g32") setMode("ciclo");
+  go(i);
+});
+$("code").addEventListener("keydown", e => {
+  if (e.key === "ArrowDown") { e.preventDefault(); step(1); }
+  if (e.key === "ArrowUp") { e.preventDefault(); step(-1); }
+});
+
+function go(i) { S.cur = i; S.marks = new Set(); render(); }
+function step(d) {
+  let i = S.cur;
+  do { i += d; } while (i >= 0 && i < S.prog.length && !S.prog[i]);
+  if (i >= 0 && i < S.prog.length) go(i);
+}
+function lastPassLine() { let k = -1; S.prog.forEach((l, i) => { if (/G32/.test(l)) k = i; }); return k; }
+
+/* ---------- posición ---------- */
+function renderPos() {
+  const s = S.sim[S.cur] || {};
+  $("pX").textContent = s.x == null ? "—" : nf(s.x, 3);
+  $("pZ").textContent = s.z == null ? "—" : nf(s.z, 3);
+  $("pS").textContent = s.s == null ? "—" : s.s + " rpm";
+  $("pF").textContent = s.f == null ? "—" : nf(s.f, 1) + (s.g.feed === "G95" ? " mm/rev" : "");
+  $("pT").textContent = s.t || "—";
+  $("pSp").textContent = s.sp || "stopped";
+  $("pCo").textContent = s.co ? "M8 on" : "off";
+  $("pGe").textContent = s.ge || "—";
+  const g = s.g || {};
+  const list = [s.mot, g.dist, g.feed, g.plane, g.css, g.lim ? "G50 S" + (s.lim || "") : null].filter(Boolean);
+  $("pMod").innerHTML = "<i>G modals:</i> " + (list.length ? list.join("  ") : "—");
+}
+
+/* ---------- mensajes ---------- */
+function setMsg(lvl, text) {
+  const m = $("msg"); m.className = "msg " + lvl;
+  m.querySelector(".tag").textContent = lvl === "err" ? "Error" : lvl === "warn" ? "Warning" : "Info";
+  $("msgText").textContent = text;
+}
+
+/* ---------- panel de explicación ---------- */
+function sec(cls, title, body) {
+  if (!body || (Array.isArray(body) && !body.length)) return "";
+  const inner = Array.isArray(body) ? (body.length === 1 ? "<p>" + body[0] + "</p>" : "<ul>" + body.map(b => "<li>" + b + "</li>").join("") + "</ul>") : "<p>" + body + "</p>";
+  return '<div class="sec ' + cls + '"><h3>' + title + "</h3>" + inner + "</div>";
+}
+function paramsTable() {
+  const rows = [
+    ["X17.791", "Final diameter: the thread root."],
+    ["Z-32.", "End of the thread."],
+    ["D1.", "First pass depth, on diameter (0.5 mm per side)."],
+    ["H2.", "Total thread height, on diameter (1 mm per side)."],
+    ["F2.5", "Thread pitch. With G95: feed = pitch per rev."],
+    ["M32", "Infeed mode (per the post: constant or reduced; M33 would be alternate)."],
+    ["M73", "Constant-depth distribution (M75 would be decreasing)."]
+  ];
+  return '<div class="sec"><h3>Cycle parameters</h3><div class="tbl-wrap"><table><tr><th>Word</th><th>Meaning</th></tr>' +
+    rows.map(r => "<tr><td><code>" + r[0] + "</code></td><td>" + r[1] + "</td></tr>").join("") + "</table></div></div>";
+}
+
+function passInfo(i) {
+  const l = strip(S.prog[i]);
+  const passIdx = (() => { let n = -1; for (let k = 0; k <= i; k++) if (/^N\d+ X1\d\.\d+$/.test(S.prog[k])) n++; return n; })();
+  const first = (19.791 - PASS_D[0]) / 2;
+  const d = PASS_D[passIdx], depth = (19.791 - d) / 2;
+  const prevDepth = passIdx > 0 ? (19.791 - PASS_D[passIdx - 1]) / 2 : 0;
+  if (/^X1\d\.\d+$/.test(l)) {
+    return { ph: 4, que: "Pass " + (passIdx + 1) + " of 11: the tool rapids down to Ø" + nf(d, 3) + ".",
+      pq: ["Cumulative depth: (19.791 − " + nf(d, 3) + ") / 2 = " + nf(depth, 3) + " mm per side. This pass goes " + nf(depth - prevDepth, 3) + " mm deeper.",
+        "Ratio to the first: " + nf(depth / first, 2) + ", almost equal to √" + (passIdx + 1) + " = " + nf(Math.sqrt(passIdx + 1), 2) + ". Depth grows as √n so that every pass removes the same chip section: at first the groove is narrow and you go deep; at the end it's wide and you go only a little deeper."],
+      table: true, pass: passIdx };
+  }
+  if (/^G32/.test(l)) {
+    const last = passIdx === PASS_D.length - 1;
+    return { ph: 4, lvl: last ? "warn" : null,
+      que: "Threads pass " + (passIdx + 1) + " from Z12.5 to Z" + nf(PASS_Z[passIdx], 3) + ", synchronised with the spindle (2.5 mm per rev).",
+      pq: ["G32 is block-by-block threading: the control waits for the encoder's once-per-rev signal and only then starts the carriage. That way this pass lands in the same groove as the previous ones.",
+        "It doesn't reach Z-32: it ends earlier because the next line exits diagonally. The deeper the pass, the sooner the run-out starts."],
+      riesgo: last ? "It's the last pass and it isn't repeated: there's no spring pass to remove what tool deflection leaves." : null,
+      table: true, pass: passIdx };
+  }
+  if (l === "X19.791 Z-32. F2.5") {
+    return { ph: 4, que: "Thread run-out: rises diagonally to Ø19.791 at Z-32, still synchronised.",
+      pq: ["The carriage runs at 750 mm/min and can't stop dead: if it stopped inside the material the insert would leave a ring. It ramps out (about 45°) while still advancing one pitch per rev."],
+      riesgo: "It needs clearance after Z-31: if there's a shoulder, a relief groove is needed.", pass: passIdx, table: true };
+  }
+  if (l === "G0 X40.") return { ph: 4, que: "Radial retract to Ø40, above the material.", pq: ["X comes out first so the Z return doesn't touch the thread."], pass: passIdx };
+  if (l === "Z12.5") return { ph: 4, que: "Rapids back to Z12.5, the start point.", pq: ["Every pass starts 5 pitches before the material so the carriage reaches speed before cutting."], pass: passIdx };
+  return null;
+}
+function passTable(cur) {
+  const first = (19.791 - PASS_D[0]) / 2;
+  return '<div class="sec"><h3>The 11 passes: depth ∝ √n</h3><div class="tbl-wrap"><table><tr><th class="num">n</th><th class="num">Ø</th><th class="num">Cum. depth</th><th class="num">Ratio</th><th class="num">√n</th></tr>' +
+    PASS_D.map((d, i) => { const p = (19.791 - d) / 2; return '<tr class="' + (i === cur ? "hit" : "") + '"><td class="num">' + (i + 1) + '</td><td class="num">' + nf(d, 3) + '</td><td class="num">' + nf(p, 3) + ' mm</td><td class="num">' + nf(p / first, 2) + '</td><td class="num">' + nf(Math.sqrt(i + 1), 2) + "</td></tr>"; }).join("") +
+    "</table></div></div>";
+}
+
+function renderInfo() {
+  const box = $("info");
+  if (S.mode === "ciclo" || S.mode === "g32") {
+    const i = S.cur, line = S.prog[i];
+    let d = (S.mode === "g32" && passInfo(i)) || INFO[keyFor(i)];
+    if (!d) d = { ph: 0, que: "Empty line or no function.", pq: [] };
+    const nTxt = (line.match(/^N\d+/) || [""])[0];
+    $("infoTitle").textContent = (nTxt ? nTxt + " · " : "") + "Phase " + d.ph + " · " + PHASES[d.ph];
+    $("infoSub").textContent = S.mode === "g32" ? "G32 version" : "G71 cycle version";
+    box.innerHTML =
+      '<span class="chip">Phase ' + d.ph + " · " + PHASES[d.ph] + "</span>" +
+      '<div class="blk">' + hl(line) + "</div>" +
+      sec("", "What the machine does", d.que) +
+      sec("why", "Why", d.pq) +
+      (d.params ? paramsTable() : "") +
+      sec("", "If it weren't done this way", d.sino) +
+      (d.riesgo ? sec("risk " + (d.lvl === "err" ? "err" : ""), d.lvl === "err" ? "Error / risk" : "Risk", d.riesgo) : "") +
+      (d.table ? passTable(d.pass) : "");
+    const lv = d.lvl;
+    setMsg(lv || "ok", lv ? d.riesgo.split(". ")[0] + "." : "Block " + (nTxt || (i + 1)) + " · " + PHASES[d.ph] + ". Use ↑ ↓ or the softkeys to step.");
+    return;
+  }
+  if (S.mode === "errores") {
+    $("infoTitle").textContent = "Errors found"; $("infoSub").textContent = ERRORS.length + " found";
+    box.innerHTML = '<p class="note">Tap an error to see the lines that cause it in the editor.</p>' + ERRORS.map((e, k) =>
+      '<button class="card ' + e.lvl + (k === S.errSel ? " on" : "") + '" data-err="' + k + '"><h4><span class="n">' + (k + 1) + "</span>" + e.t + "</h4>" +
+      '<span class="lbl">Why</span><p>' + e.pq + '</p><span class="lbl">Fix</span><p>' + e.sol + "</p></button>").join("");
+    const e = ERRORS[S.errSel];
+    setMsg(e.lvl, "Error " + (S.errSel + 1) + ": " + e.t + ".");
+    return;
+  }
+  if (S.mode === "colisiones") {
+    $("infoTitle").textContent = "Checks before running";
+    const done = S.checks.filter(Boolean).length;
+    $("infoSub").textContent = done + " of " + CHECKS.length + " done";
+    box.innerHTML = '<p class="note">Tick each item once you\'ve checked it at the machine. Ticks are only saved in this browser.</p>' + CHECKS.map((c, k) =>
+      '<div class="check' + (S.checks[k] ? " done" : "") + '"><input type="checkbox" id="chk' + k + '" data-chk="' + k + '"' + (S.checks[k] ? " checked" : "") + '><label for="chk' + k + '">' + c.t + "</label><p>" + c.pq + "</p></div>").join("");
+    setMsg(done === CHECKS.length ? "ok" : "warn", done === CHECKS.length ? "All checks done. First run: single block." : (CHECKS.length - done) + " checks left before running.");
+    return;
+  }
+  if (S.mode === "codigos") {
+    $("infoTitle").textContent = "Codes in this exercise"; $("infoSub").textContent = "tap a row to see it in the editor";
+    box.innerHTML = '<div class="tbl-wrap"><table><tr><th>Code</th><th>Function</th><th>Why in this exercise</th></tr>' +
+      CODES.map((c, k) => '<tr class="click' + (k === S.codeSel ? " hit" : "") + '" data-code="' + k + '"><td><code>' + c[0] + "</code></td><td>" + c[1] + "</td><td>" + c[2] + "</td></tr>").join("") + "</table></div>";
+    setMsg("ok", "15 different codes across the two program versions.");
+  }
+}
+$("info").addEventListener("click", e => {
+  const card = e.target.closest("[data-err]");
+  if (card) { selectError(+card.dataset.err); return; }
+  const row = e.target.closest("[data-code]");
+  if (row) { selectCode(+row.dataset.code); }
+});
+$("info").addEventListener("change", e => {
+  const k = e.target.dataset.chk; if (k == null) return;
+  S.checks[+k] = e.target.checked; saveChecks();
+  S.marks = new Set(linesMatching(CHECKS[+k].lines)); renderCode(); renderInfo();
+});
+function selectError(k) {
+  S.errSel = k; S.marks = new Set(linesMatching(ERRORS[k].lines));
+  const first = [...S.marks][0]; if (first != null) S.cur = first;
+  render();
+}
+function selectCode(k) {
+  S.codeSel = k;
+  const pats = CODES[k][3].split("|");
+  const g32 = CODES[k][0] === "G32";
+  if (g32 && S.prog !== G32) loadProg(G32);
+  if (!g32 && S.prog !== G71) loadProg(G71);
+  S.marks = new Set(S.prog.map((l, i) => pats.some(p => new RegExp("\\b" + p.trim().replace(".", "\\.") + "(?![\\d.])").test(l)) ? i : -1).filter(i => i >= 0));
+  S.cur = -1;
+  render();
+}
+
+/* ---------- softkeys ---------- */
+const HKEYS = [
+  ["ciclo", "Work cycle", "block by block"],
+  ["errores", "Errors", "5 found"],
+  ["colisiones", "Collisions", "before running"],
+  ["codigos", "Codes", "and why"],
+  ["g32", "G71 vs G32", "pass by pass"]
+];
+function vkeysFor(mode) {
+  if (mode === "ciclo") return [
+    ["◀ Block", () => step(-1)], ["Block ▶", () => step(1)],
+    ...[1, 2, 3, 4, 5].map(p => ["Phase " + p, () => go(S.prog.findIndex((l, i) => l && (INFO[keyFor(i)] || {}).ph === p)), PHASES[p]]),
+    ["Start", () => go(0)]
+  ];
+  if (mode === "g32") return [
+    ["◀ Block", () => step(-1)], ["Block ▶", () => step(1)],
+    ["◀ Pass", () => jumpPass(-1)], ["Pass ▶", () => jumpPass(1)],
+    ["Pass 1", () => go(S.prog.findIndex(l => /G32/.test(l)))], ["Last", () => go(lastPassLine())],
+    ["Start", () => go(0)]
+  ];
+  if (mode === "errores") return ERRORS.map((e, k) => ["Error " + (k + 1), () => selectError(k), e.lvl === "err" ? "severe" : "warning"]);
+  if (mode === "colisiones") return [["Clear ticks", () => { S.checks = []; saveChecks(); S.marks = new Set(); render(); }]];
+  if (mode === "codigos") return [["View G71", () => { loadProg(G71); S.marks = new Set(); S.codeSel = -1; S.cur = 12; render(); }], ["View G32", () => { loadProg(G32); S.marks = new Set(); S.codeSel = -1; S.cur = G32.findIndex(l => /G32/.test(l)); render(); }]];
+  return [];
+}
+function jumpPass(d) {
+  const passes = S.prog.map((l, i) => /G32/.test(l) ? i : -1).filter(i => i >= 0);
+  const cur = passes.findIndex(i => i >= S.cur);
+  let k = cur < 0 ? passes.length - 1 : (passes[cur] === S.cur ? cur + d : (d > 0 ? cur : cur - 1));
+  k = Math.max(0, Math.min(passes.length - 1, k));
+  go(passes[k]);
+}
+function renderKeys() {
+  const v = vkeysFor(S.mode);
+  const vk = $("vkeys"); vk.innerHTML = "";
+  for (let k = 0; k < 8; k++) {
+    const b = document.createElement("button"); b.className = "sk";
+    if (v[k]) {
+      b.innerHTML = v[k][0] + (v[k][2] ? "<small>" + v[k][2] + "</small>" : "");
+      b.onclick = v[k][1];
+      if (S.mode === "errores" && k === S.errSel) b.classList.add("on");
+    } else { b.disabled = true; b.textContent = "·"; b.setAttribute("aria-hidden", "true"); }
+    vk.appendChild(b);
+  }
+  const hk = $("hkeys"); hk.innerHTML = "";
+  for (let k = 0; k < 8; k++) {
+    if (k === 7) {
+      const a = document.createElement("a"); a.className = "sk link";
+      a.href = "board-thread-M20.html"; 
+      a.innerHTML = "◀ Board<small>exercise notes</small>";
+      hk.appendChild(a); continue;
+    }
+    const b = document.createElement("button"); b.className = "sk";
+    const h = HKEYS[k];
+    if (h) {
+      b.innerHTML = h[1] + "<small>" + h[2] + "</small>";
+      if (h[0] === S.mode) { b.classList.add("on"); b.setAttribute("aria-pressed", "true"); }
+      b.onclick = () => setMode(h[0]);
+    } else { b.disabled = true; b.textContent = "·"; b.setAttribute("aria-hidden", "true"); }
+    hk.appendChild(b);
+  }
+}
+function loadProg(p) {
+  S.prog = p; S.sim = simulate(p);
+  $("path").textContent = p === G32 ? "/okuma_rosca-M20x2.5_G32.MIN" : "/okuma_rosca-M20x2.5_ciclo-G71.MIN";
+}
+function setMode(m) {
+  S.mode = m; S.marks = new Set();
+  if (m === "g32") { loadProg(G32); S.cur = G32.findIndex(l => /G32/.test(l)); }
+  else if (m === "ciclo") { if (S.prog !== G71) { loadProg(G71); S.cur = 12; } if (S.cur < 0) S.cur = 12; }
+  else if (m === "errores") { loadProg(G71); selectError(S.errSel); return; }
+  else if (m === "colisiones") { loadProg(G71); S.cur = -1; }
+  else if (m === "codigos") { if (S.prog !== G71) loadProg(G71); S.cur = -1; S.codeSel = -1; }
+  try { localStorage.setItem("rosca-mode", m); } catch (e) {}
+  render();
+}
+
+/* ---------- dibujo XZ ---------- */
+const cv = $("cv"), ctx = cv.getContext("2d");
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let anim = null;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const V = { z0: -50, z1: 18, r0: -2, r1: 23 };
+let W = 300, H = 120, k = 1, pad = 14;
+function sx(z) { return pad + (z - V.z0) * k; }
+function sy(r) { return H - pad - (r - V.r0) * k; }
+function size() {
+  const w = cv.clientWidth || 300;
+  k = (w - 2 * pad) / (V.z1 - V.z0);
+  W = w; H = Math.round((V.r1 - V.r0) * k + 2 * pad);
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + "px";
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function cyclePaths() {
+  if (S.prog === G71) return [18.791, 17.791].map(d => ({ d, zEnd: -31 }));
+  return PASS_D.map((d, i) => ({ d, zEnd: PASS_Z[i] }));
+}
+function passPath(p) {
+  const r = p.d / 2, top = (S.prog === G71 ? 39.79 : 40) / 2;
+  return [[12.5, top, 0], [12.5, r, 0], [p.zEnd, r, 1], [-32, 19.791 / 2, 1], [-32, top, 0], [12.5, top, 0]];
+}
+function drawBase() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = css("--paper"); ctx.fillRect(0, 0, W, H);
+  ctx.font = "11px " + css("--font-ui");
+  // garras
+  ctx.fillStyle = css("--steel-dark");
+  ctx.fillRect(sx(V.z0), sy(17), sx(-42) - sx(V.z0), sy(10) - sy(17));
+  ctx.fillStyle = css("--muted"); ctx.fillText("jaws (assumed)", sx(V.z0) + 2, sy(17) - 4);
+  // barra Ø20
+  ctx.fillStyle = css("--steel");
+  ctx.fillRect(sx(V.z0), sy(10), sx(0) - sx(V.z0), sy(V.r0) - sy(10));
+  // valles de rosca programada (1 mm)
+  const rootP = 17.791 / 2;
+  ctx.fillStyle = css("--paper");
+  for (let z = -1.25; z > -32; z -= 2.5) {
+    const hw = (10 - rootP) * Math.tan(Math.PI / 6);
+    ctx.beginPath(); ctx.moveTo(sx(z - hw), sy(10)); ctx.lineTo(sx(z), sy(rootP)); ctx.lineTo(sx(z + hw), sy(10)); ctx.closePath(); ctx.fill();
+  }
+  // eje
+  ctx.strokeStyle = css("--muted"); ctx.setLineDash([6, 3, 2, 3]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(sx(V.z0), sy(0)); ctx.lineTo(sx(V.z1), sy(0)); ctx.stroke();
+  // fondo correcto
+  ctx.strokeStyle = css("--err"); ctx.setLineDash([4, 3]); ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(sx(0), sy(16.933 / 2)); ctx.lineTo(sx(-32), sy(16.933 / 2)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = css("--err"); ctx.fillText("correct root Ø16.93", sx(-31), sy(16.933 / 2) + 12);
+  // cotas
+  ctx.fillStyle = css("--muted");
+  ctx.fillText("Z0", sx(0) - 6, sy(V.r0) + 11 > H ? H - 2 : sy(V.r0) + 11);
+  ctx.fillText("Z-32", sx(-32) - 12, H - 2);
+  ctx.fillText("Ø20", sx(2), sy(10) + 4);
+  ctx.strokeStyle = css("--rule"); ctx.lineWidth = 1;
+  [0, -32].forEach(z => { ctx.beginPath(); ctx.moveTo(sx(z), sy(V.r0)); ctx.lineTo(sx(z), sy(V.r0) - 4); ctx.stroke(); });
+}
+function drawPasses(cur) {
+  cyclePaths().forEach((p, i) => {
+    const on = i === cur;
+    ctx.strokeStyle = on ? css("--accent") : "rgba(10,106,140,.22)";
+    ctx.lineWidth = on ? 2 : 1;
+    ctx.beginPath(); ctx.moveTo(sx(12.5), sy(p.d / 2)); ctx.lineTo(sx(p.zEnd), sy(p.d / 2)); ctx.lineTo(sx(-32), sy(19.791 / 2)); ctx.stroke();
+  });
+}
+function drawTool(z, r, label) {
+  let cz = z, cr = r, off = false;
+  if (z > V.z1 - 1) { cz = V.z1 - 3; off = true; }
+  if (r > V.r1 - 5) { cr = V.r1 - 5; off = true; }
+  const x = sx(cz), y = sy(cr);
+  ctx.fillStyle = css("--cursor"); ctx.strokeStyle = "#5c4100"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 1.6 * k, y - 3 * k); ctx.lineTo(x + 1.6 * k, y - 3 * k); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#6b757d"; ctx.fillRect(x - 1.2 * k, y - 5 * k, 2.4 * k, 2 * k);
+  if (off || label) {
+    ctx.fillStyle = css("--ink"); ctx.font = "600 11px " + css("--font-ui");
+    const t = label || "out of view ↗";
+    ctx.fillText(t, Math.min(x - 8, W - ctx.measureText(t).width - 4), y - 5 * k - 4);
+  }
+}
+function drawMove(s) {
+  if (!s || !s.moved || s.prev.x == null || s.prev.z == null) return;
+  const clampR = r => Math.min(r, V.r1 - 5), clampZ = z => Math.min(z, V.z1 - 3);
+  ctx.strokeStyle = css("--accent"); ctx.lineWidth = 1.5;
+  ctx.setLineDash(s.motion === "G0" ? [5, 4] : []);
+  ctx.beginPath(); ctx.moveTo(sx(clampZ(s.prev.z)), sy(clampR(s.prev.x / 2))); ctx.lineTo(sx(clampZ(s.z)), sy(clampR(s.x / 2))); ctx.stroke();
+  ctx.setLineDash([]);
+}
+function currentPass() {
+  if (S.prog !== G32 || S.cur < 0) return -1;
+  let n = -1; for (let i = 0; i <= S.cur; i++) if (/^N\d+ X1\d\.\d+$/.test(S.prog[i])) n++;
+  return n;
+}
+function drawScene() {
+  if (anim) { cancelAnimationFrame(anim); anim = null; }
+  size(); drawBase();
+  const s = S.sim[S.cur];
+  const line = S.prog[S.cur] || "";
+  const isCycle = S.prog === G71 && /G71/.test(line);
+  const passN = currentPass();
+  if (isCycle || (S.mode === "g32" && passN >= 0)) {
+    const paths = cyclePaths();
+    const list = isCycle ? paths.map((p, i) => i) : [passN];
+    drawPasses(isCycle ? -1 : passN);
+    const pts = []; list.forEach(i => passPath(paths[i]).forEach(p => pts.push(p)));
+    if (reduce) { const p = pts[2]; drawTool(p[0], p[1], isCycle ? "cycle: " + paths.length + " passes (assumed)" : null); return; }
+    let t0 = null; const speed = 26; // mm por segundo en pantalla
+    const segs = []; let L = 0;
+    for (let i = 1; i < pts.length; i++) { const a = pts[i - 1], b = pts[i]; const l = Math.hypot(b[0] - a[0], b[1] - a[1]); segs.push([a, b, L, l]); L += l; }
+    const frame = ts => {
+      if (t0 == null) t0 = ts;
+      const d = ((ts - t0) / 1000 * speed) % L;
+      const seg = segs.find(sg => d >= sg[2] && d <= sg[2] + sg[3]) || segs[segs.length - 1];
+      const f = seg[3] ? (d - seg[2]) / seg[3] : 0;
+      const z = seg[0][0] + (seg[1][0] - seg[0][0]) * f, r = seg[0][1] + (seg[1][1] - seg[0][1]) * f;
+      drawBase(); drawPasses(isCycle ? Math.floor(d / (L / list.length)) : passN);
+      drawTool(z, r, isCycle ? "cycle: " + paths.length + " passes (assumed)" : null);
+      anim = requestAnimationFrame(frame);
+    };
+    anim = requestAnimationFrame(frame);
+    return;
+  }
+  if (S.mode === "g32") drawPasses(-1);
+  drawMove(s);
+  if (s && s.x != null && s.z != null) drawTool(s.z, s.x / 2, (s.x > 2 * (V.r1 - 5) || s.z > V.z1 - 1) ? "X" + s.x + " Z" + s.z + " ↗" : null);
+  else if (s && s.x != null) drawTool(V.z1, s.x / 2, "X" + s.x + " · Z undefined");
+  else { ctx.fillStyle = css("--muted"); ctx.font = "12px " + css("--font-ui"); ctx.fillText("Tool position not known yet", sx(-20), sy(20)); }
+}
+
+/* ---------- render ---------- */
+function render() { renderKeys(); renderCode(); renderPos(); renderInfo(); drawScene(); }
+if (window.ResizeObserver) new ResizeObserver(() => drawScene()).observe(cv);
+else window.addEventListener("resize", drawScene);
+document.addEventListener("keydown", e => {
+  if (e.target.closest && e.target.closest("input, textarea")) return;
+  if (S.mode !== "ciclo" && S.mode !== "g32") return;
+  if (e.key === "PageDown") { e.preventDefault(); step(1); }
+  if (e.key === "PageUp") { e.preventDefault(); step(-1); }
+});
+
+let start = "ciclo";
+try { const m = localStorage.getItem("rosca-mode"); if (m && HKEYS.some(h => h[0] === m)) start = m; } catch (e) {}
+if (start === "ciclo") render(); else setMode(start);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawScene);
+})();
+</script>
+
+</body>
+</html>

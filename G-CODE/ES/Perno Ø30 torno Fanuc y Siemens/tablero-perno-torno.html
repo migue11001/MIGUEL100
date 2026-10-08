@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tablero perno torno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Patrick+Hand&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: bacheca di sughero dell'officina — foglietti adesivi appuntati su una griglia che si adatta, un foglio grande con lo schizzo del pezzo e un tasto G-CODE in basso. Aspetto unico di proposito (sughero), con tutti i colori espliciti. */
+:root {
+  --cork: #b98a55;
+  --cork-dark: #8d6438;
+  --cork-light: #d3a873;
+  --frame: #5b3d22;
+  --ink: #23201b;
+  --pencil: #4d4a44;
+  --yellow: #fff1a0;
+  --blue: #cfe8f7;
+  --pink: #ffd0d6;
+  --green: #d5f0c4;
+  --white: #fbfaf5;
+  --orange: #ffd9a8;
+  --red: #c4232b;
+  --blue-ink: #1f4f8f;
+  --pin: #d8322f;
+  --key-top: #fbfcfc;
+  --key-bot: #c8cfd5;
+  --key-ink: #1b232a;
+  --font-hand: "Kalam", "Comic Sans MS", cursive;
+  --font-note: "Patrick Hand", "Comic Sans MS", cursive;
+  --font-code: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background-color: var(--frame);
+  font: 18px/1.35 var(--font-note);
+  padding-inline: 16px;
+  padding-block: 20px 40px;
+}
+.board {
+  max-width: 1240px;
+  margin: 0 auto;
+  border: 14px solid var(--frame);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 2px #3f2a17, 0 10px 30px rgba(0,0,0,.35);
+  background-color: var(--cork);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.10) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 70% 60%, rgba(0,0,0,.12) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(0,0,0,.08) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 85% 15%, rgba(255,255,255,.08) 0 1px, transparent 1.5px);
+  background-size: 13px 13px, 17px 17px, 11px 11px, 19px 19px;
+  padding: 28px 24px 36px;
+}
+.title {
+  text-align: center;
+  margin: 0 auto 26px;
+  max-width: 640px;
+  background: var(--white);
+  padding: 14px 20px 12px;
+  transform: rotate(-1deg);
+  box-shadow: 0 6px 12px rgba(0,0,0,.28);
+  position: relative;
+}
+.title h1 { font-family: var(--font-hand); font-size: clamp(30px, 5vw, 44px); line-height: 1.05; margin: 0; text-wrap: balance; }
+.title p { margin: 6px 0 0; color: var(--pencil); }
+.notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 28px 24px;
+  align-items: start;
+}
+.note {
+  position: relative;
+  padding: 26px 18px 18px;
+  box-shadow: 0 8px 14px rgba(0,0,0,.28), 0 1px 0 rgba(0,0,0,.08);
+  transform: rotate(var(--r, 0deg));
+  transition: transform .2s ease;
+  min-width: 0;
+}
+.note:hover { transform: rotate(0deg) scale(1.02); z-index: 2; }
+.note::before {
+  content: "";
+  position: absolute; top: 8px; left: 50%;
+  width: 16px; height: 16px; margin-left: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff8a80, var(--pin) 55%, #8f1414);
+  box-shadow: 2px 3px 4px rgba(0,0,0,.4);
+}
+.note.tape::before {
+  width: 90px; height: 24px; top: -10px; margin-left: -45px; border-radius: 2px;
+  background: rgba(255,255,255,.55); box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+.note h2 { font-family: var(--font-hand); font-weight: 700; font-size: 25px; line-height: 1.1; margin: 0 0 8px; }
+.note p { margin: 0 0 8px; }
+.note p:last-child { margin-bottom: 0; }
+.note ul, .note ol { margin: 0; padding-left: 1.15em; display: grid; gap: 5px; }
+.note .why { color: var(--blue-ink); }
+.note .red { color: var(--red); }
+.note code, .note .mono { font-family: var(--font-code); font-size: 14.5px; background: rgba(0,0,0,.06); padding: 0 3px; border-radius: 2px; white-space: nowrap; }
+.note .big { font-family: var(--font-code); font-size: 19px; font-weight: 600; }
+.note small { color: var(--pencil); font-size: 15px; }
+.yellow { background: var(--yellow); }
+.blue { background: var(--blue); }
+.pink { background: var(--pink); }
+.green { background: var(--green); }
+.white { background: var(--white); background-image: repeating-linear-gradient(transparent 0 25px, #c9d8e6 25px 26px); background-position: 0 50px; }
+.orange { background: var(--orange); }
+.wide { grid-column: span 2; }
+.kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; }
+.kv dt { color: var(--pencil); }
+.kv dd { margin: 0; }
+.circle { border: 2px solid var(--red); border-radius: 50% 45% 50% 48%; padding: 0 6px; }
+.under { text-decoration: underline wavy var(--red); text-underline-offset: 3px; }
+.sketch { width: 100%; height: auto; display: block; margin: 4px 0 6px; }
+.sketch text { font-family: var(--font-note); }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; font-size: 16px; width: 100%; }
+td, th { padding: 2px 6px; border-bottom: 1px dashed rgba(0,0,0,.25); text-align: right; font-variant-numeric: tabular-nums; }
+th { font-weight: 400; color: var(--pencil); }
+td:first-child, th:first-child { text-align: left; }
+.check { list-style: none; padding-left: 0 !important; }
+.check li::before { content: "☐ "; font-family: var(--font-code); }
+.tag { display: inline-block; font-family: var(--font-code); font-size: 13px; background: rgba(0,0,0,.08); padding: 0 4px; border-radius: 2px; }
+
+.cta { display: grid; justify-items: center; gap: 10px; margin-top: 36px; }
+.cta p { margin: 0; color: #f6e7d2; font-size: 17px; text-align: center; }
+.gkey {
+  display: inline-grid;
+  place-items: center;
+  min-width: 260px;
+  padding: 16px 38px 14px;
+  font-family: var(--font-code);
+  font-weight: 600;
+  font-size: 28px;
+  letter-spacing: .12em;
+  color: var(--key-ink);
+  text-decoration: none;
+  background: linear-gradient(var(--key-top), var(--key-bot));
+  border: 2px solid #5f6b75;
+  border-radius: 6px;
+  box-shadow: inset 0 2px 0 #fff, 0 5px 0 #4b555e, 0 10px 18px rgba(0,0,0,.4);
+  transition: transform .08s ease, box-shadow .08s ease;
+}
+.gkey small { font-family: var(--font-note); font-size: 15px; letter-spacing: 0; font-weight: 400; color: #4d5861; }
+.gkey:hover { background: linear-gradient(#ffffff, #d6dce1); }
+.gkey:active { transform: translateY(4px); box-shadow: inset 0 2px 0 #fff, 0 1px 0 #4b555e, 0 4px 8px rgba(0,0,0,.35); }
+.gkey:focus-visible { outline: 3px solid #ffd27a; outline-offset: 4px; }
+
+@media (max-width: 640px) {
+  .board { border-width: 8px; padding: 22px 12px 28px; }
+  .wide { grid-column: auto; }
+  .notes { grid-template-columns: minmax(0, 1fr); }
+  .note { transform: rotate(calc(var(--r, 0deg) / 2)); }
+  .gkey { min-width: 0; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .note, .gkey { transition: none; } .note:hover { transform: rotate(var(--r, 0deg)); } }
+</style>
+</head>
+<body>
+
+<div class="board">
+  <header class="title">
+    <h1>Perno Ø30 · torno Fanuc y Siemens</h1>
+    <p>Torneado + motorizadas · O2222 y .MPF · CNMEC, taller artesanal cnc</p>
+  </header>
+
+  <div class="notes">
+    <article class="note white wide tape" style="--r:-.6deg">
+      <h2>La pieza</h2>
+      <svg class="sketch" viewBox="0 0 560 190" role="img" aria-label="Croquis en sección: barra Ø40, cara refrentada a Z-6,5, perno Ø30,2 hasta Z-33,4, un agujero fuera de centro y una cajera en el centro">
+        <rect x="20" y="20" width="60" height="30" fill="#8a8f94"/>
+        <text x="22" y="14" font-size="15" fill="#4d4a44">garras</text>
+        <rect x="20" y="50" width="470" height="120" fill="#e3e0d8" stroke="#8a8f94" stroke-dasharray="4 3"/>
+        <path d="M80 50 H170 V170 H80 Z" fill="#c9cfd4" stroke="#4d4a44" stroke-width="2"/>
+        <path d="M170 64 H405 Q412 64 414 70 V150 Q412 156 405 156 H170 Z" fill="#c9cfd4" stroke="#4d4a44" stroke-width="2"/>
+        <line x1="186" y1="76" x2="400" y2="76" stroke="#c4232b" stroke-width="6" opacity=".55"/>
+        <rect x="370" y="98" width="44" height="24" fill="#fbfaf5" stroke="#1f4f8f" stroke-width="1.5" stroke-dasharray="5 3"/>
+        <line x1="10" y1="110" x2="550" y2="110" stroke="#4d4a44" stroke-dasharray="10 4 2 4"/>
+        <line x1="490" y1="30" x2="490" y2="180" stroke="#c4232b" stroke-width="1.5"/>
+        <text x="494" y="44" font-size="15" fill="#c4232b">Z0 bruto</text>
+        <line x1="414" y1="30" x2="414" y2="180" stroke="#1f4f8f" stroke-width="1" stroke-dasharray="3 3"/>
+        <text x="420" y="186" font-size="15" fill="#1f4f8f">Z-6,5</text>
+        <text x="250" y="140" font-size="16" fill="#23201b">Ø30,2</text>
+        <text x="88" y="186" font-size="16" fill="#23201b">Ø40</text>
+        <text x="190" y="60" font-size="14" fill="#c4232b">agujero r12,5</text>
+        <text x="330" y="96" font-size="14" fill="#1f4f8f">cajera</text>
+      </svg>
+      <dl class="kv">
+        <dt>Máquina</dt><dd>torno con eje C y motorizadas</dd>
+        <dt>Programas</dt><dd><code>O2222</code> (Fanuc) · <code>TORNO_SIEMENS_ADAPTATIVO.MPF</code> (Siemens)</dd>
+        <dt>Bruto</dt><dd>Ø40 × 40 · cero Z en la cara del bruto</dd>
+      </dl>
+    </article>
+
+    <article class="note blue" style="--r:1.2deg">
+      <h2>Ciclo de trabajo</h2>
+      <ol>
+        <li><b>Refrentado</b> 6,5 mm en 3 niveles</li>
+        <li><b>Agujero fuera de centro</b> r12,5 · motorizada</li>
+        <li><b>Desbaste</b> Ø40 → Ø30,2</li>
+        <li><b>Agujero central</b> · motorizada</li>
+        <li><b>Cajera</b> adaptativa en el centro</li>
+        <li><b>Acabado</b> cajera · <small>solo Siemens</small></li>
+      </ol>
+    </article>
+
+    <article class="note yellow" style="--r:-1.3deg">
+      <h2>Misma pieza, dos lenguajes</h2>
+      <div class="tbl-wrap">
+        <table>
+          <tr><th></th><th>Fanuc</th><th>Siemens</th></tr>
+          <tr><td>mm</td><td>G21</td><td>G71</td></tr>
+          <tr><td>mm/vuelta</td><td>G99</td><td>G95</td></tr>
+          <tr><td>límite</td><td>G50 S</td><td>LIMS</td></tr>
+          <tr><td>cara</td><td>G12.1</td><td>TRANSMIT</td></tr>
+          <tr><td>taladrado</td><td>G83</td><td>CYCLE83</td></tr>
+          <tr><td>ángulo</td><td>C-150.</td><td>SP1=210.</td></tr>
+        </table>
+      </div>
+    </article>
+
+    <article class="note pink" style="--r:.9deg">
+      <h2 class="red">¡Una hora para un agujero!</h2>
+      <p>Broca1: <span class="circle">44 rpm</span> y <span class="circle">F2 mm/min</span></p>
+      <p>24,5 mm en pasos de 0,5 → <b>64 minutos</b>.</p>
+      <p class="why">En las dos versiones.</p>
+    </article>
+
+    <article class="note pink" style="--r:-1.5deg">
+      <h2 class="red">¡11 horas de acabado!</h2>
+      <p>Siemens, acabado: <code>S2=300</code>, <code>F2</code> y <code>F0.67</code>.</p>
+      <p>26.000 líneas a 2 mm/min.</p>
+      <p class="why">Probable unidad equivocada en Fusion.</p>
+    </article>
+
+    <article class="note orange" style="--r:1.4deg">
+      <h2>Otros errores</h2>
+      <ul>
+        <li>Fanuc: cajera a <code>S40000</code> (Siemens: <code>S2=5000</code>)</li>
+        <li>Agujero central a 40 rpm y F3</li>
+        <li>Agujero a r12,5 en el Ø30,2: pared 2,6 − r broca</li>
+        <li>Cajera distinta en las dos versiones, acabado solo Siemens</li>
+      </ul>
+    </article>
+
+    <article class="note green" style="--r:-.8deg">
+      <h2>¡G71 no siempre es G71!</h2>
+      <dl class="kv">
+        <dt>Siemens</dt><dd><b>milímetros</b> (este ejercicio)</dd>
+        <dt>Fanuc</dt><dd>ciclo de <b>desbaste</b></dd>
+        <dt>Okuma</dt><dd>ciclo de <b>roscado</b> (rosca M20)</dd>
+      </dl>
+      <p class="why">Y <code>M1=3</code> (Siemens) enciende el husillo 1, <code>M1</code> es la parada opcional.</p>
+    </article>
+
+    <article class="note white" style="--r:.6deg">
+      <h2>El cero está en el bruto</h2>
+      <p>El refrentado baja a <b>Z-6,5</b>: la pieza acabada empieza ahí.</p>
+      <p class="why">Todas las cotas de la pieza son «-6,5 más algo». Toma Z en la cara del bruto, no en la acabada.</p>
+    </article>
+
+    <article class="note blue" style="--r:1.1deg">
+      <h2>¿Husillo o eje C?</h2>
+      <p><b>Tornear</b>: la pieza gira (<code>M34</code>, <code>P11</code> / <code>SETMS(1)</code>).</p>
+      <p><b>Taladrar/fresar</b>: la pieza está quieta en un ángulo, gira la herramienta (<code>M35</code>, <code>P12</code> / <code>SETMS(2)</code>).</p>
+    </article>
+
+    <article class="note yellow" style="--r:-1deg">
+      <h2>Antes de Cycle Start</h2>
+      <ul class="check">
+        <li>≥ 40 mm fuera de las garras</li>
+        <li>Cero Z en la cara del bruto</li>
+        <li>Herramientas de la versión correcta</li>
+        <li>Rpm de las motorizadas correctas</li>
+        <li>Siemens: D2 en T2</li>
+        <li>Contrahusillo en reposo</li>
+        <li>Bloque a bloque, override bajo</li>
+      </ul>
+    </article>
+
+    <article class="note white" style="--r:1.3deg">
+      <h2>Por confirmar</h2>
+      <small>en el modelo Fusion y en el manual</small>
+      <ul>
+        <li>Diámetro de la broca T8 (¡la pared!)</li>
+        <li>Rpm máximas de las motorizadas</li>
+        <li><code>M138/M139</code>, <code>M89/M90</code>, <code>M110/M111</code></li>
+      </ul>
+    </article>
+  </div>
+
+  <div class="cta">
+    <a class="gkey" href="analisis-perno-torno.html">G-CODE<small>explicación bloque a bloque</small></a>
+    <p>Abre el programa en la pantalla del control, con el porqué de cada línea.</p>
+  </div>
+</div>
+
+</body>
+</html>
