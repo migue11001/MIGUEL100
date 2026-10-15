@@ -371,11 +371,27 @@
               each image is only downloaded when its card comes into view ── */
         .gallery { margin: 0 -20px 56px; scroll-margin-top: 76px; }
         .gallery-row { margin-bottom: 28px; }
+        /* Centred, 40% larger than the other section titles; soft neon between white and blue */
         .gallery-row-title {
-            font-family: 'Share Tech Mono', monospace; font-size: 0.7em;
-            letter-spacing: 0.16em; color: var(--text-dim); text-transform: uppercase;
-            margin-bottom: 10px; padding: 0 20px;
+            font-family: 'Share Tech Mono', monospace; font-size: 2.24em; text-align: center;
+            letter-spacing: 0.08em; color: #cdf3ff; text-transform: uppercase;   /* between neon white and neon blue */
+            text-shadow: 0 0 3px rgba(255,255,255,0.6), 0 0 10px rgba(0,212,255,0.55), 0 0 22px rgba(0,180,255,0.3);
+            margin-bottom: 27px; padding: 0 20px;   /* title ↔ cards: 18px + 50% */
+            display: flex; align-items: center; justify-content: center; gap: clamp(16px, 3vw, 36px);
         }
+        /* « » buttons beside the title: scroll the row one card at a time, dimmed at either end */
+        .gallery-nav {
+            font: inherit; font-size: 1.35em; line-height: 1; letter-spacing: 0; color: #cdf3ff;
+            background: none; border: none; padding: 0 8px 0.12em; cursor: pointer;
+            text-shadow: 0 0 4px rgba(255,255,255,0.75), 0 0 14px rgba(0,212,255,0.7), 0 0 30px rgba(0,180,255,0.4);
+            transition: opacity 0.2s, text-shadow 0.2s, transform 0.2s;
+        }
+        .gallery-nav:hover:not(:disabled) {
+            color: #fff; text-shadow: 0 0 6px rgba(255,255,255,0.9), 0 0 18px rgba(0,212,255,0.9), 0 0 38px rgba(0,180,255,0.55);
+        }
+        .gallery-nav-prev:hover:not(:disabled) { transform: translateX(-3px); }
+        .gallery-nav-next:hover:not(:disabled) { transform: translateX(3px); }
+        .gallery-nav:disabled { opacity: 0.45; cursor: default; }
         .gallery-track {
             display: flex; align-items: flex-start; gap: 16px; overflow-x: auto;
             padding: 0 20px; scroll-padding: 0 20px;
@@ -391,6 +407,36 @@
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .gallery-card:hover { border-color: rgba(0,212,255,0.5); box-shadow: 0 0 14px rgba(0,212,255,0.2); }
+        /* Cards sit centred while the row fits on screen (auto margins keep scrolling working when it doesn't) */
+        .gallery-card:first-child { margin-left: auto; }
+        .gallery-card:last-child { margin-right: auto; }
+        /* Gaming-keyboard RGB borders: one round the drawing and one round the title, each a rainbow
+           gradient spinning round it with a colour-shifting glow */
+        @property --rgb-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+        .gallery-card, .gallery-card:hover {
+            border: none; background: none; box-shadow: none; overflow: visible;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .gallery-card .gallery-card-sheet, .gallery-card .gallery-card-label {
+            --rgb-fill: #d5dbe1;
+            border: 2px solid transparent; border-radius: 4px; overflow: hidden;
+            background:
+                linear-gradient(var(--rgb-fill), var(--rgb-fill)) padding-box,
+                conic-gradient(from var(--rgb-angle), #ff0040, #ff8a00, #ffe600, #00ff6a, #00d4ff, #7a5cff, #ff00d4, #ff0040) border-box;
+            animation: rgb-spin 4s linear infinite, rgb-glow 8s linear infinite;
+        }
+        .gallery-card .gallery-card-label { --rgb-fill: #12161f; }
+        .gallery-card:hover .gallery-card-sheet, .gallery-card:hover .gallery-card-label { filter: brightness(1.12); }
+        @keyframes rgb-spin { to { --rgb-angle: 360deg; } }
+        @keyframes rgb-glow {
+            0%, 100% { box-shadow: 0 0 16px rgba(255,0,64,0.45); }
+            17%      { box-shadow: 0 0 16px rgba(255,138,0,0.45); }
+            33%      { box-shadow: 0 0 16px rgba(255,230,0,0.4); }
+            50%      { box-shadow: 0 0 16px rgba(0,255,106,0.45); }
+            67%      { box-shadow: 0 0 16px rgba(0,212,255,0.5); }
+            83%      { box-shadow: 0 0 16px rgba(122,92,255,0.5); }
+        }
+        @media (prefers-reduced-motion: reduce) { .gallery-card .gallery-card-sheet, .gallery-card .gallery-card-label { animation: none; } }
         .gallery-card-sheet { background: #d5dbe1; }
         @media (max-width: 768px) {
             /* 3 cards would be too narrow on a phone: one card per view */
@@ -408,6 +454,7 @@
             font-family: 'Share Tech Mono', monospace; font-size: 0.7em;
             letter-spacing: 0.12em; color: var(--text-main);
             background: rgba(18,22,32,0.95);
+            text-transform: uppercase;
         }
 
         /* ── G-CODE exercises: one cork board per language, each sticky note opens that
@@ -679,7 +726,10 @@
         GALLERY_ROWS.forEach(row => {
             const rowEl = document.createElement('div');
             rowEl.className = 'gallery-row';
-            rowEl.innerHTML = '<div class="gallery-row-title">' + row.title + '</div>';
+            rowEl.innerHTML = '<div class="gallery-row-title">'
+                + '<button type="button" class="gallery-nav gallery-nav-prev" aria-label="Previous projects">&laquo;</button>'
+                + '<span>' + row.title + '</span>'
+                + '<button type="button" class="gallery-nav gallery-nav-next" aria-label="Next projects">&raquo;</button></div>';
             const track = document.createElement('div');
             track.className = 'gallery-track';
             row.drawings.map(findDrawing).filter(Boolean).forEach(d => {
@@ -690,19 +740,36 @@
                 sheet.className = 'gallery-card-sheet';
                 const img = document.createElement('img');
                 img.decoding = 'async';
-                img.alt = d.name + ' technical drawing';
+                img.alt = (d.title || d.name) + ' technical drawing';
                 // Light thumbnail from Supabase miniaturas/<name>.jpg
                 img.dataset.src = THUMBS_URL + d.name + '.jpg';
                 if (observer) observer.observe(img); else loadImg(img);
                 sheet.appendChild(img);
                 const label = document.createElement('span');
                 label.className = 'gallery-card-label';
-                label.textContent = d.name;
+                label.textContent = d.title ? d.name + ': ' + d.title : d.name;
                 card.append(sheet, label);
                 track.appendChild(card);
             });
             rowEl.appendChild(track);
             gallery.appendChild(rowEl);
+
+            // « » scroll one card at a time; they grey out at either end
+            const prev = rowEl.querySelector('.gallery-nav-prev'), next = rowEl.querySelector('.gallery-nav-next');
+            const step = () => {
+                const card = track.querySelector('.gallery-card');
+                return card ? card.offsetWidth + parseFloat(getComputedStyle(track).columnGap || 0) : track.clientWidth;
+            };
+            prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
+            next.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));
+            const update = () => {
+                prev.disabled = track.scrollLeft <= 4;
+                next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+            };
+            let scrollTimer;
+            track.addEventListener('scroll', () => { clearTimeout(scrollTimer); scrollTimer = setTimeout(update, 100); });
+            window.addEventListener('resize', update);
+            update();
         });
     })();
     </script>
