@@ -168,7 +168,7 @@ button { font: inherit; color: inherit; }
 .scene .cap { position: absolute; left: 8px; top: 4px; font-size: 12px; color: var(--muted); }
 
 /* explicación */
-.info-body { padding: 10px 14px 14px; overflow: auto; max-height: 720px; display: grid; gap: 12px; align-content: start; }
+.info-body { padding: 10px 14px 14px; overflow: auto; max-height: 720px; display: grid; gap: 12px; align-content: start; grid-auto-rows: max-content; }
 .chip { display: inline-flex; gap: 6px; align-items: center; font-weight: 700; font-size: 12.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--head-ink); background: var(--accent); padding: 2px 8px; border-radius: 2px; justify-self: start; }
 .blk { font-family: var(--font-code); font-size: 15px; background: var(--paper); border: 1px solid var(--rule); border-left: 4px solid var(--cursor); padding: 6px 10px; overflow-x: auto; white-space: pre; }
 .sec { display: grid; gap: 4px; }
@@ -297,13 +297,14 @@ a.sk { text-decoration: none; color: inherit; display: flex; flex-direction: col
 const G71 = [
   "%", "(1001.MIN)", "N10 G50 S6000", "N11 G0 X400.", "N12 G0 Z400.", "",
   "(FILETTATURA1)", "N13 T010101", "N14 G90 G95 G18", "N15 M8", "N16 G97 S500 M3 M41",
-  "N17 G0 X39.79 Z12.5", "N18 G71 X17.791 Z-32. D1. H2. F2.5 M32 M73", "N19 G0 X39.79 Z5.", "",
-  "N20 M9", "N21 G0 X400.", "N22 G0 Z400.", "N23 M2", "%"
+  "N17 G0 X39.79 Z12.5", "N18 G71 X16.931 Z-32. D0.9 H2.86 F2.5 M32 M75",
+  "N19 G71 X16.931 Z-32. D2.86 H2.86 F2.5 M32 M73", "N20 G0 X39.79 Z5.", "",
+  "N21 M9", "N22 G0 X400.", "N23 G0 Z400.", "N24 M2", "%"
 ];
-const PASS_D = [19.187, 18.938, 18.746, 18.584, 18.442, 18.313, 18.195, 18.085, 17.981, 17.884, 17.791];
-const PASS_Z = [-31.698, -31.574, -31.478, -31.397, -31.326, -31.261, -31.202, -31.147, -31.095, -31.047, -31];
+const PASS_D = [18.887, 18.512, 18.225, 17.982, 17.769, 17.576, 17.398, 17.233, 17.078, 16.931, 16.931];
+const PASS_Z = [-31.548, -31.361, -31.217, -31.096, -30.989, -30.892, -30.803, -30.721, -30.643, -30.57, -30.57];
 const G32 = (function () {
-  const L = ["%", "(1001.MIN)", "N10 G50 S6000", "N11 G0 X400.", "N12 G0 Z400.", "",
+  const L = ["%", "(1002.MIN)", "N10 G50 S6000", "N11 G0 X400.", "N12 G0 Z400.", "",
     "(FILETTATURA1)", "N13 T010101", "N14 G90 G95 G18", "N15 M8", "N16 G97 S300 M3 M41",
     "N17 G0 X40. Z5.", "N18 G0 Z12.5"];
   let n = 19;
@@ -328,11 +329,13 @@ const INFO = {
     que: "Start or end-of-file marker.",
     pq: ["When the program comes in over a cable or from a memory card, the control starts reading at the first % and stops at the next. Anything outside is ignored."],
     sino: "Some controls don't recognise where the program starts and the load fails." },
-  "(1001.MIN)": { ph: 0, lvl: "err",
+  "(1001.MIN)": { ph: 0,
     que: "Comment with the program name. The machine doesn't execute it.",
-    pq: ["The Fusion post writes the name you entered when posting here (onOpen function). It identifies the program in the machine memory."],
-    riesgo: "The G32 version of this thread has the same internal name, 1001. If you load both programs, one can overwrite the other." },
-  "G50 S6000": { ph: 1, lvl: "warn",
+    pq: ["The CAM post writes the name you entered when posting here (onOpen function). It identifies the program in the machine memory.", "The G32 version of this thread is 1002: both programs can stay in the memory together."] },
+  "(1002.MIN)": { ph: 0,
+    que: "Comment with the program name: 1002, the G32 version of the thread.",
+    pq: ["The G71 cycle version is 1001: each version keeps its own name in the machine memory."] },
+  "G50 S6000": { ph: 1,
     que: "Caps the spindle at 6,000 rpm.",
     pq: [
       "To protect the chuck. The jaws squeeze the part towards the centre, but when spinning, centrifugal force pushes them outward: more rpm, less grip. Every chuck has a maximum rpm.",
@@ -340,7 +343,7 @@ const INFO = {
       "This program uses G97 (fixed rpm), so the limit never kicks in. The post always writes it as a safety habit: if someone adds a G96 operation tomorrow, the cap is already there."],
     sino: "A G96 operation approaching the centre could spin the spindle past the chuck's limit and loosen the part.",
     riesgo: "Check that 6,000 rpm doesn't exceed the maximum of the chuck and jaws you have mounted." },
-  "G0 X400.": { ph: 1, lvl: "warn",
+  "G0 X400.": { ph: 1,
     que: "Rapid to Ø400: the tool moves radially away from the part.",
     pq: [
       "At the start the machine doesn't know where the tool was left. It could be next to a shoulder or inside a groove.",
@@ -354,9 +357,9 @@ const INFO = {
     sino: "The turret would index close to the part and another mounted tool could crash.",
     riesgo: "Z400 has to be within travel; otherwise an over-travel alarm goes off." },
   "(FILETTATURA1)": { ph: 2,
-    que: "Comment: the Fusion operation “Filettatura1” (threading) starts.",
+    que: "Comment: the CAM operation “Filettatura1” (threading) starts.",
     pq: ["Marks where each operation starts (the post's onSection function). The operator can search for it and start the program from here to repeat just the thread."] },
-  "T010101": { ph: 2, lvl: "warn",
+  "T010101": { ph: 2,
     que: "The turret indexes to the threading tool and activates its offsets.",
     pq: [
       "The change is done at X400 Z400 because when the turret indexes, every mounted tool sweeps a circle, not just T01.",
@@ -389,25 +392,27 @@ const INFO = {
     pq: [
       "Same as the G71 version, but slower: the carriage moves at 300 × 2.5 = 750 mm/min and Vc ≈ 19 m/min.",
       "Lower carriage speed means less room needed to stop at the end of the thread and less risk with a short run-out. In exchange the cycle takes longer."] },
-  "G0 X39.79 Z12.5": { ph: 3, lvl: "warn",
+  "G0 X39.79 Z12.5": { ph: 3,
     que: "Diagonal rapid to the cycle start point: 12.5 mm in front of the face and about 10 mm above the material.",
     pq: [
       "Z12.5 and not Z2: the carriage has to go from 0 to 1,250 mm/min. While it accelerates the pitch isn't 2.5 yet. If that acceleration happens inside the material, the first threads come out distorted. 12.5 mm gives 5 pitches of margin; the larger rpm × pitch, the more distance you need.",
-      "X39.79: clearance distance set in Fusion. It's the height the tool rapids back at between passes without touching anything."],
+      "X39.79: clearance distance set in the CAM. It's the height the tool rapids back at between passes without touching anything."],
     sino: "Starting at Z2, the first threads would come out with a distorted pitch.",
     riesgo: "The rapid is diagonal: it's only safe if there's nothing in front of the part (tailstock, steady rest or material bigger than Ø40)." },
-  "G71 X17.791 Z-32. D1. H2. F2.5 M32 M73": { ph: 4, lvl: "err", params: true,
-    que: "Okuma threading cycle: the control computes and runs every pass down to Ø17.791. Each pass feeds in X, threads along Z to Z-32, retracts in X, rapids back to Z12.5 and goes a little deeper.",
+  "G71 X16.931 Z-32. D0.9 H2.86 F2.5 M32 M75": { ph: 4, params: true,
+    que: "Okuma threading cycle: the control computes and runs every pass down to Ø16.931. Each pass feeds in X, threads along Z to Z-32, retracts in X, rapids back to Z12.5 and goes a little deeper.",
     pq: [
-      "One line instead of 55 (those of the G32 version). At the machine the operator adjusts depth by changing a single number.",
-      "Several passes are needed because the groove is a V: as you go deeper, the chip section grows with the square of the depth. Twice the depth means 4 times the material. In one go the insert would break.",
+      "Full thread depth: (19.791 − 16.931) / 2 = 1.43 mm per side, root at Ø16.93, the minor diameter of M20×2.5: the nut and the ring gauge go on.",
+      "M75 = decreasing depth: the first pass takes 0.45 mm per side and the next ones less and less, so every pass removes the same chip section (about 11 passes).",
       "Before each pass the machine waits for the encoder's once-per-rev signal and always starts at the same angle on the part. That's why every pass lands in the same groove.",
       "During threading neither Feed Hold nor feed override works: stopping the carriage with the spindle running would wreck the thread. Only Reset and emergency stop work."],
-    sino: "Programming it by hand means writing every pass (G32 version): more lines, easier to make a mistake when editing.",
-    riesgo: "Thread too shallow: H2 is 1 mm per side and an M20×2.5 needs 1.534 mm. With M73 and D1 there are probably only 2 passes (to confirm in the OSP manual), and the second removes 3 times the section of the first. Radial infeed with a 2.5 pitch. See the Errors tab." },
+    sino: "Programming it by hand means writing every pass (G32 version): more lines, easier to make a mistake when editing." },
+  "G71 X16.931 Z-32. D2.86 H2.86 F2.5 M32 M73": { ph: 4,
+    que: "Spring pass: the same cycle with first depth = full height, so the control makes a single pass at Ø16.931.",
+    pq: ["No new depth: it removes what tool deflection left on the flanks, and the gauge goes on smoothly.", "Same start point (Z12.5) and same rpm: it lands exactly in the groove cut by the previous cycle."] },
   "G0 X39.79 Z5.": { ph: 5,
     que: "Rapid to Z5 holding Ø39.79, above the material.",
-    pq: ["When the cycle ends the tool returns to its start point. From there it moves to the Fusion retract height without dropping in X, so it doesn't cross the material."] },
+    pq: ["When the cycle ends the tool returns to its start point. From there it moves to the CAM retract height without dropping in X, so it doesn't cross the material."] },
   "M9": { ph: 5,
     que: "Turns coolant off.",
     pq: ["It's turned off with the tool still near the part, so the long retract doesn't spray the whole enclosure."] },
@@ -428,33 +433,20 @@ const INFO = {
     pq: ["As in the cycle: the carriage needs about 5 pitches of distance to accelerate before touching the material."] }
 };
 
+/* production texts: the remaining notes go into “Why” */
+for (const k in INFO) { const d = INFO[k]; if (d.riesgo) { d.pq = (d.pq || []).concat([d.riesgo]); delete d.riesgo; } delete d.lvl; }
+
 /* ---------- errors ---------- */
-const ERRORS = [
-  { lvl: "err", t: "The thread won't take the nut", lines: ["G71 X17.791"],
-    pq: "A metric thread is a 60° triangle with truncated tips. For an external thread the depth is 0.6134 × P = 1.534 mm. An M20×2.5 nut has a minimum minor diameter of 20 − 1.0825 × 2.5 = Ø17.294. The programmed root is at Ø17.791, larger than 17.294: the nut crests hit the root of your thread, with about 0.25 mm of interference per side.",
-    sol: "In Fusion, thread depth = 1.534 mm (root ≈ Ø16.93). In the drawing on the right, the red dashed line marks the correct root." },
-  { lvl: "err", t: "Badly distributed passes", lines: ["G71 X17.791"],
-    pq: "Chip section grows with the square of the depth. With M73 (constant depth), D1 and H2 you get about 2 passes of 0.5 mm: the first removes 1 unit of section and the second 2² − 1² = 3 units. The insert works three times harder on the last pass.",
-    sol: "Use decreasing infeed (“reduced” in Fusion, M75 on Okuma) with 6–10 passes, like the G32 version. Confirm the exact M73 split in the OSP manual." },
-  { lvl: "warn", t: "No spring pass", lines: ["G71 X17.791"],
-    pq: "While cutting, the tool deflects and moves slightly away from the part, so material is left after the last pass. Repeating that pass without going deeper removes it, with almost no cutting force.",
-    sol: "Enable “spring passes” in the Fusion threading operation." },
-  { lvl: "warn", t: "Radial infeed with a 2.5 pitch", lines: ["G71 X17.791"],
-    pq: "Without a B angle the tool feeds straight in X: both edges of the V cut at once, the chip comes out folded into a V, it's hard to clear and the insert chatters. Flank infeed (29–30°) makes mainly one edge cut and is recommended from pitches of about 1.5 mm up.",
-    sol: "Set the infeed angle in Fusion; the post writes it as B in the G71." },
-  { lvl: "warn", t: "Duplicate internal name (1001.MIN)", lines: ["(1001.MIN)"],
-    pq: "The control identifies programs by their internal name, not by the file name on the computer. Both versions of this thread are called 1001.",
-    sol: "Give each one a different program name in Fusion before posting." }
-];
+const ERRORS = [];
 
 /* ---------- collisions ---------- */
 const CHECKS = [
   { t: "X400 and Z400 within machine travel", pq: "If they don't fit, an over-travel alarm goes off mid-program.", lines: ["G0 X400.", "G0 Z400."] },
   { t: "The turret indexes freely at X400 Z400", pq: "Every mounted tool sweeps a circle when indexing, not just T01.", lines: ["T010101"] },
   { t: "Nothing in front of the part", pq: "The approach to X39.79 Z12.5 is a diagonal rapid: a tailstock, steady rest or material bigger than Ø40 would be in its way.", lines: ["G0 X39.79 Z12.5"] },
-  { t: "Groove or clearance at Z-32", pq: "The carriage runs at 1,250 mm/min and exits on a ramp of about 45°. A shoulder right at Z-32 would get hit.", lines: ["G71 X17.791"] },
-  { t: "Part at least 40 mm out of the jaws", pq: "32 of thread, plus the run-out, plus margin from the jaws.", lines: ["G71 X17.791"] },
-  { t: "First run in single block, rapids at 25 %", pq: "Feed Hold doesn't work during threading: the only time to stop is before you get there.", lines: ["G0 X39.79 Z12.5", "G71 X17.791"] }
+  { t: "Groove or clearance at Z-32", pq: "The carriage runs at 1,250 mm/min and exits on a ramp of about 45°. A shoulder right at Z-32 would get hit.", lines: ["G71 X16.931"] },
+  { t: "Part at least 40 mm out of the jaws", pq: "32 of thread, plus the run-out, plus margin from the jaws.", lines: ["G71 X16.931"] },
+  { t: "First run in single block, rapids at 25 %", pq: "Feed Hold doesn't work during threading: the only time to stop is before you get there.", lines: ["G0 X39.79 Z12.5", "G71 X16.931"] }
 ];
 
 /* ---------- codes ---------- */
@@ -471,7 +463,7 @@ const CODES = [
   ["M41", "Low gear", "More torque: the spindle doesn't lose rpm under the threading load.", "M41"],
   ["G71", "Threading cycle (Okuma)", "All passes in one line. Careful: on Fanuc G71 is roughing and on Siemens it's “metric units”.", "G71"],
   ["M32", "Infeed mode", "How the tool enters on each pass (per the post: M32 for constant/reduced, M33 for alternate).", "M32"],
-  ["M73", "Pass distribution", "Constant depth. It's the cause of error 2; M75 would be decreasing.", "M73"],
+  ["M75 / M73", "Pass distribution", "M75 decreasing depth for the cycle; M73 for the single spring pass.", "M75|M73"],
   ["G32", "Block-by-block threading", "G32 version only: one synchronised pass per line. Shows what the cycle does inside.", "G32"],
   ["M2", "End of program", "Stops spindle and coolant and ends the program. M30 also rewinds to the start.", "M2"]
 ];
@@ -555,7 +547,7 @@ function levelOf(i) { const d = INFO[keyFor(i)]; return d && d.lvl; }
 function renderCode() {
   const box = $("code");
   box.innerHTML = S.prog.map((l, i) => {
-    const lv = S.mode === "g32" ? (/G32/.test(l) && i === lastPassLine() ? "warn" : "") : (levelOf(i) || "");
+    const lv = S.mode === "g32" ? "" : (levelOf(i) || "");
     const cls = ["ln", l ? "" : "blank", lv, S.marks.has(i) ? "mark" : "", i === S.cur ? "cur" : ""].join(" ");
     const flag = lv === "err" ? "✖" : lv === "warn" ? "!" : "";
     return '<div class="' + cls + '" data-i="' + i + '"><span class="no">' + (i + 1) + '</span><span class="flag">' + flag + "</span><span>" + (l ? hl(l) : " ") + "</span></div>";
@@ -616,13 +608,13 @@ function sec(cls, title, body) {
 }
 function paramsTable() {
   const rows = [
-    ["X17.791", "Final diameter: the thread root."],
+    ["X16.931", "Final diameter: the thread root (Ø16.93, minor diameter of M20×2.5)."],
     ["Z-32.", "End of the thread."],
-    ["D1.", "First pass depth, on diameter (0.5 mm per side)."],
-    ["H2.", "Total thread height, on diameter (1 mm per side)."],
+    ["D0.9", "First pass depth, on diameter (0.45 mm per side)."],
+    ["H2.86", "Total thread height, on diameter (1.43 mm per side)."],
     ["F2.5", "Thread pitch. With G95: feed = pitch per rev."],
     ["M32", "Infeed mode (per the post: constant or reduced; M33 would be alternate)."],
-    ["M73", "Constant-depth distribution (M75 would be decreasing)."]
+    ["M75", "Decreasing depth: the same chip section on every pass."]
   ];
   return '<div class="sec"><h3>Cycle parameters</h3><div class="tbl-wrap"><table><tr><th>Word</th><th>Meaning</th></tr>' +
     rows.map(r => "<tr><td><code>" + r[0] + "</code></td><td>" + r[1] + "</td></tr>").join("") + "</table></div></div>";
@@ -635,6 +627,7 @@ function passInfo(i) {
   const d = PASS_D[passIdx], depth = (19.791 - d) / 2;
   const prevDepth = passIdx > 0 ? (19.791 - PASS_D[passIdx - 1]) / 2 : 0;
   if (/^X1\d\.\d+$/.test(l)) {
+    if (passIdx === PASS_D.length - 1) return { ph: 4, que: "Pass 11 of 11 · spring pass: the tool goes back to Ø" + nf(d, 3) + ", the same diameter as pass 10.", pq: ["No new depth: it removes what tool deflection left on the flanks, and the gauge goes on smoothly."], table: true, pass: passIdx };
     return { ph: 4, que: "Pass " + (passIdx + 1) + " of 11: the tool rapids down to Ø" + nf(d, 3) + ".",
       pq: ["Cumulative depth: (19.791 − " + nf(d, 3) + ") / 2 = " + nf(depth, 3) + " mm per side. This pass goes " + nf(depth - prevDepth, 3) + " mm deeper.",
         "Ratio to the first: " + nf(depth / first, 2) + ", almost equal to √" + (passIdx + 1) + " = " + nf(Math.sqrt(passIdx + 1), 2) + ". Depth grows as √n so that every pass removes the same chip section: at first the groove is narrow and you go deep; at the end it's wide and you go only a little deeper."],
@@ -642,11 +635,11 @@ function passInfo(i) {
   }
   if (/^G32/.test(l)) {
     const last = passIdx === PASS_D.length - 1;
-    return { ph: 4, lvl: last ? "warn" : null,
+    return { ph: 4, lvl: null,
       que: "Threads pass " + (passIdx + 1) + " from Z12.5 to Z" + nf(PASS_Z[passIdx], 3) + ", synchronised with the spindle (2.5 mm per rev).",
       pq: ["G32 is block-by-block threading: the control waits for the encoder's once-per-rev signal and only then starts the carriage. That way this pass lands in the same groove as the previous ones.",
         "It doesn't reach Z-32: it ends earlier because the next line exits diagonally. The deeper the pass, the sooner the run-out starts."],
-      riesgo: last ? "It's the last pass and it isn't repeated: there's no spring pass to remove what tool deflection leaves." : null,
+      riesgo: null,
       table: true, pass: passIdx };
   }
   if (l === "X19.791 Z-32. F2.5") {
@@ -742,7 +735,6 @@ function selectCode(k) {
 /* ---------- softkeys ---------- */
 const HKEYS = [
   ["ciclo", "Work cycle", "block by block"],
-  ["errores", "Errors", "5 found"],
   ["colisiones", "Collisions", "before running"],
   ["codigos", "Codes", "and why"],
   ["g32", "G71 vs G32", "pass by pass"]
@@ -834,7 +826,7 @@ function size() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 function cyclePaths() {
-  if (S.prog === G71) return [18.791, 17.791].map(d => ({ d, zEnd: -31 }));
+  if (S.prog === G71) return [18.891, 18.518, 18.232, 17.991, 17.779, 17.586, 17.410, 17.245, 17.091, 16.945, 16.931, 16.931].map(d => ({ d, zEnd: -32 + (19.791 - d) / 2 }));
   return PASS_D.map((d, i) => ({ d, zEnd: PASS_Z[i] }));
 }
 function passPath(p) {
@@ -853,7 +845,7 @@ function drawBase() {
   ctx.fillStyle = css("--steel");
   ctx.fillRect(sx(V.z0), sy(10), sx(0) - sx(V.z0), sy(V.r0) - sy(10));
   // valles de rosca programada (1 mm)
-  const rootP = 17.791 / 2;
+  const rootP = 16.931 / 2;
   ctx.fillStyle = css("--paper");
   for (let z = -1.25; z > -32; z -= 2.5) {
     const hw = (10 - rootP) * Math.tan(Math.PI / 6);
@@ -863,10 +855,10 @@ function drawBase() {
   ctx.strokeStyle = css("--muted"); ctx.setLineDash([6, 3, 2, 3]); ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(sx(V.z0), sy(0)); ctx.lineTo(sx(V.z1), sy(0)); ctx.stroke();
   // fondo correcto
-  ctx.strokeStyle = css("--err"); ctx.setLineDash([4, 3]); ctx.lineWidth = 1.5;
+  ctx.strokeStyle = css("--accent"); ctx.setLineDash([4, 3]); ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(sx(0), sy(16.933 / 2)); ctx.lineTo(sx(-32), sy(16.933 / 2)); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = css("--err"); ctx.fillText("correct root Ø16.93", sx(-31), sy(16.933 / 2) + 12);
+  ctx.fillStyle = css("--accent"); ctx.fillText("root Ø16.93", sx(-31), sy(16.933 / 2) + 12);
   // cotas
   ctx.fillStyle = css("--muted");
   ctx.fillText("Z0", sx(0) - 6, sy(V.r0) + 11 > H ? H - 2 : sy(V.r0) + 11);

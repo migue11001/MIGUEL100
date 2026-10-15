@@ -193,7 +193,7 @@ td:first-child, th:first-child { text-align: left; }
       <dl class="kv">
         <dt>Máquina</dt><dd>Haas UMC 5 ejes, pero trabaja <b>en 3 ejes</b> (<code>B0. C0.</code>)</dd>
         <dt>Programas</dt><dd><code>O00012</code> = lado 1 · <code>O00004</code> = lado 1 + lado 2</dd>
-        <dt>Cero pieza</dt><dd><code>G54</code> en el centro, en la cara superior</dd>
+        <dt>Cero pieza</dt><dd><code>G54</code> lado 1 · <code>G55</code> lado 2 · centro, cara superior</dd>
       </dl>
     </article>
 
@@ -217,26 +217,27 @@ td:first-child, th:first-child { text-align: left; }
       <p class="why">Primero XY arriba, luego abajo en Z. Al final: Z15, <code>M5</code>, <code>M9</code>, <code>G49</code>, <code>G53 Z0</code>.</p>
     </article>
 
-    <article class="note pink" style="--r:.9deg">
-      <h2 class="red">¿¡40.000 rpm!?</h2>
-      <p>T1 y T6: <span class="circle">S40000</span></p>
-      <p>Haas UMC: <b>8.100 / 12.000 / 15.000</b> rpm máx.</p>
-      <p class="why">Si la máquina las limita, F6100 sigue igual con 5 veces menos rpm → viruta 5 veces más gruesa.</p>
+    <article class="note green" style="--r:.9deg">
+      <h2>12.000 rpm</h2>
+      <p>T1 y T6: <code>S12000</code></p>
+      <p>Husillo Haas UMC: <b>12.000</b> rpm máx.</p>
+      <p class="why">Avances calculados para 12.000 rpm: el mismo avance por diente que la biblioteca.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.6deg">
-      <h2 class="red">¡H1 en la broca!</h2>
-      <p>Broca1 (T2): <span class="under">G43 Z15. H1</span><br>Broca2 (T3): <span class="under">G43 Z15. H1</span></p>
-      <p>La máquina usa la longitud de la <b>fresa</b> para la <b>broca</b>.</p>
-      <p class="why">→ en Fusion «Length offset» = número de herramienta.</p>
+    <article class="note blue" style="--r:-1.5deg">
+      <h2>H = T</h2>
+      <p>Broca1 (T2): <code>G43 Z15. H2</code><br>Broca2 (T3): <code>G43 Z15. H3</code></p>
+      <p>Cada herramienta usa <b>su propia</b> longitud.</p>
+      <p class="why">Z5 y las profundidades de los agujeros son exactas.</p>
     </article>
 
-    <article class="note orange" style="--r:1.5deg">
-      <h2>Otros errores</h2>
+    <article class="note orange" style="--r:1.4deg">
+      <h2>Detalles de producción</h2>
       <ul>
-        <li><code>F0.08</code> y <code>F0.07</code> en <code>G94</code> = <b>mm por minuto</b>: horas para un agujero. <span class="why">→ 145,6 y 127 mm/min</span></li>
-        <li>Escariado <code>G95</code> … <code>F0.</code> <span class="why">→ avance cero</span></li>
-        <li>O00004: lado 2 tras un <code>M1</code>, no un <code>M0</code>, y siempre con <code>G54</code>.</li>
+        <li>Taladrado a <b>145,6</b> y <b>127,4 mm/min</b> (<code>G94</code>)</li>
+        <li>Escariado a <code>F0.15</code> mm/vuelta (<code>G95</code>)</li>
+        <li>O00004: <code>M0</code> para voltear la pieza, lado 2 en <code>G55</code></li>
+        <li>Los dos lados ≈ 5,7 min</li>
       </ul>
     </article>
 
@@ -258,7 +259,7 @@ td:first-child, th:first-child { text-align: left; }
       <h2>Paso del macho</h2>
       <p class="big">F = S × paso</p>
       <p><code>S2000</code> · <code>F2000.</code> → paso <b>1,0 mm</b></p>
-      <p class="why">¡M8 normal = paso 1,25! Mira lo que pone en el macho.</p>
+      <p class="why">M8×1 de paso fino: el macho de T5 lleva grabado M8×1.</p>
     </article>
 
     <article class="note yellow" style="--r:-1deg">
@@ -269,33 +270,33 @@ td:first-child, th:first-child { text-align: left; }
         <li>Mesa libre a B0 C0</li>
         <li>Setting 335 (para O00004)</li>
         <li>Macho M8×1 en T5</li>
-        <li>Rpm máx. del husillo</li>
+        <li>Husillo hasta 12.000 rpm</li>
         <li>Optional Stop activado, bloque a bloque, rápidos 25 %</li>
       </ul>
     </article>
 
-    <article class="note pink" style="--r:1.7deg">
-      <h2>¡Atención!</h2>
-      <p>En <code>O00012</code> los rápidos son <code>G1 F228600.</code></p>
-      <p class="why">El override de rápidos <b>no los frena</b>: en la primera prueba baja el override de <u>avance</u>.</p>
+    <article class="note green" style="--r:1.6deg">
+      <h2>Rápidos en G0</h2>
+      <p>Los dos programas usan <code>G0</code> con el <b>Setting 335</b> = Linear + Rotary.</p>
+      <p class="why">Rápidos rectos, y el override de rápidos los frena en la primera prueba.</p>
     </article>
 
-    <article class="note blue" style="--r:-.7deg">
-      <h2>¿G0 o G1 F228600?</h2>
+    <article class="note white" style="--r:-.8deg">
+      <h2>Dos programas</h2>
       <dl class="kv">
-        <dt>O00012</dt><dd><code>G1</code> rapidísimo: recta garantizada por el programa</dd>
-        <dt>O00004</dt><dd><code>G0</code>: recta solo con el <b>Setting 335</b></dd>
+        <dt>O00012</dt><dd>lado 1</dd>
+        <dt>O00004</dt><dd>lado 1 + <code>M0</code> + lado 2 en <code>G55</code></dd>
       </dl>
-      <p class="why">En 5 ejes un G0 con B/C puede hacer un recorrido «en codo».</p>
+      <p class="why">Mismas herramientas y datos de corte en los dos.</p>
     </article>
 
     <article class="note white" style="--r:1.2deg">
-      <h2>Por confirmar</h2>
-      <small>en máquina y en Fusion</small>
+      <h2>Hoja de preparación</h2>
+      <small>en máquina</small>
       <ul>
-        <li>Rpm máximas de tu UMC</li>
+        <li>Husillo UMC: 12.000 rpm</li>
         <li>Bruto: dimensiones y espesor (el contorno baja a Z-15,5, las brocas a Z-17,3)</li>
-        <li>Material: brocas a 40 m/min (acero) pero planeado a 1.500 m/min (aluminio)</li>
+        <li>Lado 2: voltear en el M0, tomar <code>G55</code></li>
       </ul>
     </article>
   </div>

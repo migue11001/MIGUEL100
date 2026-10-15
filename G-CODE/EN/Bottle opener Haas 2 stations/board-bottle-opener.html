@@ -190,8 +190,8 @@ td:first-child, th:first-child { text-align: left; }
       </svg>
       <dl class="kv">
         <dt>Machine</dt><dd>Haas 3-axis mill</dd>
-        <dt>Program</dt><dd><code>O99999</code> · “bottle opener 1st and 2nd op” · 11,593 lines</dd>
-        <dt>Zero</dt><dd>single <code>G54</code> · Z0 <b>below</b> the part (positive Z)</dd>
+        <dt>Program</dt><dd><code>O99999</code> · “bottle opener 1st and 2nd op” · 11,603 lines</dd>
+        <dt>Zero</dt><dd><code>G54</code> station 1 · <code>G55</code> station 2 · Z0 <b>below</b> the part</dd>
       </dl>
     </article>
 
@@ -226,27 +226,28 @@ td:first-child, th:first-child { text-align: left; }
       <p class="why">Removing the bottom opens those cuts right through and the part is free.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.5deg">
-      <h2 class="red">G41 D1: mind the register!</h2>
+    <article class="note green" style="--r:-1.5deg">
+      <h2>G41 D1 / D2 / D6</h2>
       <p>The path is <b>already</b> on the cutter centre.</p>
-      <p>In D1 / D2 / D6: <span class="circle">wear only ≈ 0</span></p>
-      <p class="why">With the radius in: profile +6.35 mm, hole and slot −6.35 mm. Haas: Setting 40.</p>
+      <p>D1 / D2 / D6 hold <b>wear only</b> ≈ 0.</p>
+      <p class="why">The operator fine-tunes profile, hole and slot from the wear column. Haas: Setting 40.</p>
     </article>
 
     <article class="note orange" style="--r:1.4deg">
-      <h2>Other warnings</h2>
+      <h2>Production details</h2>
       <ul>
-        <li>Back: Fusion starts at Z16.3, but is the part 19.05 tall? <span class="why">→ 4.5 mm first pass</span></li>
-        <li>T7 without <code>M8</code></li>
-        <li>One zero for two vises</li>
-        <li>“Rapids” <code>G1 F5000</code>: 40 s instead of 8</li>
+        <li>Back faced from Z19.05 in <b>7 levels</b> of 1.44 mm</li>
+        <li><code>M8</code> on in every operation, form cutter included</li>
+        <li>Station 1 on <code>G54</code>, station 2 on <code>G55</code></li>
+        <li>Positioning in <code>G0</code>, linking moves in G1</li>
+        <li>Cycle ≈ 5.7 min for two parts in work</li>
       </ul>
     </article>
 
     <article class="note white" style="--r:-.5deg">
       <h2>The key-seat cutter</h2>
       <p>It cuts <b>sideways</b>, under an edge: it makes the tooth that levers the cap.</p>
-      <p>It drops into the open slot, then moves in sideways with <code>G41 D6</code>.</p>
+      <p>It drops into the open slot at 1,000 mm/min, then moves in sideways with <code>G41 D6</code>.</p>
       <p class="why">Lots of edge engaged → 1,500 rpm and 152–305 mm/min.</p>
     </article>
 
@@ -260,8 +261,8 @@ td:first-child, th:first-child { text-align: left; }
       <h2>Before Cycle Start</h2>
       <ul class="check">
         <li>D1, D2, D6 = wear</li>
-        <li>Part height in station 2</li>
-        <li>Second vise at Y-141.6</li>
+        <li>Part 19.05 tall in station 2</li>
+        <li>G55 set on the second vise</li>
         <li>6 tools measured</li>
         <li>Disc vs slot width</li>
         <li>First cycle: station 2 empty</li>
@@ -270,12 +271,12 @@ td:first-child, th:first-child { text-align: left; }
     </article>
 
     <article class="note white" style="--r:1.3deg">
-      <h2>To confirm</h2>
-      <small>at the machine and in Fusion</small>
+      <h2>Setup sheet</h2>
+      <small>at the machine</small>
       <ul>
-        <li>Where Z zero is (parallels? vise floor?)</li>
-        <li>Stock for the 2nd operation in Fusion</li>
-        <li>Setting 40 (D as radius or diameter)</li>
+        <li>Z0 on the parallels plane, both vises</li>
+        <li><code>G55</code> = <code>G54</code> shifted Y-141.6</li>
+        <li>Setting 40: D as radius</li>
       </ul>
     </article>
   </div>

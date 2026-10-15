@@ -206,31 +206,31 @@ td:first-child, th:first-child { text-align: left; }
         <li><b>Lamature</b> Ø10</li>
         <li><b>Smussi</b> 0,2 e <b>incisione</b></li>
       </ol>
-      <p class="why">23 operazioni, 8 utensili, circa 9 minuti.</p>
+      <p class="why">23 operazioni, 8 utensili, circa 9,1 min.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.3deg">
-      <h2 class="red">T5089 su un Haas?</h2>
-      <p>Haas: correttori da <b>1 a 200</b>.</p>
-      <p>Programma: <span class="circle">T5029 … T5089</span>, <code>H5089</code></p>
-      <p class="why">→ rinumera gli utensili in Fusion (T1–T8).</p>
+    <article class="note green" style="--r:-1.3deg">
+      <h2>T1 … T8</h2>
+      <p>Haas: correttori <b>da 1 a 200</b>.</p>
+      <p>Programma: <code>T1</code> … <code>T8</code>, <code>H</code> = <code>T</code></p>
+      <p class="why">Tastatore T1, smussatore T2, punte T3/T5, maschio T4, alesatore T6, frese T7/T8.</p>
     </article>
 
-    <article class="note green" style="--r:.9deg">
-      <h2>Il refrigerante che dava errore</h2>
+    <article class="note blue" style="--r:.9deg">
+      <h2>Aria attraverso l'utensile</h2>
       <p>«Air through tool» → post Haas: <code>M73</code> / <code>M74</code>.</p>
-      <p>Un post senza codice per questo refrigerante → errore in Fusion.</p>
-      <p class="why">Stesso esercizio, stessa operazione (Fase0.2-1): cambia solo il post.</p>
+      <p>Smussi e incisione: l'aria pulisce la polvere di truciolo senza bagnare.</p>
+      <p class="why">Stesso utensile per Fase0.2 e Gravur: cambiano solo i giri.</p>
     </article>
 
-    <article class="note orange" style="--r:1.5deg">
-      <h2>Altri avvisi</h2>
+    <article class="note orange" style="--r:1.4deg">
+      <h2>Requisiti della macchina</h2>
       <ul>
-        <li><code>S11500</code>: serve mandrino da 12.000+</li>
-        <li><code>M88</code> TSC e <code>M73</code> aria: opzioni</li>
-        <li>Zero G54 lontano dal pezzo</li>
-        <li>Alesatore esce a 1.500 mm/min</li>
-        <li>Spostamenti <code>G1 F5000</code></li>
+        <li><code>S11500</code>: mandrino da 12.000 giri</li>
+        <li>Opzioni <code>M88</code> TSC e <code>M73</code> aria</li>
+        <li>G54 sul riferimento dell'attrezzatura</li>
+        <li>Alesatore esce a 110 mm/min</li>
+        <li>Posizionamenti in <code>G0</code></li>
       </ul>
     </article>
 
@@ -273,11 +273,11 @@ td:first-child, th:first-child { text-align: left; }
     <article class="note yellow" style="--r:-.8deg">
       <h2>Prima di Cycle Start</h2>
       <ul class="check">
-        <li>Utensili entro T200</li>
+        <li>T1–T8 montati, H = T</li>
         <li>Sonda calibrata, macro WIPS</li>
         <li>G54 sull'attrezzatura</li>
         <li>Mandrino ≥ 12.000</li>
-        <li>TSC e aria (o cambia refrigerante)</li>
+        <li>TSC e aria attivi</li>
         <li>Optional Stop, override basso</li>
       </ul>
     </article>

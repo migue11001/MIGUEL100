@@ -200,12 +200,12 @@ td:first-child, th:first-child { text-align: left; }
     <article class="note blue" style="--r:1.2deg">
       <h2>Ciclo di lavoro</h2>
       <ol>
-        <li><b>Spianatura</b> 6,5 mm in 3 livelli</li>
-        <li><b>Foro fuori centro</b> r12,5 · motorizzato</li>
-        <li><b>Sgrossatura</b> Ø40 → Ø30,2</li>
-        <li><b>Foro centrale</b> · motorizzato</li>
-        <li><b>Tasca</b> adattiva al centro</li>
-        <li><b>Finitura</b> tasca · <small>solo Siemens</small></li>
+        <li><b>Spianatura</b> 6,5 mm in 3 livelli · T02</li>
+        <li><b>Tornitura</b> Ø40 → Ø30,2 · T02</li>
+        <li><b>3 fori fuori centro</b> Ø3 r12,5 · T08</li>
+        <li><b>Foro centrale</b> Ø6 · T09</li>
+        <li><b>Tasca</b> adattiva · T14</li>
+        <li><b>Finitura</b> 3D della tasca · T15</li>
       </ol>
     </article>
 
@@ -224,28 +224,32 @@ td:first-child, th:first-child { text-align: left; }
       </div>
     </article>
 
-    <article class="note pink" style="--r:.9deg">
-      <h2 class="red">Un'ora per un foro!</h2>
-      <p>Punta1: <span class="circle">44 giri</span> e <span class="circle">F2 mm/min</span></p>
-      <p>24,5 mm a passi da 0,5 → <b>64 minuti</b>.</p>
-      <p class="why">In tutte e due le versioni.</p>
+    <article class="note green" style="--r:.9deg">
+      <h2>Dati di taglio</h2>
+      <div class="tbl-wrap">
+        <table>
+          <tr><th></th><th>giri</th><th>F</th></tr>
+          <tr><td>T02 tornitura</td><td>107 m/min</td><td>0,127/giro</td></tr>
+          <tr><td>T08 Ø3</td><td>2.600</td><td>130</td></tr>
+          <tr><td>T09 Ø6</td><td>1.300</td><td>130</td></tr>
+          <tr><td>T14 tasca</td><td>5.000</td><td>333–1.000</td></tr>
+          <tr><td>T15 finitura</td><td>5.000</td><td>600</td></tr>
+        </table>
+      </div>
+      <p class="why">Gli stessi valori su Fanuc e Siemens.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.5deg">
-      <h2 class="red">11 ore di finitura!</h2>
-      <p>Siemens, finitura: <code>S2=300</code>, <code>F2</code> e <code>F0.67</code>.</p>
-      <p>26.000 righe a 2 mm/min.</p>
-      <p class="why">Probabile unità sbagliata in Fusion.</p>
+    <article class="note orange" style="--r:-1.5deg">
+      <h2>Tempo ciclo</h2>
+      <p class="big">Fanuc ≈ 5,3 min<br>Siemens ≈ 5,1 min</p>
+      <p>La parte maggiore è la finitura 3D della tasca.</p>
+      <p class="why">Stesso pezzo, stessi utensili, due controlli.</p>
     </article>
 
-    <article class="note orange" style="--r:1.4deg">
-      <h2>Altri errori</h2>
-      <ul>
-        <li>Fanuc: tasca a <code>S40000</code> (Siemens: <code>S2=5000</code>)</li>
-        <li>Foro centrale a 40 giri e F3</li>
-        <li>Foro a r12,5 nel Ø30,2: parete 2,6 − r punta</li>
-        <li>Tasca diversa nelle due versioni, finitura solo Siemens</li>
-      </ul>
+    <article class="note blue" style="--r:1.4deg">
+      <h2>Tre fori, una parete</h2>
+      <p>Ø3 a r12,5 nel perno Ø30,2: <b>1,1 mm</b> di parete.</p>
+      <p class="why">G83 / CYCLE83 con passi da 1,5 mm e ritiro completo; C frenato su ogni foro.</p>
     </article>
 
     <article class="note green" style="--r:-.8deg">
@@ -275,21 +279,22 @@ td:first-child, th:first-child { text-align: left; }
       <ul class="check">
         <li>≥ 40 mm fuori dalle griffe</li>
         <li>Zero Z sulla faccia del grezzo</li>
-        <li>Utensili della versione giusta</li>
-        <li>Giri dei motorizzati corretti</li>
+        <li>T02 · T08 Ø3 · T09 Ø6 · T14 · T15</li>
         <li>Siemens: D2 su T2</li>
+        <li>Motorizzato fino a 5.000 giri</li>
         <li>Contromandrino a riposo</li>
-        <li>Blocco singolo, override basso</li>
+        <li>Primo pezzo: blocco singolo</li>
       </ul>
     </article>
 
     <article class="note white" style="--r:1.3deg">
-      <h2>Da confermare</h2>
-      <small>nel modello Fusion e nel manuale</small>
+      <h2>Codici M del tornio</h2>
+      <small>come li usa questo post</small>
       <ul>
-        <li>Diametro della punta T8 (parete!)</li>
-        <li>Giri massimi dei motorizzati</li>
-        <li><code>M138/M139</code>, <code>M89/M90</code>, <code>M110/M111</code></li>
+        <li><code>M34/M35</code> mandrino · asse C</li>
+        <li><code>M89/M90</code> freno C sì · no</li>
+        <li><code>M138/M139</code> motorizzato ad alta velocità</li>
+        <li><code>M24/M25</code>, <code>M110/M111</code> inizio · fine</li>
       </ul>
     </article>
   </div>

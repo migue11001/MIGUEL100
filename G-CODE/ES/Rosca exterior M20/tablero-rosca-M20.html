@@ -220,7 +220,7 @@ td:first-child, th:first-child { text-align: left; }
         <li><b>Seguridad:</b> <code>G50 S6000</code>, salir X400 → Z400</li>
         <li><b>Herramienta:</b> <code>T010101</code>, <code>G95</code>, <code>M8</code>, 500 rpm</li>
         <li><b>Aproximación:</b> X39,79 Z12,5</li>
-        <li><b>Roscado:</b> <code>G71</code>, todas las pasadas</li>
+        <li><b>Roscado:</b> <code>G71</code> <code>M75</code> + pasada en vacío</li>
         <li><b>Retirada:</b> <code>M9</code>, X400 → Z400, <code>M2</code></li>
       </ol>
       <p class="why">Siempre X antes que Z: sal por donde entraste.</p>
@@ -235,21 +235,21 @@ td:first-child, th:first-child { text-align: left; }
       </ol>
     </article>
 
-    <article class="note pink" style="--r:-.9deg">
-      <h2 class="red">¡La rosca no entra!</h2>
-      <p>Profundidad M20×2,5 exterior:<br><span class="mono">0,6134 × 2,5 = 1,534 mm</span></p>
-      <p>Programada: <span class="circle">1 mm</span> (H2.)</p>
-      <p>Tuerca: Ø interior = 20 − 1,0825 × 2,5 = <b>Ø17,294</b><br>Mi fondo: <b class="under">Ø17,791</b>, más grande, así que choca.</p>
-      <p><b>Arreglo:</b> profundidad 1,534 → fondo ≈ Ø16,93</p>
+    <article class="note green" style="--r:.9deg">
+      <h2>Rosca a profundidad completa</h2>
+      <p>M20×2,5 exterior: fondo <b>Ø16,93</b> (diámetro de núcleo)</p>
+      <p>Programada: <code>H2.86</code> → <b>1,43 mm</b> por lado</p>
+      <p>Tuerca: Ø interior = <b>Ø17,294</b> &gt; fondo Ø16,93: la tuerca entra.</p>
+      <p class="why">Comprueba la primera pieza con el calibre de anillo M20×2,5.</p>
     </article>
 
-    <article class="note orange" style="--r:1.6deg">
-      <h2>Otros errores</h2>
+    <article class="note orange" style="--r:-1.5deg">
+      <h2>Detalles de producción</h2>
       <ul>
-        <li><code>M73</code> = profundidad constante: solo ~2 pasadas y la segunda arranca 3× más. <span class="why">→ usar <code>M75</code>, 6–10 pasadas</span></li>
-        <li>Sin pasada en vacío. <span class="why">→ la herramienta se flexa y deja material</span></li>
-        <li>Entrada radial con paso 2,5. <span class="why">→ entrar por el flanco 29–30°</span></li>
-        <li>Los dos programas se llaman <code>1001</code> por dentro.</li>
+        <li><code>M75</code> = profundidad decreciente: unas 11 pasadas, <b>misma sección de viruta</b></li>
+        <li>Pasada en vacío: un segundo <code>G71</code> al mismo Ø16,931</li>
+        <li>Entrada radial con profundidad decreciente</li>
+        <li>Programas <code>1001</code> (G71) y <code>1002</code> (G32)</li>
       </ul>
     </article>
 
@@ -258,12 +258,13 @@ td:first-child, th:first-child { text-align: left; }
       <div class="tbl-wrap">
         <table>
           <tr><th>n</th><th>Ø</th><th>prof.</th><th>√n</th></tr>
-          <tr><td>1</td><td>19,187</td><td>0,302</td><td>1,00</td></tr>
-          <tr><td>2</td><td>18,938</td><td>0,427</td><td>1,41</td></tr>
-          <tr><td>3</td><td>18,746</td><td>0,523</td><td>1,73</td></tr>
-          <tr><td>4</td><td>18,584</td><td>0,604</td><td>2,00</td></tr>
+          <tr><td>1</td><td>18,887</td><td>0,452</td><td>1,00</td></tr>
+          <tr><td>2</td><td>18,512</td><td>0,639</td><td>1,41</td></tr>
+          <tr><td>3</td><td>18,225</td><td>0,783</td><td>1,73</td></tr>
+          <tr><td>4</td><td>17,982</td><td>0,905</td><td>2,00</td></tr>
           <tr><td>…</td><td>…</td><td>…</td><td>…</td></tr>
-          <tr><td>11</td><td>17,791</td><td>1,000</td><td>3,32</td></tr>
+          <tr><td>10</td><td>16,931</td><td>1,430</td><td>3,16</td></tr>
+          <tr><td>11</td><td>16,931</td><td>1,430</td><td>—</td></tr>
         </table>
       </div>
       <p class="why">Profundidad ∝ √n, así cada pasada arranca <b>la misma sección</b> de viruta.</p>
@@ -299,18 +300,18 @@ td:first-child, th:first-child { text-align: left; }
 
     <article class="note green" style="--r:-1deg">
       <h2>G71 vs G32</h2>
-      <p><code>G71</code>: <b>1 línea</b>, el control calcula las pasadas.</p>
+      <p><code>G71</code>: <b>2 líneas</b>, el control calcula las pasadas (+ pasada en vacío).</p>
       <p><code>G32</code>: <b>55 líneas</b>, cada pasada a mano.</p>
       <p class="why">El G32 sirve para aprender qué hace el ciclo por dentro. En producción se usa el ciclo.</p>
     </article>
 
     <article class="note white" style="--r:1.3deg">
-      <h2>Por confirmar</h2>
-      <small>en el manual Okuma OSP</small>
+      <h2>Hoja de preparación</h2>
+      <small>en máquina</small>
       <ul>
-        <li>Reparto exacto de <code>M73</code> / <code>M75</code></li>
-        <li>Qué significa cada par de cifras de <code>T010101</code></li>
-        <li>Posición real de las garras</li>
+        <li>Calibre de anillo M20×2,5</li>
+        <li>Correctores de <code>T010101</code> medidos</li>
+        <li>Pieza ≥ 40 mm fuera de las garras</li>
       </ul>
     </article>
 

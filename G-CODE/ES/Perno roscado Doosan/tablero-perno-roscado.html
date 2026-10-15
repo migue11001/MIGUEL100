@@ -166,7 +166,7 @@ td:first-child, th:first-child { text-align: left; }
 <div class="board">
   <header class="title">
     <h1>Perno roscado · Doosan</h1>
-    <p>Torneado, garganta, rosca P2 y tronzado · O1001 · CNMEC, taller artesanal cnc</p>
+    <p>Torneado, garganta, rosca P2 y tronzado · O1002 · CNMEC, taller artesanal cnc</p>
   </header>
 
   <div class="notes">
@@ -190,7 +190,7 @@ td:first-child, th:first-child { text-align: left; }
       </svg>
       <dl class="kv">
         <dt>Máquina</dt><dd>torno Doosan Puma, control Fanuc</dd>
-        <dt>Programa</dt><dd><code>O1001</code> · 216 líneas · 4 operaciones</dd>
+        <dt>Programa</dt><dd><code>O1002</code> · 244 líneas · 4 operaciones</dd>
         <dt>Bruto</dt><dd>barra Ø50,8 (2") · modelo en pulgadas</dd>
       </dl>
     </article>
@@ -200,49 +200,54 @@ td:first-child, th:first-child { text-align: left; }
       <ol>
         <li><b>Perfil</b> desbaste + acabado · T01</li>
         <li><b>Garganta</b> contra el resalte · T02</li>
-        <li><b>Rosca</b> P2, 5 pasadas <code>G32</code> · T03</li>
+        <li><b>Rosca</b> P2, 9 pasadas + pasada en vacío <code>G32</code> · T03</li>
         <li><b>Tronzado</b> en Z-44,64 · T02</li>
       </ol>
-      <p class="why">Unos 4,7 minutos de corte por pieza.</p>
+      <p class="why">Unos 3,7 min de corte por pieza.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.3deg">
-      <h2 class="red">¿¡T0100!?</h2>
-      <p>Las dos últimas cifras = corrector: <span class="circle">00</span> = ninguno.</p>
-      <p>En la brida: <code>T0202</code>, <code>T0101</code>.</p>
-      <p class="why">→ en Fusion «Compensation offset» = número de estación.</p>
+    <article class="note green" style="--r:-1.3deg">
+      <h2>T0101 · T0202 · T0303</h2>
+      <p>Las dos últimas cifras = corrector: el <b>mismo número</b> que la estación.</p>
+      <p>Como en la brida: <code>T0202</code>, <code>T0101</code>.</p>
+      <p class="why">Geometría y desgaste de cada plaquita desde su propio corrector.</p>
     </article>
 
-    <article class="note pink" style="--r:.9deg">
-      <h2 class="red">¡La tuerca no entra!</h2>
+    <article class="note yellow" style="--r:.9deg">
+      <h2>Rosca a profundidad completa</h2>
       <p>Profundidad P2 exterior: <span class="mono">0,6134 × 2 = 1,227</span></p>
-      <p>Programada: <span class="circle">1,016</span> (Ø25,255 → Ø23,223)</p>
-      <p class="why">Fondo correcto ≈ Ø22,8. ¡El mismo error que la rosca M20!</p>
+      <p>Ø25,255 → <b>Ø22,802</b></p>
+      <p class="why">El calibre de rosca entra. Garganta a Ø22,4, por debajo del fondo.</p>
     </article>
 
     <article class="note white" style="--r:-.5deg">
-      <h2>Las 5 pasadas</h2>
+      <h2>Las 10 pasadas</h2>
       <div class="tbl-wrap">
         <table>
-          <tr><th>n</th><th>Ø</th><th>prof.</th><th>sección</th></tr>
-          <tr><td>1</td><td>24,849</td><td>0,203</td><td>1</td></tr>
-          <tr><td>2</td><td>24,442</td><td>0,406</td><td>3</td></tr>
-          <tr><td>3</td><td>24,036</td><td>0,609</td><td>5</td></tr>
-          <tr><td>4</td><td>23,630</td><td>0,812</td><td>7</td></tr>
-          <tr><td>5</td><td>23,223</td><td>1,016</td><td>9</td></tr>
+          <tr><th>n</th><th>Ø</th><th>prof.</th></tr>
+          <tr><td>1</td><td>24,437</td><td>0,409</td></tr>
+          <tr><td>2</td><td>24,099</td><td>0,578</td></tr>
+          <tr><td>3</td><td>23,839</td><td>0,708</td></tr>
+          <tr><td>4</td><td>23,620</td><td>0,818</td></tr>
+          <tr><td>5</td><td>23,427</td><td>0,914</td></tr>
+          <tr><td>6</td><td>23,252</td><td>1,002</td></tr>
+          <tr><td>7</td><td>23,092</td><td>1,082</td></tr>
+          <tr><td>8</td><td>22,942</td><td>1,157</td></tr>
+          <tr><td>9</td><td>22,802</td><td>1,227</td></tr>
+          <tr><td>10</td><td>22,802</td><td>1,227</td></tr>
         </table>
       </div>
-      <p class="why">Profundidad constante → la última pasada quita <b>9 veces</b> la primera. En la M20 G32: profundidad ∝ √n.</p>
+      <p class="why">Profundidad ∝ √n → <b>misma sección de viruta</b> en cada pasada. La 10.ª es la pasada en vacío.</p>
     </article>
 
     <article class="note orange" style="--r:1.5deg">
-      <h2>Otros avisos</h2>
+      <h2>Detalles de producción</h2>
       <ul>
-        <li>Inicio de rosca 3,9 mm antes de la cara (&lt; 2 pasos)</li>
-        <li>Garganta Ø23,674: más alta que el fondo de la rosca</li>
-        <li>Perfil hasta Z-54,14, tronzado en Z-44,64</li>
-        <li>Garganta: entra y sale en <code>G1</code> desde Ø71</li>
-        <li>Tercer programa llamado <code>1001</code></li>
+        <li>La rosca empieza en <code>Z8.</code>: 5 pasos para acelerar</li>
+        <li>Garganta Ø22,4: 0,4 por debajo del fondo de la rosca</li>
+        <li>El perfil termina en Z-49,14, justo después del tronzado</li>
+        <li>Garganta y tronzado se aproximan en <code>G0</code>; el tronzado acaba a 0,05</li>
+        <li>Programa <code>O1002</code> (la brida es <code>O1001</code>)</li>
       </ul>
     </article>
 
@@ -254,7 +259,7 @@ td:first-child, th:first-child { text-align: left; }
         <li>3–5 pasos para acelerar</li>
         <li>Garganta más profunda que la rosca</li>
       </ol>
-      <p class="why">Aquí se cumplen las dos primeras.</p>
+      <p class="why">Aquí se cumplen las cuatro.</p>
     </article>
 
     <article class="note blue" style="--r:1.1deg">
@@ -270,22 +275,22 @@ td:first-child, th:first-child { text-align: left; }
     <article class="note yellow" style="--r:-.8deg">
       <h2>Antes de Cycle Start</h2>
       <ul class="check">
-        <li>Correctores T01, T02, T03</li>
+        <li>Correctores 01, 02, 03 medidos</li>
         <li>≥ 50 mm fuera de las garras</li>
         <li>Ancho de cuchilla T02</li>
         <li>Plaquita de roscar P2 60°</li>
         <li>Recogepiezas / bandeja</li>
-        <li>Bloque a bloque antes de la rosca</li>
+        <li>Calibre de rosca en la 1.ª pieza</li>
       </ul>
     </article>
 
     <article class="note white" style="--r:1.3deg">
-      <h2>Por confirmar</h2>
-      <small>en el manual Doosan</small>
+      <h2>Códigos Doosan</h2>
+      <small>como los usa este post</small>
       <ul>
         <li><code>G350</code> confirmación de tronzado</li>
         <li><code>M24/M25</code>, <code>M34</code>, <code>M90</code>, <code>M110/M111</code></li>
-        <li>Parámetro LGN (corrector de geometría)</li>
+        <li><code>T0101</code> = estación 1, corrector 1</li>
       </ul>
     </article>
   </div>

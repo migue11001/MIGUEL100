@@ -206,31 +206,31 @@ td:first-child, th:first-child { text-align: left; }
         <li><b>Counterbores</b> Ø10</li>
         <li><b>Chamfers</b> 0.2 and <b>engraving</b></li>
       </ol>
-      <p class="why">23 operations, 8 tools, about 9 minutes.</p>
+      <p class="why">23 operations, 8 tools, about 9.1 min.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.3deg">
-      <h2 class="red">T5089 on a Haas?</h2>
+    <article class="note green" style="--r:-1.3deg">
+      <h2>T1 … T8</h2>
       <p>Haas: offsets <b>1 to 200</b>.</p>
-      <p>Program: <span class="circle">T5029 … T5089</span>, <code>H5089</code></p>
-      <p class="why">→ renumber the tools in Fusion (T1–T8).</p>
+      <p>Program: <code>T1</code> … <code>T8</code>, <code>H</code> = <code>T</code></p>
+      <p class="why">Probe T1, chamfer T2, drills T3/T5, tap T4, reamer T6, end mills T7/T8.</p>
     </article>
 
-    <article class="note green" style="--r:.9deg">
-      <h2>The coolant that threw an error</h2>
+    <article class="note blue" style="--r:.9deg">
+      <h2>Air through the tool</h2>
       <p>“Air through tool” → Haas post: <code>M73</code> / <code>M74</code>.</p>
-      <p>A post with no code for this coolant → error in Fusion.</p>
-      <p class="why">Same exercise, same operation (Fase0.2-1): only the post changes.</p>
+      <p>Chamfers and engraving: air clears the chip dust without wetting.</p>
+      <p class="why">Same tool for Fase0.2 and Gravur: only the rpm changes.</p>
     </article>
 
-    <article class="note orange" style="--r:1.5deg">
-      <h2>Other warnings</h2>
+    <article class="note orange" style="--r:1.4deg">
+      <h2>Machine requirements</h2>
       <ul>
-        <li><code>S11500</code>: needs a 12,000+ spindle</li>
-        <li><code>M88</code> TSC and <code>M73</code> air: options</li>
-        <li>G54 zero far from the part</li>
-        <li>Reamer pulls out at 1,500 mm/min</li>
-        <li>Moves as <code>G1 F5000</code></li>
+        <li><code>S11500</code>: 12,000 rpm spindle</li>
+        <li><code>M88</code> TSC and <code>M73</code> air options</li>
+        <li>G54 on the fixture reference</li>
+        <li>Reamer out at 110 mm/min</li>
+        <li>Positioning in <code>G0</code></li>
       </ul>
     </article>
 
@@ -273,11 +273,11 @@ td:first-child, th:first-child { text-align: left; }
     <article class="note yellow" style="--r:-.8deg">
       <h2>Before Cycle Start</h2>
       <ul class="check">
-        <li>Tools within T200</li>
+        <li>T1–T8 loaded, H = T</li>
         <li>Probe calibrated, WIPS macros</li>
         <li>G54 on the fixture</li>
         <li>Spindle ≥ 12,000</li>
-        <li>TSC and air (or change coolant)</li>
+        <li>TSC and air active</li>
         <li>Optional Stop, low override</li>
       </ul>
     </article>

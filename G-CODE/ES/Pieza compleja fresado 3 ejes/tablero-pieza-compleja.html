@@ -189,7 +189,7 @@ td:first-child, th:first-child { text-align: left; }
       </svg>
       <dl class="kv">
         <dt>Máquina</dt><dd>fresadora Fanuc 3 ejes + mesa B (siempre a 0°)</dd>
-        <dt>Programa</dt><dd><code>O0111</code> · 50.817 líneas</dd>
+        <dt>Programa</dt><dd><code>O0111</code> · 50.837 líneas</dd>
         <dt>Herramientas</dt><dd>9 · biblioteca en pulgadas (Ø12,7 = ½")</dd>
       </dl>
     </article>
@@ -201,8 +201,8 @@ td:first-child, th:first-child { text-align: left; }
         <li><b>Desbaste adaptativo</b> · T133</li>
         <li><b>Acabados 2D</b>: pared, Ø42, Ø63 · T135/T134</li>
         <li><b>Chaflán</b> Ø63 · T131</li>
-        <li><b>Agujeros</b> Ø10, Ø8, Ø6 · T2/T3/T4</li>
         <li><b>Acabados 3D</b> ×4 · T137 esférica</li>
+        <li><b>Agujeros</b> Ø10, Ø8, Ø6 · T2/T3/T4</li>
       </ol>
       <p class="why">Primero quita mucho y rápido, luego deja a medida, luego afina.</p>
     </article>
@@ -212,35 +212,35 @@ td:first-child, th:first-child { text-align: left; }
       <div class="tbl-wrap">
         <table>
           <tr><th>operación</th><th>min</th></tr>
-          <tr><td>Adaptativa</td><td>21,7</td></tr>
-          <tr><td>4 acabados 3D</td><td>32,8</td></tr>
-          <tr><td>todo lo demás</td><td>2,9</td></tr>
+          <tr><td>Adaptativa</td><td>21,6</td></tr>
+          <tr><td>4 acabados 3D</td><td>32,7</td></tr>
+          <tr><td>todo lo demás</td><td>3,2</td></tr>
           <tr><td><b>total</b></td><td><b>≈ 57</b></td></tr>
         </table>
       </div>
       <p class="why">El 95 % del tiempo es desbaste y 3D. Cambios de herramienta excluidos.</p>
     </article>
 
-    <article class="note pink" style="--r:.9deg">
-      <h2 class="red">¡Planeado demasiado profundo!</h2>
+    <article class="note green" style="--r:.9deg">
+      <h2>Planeado en niveles de 2,54 mm</h2>
       <p>Biblioteca: máx. <span class="mono">0,100"</span> = <b>2,54 mm</b></p>
-      <p>Programa: Z-1,439 → Z-6,519 = <span class="circle">5,08 mm</span></p>
-      <p class="why">→ «Multiple depths» con paso 2,5 mm.</p>
+      <p>Z-1,439 → Z-3,979 → Z-6,519 → <b>Z-7,154</b> acabado</p>
+      <p class="why">Cada nivel dentro del límite de la fresa.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.5deg">
-      <h2 class="red">¡Brocas en seco!</h2>
-      <p>Ø10, Ø8, Ø6: <b>ningún</b> <code>M08</code>.</p>
+    <article class="note blue" style="--r:-1.5deg">
+      <h2>Taladrado con refrigerante</h2>
+      <p>Ø10, Ø8, Ø6: <code>M08</code> en cada agujero.</p>
       <p>Agujeros pasantes de 3,5 a 6 diámetros en aluminio.</p>
-      <p class="why">La viruta se pega, la broca se rompe en el agujero.</p>
+      <p class="why">El refrigerante saca la viruta de las ranuras.</p>
     </article>
 
     <article class="note orange" style="--r:1.4deg">
-      <h2>Otros avisos</h2>
+      <h2>Detalles de producción</h2>
       <ul>
-        <li>Agujeros Ø8 y Ø6 <b>antes</b> del acabado 3D y sin punto de centrado.</li>
-        <li>Acabado exterior: bajada recta de 42 mm en <code>G01</code>.</li>
-        <li><code>MAX DEPTH OF CUT = 0.125</code> está en <b>pulgadas</b> (3,18 mm).</li>
+        <li>Agujeros taladrados <b>después</b> del acabado 3D, sobre la superficie final.</li>
+        <li>Acabado exterior: baja en <code>G01</code> por la zona que ya vació la adaptativa.</li>
+        <li>Comentarios de la biblioteca en <b>mm</b> (<code>MAX DEPTH OF CUT = 3.175 MM</code>).</li>
       </ul>
     </article>
 
@@ -253,7 +253,7 @@ td:first-child, th:first-child { text-align: left; }
         <dt>F304,8</dt><dd>12"/min</dd>
         <dt>0,100"</dt><dd>2,54 mm</dd>
       </dl>
-      <p class="why">1" = 25,4 mm. El programa está en mm (<code>G21</code>), los comentarios no.</p>
+      <p class="why">1" = 25,4 mm. El programa está en mm (<code>G21</code>), y los comentarios de la biblioteca también.</p>
     </article>
 
     <article class="note white" style="--r:.6deg">
@@ -276,7 +276,7 @@ td:first-child, th:first-child { text-align: left; }
         <li>Espacio bajo los agujeros (Z-49,3)</li>
         <li>Eje B a 0° y freno ok</li>
         <li>Punto G30 = cambio de herramienta</li>
-        <li>M08 en los taladrados</li>
+        <li>Refrigerante en todas las op.</li>
         <li>Optional Stop activado</li>
       </ul>
     </article>
@@ -288,11 +288,11 @@ td:first-child, th:first-child { text-align: left; }
     </article>
 
     <article class="note white" style="--r:1.3deg">
-      <h2>Por confirmar</h2>
+      <h2>Hoja de preparación</h2>
       <small>en máquina</small>
       <ul>
-        <li>Fondo de la pieza y bruto (no están en el programa)</li>
-        <li>Sobrematerial que deja la adaptativa sobre los agujeros Ø8 y Ø6</li>
+        <li>Cara superior del bruto en Z0, pieza amarrada libre hasta Z-49,3</li>
+        <li>Los agujeros van al final: brocas después de la esférica</li>
         <li>Posición G30 = cambio de herramienta</li>
       </ul>
     </article>

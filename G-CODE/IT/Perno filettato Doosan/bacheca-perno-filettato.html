@@ -166,7 +166,7 @@ td:first-child, th:first-child { text-align: left; }
 <div class="board">
   <header class="title">
     <h1>Perno filettato · Doosan</h1>
-    <p>Tornitura, gola, filetto P2 e troncatura · O1001 · CNMEC, azienda artigianale cnc</p>
+    <p>Tornitura, gola, filetto P2 e troncatura · O1002 · CNMEC, azienda artigianale cnc</p>
   </header>
 
   <div class="notes">
@@ -190,7 +190,7 @@ td:first-child, th:first-child { text-align: left; }
       </svg>
       <dl class="kv">
         <dt>Macchina</dt><dd>tornio Doosan Puma, controllo Fanuc</dd>
-        <dt>Programma</dt><dd><code>O1001</code> · 216 righe · 4 operazioni</dd>
+        <dt>Programma</dt><dd><code>O1002</code> · 244 righe · 4 operazioni</dd>
         <dt>Grezzo</dt><dd>barra Ø50,8 (2") · modello in pollici</dd>
       </dl>
     </article>
@@ -200,49 +200,54 @@ td:first-child, th:first-child { text-align: left; }
       <ol>
         <li><b>Profilo</b> sgross. + finitura · T01</li>
         <li><b>Gola</b> contro la spalla · T02</li>
-        <li><b>Filetto</b> P2, 5 passate <code>G32</code> · T03</li>
+        <li><b>Filetto</b> P2, 9 passate + passata a vuoto <code>G32</code> · T03</li>
         <li><b>Troncatura</b> a Z-44,64 · T02</li>
       </ol>
-      <p class="why">Circa 4,7 minuti di taglio a pezzo.</p>
+      <p class="why">Circa 3,7 min di taglio a pezzo.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.3deg">
-      <h2 class="red">T0100?!</h2>
-      <p>Ultime due cifre = correttore: <span class="circle">00</span> = nessuno.</p>
-      <p>Nella flangia: <code>T0202</code>, <code>T0101</code>.</p>
-      <p class="why">→ in Fusion «Compensation offset» = numero stazione.</p>
+    <article class="note green" style="--r:-1.3deg">
+      <h2>T0101 · T0202 · T0303</h2>
+      <p>Ultime due cifre = correttore: lo <b>stesso numero</b> della stazione.</p>
+      <p>Come nella flangia: <code>T0202</code>, <code>T0101</code>.</p>
+      <p class="why">Geometria e usura di ogni inserto dal suo correttore.</p>
     </article>
 
-    <article class="note pink" style="--r:.9deg">
-      <h2 class="red">Il filetto non entra!</h2>
+    <article class="note yellow" style="--r:.9deg">
+      <h2>Filetto a profondità piena</h2>
       <p>Profondità P2 esterno: <span class="mono">0,6134 × 2 = 1,227</span></p>
-      <p>Programmata: <span class="circle">1,016</span> (Ø25,255 → Ø23,223)</p>
-      <p class="why">Fondo giusto ≈ Ø22,8. Stesso errore della rosca M20!</p>
+      <p>Ø25,255 → <b>Ø22,802</b></p>
+      <p class="why">Il calibro del filetto entra. Gola a Ø22,4, sotto il fondo.</p>
     </article>
 
     <article class="note white" style="--r:-.5deg">
-      <h2>Le 5 passate</h2>
+      <h2>Le 10 passate</h2>
       <div class="tbl-wrap">
         <table>
-          <tr><th>n</th><th>Ø</th><th>prof.</th><th>sezione</th></tr>
-          <tr><td>1</td><td>24,849</td><td>0,203</td><td>1</td></tr>
-          <tr><td>2</td><td>24,442</td><td>0,406</td><td>3</td></tr>
-          <tr><td>3</td><td>24,036</td><td>0,609</td><td>5</td></tr>
-          <tr><td>4</td><td>23,630</td><td>0,812</td><td>7</td></tr>
-          <tr><td>5</td><td>23,223</td><td>1,016</td><td>9</td></tr>
+          <tr><th>n</th><th>Ø</th><th>prof.</th></tr>
+          <tr><td>1</td><td>24,437</td><td>0,409</td></tr>
+          <tr><td>2</td><td>24,099</td><td>0,578</td></tr>
+          <tr><td>3</td><td>23,839</td><td>0,708</td></tr>
+          <tr><td>4</td><td>23,620</td><td>0,818</td></tr>
+          <tr><td>5</td><td>23,427</td><td>0,914</td></tr>
+          <tr><td>6</td><td>23,252</td><td>1,002</td></tr>
+          <tr><td>7</td><td>23,092</td><td>1,082</td></tr>
+          <tr><td>8</td><td>22,942</td><td>1,157</td></tr>
+          <tr><td>9</td><td>22,802</td><td>1,227</td></tr>
+          <tr><td>10</td><td>22,802</td><td>1,227</td></tr>
         </table>
       </div>
-      <p class="why">Profondità costante → l'ultima passata toglie <b>9 volte</b> la prima. Nella M20 G32: profondità ∝ √n.</p>
+      <p class="why">Profondità ∝ √n → <b>stessa sezione di truciolo</b> a ogni passata. La 10ª è la passata a vuoto.</p>
     </article>
 
     <article class="note orange" style="--r:1.5deg">
-      <h2>Altri avvisi</h2>
+      <h2>Dettagli di produzione</h2>
       <ul>
-        <li>Partenza filetto 3,9 mm prima della faccia (&lt; 2 passi)</li>
-        <li>Gola Ø23,674: più alta del fondo del filetto</li>
-        <li>Profilo fino a Z-54,14, troncatura a Z-44,64</li>
-        <li>Gola: entra ed esce in <code>G1</code> da Ø71</li>
-        <li>Terzo programma chiamato <code>1001</code></li>
+        <li>Il filetto parte da <code>Z8.</code>: 5 passi per accelerare</li>
+        <li>Gola Ø22,4: 0,4 sotto il fondo del filetto</li>
+        <li>Il profilo finisce a Z-49,14, poco oltre la troncatura</li>
+        <li>Gola e troncatura si avvicinano in <code>G0</code>; la troncatura finisce a 0,05</li>
+        <li>Programma <code>O1002</code> (la flangia è <code>O1001</code>)</li>
       </ul>
     </article>
 
@@ -254,7 +259,7 @@ td:first-child, th:first-child { text-align: left; }
         <li>3–5 passi per accelerare</li>
         <li>Gola più profonda del filetto</li>
       </ol>
-      <p class="why">Qui sono rispettate le prime due.</p>
+      <p class="why">Qui sono rispettate tutte e quattro.</p>
     </article>
 
     <article class="note blue" style="--r:1.1deg">
@@ -270,22 +275,22 @@ td:first-child, th:first-child { text-align: left; }
     <article class="note yellow" style="--r:-.8deg">
       <h2>Prima di Cycle Start</h2>
       <ul class="check">
-        <li>Correttori T01, T02, T03</li>
+        <li>Correttori 01, 02, 03 misurati</li>
         <li>≥ 50 mm fuori dalle griffe</li>
         <li>Larghezza lama T02</li>
         <li>Inserto filetto P2 60°</li>
         <li>Raccoglipezzo / vaschetta</li>
-        <li>Blocco singolo prima del filetto</li>
+        <li>Calibro del filetto sul 1° pezzo</li>
       </ul>
     </article>
 
     <article class="note white" style="--r:1.3deg">
-      <h2>Da confermare</h2>
-      <small>nel manuale Doosan</small>
+      <h2>Codici Doosan</h2>
+      <small>come li usa questo post</small>
       <ul>
         <li><code>G350</code> conferma troncatura</li>
         <li><code>M24/M25</code>, <code>M34</code>, <code>M90</code>, <code>M110/M111</code></li>
-        <li>Parametro LGN (correttore di geometria)</li>
+        <li><code>T0101</code> = stazione 1, correttore 1</li>
       </ul>
     </article>
   </div>

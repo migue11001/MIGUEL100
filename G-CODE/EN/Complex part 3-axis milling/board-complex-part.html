@@ -189,7 +189,7 @@ td:first-child, th:first-child { text-align: left; }
       </svg>
       <dl class="kv">
         <dt>Machine</dt><dd>Fanuc 3-axis mill + B table (always at 0°)</dd>
-        <dt>Program</dt><dd><code>O0111</code> · 50,817 lines</dd>
+        <dt>Program</dt><dd><code>O0111</code> · 50,837 lines</dd>
         <dt>Tools</dt><dd>9 · inch library (Ø12.7 = ½")</dd>
       </dl>
     </article>
@@ -201,8 +201,8 @@ td:first-child, th:first-child { text-align: left; }
         <li><b>Adaptive roughing</b> · T133</li>
         <li><b>2D finishing</b>: wall, Ø42, Ø63 · T135/T134</li>
         <li><b>Chamfer</b> Ø63 · T131</li>
-        <li><b>Holes</b> Ø10, Ø8, Ø6 · T2/T3/T4</li>
         <li><b>3D finishing</b> ×4 · T137 ball</li>
+        <li><b>Holes</b> Ø10, Ø8, Ø6 · T2/T3/T4</li>
       </ol>
       <p class="why">First remove a lot, fast; then bring to size; then refine.</p>
     </article>
@@ -212,35 +212,35 @@ td:first-child, th:first-child { text-align: left; }
       <div class="tbl-wrap">
         <table>
           <tr><th>operation</th><th>min</th></tr>
-          <tr><td>Adaptive</td><td>21.7</td></tr>
-          <tr><td>4 × 3D finish</td><td>32.8</td></tr>
-          <tr><td>everything else</td><td>2.9</td></tr>
+          <tr><td>Adaptive</td><td>21.6</td></tr>
+          <tr><td>4 × 3D finish</td><td>32.7</td></tr>
+          <tr><td>everything else</td><td>3.2</td></tr>
           <tr><td><b>total</b></td><td><b>≈ 57</b></td></tr>
         </table>
       </div>
       <p class="why">95 % of the time is roughing and 3D. Tool changes excluded.</p>
     </article>
 
-    <article class="note pink" style="--r:.9deg">
-      <h2 class="red">Facing too deep!</h2>
+    <article class="note green" style="--r:.9deg">
+      <h2>Facing in 2.54 mm levels</h2>
       <p>Library: max <span class="mono">0.100"</span> = <b>2.54 mm</b></p>
-      <p>Program: Z-1.439 → Z-6.519 = <span class="circle">5.08 mm</span></p>
-      <p class="why">→ “Multiple depths” with a 2.5 mm step.</p>
+      <p>Z-1.439 → Z-3.979 → Z-6.519 → <b>Z-7.154</b> finish</p>
+      <p class="why">Every level within the cutter's limit.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.5deg">
-      <h2 class="red">Drills running dry!</h2>
-      <p>Ø10, Ø8, Ø6: <b>no</b> <code>M08</code>.</p>
+    <article class="note blue" style="--r:-1.5deg">
+      <h2>Drilling with coolant</h2>
+      <p>Ø10, Ø8, Ø6: <code>M08</code> in every hole.</p>
       <p>Through holes 3.5 to 6 diameters deep in aluminium.</p>
-      <p class="why">Chips weld on, the drill breaks in the hole.</p>
+      <p class="why">The coolant flushes the chips out of the flutes.</p>
     </article>
 
     <article class="note orange" style="--r:1.4deg">
-      <h2>Other warnings</h2>
+      <h2>Production details</h2>
       <ul>
-        <li>Ø8 and Ø6 holes drilled <b>before</b> the 3D finish and without a spot.</li>
-        <li>Outer finish: straight 42 mm plunge in <code>G01</code>.</li>
-        <li><code>MAX DEPTH OF CUT = 0.125</code> is in <b>inches</b> (3.18 mm).</li>
+        <li>Holes drilled <b>after</b> the 3D finish, on the final surface.</li>
+        <li>Outer finish: descends in <code>G01</code> through the area already cleared by the adaptive.</li>
+        <li>Library comments written in <b>mm</b> (<code>MAX DEPTH OF CUT = 3.175 MM</code>).</li>
       </ul>
     </article>
 
@@ -253,7 +253,7 @@ td:first-child, th:first-child { text-align: left; }
         <dt>F304.8</dt><dd>12"/min</dd>
         <dt>0.100"</dt><dd>2.54 mm</dd>
       </dl>
-      <p class="why">1" = 25.4 mm. The program is in mm (<code>G21</code>), the comments aren't.</p>
+      <p class="why">1" = 25.4 mm. The program is in mm (<code>G21</code>), the library comments too.</p>
     </article>
 
     <article class="note white" style="--r:.6deg">
@@ -276,7 +276,7 @@ td:first-child, th:first-child { text-align: left; }
         <li>Clearance under the holes (Z-49.3)</li>
         <li>B axis at 0° and brake OK</li>
         <li>G30 point = tool change</li>
-        <li>M08 in the drilling ops</li>
+        <li>Coolant in every op</li>
         <li>Optional Stop on</li>
       </ul>
     </article>
@@ -288,11 +288,11 @@ td:first-child, th:first-child { text-align: left; }
     </article>
 
     <article class="note white" style="--r:1.3deg">
-      <h2>To confirm</h2>
+      <h2>Setup sheet</h2>
       <small>at the machine</small>
       <ul>
-        <li>Part bottom and stock (not stated in the program)</li>
-        <li>Stock left by the adaptive above the Ø8 and Ø6 holes</li>
+        <li>Stock top at Z0, part clamped clear of Z-49.3</li>
+        <li>Holes come last: drills after the ball end mill</li>
         <li>G30 position = tool change</li>
       </ul>
     </article>

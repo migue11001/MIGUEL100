@@ -189,7 +189,7 @@ td:first-child, th:first-child { text-align: left; }
       </svg>
       <dl class="kv">
         <dt>Macchina</dt><dd>fresatrice Fanuc 3 assi + tavola B (sempre a 0°)</dd>
-        <dt>Programma</dt><dd><code>O0111</code> · 50.817 righe</dd>
+        <dt>Programma</dt><dd><code>O0111</code> · 50.837 righe</dd>
         <dt>Utensili</dt><dd>9 · libreria in pollici (Ø12,7 = ½")</dd>
       </dl>
     </article>
@@ -201,8 +201,8 @@ td:first-child, th:first-child { text-align: left; }
         <li><b>Sgrossatura adattiva</b> · T133</li>
         <li><b>Finiture 2D</b>: parete, Ø42, Ø63 · T135/T134</li>
         <li><b>Smusso</b> Ø63 · T131</li>
-        <li><b>Fori</b> Ø10, Ø8, Ø6 · T2/T3/T4</li>
         <li><b>Finiture 3D</b> ×4 · T137 sferica</li>
+        <li><b>Fori</b> Ø10, Ø8, Ø6 · T2/T3/T4</li>
       </ol>
       <p class="why">Prima togli tanto e veloce, poi porta a misura, poi rifinisci.</p>
     </article>
@@ -212,35 +212,35 @@ td:first-child, th:first-child { text-align: left; }
       <div class="tbl-wrap">
         <table>
           <tr><th>operazione</th><th>min</th></tr>
-          <tr><td>Adattiva</td><td>21,7</td></tr>
-          <tr><td>4 finiture 3D</td><td>32,8</td></tr>
-          <tr><td>tutto il resto</td><td>2,9</td></tr>
+          <tr><td>Adattiva</td><td>21,6</td></tr>
+          <tr><td>4 finiture 3D</td><td>32,7</td></tr>
+          <tr><td>tutto il resto</td><td>3,2</td></tr>
           <tr><td><b>totale</b></td><td><b>≈ 57</b></td></tr>
         </table>
       </div>
       <p class="why">Il 95 % del tempo è sgrossatura e 3D. Cambi utensile esclusi.</p>
     </article>
 
-    <article class="note pink" style="--r:.9deg">
-      <h2 class="red">Spianatura troppo profonda!</h2>
+    <article class="note green" style="--r:.9deg">
+      <h2>Spianatura a livelli da 2,54 mm</h2>
       <p>Libreria: max <span class="mono">0,100"</span> = <b>2,54 mm</b></p>
-      <p>Programma: Z-1,439 → Z-6,519 = <span class="circle">5,08 mm</span></p>
-      <p class="why">→ «Multiple depths» con passo 2,5 mm.</p>
+      <p>Z-1,439 → Z-3,979 → Z-6,519 → <b>Z-7,154</b> finitura</p>
+      <p class="why">Ogni livello dentro il limite della fresa.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.5deg">
-      <h2 class="red">Punte a secco!</h2>
-      <p>Ø10, Ø8, Ø6: <b>nessun</b> <code>M08</code>.</p>
+    <article class="note blue" style="--r:-1.5deg">
+      <h2>Foratura con refrigerante</h2>
+      <p>Ø10, Ø8, Ø6: <code>M08</code> in ogni foro.</p>
       <p>Fori passanti da 3,5 a 6 diametri in alluminio.</p>
-      <p class="why">Il truciolo si incolla, la punta si rompe nel foro.</p>
+      <p class="why">Il refrigerante porta fuori il truciolo dalle gole.</p>
     </article>
 
     <article class="note orange" style="--r:1.4deg">
-      <h2>Altri avvisi</h2>
+      <h2>Dettagli di produzione</h2>
       <ul>
-        <li>Fori Ø8 e Ø6 <b>prima</b> della finitura 3D e senza centrino.</li>
-        <li>Finitura esterna: discesa diritta di 42 mm in <code>G01</code>.</li>
-        <li><code>MAX DEPTH OF CUT = 0.125</code> è in <b>pollici</b> (3,18 mm).</li>
+        <li>Fori eseguiti <b>dopo</b> la finitura 3D, sulla superficie finale.</li>
+        <li>Finitura esterna: scende in <code>G01</code> nella zona già svuotata dall'adattiva.</li>
+        <li>Commenti della libreria in <b>mm</b> (<code>MAX DEPTH OF CUT = 3.175 MM</code>).</li>
       </ul>
     </article>
 
@@ -253,7 +253,7 @@ td:first-child, th:first-child { text-align: left; }
         <dt>F304,8</dt><dd>12"/min</dd>
         <dt>0,100"</dt><dd>2,54 mm</dd>
       </dl>
-      <p class="why">1" = 25,4 mm. Il programma è in mm (<code>G21</code>), i commenti no.</p>
+      <p class="why">1" = 25,4 mm. Il programma è in mm (<code>G21</code>), e anche i commenti della libreria.</p>
     </article>
 
     <article class="note white" style="--r:.6deg">
@@ -276,7 +276,7 @@ td:first-child, th:first-child { text-align: left; }
         <li>Spazio sotto i fori (Z-49,3)</li>
         <li>Asse B a 0° e freno ok</li>
         <li>Punto G30 = cambio utensile</li>
-        <li>M08 nelle forature</li>
+        <li>Refrigerante in tutte le op.</li>
         <li>Optional Stop acceso</li>
       </ul>
     </article>
@@ -288,11 +288,11 @@ td:first-child, th:first-child { text-align: left; }
     </article>
 
     <article class="note white" style="--r:1.3deg">
-      <h2>Da confermare</h2>
+      <h2>Scheda di attrezzaggio</h2>
       <small>in macchina</small>
       <ul>
-        <li>Fondo del pezzo e grezzo (non scritti nel programma)</li>
-        <li>Sovrametallo lasciato dall'adattiva sopra i fori Ø8 e Ø6</li>
+        <li>Faccia superiore del grezzo a Z0, pezzo staffato libero fino a Z-49,3</li>
+        <li>I fori vanno alla fine: punte dopo la sferica</li>
         <li>Posizione G30 = cambio utensile</li>
       </ul>
     </article>

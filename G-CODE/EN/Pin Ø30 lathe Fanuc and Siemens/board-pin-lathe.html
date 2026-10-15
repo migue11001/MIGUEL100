@@ -200,12 +200,12 @@ td:first-child, th:first-child { text-align: left; }
     <article class="note blue" style="--r:1.2deg">
       <h2>Work cycle</h2>
       <ol>
-        <li><b>Facing</b> 6.5 mm in 3 levels</li>
-        <li><b>Off-centre hole</b> r12.5 · live tool</li>
-        <li><b>Roughing</b> Ø40 → Ø30.2</li>
-        <li><b>Centre hole</b> · live tool</li>
-        <li><b>Adaptive pocket</b> in the centre</li>
-        <li><b>Pocket finishing</b> · <small>Siemens only</small></li>
+        <li><b>Facing</b> 6.5 mm in 3 levels · T02</li>
+        <li><b>Turning</b> Ø40 → Ø30.2 · T02</li>
+        <li><b>3 off-centre holes</b> Ø3 r12.5 · T08</li>
+        <li><b>Centre hole</b> Ø6 · T09</li>
+        <li><b>Adaptive pocket</b> · T14</li>
+        <li><b>Pocket finishing</b> 3D · T15</li>
       </ol>
     </article>
 
@@ -224,28 +224,32 @@ td:first-child, th:first-child { text-align: left; }
       </div>
     </article>
 
-    <article class="note pink" style="--r:.9deg">
-      <h2 class="red">An hour for one hole!</h2>
-      <p>Drill1: <span class="circle">44 rpm</span> and <span class="circle">F2 mm/min</span></p>
-      <p>24.5 mm in 0.5 mm pecks → <b>64 minutes</b>.</p>
-      <p class="why">In both versions.</p>
+    <article class="note green" style="--r:.9deg">
+      <h2>Cutting data</h2>
+      <div class="tbl-wrap">
+        <table>
+          <tr><th></th><th>rpm</th><th>F</th></tr>
+          <tr><td>T02 turning</td><td>107 m/min</td><td>0.127/rev</td></tr>
+          <tr><td>T08 Ø3</td><td>2,600</td><td>130</td></tr>
+          <tr><td>T09 Ø6</td><td>1,300</td><td>130</td></tr>
+          <tr><td>T14 pocket</td><td>5,000</td><td>333–1,000</td></tr>
+          <tr><td>T15 finishing</td><td>5,000</td><td>600</td></tr>
+        </table>
+      </div>
+      <p class="why">Same values on Fanuc and Siemens.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.5deg">
-      <h2 class="red">11 hours of finishing!</h2>
-      <p>Siemens finishing: <code>S2=300</code>, <code>F2</code> and <code>F0.67</code>.</p>
-      <p>26,000 lines at 2 mm/min.</p>
-      <p class="why">Probably a wrong unit in Fusion.</p>
+    <article class="note orange" style="--r:-1.5deg">
+      <h2>Cycle time</h2>
+      <p class="big">Fanuc ≈ 5.3 min<br>Siemens ≈ 5.1 min</p>
+      <p>Most of it is the 3D pocket finishing.</p>
+      <p class="why">Same part, same tools, two controls.</p>
     </article>
 
-    <article class="note orange" style="--r:1.4deg">
-      <h2>Other errors</h2>
-      <ul>
-        <li>Fanuc: pocket at <code>S40000</code> (Siemens: <code>S2=5000</code>)</li>
-        <li>Centre hole at 40 rpm and F3</li>
-        <li>Hole at r12.5 in the Ø30.2: wall 2.6 − drill r</li>
-        <li>Pocket differs between versions, finishing Siemens only</li>
-      </ul>
+    <article class="note blue" style="--r:1.4deg">
+      <h2>Three holes, one wall</h2>
+      <p>Ø3 at r12.5 in the Ø30.2 pin: <b>1.1 mm</b> of wall.</p>
+      <p class="why">G83 / CYCLE83 with 1.5 mm pecks and full retract; C clamped on every hole.</p>
     </article>
 
     <article class="note green" style="--r:-.8deg">
@@ -275,21 +279,22 @@ td:first-child, th:first-child { text-align: left; }
       <ul class="check">
         <li>≥ 40 mm out of the jaws</li>
         <li>Z zero on the stock face</li>
-        <li>Tools for the right version</li>
-        <li>Live tool rpm corrected</li>
+        <li>T02 · T08 Ø3 · T09 Ø6 · T14 · T15</li>
         <li>Siemens: D2 on T2</li>
+        <li>Live tool up to 5,000 rpm</li>
         <li>Sub-spindle at home</li>
-        <li>Single block, low override</li>
+        <li>First part: single block</li>
       </ul>
     </article>
 
     <article class="note white" style="--r:1.3deg">
-      <h2>To confirm</h2>
-      <small>in the Fusion model and the manual</small>
+      <h2>Lathe M codes</h2>
+      <small>as this post uses them</small>
       <ul>
-        <li>T8 drill diameter (the wall!)</li>
-        <li>Live tool max rpm</li>
-        <li><code>M138/M139</code>, <code>M89/M90</code>, <code>M110/M111</code></li>
+        <li><code>M34/M35</code> spindle · C axis</li>
+        <li><code>M89/M90</code> C brake on · off</li>
+        <li><code>M138/M139</code> high-speed live tool</li>
+        <li><code>M24/M25</code>, <code>M110/M111</code> start · end</li>
       </ul>
     </article>
   </div>

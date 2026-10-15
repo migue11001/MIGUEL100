@@ -220,7 +220,7 @@ td:first-child, th:first-child { text-align: left; }
         <li><b>Safety:</b> <code>G50 S6000</code>, retract X400 → Z400</li>
         <li><b>Tool:</b> <code>T010101</code>, <code>G95</code>, <code>M8</code>, 500 rpm</li>
         <li><b>Approach:</b> X39.79 Z12.5</li>
-        <li><b>Threading:</b> <code>G71</code>, all passes</li>
+        <li><b>Threading:</b> <code>G71</code> <code>M75</code> + spring pass</li>
         <li><b>Retract:</b> <code>M9</code>, X400 → Z400, <code>M2</code></li>
       </ol>
       <p class="why">Always X before Z: leave the way you came in.</p>
@@ -235,21 +235,21 @@ td:first-child, th:first-child { text-align: left; }
       </ol>
     </article>
 
-    <article class="note pink" style="--r:-.9deg">
-      <h2 class="red">The nut won't go on!</h2>
-      <p>M20×2.5 external depth:<br><span class="mono">0.6134 × 2.5 = 1.534 mm</span></p>
-      <p>Programmed: <span class="circle">1 mm</span> (H2.)</p>
-      <p>Nut: minor Ø = 20 − 1.0825 × 2.5 = <b>Ø17.294</b><br>My root: <b class="under">Ø17.791</b>, bigger, so it hits.</p>
-      <p><b>Fix:</b> depth 1.534 → root ≈ Ø16.93</p>
+    <article class="note green" style="--r:.9deg">
+      <h2>Full-depth thread</h2>
+      <p>M20×2.5 external: root <b>Ø16.93</b> (minor diameter)</p>
+      <p>Programmed: <code>H2.86</code> → <b>1.43 mm</b> per side</p>
+      <p>Nut: minor Ø = <b>Ø17.294</b> &gt; root Ø16.93: the nut goes on.</p>
+      <p class="why">Check the first part with the M20×2.5 ring gauge.</p>
     </article>
 
-    <article class="note orange" style="--r:1.6deg">
-      <h2>Other errors</h2>
+    <article class="note orange" style="--r:-1.5deg">
+      <h2>Production details</h2>
       <ul>
-        <li><code>M73</code> = constant depth: only ~2 passes and the second takes 3× as much. <span class="why">→ use <code>M75</code>, 6–10 passes</span></li>
-        <li>No spring pass. <span class="why">→ the tool deflects and leaves material</span></li>
-        <li>Radial infeed with a 2.5 pitch. <span class="why">→ flank infeed at 29–30°</span></li>
-        <li>Both programs are called <code>1001</code> inside.</li>
+        <li><code>M75</code> = decreasing depth: about 11 passes, <b>same chip section</b></li>
+        <li>Spring pass: a second <code>G71</code> at the same Ø16.931</li>
+        <li>Radial infeed with decreasing depth</li>
+        <li>Programs <code>1001</code> (G71) and <code>1002</code> (G32)</li>
       </ul>
     </article>
 
@@ -258,12 +258,13 @@ td:first-child, th:first-child { text-align: left; }
       <div class="tbl-wrap">
         <table>
           <tr><th>n</th><th>Ø</th><th>depth</th><th>√n</th></tr>
-          <tr><td>1</td><td>19.187</td><td>0.302</td><td>1.00</td></tr>
-          <tr><td>2</td><td>18.938</td><td>0.427</td><td>1.41</td></tr>
-          <tr><td>3</td><td>18.746</td><td>0.523</td><td>1.73</td></tr>
-          <tr><td>4</td><td>18.584</td><td>0.604</td><td>2.00</td></tr>
+          <tr><td>1</td><td>18.887</td><td>0.452</td><td>1.00</td></tr>
+          <tr><td>2</td><td>18.512</td><td>0.639</td><td>1.41</td></tr>
+          <tr><td>3</td><td>18.225</td><td>0.783</td><td>1.73</td></tr>
+          <tr><td>4</td><td>17.982</td><td>0.905</td><td>2.00</td></tr>
           <tr><td>…</td><td>…</td><td>…</td><td>…</td></tr>
-          <tr><td>11</td><td>17.791</td><td>1.000</td><td>3.32</td></tr>
+          <tr><td>10</td><td>16.931</td><td>1.430</td><td>3.16</td></tr>
+          <tr><td>11</td><td>16.931</td><td>1.430</td><td>—</td></tr>
         </table>
       </div>
       <p class="why">Depth ∝ √n, so every pass removes <b>the same chip section</b>.</p>
@@ -299,18 +300,18 @@ td:first-child, th:first-child { text-align: left; }
 
     <article class="note green" style="--r:-1deg">
       <h2>G71 vs G32</h2>
-      <p><code>G71</code>: <b>1 line</b>, the control works out the passes.</p>
+      <p><code>G71</code>: <b>2 lines</b>, the control works out the passes (+ spring pass).</p>
       <p><code>G32</code>: <b>55 lines</b>, every pass by hand.</p>
       <p class="why">G32 is for learning what the cycle does inside. In production you use the cycle.</p>
     </article>
 
     <article class="note white" style="--r:1.3deg">
-      <h2>To confirm</h2>
-      <small>in the Okuma OSP manual</small>
+      <h2>Setup sheet</h2>
+      <small>at the machine</small>
       <ul>
-        <li>Exact split of <code>M73</code> / <code>M75</code></li>
-        <li>What each digit pair in <code>T010101</code> means</li>
-        <li>Actual jaw position</li>
+        <li>Ring gauge M20×2.5</li>
+        <li><code>T010101</code> offsets measured</li>
+        <li>Part ≥ 40 mm out of the jaws</li>
       </ul>
     </article>
 

@@ -190,8 +190,8 @@ td:first-child, th:first-child { text-align: left; }
       </svg>
       <dl class="kv">
         <dt>Máquina</dt><dd>fresadora Haas 3 ejes</dd>
-        <dt>Programa</dt><dd><code>O99999</code> · «bottle opener 1st and 2nd op» · 11.593 líneas</dd>
-        <dt>Cero</dt><dd><code>G54</code> único · Z0 <b>debajo</b> de la pieza (Z positivas)</dd>
+        <dt>Programa</dt><dd><code>O99999</code> · «bottle opener 1st and 2nd op» · 11.603 líneas</dd>
+        <dt>Cero</dt><dd><code>G54</code> estación 1 · <code>G55</code> estación 2 · Z0 <b>debajo</b> de la pieza</dd>
       </dl>
     </article>
 
@@ -226,27 +226,28 @@ td:first-child, th:first-child { text-align: left; }
       <p class="why">Al quitar el fondo, esos cortes quedan pasantes y la pieza queda libre.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.5deg">
-      <h2 class="red">G41 D1: ¡ojo con el registro!</h2>
+    <article class="note green" style="--r:-1.5deg">
+      <h2>G41 D1 / D2 / D6</h2>
       <p>La trayectoria está <b>ya</b> en el centro de la fresa.</p>
-      <p>En D1 / D2 / D6: <span class="circle">solo desgaste ≈ 0</span></p>
-      <p class="why">Con el radio dentro: perfil +6,35 mm, agujero y ranura −6,35 mm. Haas: Setting 40.</p>
+      <p>D1 / D2 / D6 contienen <b>solo desgaste</b> ≈ 0.</p>
+      <p class="why">El operario ajusta perfil, agujero y ranura desde la columna de desgaste. Haas: Setting 40.</p>
     </article>
 
     <article class="note orange" style="--r:1.4deg">
-      <h2>Otros avisos</h2>
+      <h2>Detalles de producción</h2>
       <ul>
-        <li>Trasera: Fusion parte de Z16,3, ¿pero la pieza mide 19,05? <span class="why">→ primera pasada de 4,5 mm</span></li>
-        <li>T7 sin <code>M8</code></li>
-        <li>Un solo cero para dos mordazas</li>
-        <li>«Rápidos» <code>G1 F5000</code>: 40 s en lugar de 8</li>
+        <li>Trasera planeada desde Z19,05 en <b>7 niveles</b> de 1,44 mm</li>
+        <li><code>M8</code> en todas las operaciones, también la fresa de forma</li>
+        <li>Estación 1 en <code>G54</code>, estación 2 en <code>G55</code></li>
+        <li>Posicionamientos en <code>G0</code>, enlaces en G1</li>
+        <li>Ciclo ≈ 5,7 min con dos piezas en trabajo</li>
       </ul>
     </article>
 
     <article class="note white" style="--r:-.5deg">
       <h2>La fresa de disco</h2>
       <p>Corta <b>de lado</b>, bajo un borde: crea el diente que hace palanca en la chapa.</p>
-      <p>Baja en la ranura ya abierta y luego entra de lado con <code>G41 D6</code>.</p>
+      <p>Baja en la ranura ya abierta a 1.000 mm/min y luego entra de lado con <code>G41 D6</code>.</p>
       <p class="why">Mucho filo en contacto → 1.500 rpm y 152–305 mm/min.</p>
     </article>
 
@@ -260,8 +261,8 @@ td:first-child, th:first-child { text-align: left; }
       <h2>Antes de Cycle Start</h2>
       <ul class="check">
         <li>D1, D2, D6 = desgaste</li>
-        <li>Altura de la pieza en la estación 2</li>
-        <li>Segunda mordaza a Y-141,6</li>
+        <li>Pieza de 19,05 en la estación 2</li>
+        <li>G55 tomado en la 2.ª mordaza</li>
         <li>6 herramientas medidas</li>
         <li>Disco y ranura</li>
         <li>Primer ciclo: estación 2 vacía</li>
@@ -270,12 +271,12 @@ td:first-child, th:first-child { text-align: left; }
     </article>
 
     <article class="note white" style="--r:1.3deg">
-      <h2>Por confirmar</h2>
-      <small>en máquina y en Fusion</small>
+      <h2>Hoja de preparación</h2>
+      <small>en máquina</small>
       <ul>
-        <li>Dónde está el cero Z (¿paralelas? ¿fondo de la mordaza?)</li>
-        <li>Bruto de la 2.ª operación en Fusion</li>
-        <li>Setting 40 (D en radio o diámetro)</li>
+        <li>Z0 en el plano de las paralelas, en las dos mordazas</li>
+        <li><code>G55</code> = <code>G54</code> desplazado Y-141,6</li>
+        <li>Setting 40: D en radio</li>
       </ul>
     </article>
   </div>

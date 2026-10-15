@@ -220,7 +220,7 @@ td:first-child, th:first-child { text-align: left; }
         <li><b>Sicurezza:</b> <code>G50 S6000</code>, uscire X400 → Z400</li>
         <li><b>Utensile:</b> <code>T010101</code>, <code>G95</code>, <code>M8</code>, 500 giri</li>
         <li><b>Avvicinamento:</b> X39,79 Z12,5</li>
-        <li><b>Filettatura:</b> <code>G71</code>, tutte le passate</li>
+        <li><b>Filettatura:</b> <code>G71</code> <code>M75</code> + passata a vuoto</li>
         <li><b>Ritiro:</b> <code>M9</code>, X400 → Z400, <code>M2</code></li>
       </ol>
       <p class="why">Sempre X prima di Z: esci da dove sei entrato.</p>
@@ -235,21 +235,21 @@ td:first-child, th:first-child { text-align: left; }
       </ol>
     </article>
 
-    <article class="note pink" style="--r:-.9deg">
-      <h2 class="red">Il dado non entra!</h2>
-      <p>Profondità M20×2,5 esterno:<br><span class="mono">0,6134 × 2,5 = 1,534 mm</span></p>
-      <p>Programmata: <span class="circle">1 mm</span> (H2.)</p>
-      <p>Dado: Ø interno = 20 − 1,0825 × 2,5 = <b>Ø17,294</b><br>Il mio fondo: <b class="under">Ø17,791</b>, più grande, quindi urta.</p>
-      <p><b>Correzione:</b> profondità 1,534 → fondo ≈ Ø16,93</p>
+    <article class="note green" style="--r:.9deg">
+      <h2>Filetto a profondità piena</h2>
+      <p>M20×2,5 esterno: fondo <b>Ø16,93</b> (diametro di nocciolo)</p>
+      <p>Programmata: <code>H2.86</code> → <b>1,43 mm</b> per lato</p>
+      <p>Dado: Ø interno = <b>Ø17,294</b> &gt; fondo Ø16,93: il dado entra.</p>
+      <p class="why">Controlla il primo pezzo con il calibro ad anello M20×2,5.</p>
     </article>
 
-    <article class="note orange" style="--r:1.6deg">
-      <h2>Altri errori</h2>
+    <article class="note orange" style="--r:-1.5deg">
+      <h2>Dettagli di produzione</h2>
       <ul>
-        <li><code>M73</code> = profondità costante: solo ~2 passate e la seconda toglie 3× tanto. <span class="why">→ usare <code>M75</code>, 6–10 passate</span></li>
-        <li>Nessuna passata a vuoto. <span class="why">→ l'utensile flette e lascia materiale</span></li>
-        <li>Entrata radiale con passo 2,5. <span class="why">→ entrare sul fianco a 29–30°</span></li>
-        <li>I due programmi si chiamano <code>1001</code> all'interno.</li>
+        <li><code>M75</code> = profondità decrescente: circa 11 passate, <b>stessa sezione di truciolo</b></li>
+        <li>Passata a vuoto: un secondo <code>G71</code> allo stesso Ø16,931</li>
+        <li>Entrata radiale con profondità decrescente</li>
+        <li>Programmi <code>1001</code> (G71) e <code>1002</code> (G32)</li>
       </ul>
     </article>
 
@@ -258,12 +258,13 @@ td:first-child, th:first-child { text-align: left; }
       <div class="tbl-wrap">
         <table>
           <tr><th>n</th><th>Ø</th><th>prof.</th><th>√n</th></tr>
-          <tr><td>1</td><td>19,187</td><td>0,302</td><td>1,00</td></tr>
-          <tr><td>2</td><td>18,938</td><td>0,427</td><td>1,41</td></tr>
-          <tr><td>3</td><td>18,746</td><td>0,523</td><td>1,73</td></tr>
-          <tr><td>4</td><td>18,584</td><td>0,604</td><td>2,00</td></tr>
+          <tr><td>1</td><td>18,887</td><td>0,452</td><td>1,00</td></tr>
+          <tr><td>2</td><td>18,512</td><td>0,639</td><td>1,41</td></tr>
+          <tr><td>3</td><td>18,225</td><td>0,783</td><td>1,73</td></tr>
+          <tr><td>4</td><td>17,982</td><td>0,905</td><td>2,00</td></tr>
           <tr><td>…</td><td>…</td><td>…</td><td>…</td></tr>
-          <tr><td>11</td><td>17,791</td><td>1,000</td><td>3,32</td></tr>
+          <tr><td>10</td><td>16,931</td><td>1,430</td><td>3,16</td></tr>
+          <tr><td>11</td><td>16,931</td><td>1,430</td><td>—</td></tr>
         </table>
       </div>
       <p class="why">Profondità ∝ √n: così ogni passata toglie <b>la stessa sezione</b> di truciolo.</p>
@@ -299,18 +300,18 @@ td:first-child, th:first-child { text-align: left; }
 
     <article class="note green" style="--r:-1deg">
       <h2>G71 vs G32</h2>
-      <p><code>G71</code>: <b>1 riga</b>, il controllo calcola le passate.</p>
+      <p><code>G71</code>: <b>2 righe</b>, il controllo calcola le passate (+ passata a vuoto).</p>
       <p><code>G32</code>: <b>55 righe</b>, ogni passata a mano.</p>
       <p class="why">Il G32 serve a capire cosa fa il ciclo dentro. In produzione si usa il ciclo.</p>
     </article>
 
     <article class="note white" style="--r:1.3deg">
-      <h2>Da confermare</h2>
-      <small>nel manuale Okuma OSP</small>
+      <h2>Scheda di attrezzaggio</h2>
+      <small>in macchina</small>
       <ul>
-        <li>Ripartizione esatta di <code>M73</code> / <code>M75</code></li>
-        <li>Cosa significa ogni coppia di cifre di <code>T010101</code></li>
-        <li>Posizione reale delle griffe</li>
+        <li>Calibro ad anello M20×2,5</li>
+        <li>Correttori di <code>T010101</code> misurati</li>
+        <li>Pezzo ≥ 40 mm fuori dalle griffe</li>
       </ul>
     </article>
 

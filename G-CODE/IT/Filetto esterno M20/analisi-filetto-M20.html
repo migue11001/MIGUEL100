@@ -168,7 +168,7 @@ button { font: inherit; color: inherit; }
 .scene .cap { position: absolute; left: 8px; top: 4px; font-size: 12px; color: var(--muted); }
 
 /* explicación */
-.info-body { padding: 10px 14px 14px; overflow: auto; max-height: 720px; display: grid; gap: 12px; align-content: start; }
+.info-body { padding: 10px 14px 14px; overflow: auto; max-height: 720px; display: grid; gap: 12px; align-content: start; grid-auto-rows: max-content; }
 .chip { display: inline-flex; gap: 6px; align-items: center; font-weight: 700; font-size: 12.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--head-ink); background: var(--accent); padding: 2px 8px; border-radius: 2px; justify-self: start; }
 .blk { font-family: var(--font-code); font-size: 15px; background: var(--paper); border: 1px solid var(--rule); border-left: 4px solid var(--cursor); padding: 6px 10px; overflow-x: auto; white-space: pre; }
 .sec { display: grid; gap: 4px; }
@@ -297,13 +297,14 @@ a.sk { text-decoration: none; color: inherit; display: flex; flex-direction: col
 const G71 = [
   "%", "(1001.MIN)", "N10 G50 S6000", "N11 G0 X400.", "N12 G0 Z400.", "",
   "(FILETTATURA1)", "N13 T010101", "N14 G90 G95 G18", "N15 M8", "N16 G97 S500 M3 M41",
-  "N17 G0 X39.79 Z12.5", "N18 G71 X17.791 Z-32. D1. H2. F2.5 M32 M73", "N19 G0 X39.79 Z5.", "",
-  "N20 M9", "N21 G0 X400.", "N22 G0 Z400.", "N23 M2", "%"
+  "N17 G0 X39.79 Z12.5", "N18 G71 X16.931 Z-32. D0.9 H2.86 F2.5 M32 M75",
+  "N19 G71 X16.931 Z-32. D2.86 H2.86 F2.5 M32 M73", "N20 G0 X39.79 Z5.", "",
+  "N21 M9", "N22 G0 X400.", "N23 G0 Z400.", "N24 M2", "%"
 ];
-const PASS_D = [19.187, 18.938, 18.746, 18.584, 18.442, 18.313, 18.195, 18.085, 17.981, 17.884, 17.791];
-const PASS_Z = [-31.698, -31.574, -31.478, -31.397, -31.326, -31.261, -31.202, -31.147, -31.095, -31.047, -31];
+const PASS_D = [18.887, 18.512, 18.225, 17.982, 17.769, 17.576, 17.398, 17.233, 17.078, 16.931, 16.931];
+const PASS_Z = [-31.548, -31.361, -31.217, -31.096, -30.989, -30.892, -30.803, -30.721, -30.643, -30.57, -30.57];
 const G32 = (function () {
-  const L = ["%", "(1001.MIN)", "N10 G50 S6000", "N11 G0 X400.", "N12 G0 Z400.", "",
+  const L = ["%", "(1002.MIN)", "N10 G50 S6000", "N11 G0 X400.", "N12 G0 Z400.", "",
     "(FILETTATURA1)", "N13 T010101", "N14 G90 G95 G18", "N15 M8", "N16 G97 S300 M3 M41",
     "N17 G0 X40. Z5.", "N18 G0 Z12.5"];
   let n = 19;
@@ -328,11 +329,13 @@ const INFO = {
     que: "Segno di inizio o di fine del file.",
     pq: ["Quando il programma arriva via cavo o da una memoria, il controllo comincia a leggere al primo % e finisce al successivo. Quello che sta fuori viene ignorato."],
     sino: "Alcuni controlli non riconoscono dove comincia il programma e il caricamento fallisce." },
-  "(1001.MIN)": { ph: 0, lvl: "err",
+  "(1001.MIN)": { ph: 0,
     que: "Commento con il nome del programma. La macchina non lo esegue.",
-    pq: ["Il post di Fusion scrive qui il nome che hai messo al momento del postprocessore (funzione onOpen). Serve a riconoscere il programma nella memoria della macchina."],
-    riesgo: "La versione G32 di questo filetto ha lo stesso nome interno, 1001. Se carichi i due programmi, uno può sovrascrivere l'altro." },
-  "G50 S6000": { ph: 1, lvl: "warn",
+    pq: ["Il post del CAM scrive qui il nome che hai indicato al postprocessore (funzione onOpen). Identifica il programma nella memoria della macchina.", "La versione G32 di questo filetto è la 1002: i due programmi possono stare insieme nella memoria."] },
+  "(1002.MIN)": { ph: 0,
+    que: "Commento con il nome del programma: 1002, la versione G32 del filetto.",
+    pq: ["La versione con ciclo G71 è la 1001: ogni versione mantiene il proprio nome nella memoria della macchina."] },
+  "G50 S6000": { ph: 1,
     que: "Fissa il massimo dei giri del mandrino a 6.000 giri/min.",
     pq: [
       "Per proteggere l'autocentrante. Le griffe stringono il pezzo verso il centro, ma girando la forza centrifuga le spinge verso l'esterno: più giri, meno presa. Ogni autocentrante ha un numero massimo di giri.",
@@ -340,7 +343,7 @@ const INFO = {
       "In questo programma si usa G97 (giri fissi), quindi il limite non interviene. Il post lo scrive sempre per abitudine di sicurezza: se domani qualcuno aggiunge un'operazione con G96, il tetto c'è già."],
     sino: "Un'operazione con G96 che arriva vicino al centro potrebbe accelerare il mandrino oltre il limite dell'autocentrante e allentare il pezzo.",
     riesgo: "Controlla che 6.000 giri non superino il massimo dell'autocentrante e delle griffe montate." },
-  "G0 X400.": { ph: 1, lvl: "warn",
+  "G0 X400.": { ph: 1,
     que: "Rapido fino a Ø400: l'utensile si allontana radialmente dal pezzo.",
     pq: [
       "All'inizio la macchina non sa dove sia rimasto l'utensile. Può essere vicino a una spalla o dentro una gola.",
@@ -354,9 +357,9 @@ const INFO = {
     sino: "La torretta ruoterebbe vicino al pezzo e un altro utensile montato potrebbe urtare.",
     riesgo: "Z400 deve essere dentro la corsa; altrimenti scatta un allarme di fine corsa." },
   "(FILETTATURA1)": { ph: 2,
-    que: "Commento: comincia l'operazione «Filettatura1» di Fusion.",
+    que: "Commento: comincia l'operazione «Filettatura1» del CAM.",
     pq: ["Segna dove comincia ogni operazione (funzione onSection del post). L'operatore può cercarla e far partire il programma da qui se deve ripetere solo il filetto."] },
-  "T010101": { ph: 2, lvl: "warn",
+  "T010101": { ph: 2,
     que: "La torretta ruota fino all'utensile da filettare e attiva i suoi correttori.",
     pq: [
       "Il cambio si fa a X400 Z400 perché, ruotando la torretta, tutti gli utensili montati descrivono un cerchio, non solo T01.",
@@ -389,25 +392,27 @@ const INFO = {
     pq: [
       "Come nella versione G71, ma più lento: il carrello va a 300 × 2,5 = 750 mm/min e Vc ≈ 19 m/min.",
       "Meno velocità del carrello vuol dire meno spazio per frenare alla fine del filetto e meno rischio con un'uscita corta. In cambio il ciclo dura di più."] },
-  "G0 X39.79 Z12.5": { ph: 3, lvl: "warn",
+  "G0 X39.79 Z12.5": { ph: 3,
     que: "Rapido in diagonale fino al punto di partenza del ciclo: 12,5 mm davanti alla faccia e circa 10 mm sopra il materiale.",
     pq: [
       "Z12.5 e non Z2: il carrello deve passare da 0 a 1.250 mm/min. Mentre accelera, il passo non è ancora 2,5. Se l'accelerazione avviene dentro il materiale, i primi filetti escono deformati. 12,5 mm sono 5 passi di margine; più grande è giri × passo, più distanza serve.",
-      "X39.79: distanza di sicurezza impostata in Fusion. È l'altezza a cui l'utensile torna in rapido tra una passata e l'altra senza toccare niente."],
+      "X39.79: distanza di sicurezza impostata nel CAM. È l'altezza a cui l'utensile torna in rapido tra una passata e l'altra senza toccare niente."],
     sino: "Partendo da Z2, i primi filetti uscirebbero con il passo deformato.",
     riesgo: "Il rapido è in diagonale: è sicuro solo se davanti al pezzo non c'è niente (contropunta, lunetta o materiale oltre Ø40)." },
-  "G71 X17.791 Z-32. D1. H2. F2.5 M32 M73": { ph: 4, lvl: "err", params: true,
-    que: "Ciclo di filettatura Okuma: il controllo calcola ed esegue tutte le passate fino a Ø17,791. A ogni passata entra in X, filetta in Z fino a Z-32, esce in X, torna in rapido a Z12.5 e scende un po' di più.",
+  "G71 X16.931 Z-32. D0.9 H2.86 F2.5 M32 M75": { ph: 4, params: true,
+    que: "Ciclo di filettatura Okuma: il controllo calcola ed esegue tutte le passate fino a Ø16,931. A ogni passata entra in X, filetta in Z fino a Z-32, esce in X, torna in rapido a Z12,5 e scende un po' di più.",
     pq: [
-      "Una riga invece di 55 (quelle della versione G32). In macchina l'operatore corregge la profondità cambiando un solo numero.",
-      "Servono più passate perché il solco è una V: scendendo, la sezione di truciolo cresce con il quadrato della profondità. Con il doppio della profondità esce 4 volte più materiale. In una volta sola l'inserto si romperebbe.",
+      "Profondità piena del filetto: (19,791 − 16,931) / 2 = 1,43 mm per lato, fondo a Ø16,93, il diametro di nocciolo di M20×2,5: il dado e il calibro ad anello entrano.",
+      "M75 = profondità decrescente: la prima passata toglie 0,45 mm per lato e le successive sempre meno, così ogni passata toglie la stessa sezione di truciolo (circa 11 passate).",
       "Prima di ogni passata la macchina aspetta il segnale di un giro dell'encoder e parte sempre allo stesso angolo del pezzo. Per questo tutte le passate cadono nello stesso solco.",
-      "Durante la filettatura non funzionano né il Feed Hold né l'override dell'avanzamento: fermare il carrello con il mandrino che gira distruggerebbe il filetto. Funzionano solo Reset e arresto di emergenza."],
-    sino: "Programmarlo a mano vuol dire scrivere ogni passata (versione G32): più righe, più facile sbagliare quando si modifica.",
-    riesgo: "Filetto poco profondo: H2 sono 1 mm per lato e un M20×2,5 ha bisogno di 1,534 mm. Con M73 e D1 escono probabilmente solo 2 passate (da confermare nel manuale OSP), e la seconda toglie 3 volte la sezione della prima. Entrata radiale con passo 2,5. Guarda la scheda Errori." },
+      "Durante la filettatura non funzionano né il Feed Hold né l'override dell'avanzamento: fermare il carrello con il mandrino in rotazione rovinerebbe il filetto. Funzionano solo Reset e arresto d'emergenza."],
+    sino: "Programmarlo a mano obbliga a scrivere ogni passata (versione G32): più righe, più facile sbagliare quando si modifica." },
+  "G71 X16.931 Z-32. D2.86 H2.86 F2.5 M32 M73": { ph: 4,
+    que: "Passata a vuoto: lo stesso ciclo con prima profondità = altezza totale, così il controllo fa una sola passata a Ø16,931.",
+    pq: ["Nessuna nuova profondità: toglie quello che la flessione dell'utensile ha lasciato sui fianchi e il calibro entra morbido.", "Stesso punto di partenza (Z12,5) e stessi giri: cade esattamente nel solco del ciclo precedente."] },
   "G0 X39.79 Z5.": { ph: 5,
     que: "Rapido a Z5 mantenendo Ø39,79, sopra il materiale.",
-    pq: ["Finito il ciclo, l'utensile torna al suo punto di partenza. Da lì si avvicina alla quota di ritiro di Fusion senza scendere in X, così non attraversa il materiale."] },
+    pq: ["Finito il ciclo, l'utensile torna al suo punto di partenza. Da lì si avvicina alla quota di ritiro del CAM senza scendere in X, così non attraversa il materiale."] },
   "M9": { ph: 5,
     que: "Chiude il refrigerante.",
     pq: ["Si chiude con l'utensile ancora vicino al pezzo, per non spruzzare tutta la cabina durante il lungo ritiro."] },
@@ -428,33 +433,20 @@ const INFO = {
     pq: ["Come nel ciclo: il carrello ha bisogno di circa 5 passi di distanza per accelerare prima di toccare il materiale."] }
 };
 
+/* production texts: the remaining notes go into “Why” */
+for (const k in INFO) { const d = INFO[k]; if (d.riesgo) { d.pq = (d.pq || []).concat([d.riesgo]); delete d.riesgo; } delete d.lvl; }
+
 /* ---------- errori ---------- */
-const ERRORS = [
-  { lvl: "err", t: "Il filetto non entra nel dado", lines: ["G71 X17.791"],
-    pq: "Il filetto metrico è un triangolo di 60° con le punte tagliate. Per un filetto esterno la profondità è 0,6134 × P = 1,534 mm. Il dado M20×2,5 ha un diametro interno minimo di 20 − 1,0825 × 2,5 = Ø17,294. Il fondo programmato è a Ø17,791, più grande di 17,294: le creste del dado urtano il fondo del tuo filetto, con circa 0,25 mm di interferenza per lato.",
-    sol: "In Fusion, profondità del filetto = 1,534 mm (fondo ≈ Ø16,93). Nel disegno a destra la linea rossa tratteggiata segna il fondo giusto." },
-  { lvl: "err", t: "Passate mal distribuite", lines: ["G71 X17.791"],
-    pq: "La sezione di truciolo cresce con il quadrato della profondità. Con M73 (profondità costante), D1 e H2 escono circa 2 passate da 0,5 mm: la prima toglie 1 unità di sezione e la seconda 2² − 1² = 3 unità. L'inserto lavora il triplo nell'ultima passata.",
-    sol: "Usare l'entrata decrescente (in Fusion «reduced», su Okuma M75) con 6–10 passate, come la versione G32. Conferma la ripartizione esatta di M73 nel manuale OSP." },
-  { lvl: "warn", t: "Manca la passata a vuoto", lines: ["G71 X17.791"],
-    pq: "Tagliando, l'utensile flette e si allontana un po' dal pezzo, quindi nell'ultima passata resta materiale. Ripetere quella passata senza scendere lo toglie, quasi senza forza di taglio.",
-    sol: "Attivare le «spring passes» nell'operazione di filettatura di Fusion." },
-  { lvl: "warn", t: "Entrata radiale con passo 2,5", lines: ["G71 X17.791"],
-    pq: "Senza angolo B l'utensile entra diritto in X: i due taglienti della V tagliano insieme, il truciolo esce piegato a V, si evacua male e l'inserto vibra. L'entrata sul fianco (29–30°) fa tagliare soprattutto un tagliente ed è consigliata da passi di circa 1,5 mm in su.",
-    sol: "Impostare l'angolo d'entrata in Fusion; il post lo scrive come B nel G71." },
-  { lvl: "warn", t: "Nome interno duplicato (1001.MIN)", lines: ["(1001.MIN)"],
-    pq: "Il controllo riconosce i programmi dal nome interno, non dal nome del file sul computer. Le due versioni di questo filetto si chiamano 1001.",
-    sol: "Dare a ognuna un nome di programma diverso in Fusion prima di postprocessare." }
-];
+const ERRORS = [];
 
 /* ---------- collisioni ---------- */
 const CHECKS = [
   { t: "X400 e Z400 dentro la corsa della macchina", pq: "Se non ci stanno, scatta un allarme di fine corsa a metà programma.", lines: ["G0 X400.", "G0 Z400."] },
   { t: "La torretta ruota libera a X400 Z400", pq: "Ruotando, tutti gli utensili montati descrivono un cerchio, non solo T01.", lines: ["T010101"] },
   { t: "Niente davanti al pezzo", pq: "L'avvicinamento a X39.79 Z12.5 è un rapido in diagonale: contropunta, lunetta o materiale oltre Ø40 sarebbero sulla sua strada.", lines: ["G0 X39.79 Z12.5"] },
-  { t: "Gola o spazio libero a Z-32", pq: "Il carrello va a 1.250 mm/min ed esce con una rampa di circa 45°. Una spalla attaccata a Z-32 verrebbe urtata.", lines: ["G71 X17.791"] },
-  { t: "Pezzo fuori dalle griffe almeno 40 mm", pq: "32 di filetto, più l'uscita, più margine rispetto alle griffe.", lines: ["G71 X17.791"] },
-  { t: "Prima esecuzione in blocco singolo, rapidi al 25 %", pq: "Durante il filetto il Feed Hold non funziona: l'unico momento per fermarsi è prima di arrivarci.", lines: ["G0 X39.79 Z12.5", "G71 X17.791"] }
+  { t: "Gola o spazio libero a Z-32", pq: "Il carrello va a 1.250 mm/min ed esce con una rampa di circa 45°. Una spalla attaccata a Z-32 verrebbe urtata.", lines: ["G71 X16.931"] },
+  { t: "Pezzo fuori dalle griffe almeno 40 mm", pq: "32 di filetto, più l'uscita, più margine rispetto alle griffe.", lines: ["G71 X16.931"] },
+  { t: "Prima esecuzione in blocco singolo, rapidi al 25 %", pq: "Durante il filetto il Feed Hold non funziona: l'unico momento per fermarsi è prima di arrivarci.", lines: ["G0 X39.79 Z12.5", "G71 X16.931"] }
 ];
 
 /* ---------- codici ---------- */
@@ -471,7 +463,7 @@ const CODES = [
   ["M41", "Gamma bassa", "Più coppia: il mandrino non perde giri sotto il carico della filettatura.", "M41"],
   ["G71", "Ciclo di filettatura (Okuma)", "Tutte le passate in una riga. Attenzione: su Fanuc G71 è sgrossatura e su Siemens «unità metriche».", "G71"],
   ["M32", "Modo di entrata", "Come entra l'utensile in ogni passata (secondo il post: M32 per constant/reduced, M33 per alternate).", "M32"],
-  ["M73", "Ripartizione delle passate", "Profondità costante. È la causa dell'errore 2; M75 sarebbe decrescente.", "M73"],
+  ["M75 / M73", "Ripartizione delle passate", "M75 profondità decrescente per il ciclo; M73 per l'unica passata a vuoto.", "M75|M73"],
   ["G32", "Filettatura blocco per blocco", "Solo nella versione G32: una passata sincronizzata per riga. Serve a vedere cosa fa il ciclo dentro.", "G32"],
   ["M2", "Fine programma", "Ferma mandrino e refrigerante e chiude il programma. M30 in più torna all'inizio.", "M2"]
 ];
@@ -555,7 +547,7 @@ function levelOf(i) { const d = INFO[keyFor(i)]; return d && d.lvl; }
 function renderCode() {
   const box = $("code");
   box.innerHTML = S.prog.map((l, i) => {
-    const lv = S.mode === "g32" ? (/G32/.test(l) && i === lastPassLine() ? "warn" : "") : (levelOf(i) || "");
+    const lv = S.mode === "g32" ? "" : (levelOf(i) || "");
     const cls = ["ln", l ? "" : "blank", lv, S.marks.has(i) ? "mark" : "", i === S.cur ? "cur" : ""].join(" ");
     const flag = lv === "err" ? "✖" : lv === "warn" ? "!" : "";
     return '<div class="' + cls + '" data-i="' + i + '"><span class="no">' + (i + 1) + '</span><span class="flag">' + flag + "</span><span>" + (l ? hl(l) : " ") + "</span></div>";
@@ -616,13 +608,13 @@ function sec(cls, title, body) {
 }
 function paramsTable() {
   const rows = [
-    ["X17.791", "Diametro finale: il fondo del filetto."],
+    ["X16.931", "Diametro finale: il fondo del filetto (Ø16,93, diametro di nocciolo di M20×2,5)."],
     ["Z-32.", "Fine del filetto."],
-    ["D1.", "Prima profondità di passata, in diametro (0,5 mm per lato)."],
-    ["H2.", "Altezza totale del filetto, in diametro (1 mm per lato)."],
+    ["D0.9", "Prima profondità di passata, in diametro (0,45 mm per lato)."],
+    ["H2.86", "Altezza totale del filetto, in diametro (1,43 mm per lato)."],
     ["F2.5", "Passo del filetto. Con G95: avanzamento = passo per giro."],
-    ["M32", "Modo di entrata (secondo il post: constant o reduced; M33 sarebbe alternate)."],
-    ["M73", "Ripartizione a profondità costante (M75 sarebbe decrescente)."]
+    ["M32", "Modo di entrata (secondo il post: costante o ridotta; M33 sarebbe alternata)."],
+    ["M75", "Profondità decrescente: la stessa sezione di truciolo a ogni passata."]
   ];
   return '<div class="sec"><h3>Parametri del ciclo</h3><div class="tbl-wrap"><table><tr><th>Parola</th><th>Significato</th></tr>' +
     rows.map(r => "<tr><td><code>" + r[0] + "</code></td><td>" + r[1] + "</td></tr>").join("") + "</table></div></div>";
@@ -635,6 +627,7 @@ function passInfo(i) {
   const d = PASS_D[passIdx], depth = (19.791 - d) / 2;
   const prevDepth = passIdx > 0 ? (19.791 - PASS_D[passIdx - 1]) / 2 : 0;
   if (/^X1\d\.\d+$/.test(l)) {
+    if (passIdx === PASS_D.length - 1) return { ph: 4, que: "Passata 11 di 11 · passata a vuoto: l'utensile torna a Ø" + nf(d, 3) + ", lo stesso diametro della passata 10.", pq: ["Nessuna nuova profondità: toglie quello che la flessione dell'utensile ha lasciato sui fianchi e il calibro entra morbido."], table: true, pass: passIdx };
     return { ph: 4, que: "Passata " + (passIdx + 1) + " di 11: l'utensile scende in rapido fino a Ø" + nf(d, 3) + ".",
       pq: ["Profondità accumulata: (19,791 − " + nf(d, 3) + ") / 2 = " + nf(depth, 3) + " mm per lato. Questa passata scende di " + nf(depth - prevDepth, 3) + " mm.",
         "Rapporto con la prima: " + nf(depth / first, 2) + ", quasi uguale a √" + (passIdx + 1) + " = " + nf(Math.sqrt(passIdx + 1), 2) + ". La profondità cresce come √n perché ogni passata tolga la stessa sezione di truciolo: all'inizio il solco è stretto e si scende tanto; alla fine è largo e si scende poco."],
@@ -642,11 +635,11 @@ function passInfo(i) {
   }
   if (/^G32/.test(l)) {
     const last = passIdx === PASS_D.length - 1;
-    return { ph: 4, lvl: last ? "warn" : null,
+    return { ph: 4, lvl: null,
       que: "Filetta la passata " + (passIdx + 1) + " da Z12.5 a Z" + nf(PASS_Z[passIdx], 3) + ", sincronizzata con il mandrino (2,5 mm per giro).",
       pq: ["G32 è la filettatura blocco per blocco: il controllo aspetta il segnale di un giro dell'encoder e solo allora fa partire il carrello. Così questa passata cade nello stesso solco delle precedenti.",
         "Non arriva a Z-32: finisce prima perché la riga dopo esce in diagonale. Più profonda la passata, prima comincia l'uscita."],
-      riesgo: last ? "È l'ultima passata e non si ripete: manca la passata a vuoto per togliere il materiale lasciato dalla flessione dell'utensile." : null,
+      riesgo: null,
       table: true, pass: passIdx };
   }
   if (l === "X19.791 Z-32. F2.5") {
@@ -742,7 +735,6 @@ function selectCode(k) {
 /* ---------- softkeys ---------- */
 const HKEYS = [
   ["ciclo", "Ciclo di lavoro", "blocco a blocco"],
-  ["errores", "Errori", "5 rilevati"],
   ["colisiones", "Collisioni", "prima di eseguire"],
   ["codigos", "Codici", "e il loro perché"],
   ["g32", "G71 vs G32", "passata per passata"]
@@ -834,7 +826,7 @@ function size() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 function cyclePaths() {
-  if (S.prog === G71) return [18.791, 17.791].map(d => ({ d, zEnd: -31 }));
+  if (S.prog === G71) return [18.891, 18.518, 18.232, 17.991, 17.779, 17.586, 17.410, 17.245, 17.091, 16.945, 16.931, 16.931].map(d => ({ d, zEnd: -32 + (19.791 - d) / 2 }));
   return PASS_D.map((d, i) => ({ d, zEnd: PASS_Z[i] }));
 }
 function passPath(p) {
@@ -853,7 +845,7 @@ function drawBase() {
   ctx.fillStyle = css("--steel");
   ctx.fillRect(sx(V.z0), sy(10), sx(0) - sx(V.z0), sy(V.r0) - sy(10));
   // valles de rosca programada (1 mm)
-  const rootP = 17.791 / 2;
+  const rootP = 16.931 / 2;
   ctx.fillStyle = css("--paper");
   for (let z = -1.25; z > -32; z -= 2.5) {
     const hw = (10 - rootP) * Math.tan(Math.PI / 6);
@@ -863,10 +855,10 @@ function drawBase() {
   ctx.strokeStyle = css("--muted"); ctx.setLineDash([6, 3, 2, 3]); ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(sx(V.z0), sy(0)); ctx.lineTo(sx(V.z1), sy(0)); ctx.stroke();
   // fondo correcto
-  ctx.strokeStyle = css("--err"); ctx.setLineDash([4, 3]); ctx.lineWidth = 1.5;
+  ctx.strokeStyle = css("--accent"); ctx.setLineDash([4, 3]); ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(sx(0), sy(16.933 / 2)); ctx.lineTo(sx(-32), sy(16.933 / 2)); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = css("--err"); ctx.fillText("fondo corretto Ø16,93", sx(-31), sy(16.933 / 2) + 12);
+  ctx.fillStyle = css("--accent"); ctx.fillText("fondo Ø16,93", sx(-31), sy(16.933 / 2) + 12);
   // cotas
   ctx.fillStyle = css("--muted");
   ctx.fillText("Z0", sx(0) - 6, sy(V.r0) + 11 > H ? H - 2 : sy(V.r0) + 11);

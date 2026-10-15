@@ -200,12 +200,12 @@ td:first-child, th:first-child { text-align: left; }
     <article class="note blue" style="--r:1.2deg">
       <h2>Ciclo de trabajo</h2>
       <ol>
-        <li><b>Refrentado</b> 6,5 mm en 3 niveles</li>
-        <li><b>Agujero fuera de centro</b> r12,5 · motorizada</li>
-        <li><b>Desbaste</b> Ø40 → Ø30,2</li>
-        <li><b>Agujero central</b> · motorizada</li>
-        <li><b>Cajera</b> adaptativa en el centro</li>
-        <li><b>Acabado</b> cajera · <small>solo Siemens</small></li>
+        <li><b>Refrentado</b> 6,5 mm en 3 niveles · T02</li>
+        <li><b>Torneado</b> Ø40 → Ø30,2 · T02</li>
+        <li><b>3 agujeros fuera de centro</b> Ø3 r12,5 · T08</li>
+        <li><b>Agujero central</b> Ø6 · T09</li>
+        <li><b>Cajera</b> adaptativa · T14</li>
+        <li><b>Acabado</b> 3D de la cajera · T15</li>
       </ol>
     </article>
 
@@ -224,28 +224,32 @@ td:first-child, th:first-child { text-align: left; }
       </div>
     </article>
 
-    <article class="note pink" style="--r:.9deg">
-      <h2 class="red">¡Una hora para un agujero!</h2>
-      <p>Broca1: <span class="circle">44 rpm</span> y <span class="circle">F2 mm/min</span></p>
-      <p>24,5 mm en pasos de 0,5 → <b>64 minutos</b>.</p>
-      <p class="why">En las dos versiones.</p>
+    <article class="note green" style="--r:.9deg">
+      <h2>Datos de corte</h2>
+      <div class="tbl-wrap">
+        <table>
+          <tr><th></th><th>rpm</th><th>F</th></tr>
+          <tr><td>T02 torneado</td><td>107 m/min</td><td>0,127/vuelta</td></tr>
+          <tr><td>T08 Ø3</td><td>2.600</td><td>130</td></tr>
+          <tr><td>T09 Ø6</td><td>1.300</td><td>130</td></tr>
+          <tr><td>T14 cajera</td><td>5.000</td><td>333–1.000</td></tr>
+          <tr><td>T15 acabado</td><td>5.000</td><td>600</td></tr>
+        </table>
+      </div>
+      <p class="why">Los mismos valores en Fanuc y Siemens.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.5deg">
-      <h2 class="red">¡11 horas de acabado!</h2>
-      <p>Siemens, acabado: <code>S2=300</code>, <code>F2</code> y <code>F0.67</code>.</p>
-      <p>26.000 líneas a 2 mm/min.</p>
-      <p class="why">Probable unidad equivocada en Fusion.</p>
+    <article class="note orange" style="--r:-1.5deg">
+      <h2>Tiempo de ciclo</h2>
+      <p class="big">Fanuc ≈ 5,3 min<br>Siemens ≈ 5,1 min</p>
+      <p>La mayor parte es el acabado 3D de la cajera.</p>
+      <p class="why">Misma pieza, mismas herramientas, dos controles.</p>
     </article>
 
-    <article class="note orange" style="--r:1.4deg">
-      <h2>Otros errores</h2>
-      <ul>
-        <li>Fanuc: cajera a <code>S40000</code> (Siemens: <code>S2=5000</code>)</li>
-        <li>Agujero central a 40 rpm y F3</li>
-        <li>Agujero a r12,5 en el Ø30,2: pared 2,6 − r broca</li>
-        <li>Cajera distinta en las dos versiones, acabado solo Siemens</li>
-      </ul>
+    <article class="note blue" style="--r:1.4deg">
+      <h2>Tres agujeros, una pared</h2>
+      <p>Ø3 a r12,5 en el perno Ø30,2: <b>1,1 mm</b> de pared.</p>
+      <p class="why">G83 / CYCLE83 con pasos de 1,5 mm y retroceso completo; C frenado en cada agujero.</p>
     </article>
 
     <article class="note green" style="--r:-.8deg">
@@ -275,21 +279,22 @@ td:first-child, th:first-child { text-align: left; }
       <ul class="check">
         <li>≥ 40 mm fuera de las garras</li>
         <li>Cero Z en la cara del bruto</li>
-        <li>Herramientas de la versión correcta</li>
-        <li>Rpm de las motorizadas correctas</li>
+        <li>T02 · T08 Ø3 · T09 Ø6 · T14 · T15</li>
         <li>Siemens: D2 en T2</li>
+        <li>Motorizada hasta 5.000 rpm</li>
         <li>Contrahusillo en reposo</li>
-        <li>Bloque a bloque, override bajo</li>
+        <li>Primera pieza: bloque a bloque</li>
       </ul>
     </article>
 
     <article class="note white" style="--r:1.3deg">
-      <h2>Por confirmar</h2>
-      <small>en el modelo Fusion y en el manual</small>
+      <h2>Códigos M del torno</h2>
+      <small>como los usa este post</small>
       <ul>
-        <li>Diámetro de la broca T8 (¡la pared!)</li>
-        <li>Rpm máximas de las motorizadas</li>
-        <li><code>M138/M139</code>, <code>M89/M90</code>, <code>M110/M111</code></li>
+        <li><code>M34/M35</code> husillo · eje C</li>
+        <li><code>M89/M90</code> freno C sí · no</li>
+        <li><code>M138/M139</code> motorizada de alta velocidad</li>
+        <li><code>M24/M25</code>, <code>M110/M111</code> inicio · fin</li>
       </ul>
     </article>
   </div>

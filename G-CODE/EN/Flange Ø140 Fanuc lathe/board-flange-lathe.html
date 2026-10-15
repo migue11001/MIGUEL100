@@ -191,7 +191,7 @@ td:first-child, th:first-child { text-align: left; }
       </svg>
       <dl class="kv">
         <dt>Machine</dt><dd>Fanuc lathe with C axis, Y axis and live tools</dd>
-        <dt>Program</dt><dd><code>O1001</code> · 947 lines</dd>
+        <dt>Program</dt><dd><code>O1001</code> · 948 lines</dd>
         <dt>Stock</dt><dd>Ø160 bar · Z zero on the face</dd>
       </dl>
     </article>
@@ -211,28 +211,25 @@ td:first-child, th:first-child { text-align: left; }
       <h2>Cutting data</h2>
       <dl class="kv">
         <dt>Vc</dt><dd><span class="big">107</span> m/min <code>G96</code></dd>
-        <dt>Limit</dt><dd><code>G50 S5000</code></dd>
-        <dt>f</dt><dd>0.127 mm/rev <code>G99</code></dd>
-        <dt>Live tool</dt><dd><span class="circle">20 rpm</span> · 1,000–3,000 mm/min</dd>
+        <dt>Limit</dt><dd><code>G50 S2500</code></dd>
+        <dt>f</dt><dd>0.3 roughing · 0.127 finishing <code>G99</code></dd>
+        <dt>Live tool</dt><dd>4,000 rpm · 1,000–3,000 mm/min</dd>
       </dl>
-      <p class="why">n = 1000·Vc / (π·D): at Ø160 → 213 rpm, at Ø7 → 5,000.</p>
+      <p class="why">n = 1000·Vc / (π·D): at Ø160 → 213 rpm, capped at 2,500 below Ø13.6.</p>
     </article>
 
-    <article class="note pink" style="--r:.9deg">
-      <h2 class="red">End mill at 20 rpm!</h2>
-      <p><code>G97 S20 M3 P12</code></p>
-      <p>At 1,000 mm/min with 2 flutes: <b>25 mm per tooth</b>.</p>
-      <p class="why">The cutter breaks on first contact. Check T1's rpm in Fusion.</p>
+    <article class="note orange" style="--r:.9deg">
+      <h2>Cycle time</h2>
+      <p class="big">≈ 15.9 min</p>
+      <p>Roughing at <b>0.3 mm/rev</b>: 9.7 min.</p>
+      <p class="why">One finishing pass at 0.127 for the surface.</p>
     </article>
 
-    <article class="note orange" style="--r:-1.5deg">
-      <h2>Other warnings</h2>
-      <ul>
-        <li><code>G50 S5000</code> with a Ø160 bar <span class="why">→ chuck limit?</span></li>
-        <li>Roughing at 0.127 like the finish <span class="why">→ 23 of 29 min</span></li>
-        <li><code>G1 … F60.075</code> = “disguised” rapid</li>
-        <li>Machine M codes to confirm</li>
-      </ul>
+    <article class="note green" style="--r:-1.5deg">
+      <h2>Live tool</h2>
+      <p><code>G97 S4000 M3 P12</code></p>
+      <p>1,000 mm/min with 2 flutes: <b>0.125 mm per tooth</b>.</p>
+      <p class="why">Helical entry, then contour layers down to Z-37.</p>
     </article>
 
     <article class="note green" style="--r:1deg">
@@ -263,29 +260,29 @@ td:first-child, th:first-child { text-align: left; }
     <article class="note yellow" style="--r:-1deg">
       <h2>Before Cycle Start</h2>
       <ul class="check">
-        <li>Chuck max rpm ≥ G50</li>
+        <li>Chuck max rpm ≥ 2,500</li>
         <li>≥ 75 mm out of the jaws</li>
         <li>Sub-spindle at home</li>
         <li>T0202 and T0101 measured</li>
         <li>Live tool stick-out ≥ 40 mm</li>
-        <li>Live tool rpm corrected</li>
+        <li>Live tool up to 4,000 rpm</li>
         <li>Single block, low override</li>
       </ul>
     </article>
 
     <article class="note pink" style="--r:1.6deg">
       <h2>Watch out!</h2>
-      <p>During facing the rpm <b>climbs by itself</b> up to 5,000 as the tool reaches the centre.</p>
+      <p>During facing the rpm <b>climbs by itself</b> up to 2,500 as the tool reaches the centre.</p>
       <p class="why">It's not a machine fault: it's <code>G96</code>.</p>
     </article>
 
     <article class="note white" style="--r:-.8deg">
-      <h2>To confirm</h2>
-      <small>in the lathe manual</small>
+      <h2>Lathe codes</h2>
+      <small>as this post uses them</small>
       <ul>
         <li><code>M24/M25</code>, <code>M34/M35</code>, <code>M89/M90</code>, <code>M110/M111</code></li>
         <li><code>P11</code> = spindle, <code>P12</code> = live tools</li>
-        <li>Diameter of the T0101 cutter (the pocket depends on it)</li>
+        <li><code>T0101</code> axial end mill, stick-out ≥ 40 mm</li>
       </ul>
     </article>
   </div>

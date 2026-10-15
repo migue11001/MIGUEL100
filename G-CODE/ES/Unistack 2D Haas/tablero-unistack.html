@@ -206,31 +206,31 @@ td:first-child, th:first-child { text-align: left; }
         <li><b>Avellanados</b> Ø10</li>
         <li><b>Chaflanes</b> 0,2 y <b>grabado</b></li>
       </ol>
-      <p class="why">23 operaciones, 8 herramientas, unos 9 minutos.</p>
+      <p class="why">23 operaciones, 8 herramientas, unos 9,1 min.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.3deg">
-      <h2 class="red">¿T5089 en una Haas?</h2>
-      <p>Haas: correctores de <b>1 a 200</b>.</p>
-      <p>Programa: <span class="circle">T5029 … T5089</span>, <code>H5089</code></p>
-      <p class="why">→ renumera las herramientas en Fusion (T1–T8).</p>
+    <article class="note green" style="--r:-1.3deg">
+      <h2>T1 … T8</h2>
+      <p>Haas: correctores <b>de 1 a 200</b>.</p>
+      <p>Programa: <code>T1</code> … <code>T8</code>, <code>H</code> = <code>T</code></p>
+      <p class="why">Palpador T1, avellanador T2, brocas T3/T5, macho T4, escariador T6, fresas T7/T8.</p>
     </article>
 
-    <article class="note green" style="--r:.9deg">
-      <h2>El refrigerante que daba error</h2>
+    <article class="note blue" style="--r:.9deg">
+      <h2>Aire por la herramienta</h2>
       <p>«Air through tool» → post Haas: <code>M73</code> / <code>M74</code>.</p>
-      <p>Un post sin código para este refrigerante → error en Fusion.</p>
-      <p class="why">Mismo ejercicio, misma operación (Fase0.2-1): solo cambia el post.</p>
+      <p>Chaflanes y grabado: el aire limpia el polvo de viruta sin mojar.</p>
+      <p class="why">La misma herramienta para Fase0.2 y Gravur: solo cambian las rpm.</p>
     </article>
 
-    <article class="note orange" style="--r:1.5deg">
-      <h2>Otros avisos</h2>
+    <article class="note orange" style="--r:1.4deg">
+      <h2>Requisitos de la máquina</h2>
       <ul>
-        <li><code>S11500</code>: hace falta husillo de 12.000+</li>
-        <li><code>M88</code> TSC y <code>M73</code> aire: opciones</li>
-        <li>Cero G54 lejos de la pieza</li>
-        <li>El escariador sale a 1.500 mm/min</li>
-        <li>Desplazamientos <code>G1 F5000</code></li>
+        <li><code>S11500</code>: husillo de 12.000 rpm</li>
+        <li>Opciones <code>M88</code> TSC y <code>M73</code> aire</li>
+        <li>G54 en la referencia del utillaje</li>
+        <li>El escariador sale a 110 mm/min</li>
+        <li>Posicionamientos en <code>G0</code></li>
       </ul>
     </article>
 
@@ -273,11 +273,11 @@ td:first-child, th:first-child { text-align: left; }
     <article class="note yellow" style="--r:-.8deg">
       <h2>Antes de Cycle Start</h2>
       <ul class="check">
-        <li>Herramientas dentro de T200</li>
+        <li>T1–T8 montadas, H = T</li>
         <li>Palpador calibrado, macros WIPS</li>
         <li>G54 en el utillaje</li>
         <li>Husillo ≥ 12.000</li>
-        <li>TSC y aire (o cambia el refrigerante)</li>
+        <li>TSC y aire activos</li>
         <li>Optional Stop, override bajo</li>
       </ul>
     </article>

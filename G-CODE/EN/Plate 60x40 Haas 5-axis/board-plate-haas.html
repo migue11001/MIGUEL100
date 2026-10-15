@@ -193,7 +193,7 @@ td:first-child, th:first-child { text-align: left; }
       <dl class="kv">
         <dt>Machine</dt><dd>Haas UMC 5-axis, but it works <b>in 3 axes</b> (<code>B0. C0.</code>)</dd>
         <dt>Programs</dt><dd><code>O00012</code> = side 1 · <code>O00004</code> = side 1 + side 2</dd>
-        <dt>Work zero</dt><dd><code>G54</code> in the centre, on the top face</dd>
+        <dt>Work zero</dt><dd><code>G54</code> side 1 · <code>G55</code> side 2 · centre, top face</dd>
       </dl>
     </article>
 
@@ -217,26 +217,27 @@ td:first-child, th:first-child { text-align: left; }
       <p class="why">XY first up high, then down in Z. At the end: Z15, <code>M5</code>, <code>M9</code>, <code>G49</code>, <code>G53 Z0</code>.</p>
     </article>
 
-    <article class="note pink" style="--r:.9deg">
-      <h2 class="red">40,000 rpm?!</h2>
-      <p>T1 and T6: <span class="circle">S40000</span></p>
-      <p>Haas UMC: <b>8,100 / 12,000 / 15,000</b> rpm max.</p>
-      <p class="why">If the machine caps them, F6100 stays the same at 5 times fewer rpm → a chip 5 times thicker.</p>
+    <article class="note green" style="--r:.9deg">
+      <h2>12,000 rpm</h2>
+      <p>T1 and T6: <code>S12000</code></p>
+      <p>Haas UMC spindle: <b>12,000</b> rpm max.</p>
+      <p class="why">Feeds calculated for 12,000 rpm: same feed per tooth as the library.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.6deg">
-      <h2 class="red">H1 on the drill!</h2>
-      <p>Drill1 (T2): <span class="under">G43 Z15. H1</span><br>Drill2 (T3): <span class="under">G43 Z15. H1</span></p>
-      <p>The machine uses the <b>end mill</b>'s length for the <b>drill</b>.</p>
-      <p class="why">→ in Fusion “Length offset” = tool number.</p>
+    <article class="note blue" style="--r:-1.5deg">
+      <h2>H = T</h2>
+      <p>Drill1 (T2): <code>G43 Z15. H2</code><br>Drill2 (T3): <code>G43 Z15. H3</code></p>
+      <p>Every tool uses <b>its own</b> length.</p>
+      <p class="why">Z5 and the hole depths are exact.</p>
     </article>
 
-    <article class="note orange" style="--r:1.5deg">
-      <h2>Other errors</h2>
+    <article class="note orange" style="--r:1.4deg">
+      <h2>Production details</h2>
       <ul>
-        <li><code>F0.08</code> and <code>F0.07</code> in <code>G94</code> = <b>mm per minute</b>: hours per hole. <span class="why">→ 145.6 and 127 mm/min</span></li>
-        <li>Reaming <code>G95</code> … <code>F0.</code> <span class="why">→ zero feed</span></li>
-        <li>O00004: side 2 after an <code>M1</code>, not an <code>M0</code>, and still on <code>G54</code>.</li>
+        <li>Drilling at <b>145.6</b> and <b>127.4 mm/min</b> (<code>G94</code>)</li>
+        <li>Reaming at <code>F0.15</code> mm/rev (<code>G95</code>)</li>
+        <li>O00004: <code>M0</code> to flip the part, side 2 on <code>G55</code></li>
+        <li>Both sides ≈ 5.7 min</li>
       </ul>
     </article>
 
@@ -258,7 +259,7 @@ td:first-child, th:first-child { text-align: left; }
       <h2>Tap pitch</h2>
       <p class="big">F = S × pitch</p>
       <p><code>S2000</code> · <code>F2000.</code> → pitch <b>1.0 mm</b></p>
-      <p class="why">Standard M8 = 1.25 pitch! Check what's marked on the tap.</p>
+      <p class="why">M8×1 fine pitch: the T5 tap is marked M8×1.</p>
     </article>
 
     <article class="note yellow" style="--r:-1deg">
@@ -269,33 +270,33 @@ td:first-child, th:first-child { text-align: left; }
         <li>Table clear at B0 C0</li>
         <li>Setting 335 (for O00004)</li>
         <li>M8×1 tap in T5</li>
-        <li>Spindle max rpm</li>
+        <li>Spindle up to 12,000 rpm</li>
         <li>Optional Stop on, single block, rapids 25 %</li>
       </ul>
     </article>
 
-    <article class="note pink" style="--r:1.7deg">
-      <h2>Watch out!</h2>
-      <p>In <code>O00012</code> the rapids are <code>G1 F228600.</code></p>
-      <p class="why">Rapid override <b>doesn't slow them</b>: on the first run turn down the <u>feed</u> override.</p>
+    <article class="note green" style="--r:1.6deg">
+      <h2>Rapids in G0</h2>
+      <p>Both programs use <code>G0</code> with <b>Setting 335</b> = Linear + Rotary.</p>
+      <p class="why">Straight rapids, and rapid override slows them on the first run.</p>
     </article>
 
-    <article class="note blue" style="--r:-.7deg">
-      <h2>G0 or G1 F228600?</h2>
+    <article class="note white" style="--r:-.8deg">
+      <h2>Two programs</h2>
       <dl class="kv">
-        <dt>O00012</dt><dd>very fast <code>G1</code>: straight line guaranteed by the program</dd>
-        <dt>O00004</dt><dd><code>G0</code>: straight only with <b>Setting 335</b></dd>
+        <dt>O00012</dt><dd>side 1</dd>
+        <dt>O00004</dt><dd>side 1 + <code>M0</code> + side 2 on <code>G55</code></dd>
       </dl>
-      <p class="why">On 5 axes a G0 with B/C can take a “dog-leg” path.</p>
+      <p class="why">Same tools and cutting data in both.</p>
     </article>
 
     <article class="note white" style="--r:1.2deg">
-      <h2>To confirm</h2>
-      <small>at the machine and in Fusion</small>
+      <h2>Setup sheet</h2>
+      <small>at the machine</small>
       <ul>
-        <li>Max rpm of your UMC</li>
+        <li>UMC spindle: 12,000 rpm</li>
         <li>Stock: size and thickness (the contour goes to Z-15.5, the drills to Z-17.3)</li>
-        <li>Material: drills at 40 m/min (steel) but facing at 1,500 m/min (aluminium)</li>
+        <li>Side 2: flip at the M0, set <code>G55</code></li>
       </ul>
     </article>
   </div>

@@ -191,7 +191,7 @@ td:first-child, th:first-child { text-align: left; }
       </svg>
       <dl class="kv">
         <dt>Máquina</dt><dd>torno Fanuc con eje C, eje Y y motorizadas</dd>
-        <dt>Programa</dt><dd><code>O1001</code> · 947 líneas</dd>
+        <dt>Programa</dt><dd><code>O1001</code> · 948 líneas</dd>
         <dt>Bruto</dt><dd>barra Ø160 · cero Z en la cara</dd>
       </dl>
     </article>
@@ -211,28 +211,25 @@ td:first-child, th:first-child { text-align: left; }
       <h2>Datos de corte</h2>
       <dl class="kv">
         <dt>Vc</dt><dd><span class="big">107</span> m/min <code>G96</code></dd>
-        <dt>Límite</dt><dd><code>G50 S5000</code></dd>
-        <dt>f</dt><dd>0,127 mm/vuelta <code>G99</code></dd>
-        <dt>Motoriz.</dt><dd><span class="circle">20 rpm</span> · 1.000–3.000 mm/min</dd>
+        <dt>Límite</dt><dd><code>G50 S2500</code></dd>
+        <dt>f</dt><dd>0,3 desbaste · 0,127 acabado <code>G99</code></dd>
+        <dt>Motoriz.</dt><dd>4.000 rpm · 1.000–3.000 mm/min</dd>
       </dl>
-      <p class="why">n = 1000·Vc / (π·D): a Ø160 → 213 rpm, a Ø7 → 5.000.</p>
+      <p class="why">n = 1000·Vc / (π·D): a Ø160 → 213 rpm, limitadas a 2.500 por debajo de Ø13,6.</p>
     </article>
 
-    <article class="note pink" style="--r:.9deg">
-      <h2 class="red">¡Fresa a 20 rpm!</h2>
-      <p><code>G97 S20 M3 P12</code></p>
-      <p>A 1.000 mm/min con 2 filos: <b>25 mm por diente</b>.</p>
-      <p class="why">La fresa se rompe al primer contacto. Revisa las rpm de T1 en Fusion.</p>
+    <article class="note orange" style="--r:.9deg">
+      <h2>Tiempo de ciclo</h2>
+      <p class="big">≈ 15,9 min</p>
+      <p>Desbaste a <b>0,3 mm/vuelta</b>: 9,7 min.</p>
+      <p class="why">Una pasada de acabado a 0,127 para la superficie.</p>
     </article>
 
-    <article class="note orange" style="--r:-1.5deg">
-      <h2>Otros avisos</h2>
-      <ul>
-        <li><code>G50 S5000</code> con una barra Ø160 <span class="why">→ ¿límite del plato?</span></li>
-        <li>Desbaste a 0,127 como el acabado <span class="why">→ 23 min de 29</span></li>
-        <li><code>G1 … F60.075</code> = rápido «disfrazado»</li>
-        <li>Códigos M de la máquina por confirmar</li>
-      </ul>
+    <article class="note green" style="--r:-1.5deg">
+      <h2>Motorizada</h2>
+      <p><code>G97 S4000 M3 P12</code></p>
+      <p>1.000 mm/min con 2 filos: <b>0,125 mm por diente</b>.</p>
+      <p class="why">Bajada en hélice, luego capas de contorno hasta Z-37.</p>
     </article>
 
     <article class="note green" style="--r:1deg">
@@ -263,29 +260,29 @@ td:first-child, th:first-child { text-align: left; }
     <article class="note yellow" style="--r:-1deg">
       <h2>Antes de Cycle Start</h2>
       <ul class="check">
-        <li>Rpm máx. del plato ≥ G50</li>
+        <li>Rpm máx. del plato ≥ 2.500</li>
         <li>≥ 75 mm fuera de las garras</li>
         <li>Contrahusillo en reposo</li>
         <li>T0202 y T0101 medidas</li>
         <li>Motorizada con voladizo ≥ 40 mm</li>
-        <li>Rpm de la motorizada correctas</li>
+        <li>Motorizada hasta 4.000 rpm</li>
         <li>Bloque a bloque, override bajo</li>
       </ul>
     </article>
 
     <article class="note pink" style="--r:1.6deg">
       <h2>¡Atención!</h2>
-      <p>En el refrentado las rpm <b>suben solas</b> hasta 5.000 cuando la herramienta llega al centro.</p>
+      <p>En el refrentado las rpm <b>suben solas</b> hasta 2.500 cuando la herramienta llega al centro.</p>
       <p class="why">No es un fallo de la máquina: es <code>G96</code>.</p>
     </article>
 
     <article class="note white" style="--r:-.8deg">
-      <h2>Por confirmar</h2>
-      <small>en el manual del torno</small>
+      <h2>Códigos del torno</h2>
+      <small>como los usa este post</small>
       <ul>
         <li><code>M24/M25</code>, <code>M34/M35</code>, <code>M89/M90</code>, <code>M110/M111</code></li>
         <li><code>P11</code> = husillo, <code>P12</code> = motorizadas</li>
-        <li>Diámetro de la fresa T0101 (la cajera depende de ello)</li>
+        <li><code>T0101</code> fresa axial, voladizo ≥ 40 mm</li>
       </ul>
     </article>
   </div>

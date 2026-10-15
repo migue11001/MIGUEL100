@@ -190,8 +190,8 @@ td:first-child, th:first-child { text-align: left; }
       </svg>
       <dl class="kv">
         <dt>Macchina</dt><dd>fresatrice Haas 3 assi</dd>
-        <dt>Programma</dt><dd><code>O99999</code> · «bottle opener 1st and 2nd op» · 11.593 righe</dd>
-        <dt>Zero</dt><dd><code>G54</code> unico · Z0 <b>sotto</b> il pezzo (Z positive)</dd>
+        <dt>Programma</dt><dd><code>O99999</code> · «bottle opener 1st and 2nd op» · 11.603 righe</dd>
+        <dt>Zero</dt><dd><code>G54</code> stazione 1 · <code>G55</code> stazione 2 · Z0 <b>sotto</b> il pezzo</dd>
       </dl>
     </article>
 
@@ -226,27 +226,28 @@ td:first-child, th:first-child { text-align: left; }
       <p class="why">Togliendo il fondo, quei tagli diventano passanti e il pezzo è libero.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.5deg">
-      <h2 class="red">G41 D1: occhio al registro!</h2>
+    <article class="note green" style="--r:-1.5deg">
+      <h2>G41 D1 / D2 / D6</h2>
       <p>Il percorso è <b>già</b> al centro della fresa.</p>
-      <p>In D1 / D2 / D6: <span class="circle">solo usura ≈ 0</span></p>
-      <p class="why">Con il raggio dentro: profilo +6,35 mm, foro e fessura −6,35 mm. Haas: Setting 40.</p>
+      <p>D1 / D2 / D6 contengono <b>solo l'usura</b> ≈ 0.</p>
+      <p class="why">L'operatore regola profilo, foro e fessura dalla colonna usura. Haas: Setting 40.</p>
     </article>
 
     <article class="note orange" style="--r:1.4deg">
-      <h2>Altri avvisi</h2>
+      <h2>Dettagli di produzione</h2>
       <ul>
-        <li>Retro: Fusion parte da Z16,3, ma il pezzo è alto 19,05? <span class="why">→ prima passata da 4,5 mm</span></li>
-        <li>T7 senza <code>M8</code></li>
-        <li>Un solo zero per due morse</li>
-        <li>«Rapidi» <code>G1 F5000</code>: 40 s invece di 8</li>
+        <li>Retro spianato da Z19,05 in <b>7 livelli</b> da 1,44 mm</li>
+        <li><code>M8</code> in tutte le operazioni, anche la fresa di forma</li>
+        <li>Stazione 1 su <code>G54</code>, stazione 2 su <code>G55</code></li>
+        <li>Posizionamenti in <code>G0</code>, collegamenti in G1</li>
+        <li>Ciclo ≈ 5,7 min con due pezzi in lavorazione</li>
       </ul>
     </article>
 
     <article class="note white" style="--r:-.5deg">
       <h2>La fresa a disco</h2>
       <p>Taglia <b>di lato</b>, sotto un bordo: crea il dente che fa leva sul tappo.</p>
-      <p>Scende nella fessura già aperta, poi entra di lato con <code>G41 D6</code>.</p>
+      <p>Scende nella fessura già aperta a 1.000 mm/min, poi entra di lato con <code>G41 D6</code>.</p>
       <p class="why">Tanto tagliente in presa → 1.500 giri e 152–305 mm/min.</p>
     </article>
 
@@ -260,8 +261,8 @@ td:first-child, th:first-child { text-align: left; }
       <h2>Prima di Cycle Start</h2>
       <ul class="check">
         <li>D1, D2, D6 = usura</li>
-        <li>Altezza pezzo in stazione 2</li>
-        <li>Seconda morsa a Y-141,6</li>
+        <li>Pezzo alto 19,05 in stazione 2</li>
+        <li>G55 azzerato sulla 2ª morsa</li>
         <li>6 utensili misurati</li>
         <li>Disco e fessura</li>
         <li>Primo ciclo: stazione 2 vuota</li>
@@ -270,12 +271,12 @@ td:first-child, th:first-child { text-align: left; }
     </article>
 
     <article class="note white" style="--r:1.3deg">
-      <h2>Da confermare</h2>
-      <small>in macchina e in Fusion</small>
+      <h2>Scheda di attrezzaggio</h2>
+      <small>in macchina</small>
       <ul>
-        <li>Dove è lo zero Z (parallele? fondo morsa?)</li>
-        <li>Grezzo della 2ª operazione in Fusion</li>
-        <li>Setting 40 (D in raggio o diametro)</li>
+        <li>Z0 sul piano delle parallele, in tutte e due le morse</li>
+        <li><code>G55</code> = <code>G54</code> spostato Y-141,6</li>
+        <li>Setting 40: D in raggio</li>
       </ul>
     </article>
   </div>

@@ -191,7 +191,7 @@ td:first-child, th:first-child { text-align: left; }
       </svg>
       <dl class="kv">
         <dt>Macchina</dt><dd>tornio Fanuc con asse C, asse Y e motorizzati</dd>
-        <dt>Programma</dt><dd><code>O1001</code> · 947 righe</dd>
+        <dt>Programma</dt><dd><code>O1001</code> · 948 righe</dd>
         <dt>Grezzo</dt><dd>barra Ø160 · zero Z sulla faccia</dd>
       </dl>
     </article>
@@ -211,28 +211,25 @@ td:first-child, th:first-child { text-align: left; }
       <h2>Dati di taglio</h2>
       <dl class="kv">
         <dt>Vc</dt><dd><span class="big">107</span> m/min <code>G96</code></dd>
-        <dt>Limite</dt><dd><code>G50 S5000</code></dd>
-        <dt>f</dt><dd>0,127 mm/giro <code>G99</code></dd>
-        <dt>Motorizz.</dt><dd><span class="circle">20 giri</span> · 1.000–3.000 mm/min</dd>
+        <dt>Limite</dt><dd><code>G50 S2500</code></dd>
+        <dt>f</dt><dd>0,3 sgrossatura · 0,127 finitura <code>G99</code></dd>
+        <dt>Motorizz.</dt><dd>4.000 giri · 1.000–3.000 mm/min</dd>
       </dl>
-      <p class="why">n = 1000·Vc / (π·D): a Ø160 → 213 giri, a Ø7 → 5.000.</p>
+      <p class="why">n = 1000·Vc / (π·D): a Ø160 → 213 giri, limitati a 2.500 sotto Ø13,6.</p>
     </article>
 
-    <article class="note pink" style="--r:.9deg">
-      <h2 class="red">Fresa a 20 giri!</h2>
-      <p><code>G97 S20 M3 P12</code></p>
-      <p>A 1.000 mm/min con 2 taglienti: <b>25 mm per dente</b>.</p>
-      <p class="why">La fresa si rompe al primo contatto. Controlla i giri di T1 in Fusion.</p>
+    <article class="note orange" style="--r:.9deg">
+      <h2>Tempo ciclo</h2>
+      <p class="big">≈ 15,9 min</p>
+      <p>Sgrossatura a <b>0,3 mm/giro</b>: 9,7 min.</p>
+      <p class="why">Una passata di finitura a 0,127 per la superficie.</p>
     </article>
 
-    <article class="note orange" style="--r:-1.5deg">
-      <h2>Altri avvisi</h2>
-      <ul>
-        <li><code>G50 S5000</code> con una barra Ø160 <span class="why">→ limite dell'autocentrante?</span></li>
-        <li>Sgrossatura a 0,127 come la finitura <span class="why">→ 23 min su 29</span></li>
-        <li><code>G1 … F60.075</code> = rapido «travestito»</li>
-        <li>Codici M della macchina da confermare</li>
-      </ul>
+    <article class="note green" style="--r:-1.5deg">
+      <h2>Motorizzato</h2>
+      <p><code>G97 S4000 M3 P12</code></p>
+      <p>1.000 mm/min con 2 taglienti: <b>0,125 mm al dente</b>.</p>
+      <p class="why">Discesa a elica, poi strati di contorno fino a Z-37.</p>
     </article>
 
     <article class="note green" style="--r:1deg">
@@ -263,29 +260,29 @@ td:first-child, th:first-child { text-align: left; }
     <article class="note yellow" style="--r:-1deg">
       <h2>Prima di Cycle Start</h2>
       <ul class="check">
-        <li>Giri max autocentrante ≥ G50</li>
+        <li>Giri max autocentrante ≥ 2.500</li>
         <li>≥ 75 mm fuori dalle griffe</li>
         <li>Contromandrino a riposo</li>
         <li>T0202 e T0101 misurati</li>
         <li>Motorizzato con sporgenza ≥ 40 mm</li>
-        <li>Giri del motorizzato corretti</li>
+        <li>Motorizzato fino a 4.000 giri</li>
         <li>Blocco singolo, override basso</li>
       </ul>
     </article>
 
     <article class="note pink" style="--r:1.6deg">
       <h2>Attenzione!</h2>
-      <p>Alla spianatura i giri <b>salgono da soli</b> fino a 5.000 quando l'utensile arriva al centro.</p>
+      <p>Alla spianatura i giri <b>salgono da soli</b> fino a 2.500 quando l'utensile arriva al centro.</p>
       <p class="why">Non è un errore della macchina: è <code>G96</code>.</p>
     </article>
 
     <article class="note white" style="--r:-.8deg">
-      <h2>Da confermare</h2>
-      <small>nel manuale del tornio</small>
+      <h2>Codici del tornio</h2>
+      <small>come li usa questo post</small>
       <ul>
         <li><code>M24/M25</code>, <code>M34/M35</code>, <code>M89/M90</code>, <code>M110/M111</code></li>
         <li><code>P11</code> = mandrino, <code>P12</code> = motorizzati</li>
-        <li>Diametro della fresa T0101 (la tasca dipende da questo)</li>
+        <li><code>T0101</code> fresa assiale, sporgenza ≥ 40 mm</li>
       </ul>
     </article>
   </div>

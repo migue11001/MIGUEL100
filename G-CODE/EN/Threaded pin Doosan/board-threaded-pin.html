@@ -166,7 +166,7 @@ td:first-child, th:first-child { text-align: left; }
 <div class="board">
   <header class="title">
     <h1>Threaded pin · Doosan</h1>
-    <p>Turning, groove, P2 thread and part-off · O1001 · CNMEC, small CNC workshop</p>
+    <p>Turning, groove, P2 thread and part-off · O1002 · CNMEC, small CNC workshop</p>
   </header>
 
   <div class="notes">
@@ -190,7 +190,7 @@ td:first-child, th:first-child { text-align: left; }
       </svg>
       <dl class="kv">
         <dt>Machine</dt><dd>Doosan Puma lathe, Fanuc control</dd>
-        <dt>Program</dt><dd><code>O1001</code> · 216 lines · 4 operations</dd>
+        <dt>Program</dt><dd><code>O1002</code> · 244 lines · 4 operations</dd>
         <dt>Stock</dt><dd>Ø50.8 (2") bar · inch model</dd>
       </dl>
     </article>
@@ -200,49 +200,54 @@ td:first-child, th:first-child { text-align: left; }
       <ol>
         <li><b>Profile</b> rough + finish · T01</li>
         <li><b>Groove</b> against the shoulder · T02</li>
-        <li><b>Thread</b> P2, 5 passes <code>G32</code> · T03</li>
+        <li><b>Thread</b> P2, 9 passes + spring pass <code>G32</code> · T03</li>
         <li><b>Part-off</b> at Z-44.64 · T02</li>
       </ol>
-      <p class="why">About 4.7 minutes of cutting per part.</p>
+      <p class="why">About 3.7 min of cutting per part.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.3deg">
-      <h2 class="red">T0100?!</h2>
-      <p>Last two digits = offset: <span class="circle">00</span> = none.</p>
-      <p>In the flange: <code>T0202</code>, <code>T0101</code>.</p>
-      <p class="why">→ in Fusion “Compensation offset” = station number.</p>
+    <article class="note green" style="--r:-1.3deg">
+      <h2>T0101 · T0202 · T0303</h2>
+      <p>Last two digits = offset: the <b>same number</b> as the station.</p>
+      <p>Like the flange: <code>T0202</code>, <code>T0101</code>.</p>
+      <p class="why">Geometry and wear of every insert from its own offset.</p>
     </article>
 
-    <article class="note pink" style="--r:.9deg">
-      <h2 class="red">The nut won't go on!</h2>
+    <article class="note yellow" style="--r:.9deg">
+      <h2>Full-depth thread</h2>
       <p>P2 external depth: <span class="mono">0.6134 × 2 = 1.227</span></p>
-      <p>Programmed: <span class="circle">1.016</span> (Ø25.255 → Ø23.223)</p>
-      <p class="why">Correct root ≈ Ø22.8. Same mistake as the M20 thread!</p>
+      <p>Ø25.255 → <b>Ø22.802</b></p>
+      <p class="why">The thread gauge goes on. Groove at Ø22.4, below the root.</p>
     </article>
 
     <article class="note white" style="--r:-.5deg">
-      <h2>The 5 passes</h2>
+      <h2>The 10 passes</h2>
       <div class="tbl-wrap">
         <table>
-          <tr><th>n</th><th>Ø</th><th>depth</th><th>section</th></tr>
-          <tr><td>1</td><td>24.849</td><td>0.203</td><td>1</td></tr>
-          <tr><td>2</td><td>24.442</td><td>0.406</td><td>3</td></tr>
-          <tr><td>3</td><td>24.036</td><td>0.609</td><td>5</td></tr>
-          <tr><td>4</td><td>23.630</td><td>0.812</td><td>7</td></tr>
-          <tr><td>5</td><td>23.223</td><td>1.016</td><td>9</td></tr>
+          <tr><th>n</th><th>Ø</th><th>depth</th></tr>
+          <tr><td>1</td><td>24.437</td><td>0.409</td></tr>
+          <tr><td>2</td><td>24.099</td><td>0.578</td></tr>
+          <tr><td>3</td><td>23.839</td><td>0.708</td></tr>
+          <tr><td>4</td><td>23.620</td><td>0.818</td></tr>
+          <tr><td>5</td><td>23.427</td><td>0.914</td></tr>
+          <tr><td>6</td><td>23.252</td><td>1.002</td></tr>
+          <tr><td>7</td><td>23.092</td><td>1.082</td></tr>
+          <tr><td>8</td><td>22.942</td><td>1.157</td></tr>
+          <tr><td>9</td><td>22.802</td><td>1.227</td></tr>
+          <tr><td>10</td><td>22.802</td><td>1.227</td></tr>
         </table>
       </div>
-      <p class="why">Constant depth → the last pass removes <b>9 times</b> as much as the first. In the M20 G32: depth ∝ √n.</p>
+      <p class="why">Depth ∝ √n → <b>same chip section</b> on every pass. The 10th is the spring pass.</p>
     </article>
 
     <article class="note orange" style="--r:1.5deg">
-      <h2>Other warnings</h2>
+      <h2>Production details</h2>
       <ul>
-        <li>Thread starts 3.9 mm before the face (&lt; 2 pitches)</li>
-        <li>Groove Ø23.674: higher than the thread root</li>
-        <li>Profile to Z-54.14, part-off at Z-44.64</li>
-        <li>Groove: goes in and out in <code>G1</code> from Ø71</li>
-        <li>Third program called <code>1001</code></li>
+        <li>Thread starts at <code>Z8.</code>: 5 pitches to accelerate</li>
+        <li>Groove Ø22.4: 0.4 below the thread root</li>
+        <li>Profile stops at Z-49.14, just past the part-off</li>
+        <li>Groove and part-off approach in <code>G0</code>; part-off ends at 0.05</li>
+        <li>Program <code>O1002</code> (the flange is <code>O1001</code>)</li>
       </ul>
     </article>
 
@@ -254,7 +259,7 @@ td:first-child, th:first-child { text-align: left; }
         <li>3–5 pitches to accelerate</li>
         <li>Groove deeper than the thread</li>
       </ol>
-      <p class="why">Here only the first two are followed.</p>
+      <p class="why">All four are followed here.</p>
     </article>
 
     <article class="note blue" style="--r:1.1deg">
@@ -270,22 +275,22 @@ td:first-child, th:first-child { text-align: left; }
     <article class="note yellow" style="--r:-.8deg">
       <h2>Before Cycle Start</h2>
       <ul class="check">
-        <li>Offsets T01, T02, T03</li>
+        <li>Offsets 01, 02, 03 measured</li>
         <li>≥ 50 mm out of the jaws</li>
         <li>T02 blade width</li>
         <li>P2 60° threading insert</li>
         <li>Parts catcher / tray</li>
-        <li>Single block before the thread</li>
+        <li>Thread gauge on the first part</li>
       </ul>
     </article>
 
     <article class="note white" style="--r:1.3deg">
-      <h2>To confirm</h2>
-      <small>in the Doosan manual</small>
+      <h2>Doosan codes</h2>
+      <small>as this post uses them</small>
       <ul>
         <li><code>G350</code> part-off confirmation</li>
         <li><code>M24/M25</code>, <code>M34</code>, <code>M90</code>, <code>M110/M111</code></li>
-        <li>LGN parameter (geometry offset)</li>
+        <li><code>T0101</code> = station 1, offset 1</li>
       </ul>
     </article>
   </div>

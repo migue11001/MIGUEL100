@@ -193,7 +193,7 @@ td:first-child, th:first-child { text-align: left; }
       <dl class="kv">
         <dt>Macchina</dt><dd>Haas UMC 5 assi, ma lavora <b>in 3 assi</b> (<code>B0. C0.</code>)</dd>
         <dt>Programmi</dt><dd><code>O00012</code> = lato 1 · <code>O00004</code> = lato 1 + lato 2</dd>
-        <dt>Zero pezzo</dt><dd><code>G54</code> al centro, sulla faccia superiore</dd>
+        <dt>Zero pezzo</dt><dd><code>G54</code> lato 1 · <code>G55</code> lato 2 · centro, faccia superiore</dd>
       </dl>
     </article>
 
@@ -217,26 +217,27 @@ td:first-child, th:first-child { text-align: left; }
       <p class="why">Prima XY in alto, poi giù in Z. Alla fine: Z15, <code>M5</code>, <code>M9</code>, <code>G49</code>, <code>G53 Z0</code>.</p>
     </article>
 
-    <article class="note pink" style="--r:.9deg">
-      <h2 class="red">40.000 giri?!</h2>
-      <p>T1 e T6: <span class="circle">S40000</span></p>
-      <p>Haas UMC: <b>8.100 / 12.000 / 15.000</b> giri max.</p>
-      <p class="why">Se la macchina li limita, F6100 resta uguale con 5 volte meno giri → truciolo 5 volte più grosso.</p>
+    <article class="note green" style="--r:.9deg">
+      <h2>12.000 giri</h2>
+      <p>T1 e T6: <code>S12000</code></p>
+      <p>Mandrino Haas UMC: <b>12.000</b> giri max.</p>
+      <p class="why">Avanzamenti calcolati per 12.000 giri: lo stesso avanzamento al dente della libreria.</p>
     </article>
 
-    <article class="note pink" style="--r:-1.6deg">
-      <h2 class="red">H1 sulla punta!</h2>
-      <p>Punta1 (T2): <span class="under">G43 Z15. H1</span><br>Punta2 (T3): <span class="under">G43 Z15. H1</span></p>
-      <p>La macchina usa la lunghezza della <b>fresa</b> per la <b>punta</b>.</p>
-      <p class="why">→ in Fusion «Length offset» = numero utensile.</p>
+    <article class="note blue" style="--r:-1.5deg">
+      <h2>H = T</h2>
+      <p>Punta1 (T2): <code>G43 Z15. H2</code><br>Punta2 (T3): <code>G43 Z15. H3</code></p>
+      <p>Ogni utensile usa <b>la sua</b> lunghezza.</p>
+      <p class="why">Z5 e le profondità dei fori sono esatte.</p>
     </article>
 
-    <article class="note orange" style="--r:1.5deg">
-      <h2>Altri errori</h2>
+    <article class="note orange" style="--r:1.4deg">
+      <h2>Dettagli di produzione</h2>
       <ul>
-        <li><code>F0.08</code> e <code>F0.07</code> in <code>G94</code> = <b>mm al minuto</b>: ore per un foro. <span class="why">→ 145,6 e 127 mm/min</span></li>
-        <li>Alesatura <code>G95</code> … <code>F0.</code> <span class="why">→ avanzamento zero</span></li>
-        <li>O00004: lato 2 dopo un <code>M1</code>, non un <code>M0</code>, e sempre con <code>G54</code>.</li>
+        <li>Foratura a <b>145,6</b> e <b>127,4 mm/min</b> (<code>G94</code>)</li>
+        <li>Alesatura a <code>F0.15</code> mm/giro (<code>G95</code>)</li>
+        <li>O00004: <code>M0</code> per capovolgere il pezzo, lato 2 su <code>G55</code></li>
+        <li>Entrambi i lati ≈ 5,7 min</li>
       </ul>
     </article>
 
@@ -258,7 +259,7 @@ td:first-child, th:first-child { text-align: left; }
       <h2>Passo del maschio</h2>
       <p class="big">F = S × passo</p>
       <p><code>S2000</code> · <code>F2000.</code> → passo <b>1,0 mm</b></p>
-      <p class="why">M8 normale = passo 1,25! Guarda cosa c'è scritto sul maschio.</p>
+      <p class="why">M8×1 a passo fine: il maschio di T5 è marcato M8×1.</p>
     </article>
 
     <article class="note yellow" style="--r:-1deg">
@@ -269,33 +270,33 @@ td:first-child, th:first-child { text-align: left; }
         <li>Tavola libera a B0 C0</li>
         <li>Setting 335 (per O00004)</li>
         <li>Maschio M8×1 in T5</li>
-        <li>Giri max del mandrino</li>
+        <li>Mandrino fino a 12.000 giri</li>
         <li>Optional Stop acceso, blocco singolo, rapidi 25 %</li>
       </ul>
     </article>
 
-    <article class="note pink" style="--r:1.7deg">
-      <h2>Attenzione!</h2>
-      <p>In <code>O00012</code> i rapidi sono <code>G1 F228600.</code></p>
-      <p class="why">L'override dei rapidi <b>non li rallenta</b>: per la prima prova abbassa l'override dell'<u>avanzamento</u>.</p>
+    <article class="note green" style="--r:1.6deg">
+      <h2>Rapidi in G0</h2>
+      <p>Entrambi i programmi usano <code>G0</code> con il <b>Setting 335</b> = Linear + Rotary.</p>
+      <p class="why">Rapidi rettilinei, e l'override dei rapidi li rallenta alla prima prova.</p>
     </article>
 
-    <article class="note blue" style="--r:-.7deg">
-      <h2>G0 o G1 F228600?</h2>
+    <article class="note white" style="--r:-.8deg">
+      <h2>Due programmi</h2>
       <dl class="kv">
-        <dt>O00012</dt><dd><code>G1</code> velocissimo: retta garantita dal programma</dd>
-        <dt>O00004</dt><dd><code>G0</code>: retta solo con il <b>Setting 335</b></dd>
+        <dt>O00012</dt><dd>lato 1</dd>
+        <dt>O00004</dt><dd>lato 1 + <code>M0</code> + lato 2 su <code>G55</code></dd>
       </dl>
-      <p class="why">Su 5 assi un G0 con B/C può fare un percorso «a gomito».</p>
+      <p class="why">Stessi utensili e dati di taglio in entrambi.</p>
     </article>
 
     <article class="note white" style="--r:1.2deg">
-      <h2>Da confermare</h2>
-      <small>in macchina e in Fusion</small>
+      <h2>Scheda di attrezzaggio</h2>
+      <small>in macchina</small>
       <ul>
-        <li>Giri massimi della tua UMC</li>
+        <li>Mandrino UMC: 12.000 giri</li>
         <li>Grezzo: dimensioni e spessore (il contorno scende a Z-15,5, le punte a Z-17,3)</li>
-        <li>Materiale: punte a 40 m/min (acciaio) ma spianatura a 1.500 m/min (alluminio)</li>
+        <li>Lato 2: capovolgi all'M0, azzera <code>G55</code></li>
       </ul>
     </article>
   </div>
