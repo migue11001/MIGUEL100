@@ -23,3 +23,6 @@ assets/
 
 # Backend lives in its own repo (ejercicios-de-prueba) — never commit or serve it from the frontend
 backend/
+
+# Local drawing sources + generated gallery thumbnails (uploaded by hand to Supabase miniaturas/)
+thumbs/

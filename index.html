@@ -661,9 +661,9 @@
             </div>
     </section>
 
-    <script src="drawings.js"></script>
+    <script src="drawings.js?v=15"></script>
     <script>
-    /* ── Drawing gallery: each card links to its own page (drawing.html#<name>) with the G-CODE ── */
+    /* ── Project gallery: each card links to its own project page (drawing.html#<name>) ── */
     (function renderGallery() {
         const gallery = document.getElementById('gallery');
         /* One image at a time: a slide's drawing is fetched only once it is actually on screen
@@ -691,9 +691,8 @@
                 const img = document.createElement('img');
                 img.decoding = 'async';
                 img.alt = d.name + ' technical drawing';
-                // Light thumbnail from Supabase miniaturas/; falls back to the full original if it's missing
+                // Light thumbnail from Supabase miniaturas/<name>.jpg
                 img.dataset.src = THUMBS_URL + d.name + '.jpg';
-                img.onerror = () => { img.onerror = null; img.src = DRAWINGS_URL + d.file; };
                 if (observer) observer.observe(img); else loadImg(img);
                 sheet.appendChild(img);
                 const label = document.createElement('span');
