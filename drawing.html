@@ -116,6 +116,8 @@
             letter-spacing: 0.05em; color: var(--text-dim); cursor: pointer; transition: all 0.2s ease;
         }
         .lang-menu .lang-btn:hover { border-color: var(--smoke-gray); background: rgba(0,212,255,0.1); color: #fff; }
+        /* Current language stays in its place (fixed order EN / ES / IT), just marked */
+        .lang-menu .lang-btn.current { color: #fff; border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.08); cursor: default; }
         #google_translate_element, .goog-te-banner-frame, .skiptranslate { display: none !important; }
         body { top: 0px !important; }
         html.translated-ltr body, html.translated-rtl body { top: 0 !important; }
@@ -261,6 +263,12 @@
         .pj-step-pic { transition: border-color 0.2s, box-shadow 0.2s; }
 
         .zoomable { cursor: zoom-in; }
+        /* Read-only pictures: no drag, selection, long-press menu or "Save image as" */
+        .pj-page img, .pj-lightbox img {
+            -webkit-user-select: none; user-select: none;
+            -webkit-user-drag: none; -webkit-touch-callout: none;
+        }
+        .pj-page img { pointer-events: none; }   /* clicks still reach the .zoomable frame */
 
         /* Description of the part: menu button on top (left), then the three parts in rows.
            Wide screens: each row = title on the left, text on the right; small screens: title above text */
@@ -406,7 +414,7 @@
                 <span class="lang-trigger-label">Language</span>
                 <span class="lang-trigger-caret">▾</span>
             </button>
-            <div class="lang-menu" id="lang-menu">
+            <div class="lang-menu notranslate" id="lang-menu">
                 <button class="lang-btn" data-lang="en" onclick="setSiteLanguage('en')" title="English">🇬🇧 English</button>
                 <button class="lang-btn" data-lang="es" onclick="setSiteLanguage('es')" title="Español">🇪🇸 Español</button>
                 <button class="lang-btn" data-lang="it" onclick="setSiteLanguage('it')" title="Italiano">🇮🇹 Italiano</button>
@@ -451,7 +459,7 @@
         <img id="pj-lightbox-img" alt="">
     </div>
 
-    <script src="drawings.js?v=15"></script>
+    <script src="drawings.js?v=18"></script>
     <script>
     /* ── Project page: everything is filled from the #name in the URL (drawing.html#D10) ── */
     (function() {
@@ -530,6 +538,10 @@
         boxImg.addEventListener('click', () => box.classList.toggle('zoomed'));
         box.querySelector('.pj-lightbox-close').addEventListener('click', closeBox);
         document.addEventListener('keydown', e => { if (e.key === 'Escape' && !box.hidden) closeBox(); });
+        /* Read-only: no right-click menu or dragging on the pictures (the viewer's zoom click still works) */
+        ['contextmenu', 'dragstart'].forEach(type => document.addEventListener(type, e => {
+            if (e.target.closest('.pj-page img, .pj-lightbox, .zoomable')) e.preventDefault();
+        }));
 
         /* Menu button opens the panel in place (one choice per breakdown slot: 01, 02, 03…)
            and hides everything below it; the title and the picture stay visible */
@@ -608,7 +620,7 @@
             const flagEl = document.getElementById('lang-trigger-flag');
             if (flagEl) flagEl.textContent = LANG_FLAGS[saved] || LANG_FLAGS.en;
             document.querySelectorAll('.lang-menu .lang-btn').forEach(btn => {
-                if (btn.dataset.lang === saved) btn.style.display = 'none';
+                if (btn.dataset.lang === saved) { btn.classList.add('current'); btn.disabled = true; btn.setAttribute('aria-current', 'true'); }
             });
             applyGlossary();
         })();

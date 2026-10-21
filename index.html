@@ -119,6 +119,8 @@
             letter-spacing: 0.05em; color: var(--text-dim); cursor: pointer; transition: all 0.2s ease;
         }
         .lang-menu .lang-btn:hover { border-color: var(--smoke-gray); background: rgba(0,212,255,0.1); color: #fff; }
+        /* Current language stays in its place (fixed order EN / ES / IT), just marked */
+        .lang-menu .lang-btn.current { color: #fff; border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.08); cursor: default; }
         #google_translate_element, .goog-te-banner-frame, .skiptranslate { display: none !important; }
         body { top: 0px !important; }
         html.translated-ltr body, html.translated-rtl body { top: 0 !important; }
@@ -222,18 +224,6 @@
             .hero-panel       { font-size: 1rem; }
         }
 
-        /* ── Under-construction notice ── */
-        .construction-banner {
-            max-width: 1200px; margin: 0 auto 40px;
-            text-align: center;
-        }
-        .construction-title {
-            font-family: 'Share Tech Mono', monospace; font-size: 1.4em;
-            letter-spacing: 0.14em; text-transform: uppercase;
-            color: var(--amber);
-            text-shadow: 0 0 12px rgba(255,179,0,0.4);
-        }
-
         /* ── Video window: full-bleed like the avatar (cancels the body's 20px side padding),
               16:9 at any width so it scales down to phones without black bars ── */
         /* Full-bleed band; the video sits centred and the free space around it
@@ -329,12 +319,17 @@
         .video-grid::-webkit-scrollbar { display: none; }
         .video-slide {
             position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #000;
-            border: 2px solid #ff0000; border-radius: 6px;
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 0 16px rgba(255,0,0,0.4), 0 0 40px rgba(255,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.85); border-radius: 6px;
+            box-shadow: 0 0 10px rgba(255,255,255,0.12);
             flex: 0 0 calc((100% - 16px) / 2); scroll-snap-align: start;
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        .video-slide:hover { transform: translateY(-3px); box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 0 22px rgba(255,0,0,0.6), 0 0 50px rgba(255,0,0,0.3); }
+        /* White border fading inwards, like the project titles (overlay so it shows over the cover / video) */
+        .video-slide::after {
+            content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none; border-radius: inherit;
+            box-shadow: inset 0 0 6px rgba(255,255,255,0.45), inset 0 0 16px rgba(255,255,255,0.18);
+        }
+        .video-slide:hover { transform: translateY(-3px); box-shadow: 0 0 16px rgba(255,255,255,0.22); }
         /* Phones: one card per view, like the drawings */
         @media (max-width: 768px) {
             .video-slide { flex-basis: 100%; }
@@ -425,7 +420,53 @@
                 conic-gradient(from var(--rgb-angle), #ff0040, #ff8a00, #ffe600, #00ff6a, #00d4ff, #7a5cff, #ff00d4, #ff0040) border-box;
             animation: rgb-spin 4s linear infinite, rgb-glow 8s linear infinite;
         }
-        .gallery-card .gallery-card-label { --rgb-fill: #12161f; }
+        /* Title: white border fading inwards (replaces the rainbow) */
+        .gallery-card .gallery-card-label {
+            border: 1px solid rgba(255,255,255,0.85); background: #12161f;
+            box-shadow: inset 0 0 6px rgba(255,255,255,0.45), inset 0 0 16px rgba(255,255,255,0.18);
+            animation: none;
+        }
+        /* The drawing sits in a neon-blue monitor (bezel + screen + stand); only the title keeps the rainbow.
+           Colours of the migue100.com hologram in the avatar: near-white core, blue halo */
+        .gallery-card { --m100-core: #dff4fa; --m100-glow: 20,150,235; }
+        .gallery-card .gallery-card-sheet {
+            position: relative; overflow: visible;
+            padding: 9px 9px 16px; margin-bottom: 26px;
+            border: 2px solid var(--m100-core); border-radius: 10px;
+            background:
+                radial-gradient(circle at 50% calc(100% - 7px), var(--m100-core) 0 2px, rgba(var(--m100-glow),0.5) 3px, transparent 5px),
+                linear-gradient(#151c29, #0a0e16);
+            box-shadow: 0 0 4px rgba(255,255,255,0.6), 0 0 10px rgba(var(--m100-glow),0.9), 0 0 26px rgba(var(--m100-glow),0.55),
+                        0 0 50px rgba(var(--m100-glow),0.25), inset 0 0 10px rgba(var(--m100-glow),0.45);
+            animation: none;
+        }
+        /* Stand: neck + base under the bezel */
+        .gallery-card-sheet::before, .gallery-card-sheet::after {
+            content: ''; position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none;
+        }
+        .gallery-card-sheet::before {
+            top: calc(100% + 2px); width: 9%; height: 14px;
+            background: linear-gradient(#1a2333, #0c1119);
+            border-left: 1px solid rgba(var(--m100-glow),0.5); border-right: 1px solid rgba(var(--m100-glow),0.5);
+        }
+        .gallery-card-sheet::after {
+            top: calc(100% + 16px); width: 30%; height: 6px; border-radius: 3px 3px 2px 2px;
+            background: #0f1520; border: 1px solid var(--m100-core);
+            box-shadow: 0 0 8px rgba(var(--m100-glow),0.55), 0 0 18px rgba(var(--m100-glow),0.25);
+        }
+        /* Screen: the drawing with a blue cast and fine scanlines */
+        .monitor-screen {
+            position: relative; overflow: hidden; border-radius: 4px; background: #d5dbe1;
+            outline: 1px solid rgba(var(--m100-glow),0.45);
+        }
+        .monitor-screen::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background:
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,40,80,0.08) 2px, rgba(0,40,80,0.08) 3px),
+                radial-gradient(ellipse at center, transparent 55%, rgba(0,60,120,0.28) 100%),
+                rgba(var(--m100-glow),0.08);
+            box-shadow: inset 0 0 18px rgba(var(--m100-glow),0.35);
+        }
         .gallery-card:hover .gallery-card-sheet, .gallery-card:hover .gallery-card-label { filter: brightness(1.12); }
         @keyframes rgb-spin { to { --rgb-angle: 360deg; } }
         @keyframes rgb-glow {
@@ -433,7 +474,7 @@
             17%      { box-shadow: 0 0 16px rgba(255,138,0,0.45); }
             33%      { box-shadow: 0 0 16px rgba(255,230,0,0.4); }
             50%      { box-shadow: 0 0 16px rgba(0,255,106,0.45); }
-            67%      { box-shadow: 0 0 16px rgba(0,212,255,0.5); }
+            67%      { box-shadow: 0 0 16px rgba(0,110,255,0.5); }
             83%      { box-shadow: 0 0 16px rgba(122,92,255,0.5); }
         }
         @media (prefers-reduced-motion: reduce) { .gallery-card .gallery-card-sheet, .gallery-card .gallery-card-label { animation: none; } }
@@ -446,6 +487,10 @@
         .gallery-card-sheet img {
             width: 100%; height: auto; display: block;
             mix-blend-mode: multiply;
+            /* Read-only thumbnails: no drag, selection, long-press menu or "Save image as" */
+            pointer-events: none;
+            -webkit-user-select: none; user-select: none;
+            -webkit-user-drag: none; -webkit-touch-callout: none;
         }
         /* Placeholder size until the image is fetched */
         .gallery-card-sheet img:not([src]) { aspect-ratio: 1.414; }
@@ -454,8 +499,22 @@
             font-family: 'Share Tech Mono', monospace; font-size: 0.7em;
             letter-spacing: 0.12em; color: var(--text-main);
             background: rgba(18,22,32,0.95);
-            text-transform: uppercase;
+            text-transform: uppercase; text-align: center;
         }
+
+        /* ── Footer bar: name, links and privacy policy ── */
+        .site-footer {
+            margin-top: 40px; padding: 22px 20px 26px;
+            border-top: 1px solid rgba(255,255,255,0.35);
+            box-shadow: inset 0 10px 16px -12px rgba(255,255,255,0.25);
+            background: #0b0e14;
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 28px;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.8em; letter-spacing: 0.12em;
+            color: var(--text-dim); text-transform: uppercase;
+        }
+        .site-footer nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 22px; }
+        /* Footer links are placeholders for now (no link yet) */
+        .site-footer .footer-link { color: var(--text-main); cursor: default; }
 
         /* ── G-CODE exercises: one cork board per language, each sticky note opens that
               exercise's board page in G-CODE/<lang>/ ── */
@@ -465,6 +524,29 @@
             letter-spacing: 0.08em; color: #f2f6fa; text-align: center; margin-bottom: 24px;
             text-shadow: 0 0 2px rgba(255,255,255,0.5), 0 0 8px rgba(0,212,255,0.35), 0 0 18px rgba(0,180,255,0.15);
         }
+        /* Three language buttons: only the chosen cork board is shown */
+        .gcode-tabs { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-bottom: 26px; }
+        .gcode-tab {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-family: 'Share Tech Mono', monospace; font-size: 0.9em;
+            letter-spacing: 0.15em; text-transform: uppercase; white-space: nowrap;
+            padding: 0.7em 1.3em; cursor: pointer; color: var(--text-main);
+            background: #12161f; border: 1px solid rgba(255,255,255,0.55); border-radius: 4px;
+            box-shadow: inset 0 0 6px rgba(255,255,255,0.2);
+            transition: border-color 0.2s, box-shadow 0.2s, color 0.2s;
+        }
+        .gcode-tab .gcode-flag { font-size: 1.3em; }
+        .gcode-tab:hover { border-color: rgba(255,255,255,0.85); }
+        .gcode-tab.active {
+            color: #fff; border-color: rgba(255,255,255,0.9);
+            box-shadow: inset 0 0 6px rgba(255,255,255,0.45), inset 0 0 16px rgba(255,255,255,0.18), 0 0 12px rgba(255,255,255,0.18);
+        }
+        .gcode-tab:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+        .gcode-lang[hidden] { display: none; }
+        .gcode-lang:not([hidden]) { animation: gcode-open 0.35s ease; }
+        @keyframes gcode-open { from { opacity: 0; transform: translateY(-8px); } }
+        @media (prefers-reduced-motion: reduce) { .gcode-lang:not([hidden]) { animation: none; } }
+        .gcode-lang-title { display: none !important; }   /* the active button already names the language */
         .gcode-lang + .gcode-lang { margin-top: 32px; }
         .gcode-lang-title {
             display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
@@ -531,7 +613,7 @@
                 <span class="lang-trigger-label">Language</span>
                 <span class="lang-trigger-caret">▾</span>
             </button>
-            <div class="lang-menu" id="lang-menu">
+            <div class="lang-menu notranslate" id="lang-menu">
                 <button class="lang-btn" data-lang="en" onclick="setSiteLanguage('en')" title="English">🇬🇧 English</button>
                 <button class="lang-btn" data-lang="es" onclick="setSiteLanguage('es')" title="Español">🇪🇸 Español</button>
                 <button class="lang-btn" data-lang="it" onclick="setSiteLanguage('it')" title="Italiano">🇮🇹 Italiano</button>
@@ -569,11 +651,6 @@
                 <li data-i18n-es="Integrar estos conocimientos con mi experiencia en mecánica y fabricación para crear nuevos proyectos." data-i18n-it="Integrare queste conoscenze con la mia esperienza in meccanica e produzione per creare nuovi progetti.">Integrate this knowledge with my experience in mechanics and manufacturing to create new projects.</li>
             </ul>
         </div>
-    </div>
-
-    <!-- Under-construction notice -->
-    <div class="construction-banner">
-        <div class="construction-title notranslate" data-i18n-es="Este sitio está en construcción" data-i18n-it="Questo sito è in costruzione">This site is under construction</div>
     </div>
 
     <!-- Drawing gallery — rows are rendered from GALLERY_ROWS in the script below -->
@@ -666,8 +743,13 @@
 
     <!-- G-CODE exercises: three cork boards (ES / IT / EN); each note opens G-CODE/<lang>/<exercise>/ -->
     <section class="gcode-section notranslate" id="g-code">
-        <h2 class="gcode-section-title">G-CODE</h2>
-            <div class="gcode-lang" lang="en">
+        <h2 class="gcode-section-title" data-i18n-es="EJEMPLOS G-CODE" data-i18n-it="ESEMPI G-CODE">EXAMPLE G-CODE</h2>
+        <div class="gcode-tabs" role="tablist">
+            <button type="button" class="gcode-tab" role="tab" data-lang="en" onclick="showGcodeLang('en')"><span class="gcode-flag" aria-hidden="true">🇺🇸</span>G-CODE English</button>
+            <button type="button" class="gcode-tab" role="tab" data-lang="es" onclick="showGcodeLang('es')"><span class="gcode-flag" aria-hidden="true">🇪🇸</span>G-CODE Español</button>
+            <button type="button" class="gcode-tab" role="tab" data-lang="it" onclick="showGcodeLang('it')"><span class="gcode-flag" aria-hidden="true">🇮🇹</span>G-CODE Italiano</button>
+        </div>
+            <div class="gcode-lang" hidden lang="en">
                 <h3 class="gcode-lang-title"><span class="gcode-flag" aria-hidden="true">🇺🇸</span>G-CODE <span class="gcode-lang-name">English</span></h3>
                 <div class="gcode-board">
                     <a class="gcode-note yellow" style="--r:-1.2deg" href="G-CODE/EN/Pin%20%C3%9830%20lathe%20Fanuc%20and%20Siemens/board-pin-lathe.html"><b>Pin Ø30</b><span>Fanuc and Siemens lathe</span></a>
@@ -680,7 +762,7 @@
                     <a class="gcode-note blue" style="--r:1.3deg" href="G-CODE/EN/Unistack%202D%20Haas/board-unistack.html"><b>Unistack 2D</b><span>Haas NGC · probing</span></a>
                 </div>
             </div>
-            <div class="gcode-lang" lang="it">
+            <div class="gcode-lang" hidden lang="it">
                 <h3 class="gcode-lang-title"><span class="gcode-flag" aria-hidden="true">🇮🇹</span>G-CODE <span class="gcode-lang-name">Italiano</span></h3>
                 <div class="gcode-board">
                     <a class="gcode-note yellow" style="--r:-1.2deg" href="G-CODE/IT/Perno%20%C3%9830%20tornio%20Fanuc%20e%20Siemens/bacheca-perno-tornio.html"><b>Perno Ø30</b><span>tornio Fanuc e Siemens</span></a>
@@ -693,7 +775,7 @@
                     <a class="gcode-note blue" style="--r:1.3deg" href="G-CODE/IT/Unistack%202D%20Haas/bacheca-unistack.html"><b>Unistack 2D</b><span>Haas NGC · sonda</span></a>
                 </div>
             </div>
-            <div class="gcode-lang" lang="es">
+            <div class="gcode-lang" hidden lang="es">
                 <h3 class="gcode-lang-title"><span class="gcode-flag" aria-hidden="true">🇪🇸</span>G-CODE <span class="gcode-lang-name">Español</span></h3>
                 <div class="gcode-board">
                     <a class="gcode-note yellow" style="--r:-1.2deg" href="G-CODE/ES/Perno%20%C3%9830%20torno%20Fanuc%20y%20Siemens/tablero-perno-torno.html"><b>Perno Ø30</b><span>torno Fanuc y Siemens</span></a>
@@ -708,7 +790,18 @@
             </div>
     </section>
 
-    <script src="drawings.js?v=15"></script>
+    <footer class="site-footer notranslate">
+        <span>© <span id="footer-year">2026</span> Miguel Otero · migue100.com</span>
+        <nav aria-label="Footer">
+            <span class="footer-link">LinkedIn</span>
+            <span class="footer-link">YouTube</span>
+            <span class="footer-link">G-Code</span>
+            <span class="footer-link" data-i18n-es="Privacidad" data-i18n-it="Privacy">Privacy policy</span>
+        </nav>
+    </footer>
+    <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+
+    <script src="drawings.js?v=18"></script>
     <script>
     /* ── Project gallery: each card links to its own project page (drawing.html#<name>) ── */
     (function renderGallery() {
@@ -740,11 +833,17 @@
                 sheet.className = 'gallery-card-sheet';
                 const img = document.createElement('img');
                 img.decoding = 'async';
+                img.draggable = false;
                 img.alt = (d.title || d.name) + ' technical drawing';
-                // Light thumbnail from Supabase miniaturas/<name>.jpg
-                img.dataset.src = THUMBS_URL + d.name + '.jpg';
+                // Light thumbnail from Supabase miniaturas/<name>.jpg (or d.thumb)
+                img.dataset.src = THUMBS_URL + (d.thumb || d.name + '.jpg');
                 if (observer) observer.observe(img); else loadImg(img);
-                sheet.appendChild(img);
+                const screen = document.createElement('div');
+                screen.className = 'monitor-screen';
+                screen.appendChild(img);
+                sheet.appendChild(screen);
+                // Read-only: no right-click menu on the thumbnail
+                sheet.addEventListener('contextmenu', e => e.preventDefault());
                 const label = document.createElement('span');
                 label.className = 'gallery-card-label';
                 label.textContent = d.title ? d.name + ': ' + d.title : d.name;
@@ -799,6 +898,19 @@
             localStorage.setItem('migue100_lang', lang);
             location.reload();
         }
+        /* G-CODE: the boards stay closed until a language button is pressed (like the project menu);
+           pressing the open one again closes it */
+        function showGcodeLang(lang) {
+            const current = document.querySelector('.gcode-tab.active');
+            if (current && current.dataset.lang === lang) lang = null;
+            document.querySelectorAll('.gcode-tab').forEach(btn => {
+                const on = btn.dataset.lang === lang;
+                btn.classList.toggle('active', on);
+                btn.setAttribute('aria-selected', on);
+                btn.setAttribute('aria-expanded', on);
+            });
+            document.querySelectorAll('.gcode-lang').forEach(board => { board.hidden = board.lang !== lang; });
+        }
         function showHeroPanel(name) {
             document.querySelectorAll('.hero-tab').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.panel === name);
@@ -819,7 +931,7 @@
             const flagEl = document.getElementById('lang-trigger-flag');
             if (flagEl) flagEl.textContent = LANG_FLAGS[saved] || LANG_FLAGS.en;
             document.querySelectorAll('.lang-menu .lang-btn').forEach(btn => {
-                if (btn.dataset.lang === saved) btn.style.display = 'none';
+                if (btn.dataset.lang === saved) { btn.classList.add('current'); btn.disabled = true; btn.setAttribute('aria-current', 'true'); }
             });
             applyGlossary();
         })();
