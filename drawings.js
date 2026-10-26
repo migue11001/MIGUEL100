@@ -130,7 +130,8 @@ const DRAWINGS = [
 
 /* Gallery layout: one horizontal row per entry (up to ~20 projects per row), by name */
 const GALLERY_ROWS = [
-    { title: 'PROJECTS-2026', drawings: ['D10', 'D20', 'D30'] },
+    { title: 'PROJECTS-2026', drawings: ['D10', 'D20', 'D30'],
+      link: { title: 'grabcad', accent: '-community', logo: 'grabcad', href: 'https://grabcad.com/miguel.otero-12' } },
 ];
 
 function findDrawing(name) {
